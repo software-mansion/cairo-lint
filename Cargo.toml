@@ -1,7 +1,6 @@
 [workspace]
 resolver = "2"
 members = [
-  "crates/cairo-lint-cli",
   "crates/cairo-lint-core",
   "crates/cairo-lint-test-utils",
   "xtask"
@@ -37,7 +36,6 @@ cairo-lang-diagnostics = "*"
 cairo-lang-test-plugin = "*"
 cairo-lang-syntax = "*"
 cairo-lang-defs = "*"
-cairo-lang-starknet = "*"
 cairo-lang-test-utils = "*"
 test-case = "3.0"
 pretty_assertions = "1.4.1"
@@ -47,7 +45,6 @@ itertools = "0.13.0"
 log = "0.4.22"
 clap = { version = "4.5.23", features = ["derive"]}
 anyhow = "1.0.95"
-smol_str = "0.2.2"
 annotate-snippets = "0.11.5"
 num-bigint = "0.4.6"
 if_chain = "1.0.2"
@@ -66,5 +63,4 @@ cairo-lang-diagnostics = { git = "https://github.com/starkware-libs/cairo", rev 
 cairo-lang-test-plugin = { git = "https://github.com/starkware-libs/cairo", rev = "3848dce8591446f9bbcc036fef391927d13dccc6" }
 cairo-lang-syntax = { git = "https://github.com/starkware-libs/cairo", rev = "3848dce8591446f9bbcc036fef391927d13dccc6" }
 cairo-lang-defs = { git = "https://github.com/starkware-libs/cairo", rev = "3848dce8591446f9bbcc036fef391927d13dccc6" }
-cairo-lang-starknet = { git = "https://github.com/starkware-libs/cairo", rev = "3848dce8591446f9bbcc036fef391927d13dccc6" }
 cairo-lang-test-utils = { git = "https://github.com/starkware-libs/cairo", rev = "3848dce8591446f9bbcc036fef391927d13dccc6" }
