@@ -14,6 +14,7 @@ pub mod diagnostics;
 pub mod fix;
 pub mod lints;
 pub mod plugin;
+pub use annotate_snippets;
 
 pub fn apply_fixes<F>(
     db: &RootDatabase,
