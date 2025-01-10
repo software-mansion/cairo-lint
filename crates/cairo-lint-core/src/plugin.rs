@@ -148,8 +148,7 @@ impl AnalyzerPlugin for CairoLint {
                         .as_syntax_node()
                 }
                 ModuleItemId::Impl(impl_id) => {
-                    let impl_functions = db.impl_functions(*impl_id);
-                    let Ok(functions) = impl_functions else {
+                    let Ok(functions) = db.impl_functions(*impl_id) else {
                         continue;
                     };
                     for (_fn_name, fn_id) in functions.iter() {
