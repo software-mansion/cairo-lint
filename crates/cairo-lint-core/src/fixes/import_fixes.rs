@@ -23,6 +23,8 @@ use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
 
+use super::Fix;
+
 /// Represents a fix for unused imports in a specific syntax node.
 #[derive(Debug, Clone)]
 pub struct ImportFix {
@@ -41,8 +43,6 @@ impl ImportFix {
         }
     }
 }
-
-use crate::fix::Fix;
 
 /// Collects unused imports from semantic diagnostics.
 ///

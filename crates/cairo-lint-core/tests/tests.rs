@@ -14,7 +14,7 @@ use cairo_lang_test_utils::parse_test_file::{dump_to_test_file, parse_test_file,
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use cairo_lang_utils::Upcast;
 use cairo_lint_core::diagnostics::format_diagnostic;
-use cairo_lint_core::fix::{
+use cairo_lint_core::fixes::{
     apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix,
 };
 use cairo_lint_core::plugin::cairo_lint_plugin_suite;

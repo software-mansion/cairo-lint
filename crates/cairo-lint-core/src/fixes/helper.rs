@@ -43,7 +43,11 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 /// ```
 ///
 /// This function skips the `break` statement and preserves the remaining statements in the block.
-pub fn remove_break_from_block(db: &dyn SyntaxGroup, block: ExprBlock, indent: &str) -> String {
+pub(crate) fn remove_break_from_block(
+    db: &dyn SyntaxGroup,
+    block: ExprBlock,
+    indent: &str,
+) -> String {
     let mut block_body = String::new();
     for statement in block.statements(db).elements(db) {
         if !matches!(statement, Statement::Break(_)) {
@@ -86,7 +90,7 @@ pub fn remove_break_from_block(db: &dyn SyntaxGroup, block: ExprBlock, indent: &
 /// ```
 ///
 /// This function formats the `else` or `else if` block and returns it as a string.
-pub fn remove_break_from_else_clause(
+pub(crate) fn remove_break_from_else_clause(
     db: &dyn SyntaxGroup,
     else_clause: ElseClause,
     indent: &str,
@@ -128,7 +132,7 @@ pub fn remove_break_from_else_clause(
 /// Output: `"x < 5 || y >= 10"`  
 ///
 /// This inverts both the logical operator (`&&` becomes `||`) and the comparison operators.
-pub fn invert_condition(condition: &str) -> String {
+pub(crate) fn invert_condition(condition: &str) -> String {
     if condition.contains("&&") {
         condition
             .split("&&")
@@ -162,7 +166,7 @@ pub fn invert_condition(condition: &str) -> String {
 /// Output: `"x < 5"`  
 ///
 /// This will invert the condition by reversing the comparison operator.
-pub fn invert_simple_condition(condition: &str) -> String {
+pub(crate) fn invert_simple_condition(condition: &str) -> String {
     if condition.contains(">=") {
         condition.replace(">=", "<")
     } else if condition.contains("<=") {
@@ -178,4 +182,33 @@ pub fn invert_simple_condition(condition: &str) -> String {
     } else {
         format!("!({})", condition)
     }
+}
+
+pub(crate) fn indent_snippet(input: &str, initial_indentation: usize) -> String {
+    let mut indented_code = String::new();
+    let mut indentation_level = initial_indentation;
+    let indent = "    "; // 4 spaces for each level of indentation
+    let mut lines = input.split('\n').peekable();
+    while let Some(line) = lines.next() {
+        let trim = line.trim();
+        // Decrease indentation level if line starts with a closing brace
+        if trim.starts_with('}') && indentation_level > 0 {
+            indentation_level -= 1;
+        }
+
+        // Add current indentation level to the line
+        if !trim.is_empty() {
+            indented_code.push_str(&indent.repeat(indentation_level));
+        }
+        indented_code.push_str(trim);
+        if lines.peek().is_some() {
+            indented_code.push('\n');
+        }
+        // Increase indentation level if line ends with an opening brace
+        if trim.ends_with('{') {
+            indentation_level += 1;
+        }
+    }
+
+    indented_code
 }
