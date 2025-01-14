@@ -16,6 +16,13 @@ pub mod fixes;
 pub mod lints;
 pub mod plugin;
 
+// pub struct LintRule<'a> {
+//     pub name: &'a str,
+//     pub allowed_name: &'a str,
+//     pub diagnostic_message: &'a str,
+//     pub kind: CairoLintKind,
+// }
+
 #[derive(Debug, PartialEq)]
 pub enum CairoLintKind {
     DestructMatch,
@@ -52,7 +59,110 @@ pub enum CairoLintKind {
     ImposibleComparison,
 }
 
+pub enum LintRule {
+    DestructMatch {
+        name: &'static str,
+        allowed_name: &'static str,
+        diagnostic_message: &'static str,
+    },
+    MatchForEquality {
+        name: &'static str,
+        allowed_name: &'static str,
+        diagnostic_message: &'static str,
+    },
+    DoubleComparison {
+        name: &'static str,
+        allowed_name: &'static str,
+        diagnostic_message: &'static str,
+    },
+    Unknown,
+}
+
+impl LintRule {
+    fn new_destruct_match() -> Self {
+        LintRule::DestructMatch {
+            name: "DestructMatch",
+            allowed_name: "destruct_match",
+            diagnostic_message: single_match::DESTRUCT_MATCH,
+        }
+    }
+
+    fn new_match_for_equality() -> Self {
+        LintRule::MatchForEquality {
+            name: "MatchForEquality",
+            allowed_name: "match_for_equality",
+            diagnostic_message: single_match::MATCH_FOR_EQUALITY,
+        }
+    }
+
+    fn new_double_comparison(message: &'static str) -> Self {
+        LintRule::DoubleComparison {
+            name: "DoubleComparison",
+            allowed_name: "double_comparison",
+            diagnostic_message: message,
+        }
+    }
+
+    fn name(&self) -> Option<&'static str> {
+        match self {
+            LintRule::DestructMatch { name, .. }
+            | LintRule::MatchForEquality { name, .. }
+            | LintRule::DoubleComparison { name, .. } => Some(name),
+            LintRule::Unknown => None,
+        }
+    }
+
+    fn allowed_name(&self) -> Option<&'static str> {
+        match self {
+            LintRule::DestructMatch { allowed_name, .. }
+            | LintRule::MatchForEquality { allowed_name, .. }
+            | LintRule::DoubleComparison { allowed_name, .. } => Some(allowed_name),
+            LintRule::Unknown => None,
+        }
+    }
+
+    fn diagnostic_message(&self) -> Option<&'static str> {
+        match self {
+            LintRule::DestructMatch {
+                diagnostic_message, ..
+            }
+            | LintRule::MatchForEquality {
+                diagnostic_message, ..
+            }
+            | LintRule::DoubleComparison {
+                diagnostic_message, ..
+            } => Some(diagnostic_message),
+            LintRule::Unknown => None,
+        }
+    }
+}
+
+impl LintRule {
+    pub const DESTRUCT_MATCH: LintRule = LintRule::DestructMatch {
+        name: "DestructMatch",
+        allowed_name: "destruct_match",
+        diagnostic_message: single_match::DESTRUCT_MATCH,
+    };
+
+    pub const MATCH_FOR_EQUALITY: LintRule = LintRule::MatchForEquality {
+        name: "MatchForEquality",
+        allowed_name: "match_for_equality",
+        diagnostic_message: single_match::MATCH_FOR_EQUALITY,
+    };
+
+    pub const DOUBLE_COMPARISON: LintRule = LintRule::DoubleComparison {
+        name: "DoubleComparison",
+        allowed_name: "double_comparison",
+        diagnostic_message: double_comparison::SIMPLIFIABLE_COMPARISON,
+    };
+}
+
 pub fn diagnostic_kind_from_message(message: &str) -> CairoLintKind {
+    let a = LintRule::DestructMatch {
+        name: "DestructMatch",
+        allowed_name: "destruct_match",
+        diagnostic_message: single_match::DESTRUCT_MATCH,
+    };
     match message {
         single_match::DESTRUCT_MATCH => CairoLintKind::DestructMatch,
         single_match::MATCH_FOR_EQUALITY => CairoLintKind::MatchForEquality,
