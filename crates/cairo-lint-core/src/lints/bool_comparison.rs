@@ -14,7 +14,7 @@ pub const BOOL_COMPARISON: &str =
     "Unnecessary comparison with a boolean value. Use the variable directly.";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
-const LINT_NAME: &str = "bool_comparison";
+pub const LINT_NAME: &str = "bool_comparison";
 
 /// Generates the fixed boolean for a boolean comparison. It will transform `x == false` to `!x`
 pub fn generate_fixed_text_for_comparison(

@@ -11,7 +11,7 @@ use if_chain::if_chain;
 pub const PANIC_IN_CODE: &str = "Leaving `panic` in the code is discouraged.";
 const PANIC: &str = "core::panics::panic";
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
-const LINT_NAME: &str = "panic";
+pub const LINT_NAME: &str = "panic";
 
 /// Checks for panic usage.
 pub fn check_panic_usage(

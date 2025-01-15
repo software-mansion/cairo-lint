@@ -8,7 +8,7 @@ use if_chain::if_chain;
 
 pub const COLLAPSIBLE_IF: &str =
     "Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.";
-pub(super) const LINT_NAME: &str = "collapsible_if";
+pub const LINT_NAME: &str = "collapsible_if";
 
 /// Checks for
 /// ```ignore

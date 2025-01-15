@@ -5,7 +5,8 @@ use cairo_lang_syntax::node::{
 };
 
 /// Rewrites a manual implementation of int ge min one x - 1 >= y
-pub fn fix_int_ge_min_one(db: &dyn SyntaxGroup, node: ExprBinary) -> Option<(SyntaxNode, String)> {
+pub fn fix_int_ge_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    let node = ExprBinary::from_syntax_node(db, node);
     let Expr::Binary(lhs_exp) = node.lhs(db) else {
         panic!("should be substraction")
     };

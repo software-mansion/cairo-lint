@@ -7,7 +7,7 @@ use cairo_lang_syntax::node::TypedStablePtr;
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 
 pub const MANUAL_OK: &str = "Manual match for `ok` detected. Consider using `ok()` instead";
-pub(super) const LINT_NAME: &str = "manual_ok";
+pub const LINT_NAME: &str = "manual_ok";
 
 pub fn check_manual_ok(
     db: &dyn SemanticGroup,

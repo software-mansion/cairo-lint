@@ -10,7 +10,7 @@ pub const BREAK_UNIT: &str =
     "unnecessary double parentheses found after break. Consider removing them.";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
-const LINT_NAME: &str = "break_unit";
+pub const LINT_NAME: &str = "break_unit";
 
 pub fn check_break(
     db: &dyn SemanticGroup,

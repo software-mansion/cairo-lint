@@ -14,7 +14,7 @@ pub const ERASING_OPERATION: &str =
                                      Consider replacing the entire expression with 0.";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
-const LINT_NAME: &str = "erasing_op";
+pub const LINT_NAME: &str = "erasing_op";
 
 pub fn check_erasing_operation(
     db: &dyn SemanticGroup,

@@ -7,7 +7,7 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
 pub const COLLAPSIBLE_IF_ELSE: &str = "Consider using else if instead of else { if ... }";
-pub(super) const LINT_NAME: &str = "collapsible_if_else";
+pub const LINT_NAME: &str = "collapsible_if_else";
 
 /// Checks for
 /// ```ignore

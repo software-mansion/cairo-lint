@@ -19,8 +19,9 @@ use cairo_lang_syntax::node::{
 /// A `String` with the refactored `if-else` structure.
 pub fn fix_collapsible_if_else(
     db: &dyn SyntaxGroup,
-    if_expr: &ExprIf,
+    node: SyntaxNode,
 ) -> Option<(SyntaxNode, String)> {
+    let if_expr = ExprIf::from_syntax_node(db, node);
     let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) else {
         return None;
     };

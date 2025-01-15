@@ -14,7 +14,7 @@ pub const MATCH_FOR_EQUALITY: &str =
     "you seem to be trying to use `match` for an equality check. Consider using `if`";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
-const LINT_NAME: &str = "single_match";
+pub const LINT_NAME: &str = "single_match";
 
 /// Checks for matches that do something only in 1 arm and can be rewrote as an `if let`
 /// ```ignore

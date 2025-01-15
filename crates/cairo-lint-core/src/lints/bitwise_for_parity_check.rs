@@ -14,7 +14,7 @@ pub const BITWISE_FOR_PARITY: &str =
     "You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
-const LINT_NAME: &str = "bitwise_for_parity_check";
+pub const LINT_NAME: &str = "bitwise_for_parity_check";
 
 /// Checks for `x & 1` which is unoptimized in cairo and can be replaced by `x % 1`
 pub fn check_bitwise_for_parity(

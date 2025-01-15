@@ -10,7 +10,7 @@ use super::ensure_no_ref_arg;
 
 pub const DUPLICATE_IF_CONDITION: &str = "Consecutive `if` with the same condition found.";
 
-pub(super) const LINT_NAME: &str = "ifs_same_cond";
+pub const LINT_NAME: &str = "ifs_same_cond";
 
 pub fn check_duplicate_if_condition(
     db: &dyn SemanticGroup,

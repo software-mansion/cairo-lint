@@ -8,7 +8,7 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 pub const DOUBLE_PARENS: &str = "unnecessary double parentheses found. Consider removing them.";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
-const LINT_NAME: &str = "double_parens";
+pub const LINT_NAME: &str = "double_parens";
 
 pub fn check_double_parens(
     db: &dyn SyntaxGroup,

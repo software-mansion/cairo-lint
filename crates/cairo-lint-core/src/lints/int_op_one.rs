@@ -16,7 +16,7 @@ pub const INT_LE_MIN_ONE: &str =
     "Unnecessary sub operation in integer <= comparison. Use simplified comparison.";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
-const LINT_NAME: &str = "int_op_one";
+pub const LINT_NAME: &str = "int_op_one";
 
 pub fn check_int_op_one(
     db: &dyn SemanticGroup,

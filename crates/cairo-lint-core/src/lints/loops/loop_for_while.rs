@@ -11,7 +11,7 @@ pub const LOOP_FOR_WHILE: &str =
                                   loop for clarity and conciseness";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
-pub(super) const LINT_NAME: &str = "loop_for_while";
+pub const LINT_NAME: &str = "loop_for_while";
 
 /// Checks for
 /// ```ignore

@@ -9,7 +9,7 @@ use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 pub const MANUAL_EXPECT: &str =
     "Manual match for expect detected. Consider using `expect()` instead";
 
-pub(super) const LINT_NAME: &str = "manual_expect";
+pub const LINT_NAME: &str = "manual_expect";
 
 pub fn check_manual_expect(
     db: &dyn SemanticGroup,

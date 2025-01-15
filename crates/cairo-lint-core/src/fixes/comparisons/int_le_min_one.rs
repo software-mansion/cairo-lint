@@ -5,7 +5,8 @@ use cairo_lang_syntax::node::{
 };
 
 /// Rewrites a manual implementation of int le min one x <= y -1
-pub fn fix_int_le_min_one(db: &dyn SyntaxGroup, node: ExprBinary) -> Option<(SyntaxNode, String)> {
+pub fn fix_int_le_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    let node = ExprBinary::from_syntax_node(db, node);
     let lhs = node.lhs(db).as_syntax_node().get_text(db);
 
     let Expr::Binary(rhs_exp) = node.rhs(db) else {

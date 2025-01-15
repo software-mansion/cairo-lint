@@ -8,7 +8,7 @@ use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 
 pub const MANUAL_EXPECT_ERR: &str =
     "Manual match for `expect_err` detected. Consider using `expect_err()` instead";
-pub(super) const LINT_NAME: &str = "manual_expect_err";
+pub const LINT_NAME: &str = "manual_expect_err";
 
 pub fn check_manual_expect_err(
     db: &dyn SemanticGroup,

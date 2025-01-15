@@ -8,7 +8,7 @@ pub const DUPLICATE_UNDERSCORE_ARGS: &str = "duplicate arguments, having another
                                              makes code comprehension and documentation more difficult";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
-const LINT_NAME: &str = "duplicate_underscore_args";
+pub const LINT_NAME: &str = "duplicate_underscore_args";
 
 /// Checks for functions that have the same argument name but prefix with `_`. For example
 /// `fn foo(a, _a)`

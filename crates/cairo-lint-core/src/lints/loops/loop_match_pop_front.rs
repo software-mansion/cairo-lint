@@ -17,7 +17,7 @@ pub const LOOP_MATCH_POP_FRONT: &str =
 const SPAN_MATCH_POP_FRONT: &str = "\"SpanImpl::pop_front\"";
 
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
-pub(super) const LINT_NAME: &str = "loop_match_pop_front";
+pub const LINT_NAME: &str = "loop_match_pop_front";
 
 /// Checks for
 /// ```ignore

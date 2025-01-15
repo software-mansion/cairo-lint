@@ -7,7 +7,7 @@ use cairo_lang_syntax::node::TypedStablePtr;
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 
 pub const MANUAL_ERR: &str = "Manual match for `err` detected. Consider using `err()` instead";
-pub(super) const LINT_NAME: &str = "manual_err";
+pub const LINT_NAME: &str = "manual_err";
 
 pub fn check_manual_err(
     db: &dyn SemanticGroup,
