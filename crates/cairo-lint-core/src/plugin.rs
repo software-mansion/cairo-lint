@@ -13,8 +13,7 @@ use crate::lints::loops::{loop_for_while, loop_match_pop_front};
 use crate::lints::manual::*;
 use crate::lints::{
     bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens,
-    duplicate_underscore_args, eq_op, erasing_op, int_op_one, panic, performance,
-    single_match,
+    duplicate_underscore_args, eq_op, erasing_op, int_op_one, panic, performance, single_match,
 };
 use crate::LINT_CONTEXT;
 
@@ -56,8 +55,7 @@ impl AnalyzerPlugin for CairoLint {
                         .as_syntax_node()
                 }
                 ModuleItemId::Impl(impl_id) => {
-                    let impl_functions = db.impl_functions(*impl_id);
-                    let Ok(functions) = impl_functions else {
+                    let Ok(functions) = db.impl_functions(*impl_id) else {
                         continue;
                     };
                     for (_fn_name, fn_id) in functions.iter() {

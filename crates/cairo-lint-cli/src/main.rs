@@ -20,12 +20,12 @@ use cairo_lang_starknet::starknet_plugin_suite;
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_test_plugin::test_plugin_suite;
 use cairo_lang_utils::{Upcast, UpcastMut};
+use cairo_lint_core::context::{CairoLintKind, LINT_CONTEXT};
 use cairo_lint_core::diagnostics::format_diagnostic;
 use cairo_lint_core::fixes::{
     apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix,
 };
 use cairo_lint_core::plugin::cairo_lint_plugin_suite;
-use cairo_lint_core::{CairoLintKind, LINT_CONTEXT};
 use clap::Parser;
 use helpers::*;
 use scarb_metadata::{MetadataCommand, PackageMetadata, TargetMetadata};
@@ -184,7 +184,7 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                                 should_lint_panics
                                     || !matches!(
                                         LINT_CONTEXT
-                                            .lint_type_from_diagnostic_message(&diag.message),
+                                            .get_lint_type_from_diagnostic_message(&diag.message),
                                         CairoLintKind::Panic
                                     )
                             } else {

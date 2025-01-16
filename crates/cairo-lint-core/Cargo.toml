@@ -6,6 +6,7 @@ repository.workspace = true
 license-file.workspace = true
 
 [dependencies]
+anyhow.workspace = true
 cairo-lang-compiler.workspace = true
 cairo-lang-utils.workspace = true
 cairo-lang-semantic.workspace = true
@@ -28,3 +29,6 @@ pretty_assertions.workspace = true
 ctor.workspace = true
 cairo-lint-test-utils = { path = "../cairo-lint-test-utils" }
 paste.workspace = true
+
+[features]
+testing-colors = ["annotate-snippets/testing-colors"]

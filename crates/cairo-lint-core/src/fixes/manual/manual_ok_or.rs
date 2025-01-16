@@ -2,8 +2,7 @@ use cairo_lang_syntax::node::{
     ast::{ExprIf, ExprMatch},
     db::SyntaxGroup,
     kind::SyntaxKind,
-    SyntaxNode,
-    TypedSyntaxNode
+    SyntaxNode, TypedSyntaxNode,
 };
 
 use crate::fixes::manual::helpers::{
