@@ -7,7 +7,7 @@ use cairo_lang_utils::Upcast;
 pub use import_fixes::{apply_import_fixes, collect_unused_imports, ImportFix};
 use log::debug;
 
-use crate::LintContext;
+use crate::LINT_CONTEXT;
 
 pub mod break_unit;
 pub mod comparisons;
@@ -78,84 +78,11 @@ fn fix_plugin_diagnostic(
     db: &RootDatabase,
     plugin_diag: &PluginDiagnostic,
 ) -> Option<(SyntaxNode, String)> {
-    let context = LintContext::new();
-    let fix_function = context
-        .get_fixing_function_for_diagnostic_message(&plugin_diag.message)
-        .unwrap();
-    fix_function(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-    // match diagnostic_kind_from_message(&plugin_diag.message) {
-    //     CairoLintKind::DoubleParens => {
-    //         fix_double_parens(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
-    //     }
-    //     CairoLintKind::DestructMatch => {
-    //         fix_destruct_match(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-    //     }
-    //     CairoLintKind::DoubleComparison => {
-    //         fix_double_comparison(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
-    //     }
-    //     CairoLintKind::EquatableIfLet => {
-    //         fix_equatable_if_let(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-    //     }
-    //     CairoLintKind::BreakUnit => fix_break_unit(db, plugin_diag.stable_ptr.lookup(db.upcast())),
-    //     CairoLintKind::CollapsibleIf => {
-    //         fix_collapsible_if(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-    //     }
-    //     CairoLintKind::BoolComparison => fix_bool_comparison(
-    //         db,
-    //         ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
-    //     ),
-    //     CairoLintKind::CollapsibleIfElse => fix_collapsible_if_else(
-    //         db,
-    //         &ExprIf::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
-    //     ),
-    //     CairoLintKind::LoopMatchPopFront => {
-    //         fix_loop_match_pop_front(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-    //     }
-    //     CairoLintKind::ManualUnwrapOrDefault => {
-    //         fix_manual_unwrap_or_default(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-    //     }
-    //     CairoLintKind::LoopForWhile => {
-    //         fix_loop_break(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast()))
-    //     }
-    //     CairoLintKind::ManualOkOr => {
-    //         fix_manual_ok_or(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-    //     }
-    //     CairoLintKind::ManualOk => fix_manual_ok(db, plugin_diag.stable_ptr.lookup(db.upcast())),
-    //     CairoLintKind::ManualErr => fix_manual_err(db, plugin_diag.stable_ptr.lookup(db.upcast())),
-    //     CairoLintKind::ManualIsSome => {
-    //         fix_manual_is_some(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-    //     }
-    //     CairoLintKind::ManualExpect => {
-    //         fix_manual_expect(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-    //     }
-    //     CairoLintKind::ManualExpectErr => {
-    //         fix_manual_expect_err(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-    //     }
-    //     CairoLintKind::ManualIsNone => {
-    //         fix_manual_is_none(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-    //     }
-    //     CairoLintKind::ManualIsOk => {
-    //         fix_manual_is_ok(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-    //     }
-    //     CairoLintKind::ManualIsErr => {
-    //         fix_manual_is_err(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-    //     }
-    //     CairoLintKind::IntGePlusOne => fix_int_ge_plus_one(
-    //         db,
-    //         plugin_diag.stable_ptr.lookup(db.upcast()),
-    //     ),
-    //     CairoLintKind::IntGeMinOne => fix_int_ge_min_one(
-    //         db,
-    //         ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
-    //     ),
-    //     CairoLintKind::IntLePlusOne => fix_int_le_plus_one(
-    //         db,
-    //         ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
-    //     ),
-    //     CairoLintKind::IntLeMinOne => fix_int_le_min_one(
-    //         db,
-    //         ExprBinary::from_syntax_node(db.upcast(), plugin_diag.stable_ptr.lookup(db.upcast())),
-    //     ),
-    //     _ => None,
-    // }
+    let fix_function =
+        LINT_CONTEXT.get_fixing_function_for_diagnostic_message(&plugin_diag.message);
+    if let Some(func) = fix_function {
+        func(db, plugin_diag.stable_ptr.lookup(db.upcast()))
+    } else {
+        None
+    }
 }

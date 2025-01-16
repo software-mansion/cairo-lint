@@ -8,14 +8,15 @@ use cairo_lang_syntax::node::ast::Expr as AstExpr;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
-use crate::lints::ifs::{self, *};
+use crate::lints::ifs::*;
 use crate::lints::loops::{loop_for_while, loop_match_pop_front};
-use crate::lints::manual::{self, *};
+use crate::lints::manual::*;
 use crate::lints::{
     bitwise_for_parity_check, bool_comparison, breaks, double_comparison, double_parens,
-    duplicate_underscore_args, eq_op, erasing_op, int_op_one, loops, panic, performance,
+    duplicate_underscore_args, eq_op, erasing_op, int_op_one, panic, performance,
     single_match,
 };
+use crate::LINT_CONTEXT;
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
@@ -27,28 +28,11 @@ pub struct CairoLint;
 
 impl AnalyzerPlugin for CairoLint {
     fn declared_allows(&self) -> Vec<String> {
-        vec![
-            bitwise_for_parity_check::ALLOWED.as_slice(),
-            bool_comparison::ALLOWED.as_slice(),
-            breaks::ALLOWED.as_slice(),
-            double_comparison::ALLOWED.as_slice(),
-            double_parens::ALLOWED.as_slice(),
-            duplicate_underscore_args::ALLOWED.as_slice(),
-            eq_op::ALLOWED.as_slice(),
-            erasing_op::ALLOWED.as_slice(),
-            loop_for_while::ALLOWED.as_slice(),
-            loops::ALLOWED.as_slice(),
-            panic::ALLOWED.as_slice(),
-            single_match::ALLOWED.as_slice(),
-            ifs::ALLOWED.as_slice(),
-            manual::ALLOWED.as_slice(),
-            performance::ALLOWED.as_slice(),
-            int_op_one::ALLOWED.as_slice(),
-        ]
-        .into_iter()
-        .flatten()
-        .map(ToString::to_string)
-        .collect()
+        LINT_CONTEXT
+            .get_unique_allowed_names()
+            .iter()
+            .map(ToString::to_string)
+            .collect()
     }
 
     fn diagnostics(&self, db: &dyn SemanticGroup, module_id: ModuleId) -> Vec<PluginDiagnostic> {

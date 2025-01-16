@@ -1,3 +1,6 @@
+use itertools::Itertools;
+use once_cell::sync::Lazy;
+
 use std::sync::Arc;
 
 use cairo_lang_syntax::node::{db::SyntaxGroup, SyntaxNode};
@@ -7,7 +10,8 @@ pub mod fixes;
 pub mod lints;
 pub mod plugin;
 
-type FixingFunction = Arc<dyn Fn(&dyn SyntaxGroup, SyntaxNode) -> Option<(SyntaxNode, String)>>;
+type FixingFunction =
+    Arc<dyn Fn(&dyn SyntaxGroup, SyntaxNode) -> Option<(SyntaxNode, String)> + Send + Sync>;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum CairoLintKind {
@@ -76,6 +80,30 @@ impl LintContext {
                 diagnostic_message: lints::double_parens::DOUBLE_PARENS,
                 kind: CairoLintKind::DoubleParens,
                 fix_function: Some(Arc::new(fixes::double_parens::fix_double_parens)),
+            },
+            LintRule {
+                allowed_name: lints::double_comparison::redundant_comaprison::LINT_NAME,
+                diagnostic_message: lints::double_comparison::REDUNDANT_COMPARISON,
+                kind: CairoLintKind::DoubleComparison,
+                fix_function: Some(Arc::new(fixes::double_comparison::fix_double_comparison)),
+            },
+            LintRule {
+                allowed_name: lints::double_comparison::simplifiable_comparison::LINT_NAME,
+                diagnostic_message: lints::double_comparison::SIMPLIFIABLE_COMPARISON,
+                kind: CairoLintKind::DoubleComparison,
+                fix_function: Some(Arc::new(fixes::double_comparison::fix_double_comparison)),
+            },
+            LintRule {
+                allowed_name: lints::double_comparison::contradictory_comparison::LINT_NAME,
+                diagnostic_message: lints::double_comparison::CONTRADICTORY_COMPARISON,
+                kind: CairoLintKind::DoubleComparison,
+                fix_function: Some(Arc::new(fixes::double_comparison::fix_double_comparison)),
+            },
+            LintRule {
+                allowed_name: lints::double_comparison::impossible_comparison::LINT_NAME,
+                diagnostic_message: lints::double_comparison::IMPOSSIBLE_COMPARISON,
+                kind: CairoLintKind::ImposibleComparison,
+                fix_function: None,
             },
             LintRule {
                 allowed_name: lints::ifs::equatable_if_let::LINT_NAME,
@@ -255,7 +283,7 @@ impl LintContext {
         ]
     }
 
-    pub fn new() -> Self {
+    fn new() -> Self {
         Self {
             lint_rules: Self::get_all_rules(),
         }
@@ -279,4 +307,14 @@ impl LintContext {
             .find(|rule| rule.diagnostic_message == message)
             .and_then(|rule| rule.fix_function.clone())
     }
+
+    pub fn get_unique_allowed_names(&self) -> Vec<&'static str> {
+        self.lint_rules
+            .iter()
+            .unique_by(|rule| rule.allowed_name)
+            .map(|rule| rule.allowed_name)
+            .collect()
+    }
 }
+
+pub static LINT_CONTEXT: Lazy<LintContext> = Lazy::new(LintContext::new);

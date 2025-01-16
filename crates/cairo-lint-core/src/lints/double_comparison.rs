@@ -28,17 +28,17 @@ pub const ALLOWED: [&str; 4] = [
     impossible_comparison::LINT_NAME,
 ];
 
-mod redundant_comaprison {
-    pub(super) const LINT_NAME: &str = "redundant_comparison";
+pub mod redundant_comaprison {
+    pub const LINT_NAME: &str = "redundant_comparison";
 }
-mod contradictory_comparison {
-    pub(super) const LINT_NAME: &str = "contradictory_comparison";
+pub mod contradictory_comparison {
+    pub const LINT_NAME: &str = "contradictory_comparison";
 }
-mod simplifiable_comparison {
-    pub(super) const LINT_NAME: &str = "simplifiable_comparison";
+pub mod simplifiable_comparison {
+    pub const LINT_NAME: &str = "simplifiable_comparison";
 }
-mod impossible_comparison {
-    pub(super) const LINT_NAME: &str = "impossible_comparison";
+pub mod impossible_comparison {
+    pub const LINT_NAME: &str = "impossible_comparison";
 }
 
 pub fn check_double_comparison(
