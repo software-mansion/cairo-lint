@@ -7,6 +7,7 @@ use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_filesystem::ids::FileId;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::inline_macros::get_default_plugin_suite;
+use cairo_lang_semantic::plugin::PluginSuite;
 use cairo_lang_semantic::test_utils::setup_test_crate_ex;
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_test_plugin::test_plugin_suite;
@@ -17,12 +18,13 @@ use cairo_lint_core::diagnostics::format_diagnostic;
 use cairo_lint_core::fixes::{
     apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix,
 };
-use cairo_lint_core::plugin::cairo_lint_plugin_suite;
+use cairo_lint_core::plugin::CairoLint;
 use cairo_lint_test_utils::{get_diags, test_file, Tests};
 use ctor::dtor;
 use itertools::Itertools;
 use paste::paste;
 use pretty_assertions::assert_eq;
+use std::sync::Arc;
 use test_case::test_case;
 
 const CRATE_CONFIG: &str = r#"

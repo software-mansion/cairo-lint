@@ -1,5 +1,6 @@
-use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleId, ModuleItemId};
+use cairo_lang_defs::ids::{FunctionWithBodyId, LanguageElementId, ModuleId, ModuleItemId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
+use cairo_lang_filesystem::ids::FileLongId;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::attribute::SemanticQueryAttrs;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
@@ -7,6 +8,7 @@ use cairo_lang_semantic::{Expr, Statement};
 use cairo_lang_syntax::node::ast::Expr as AstExpr;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_utils::LookupIntern;
 
 use crate::lints::ifs::*;
 use crate::lints::loops::{loop_for_while, loop_match_pop_front};
@@ -22,8 +24,19 @@ pub fn cairo_lint_plugin_suite() -> PluginSuite {
     suite.add_analyzer_plugin::<CairoLint>();
     suite
 }
+
 #[derive(Debug, Default)]
-pub struct CairoLint;
+pub struct CairoLint {
+    include_compiler_generated_files: bool,
+}
+
+impl CairoLint {
+    pub fn new(include_compiler_generated_files: bool) -> Self {
+        Self {
+            include_compiler_generated_files,
+        }
+    }
+}
 
 impl AnalyzerPlugin for CairoLint {
     fn declared_allows(&self) -> Vec<String> {
@@ -41,6 +54,18 @@ impl AnalyzerPlugin for CairoLint {
             return diags;
         };
         for item in &*items {
+            // Skip compiler generated files. By default it checks whether the item is inside the virtual or external file.
+            if !self.include_compiler_generated_files
+                && matches!(
+                    item.stable_location(db.upcast())
+                        .file_id(db.upcast())
+                        .lookup_intern(db),
+                    FileLongId::Virtual(_) | FileLongId::External(_)
+                )
+            {
+                continue;
+            }
+
             let function_nodes = match item {
                 ModuleItemId::Constant(constant_id) => constant_id
                     .stable_ptr(db.upcast())
