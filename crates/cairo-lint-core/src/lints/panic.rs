@@ -33,7 +33,7 @@ pub fn check_panic_usage(
     }
 
     // If the function is not the panic function from the corelib return
-    if expr_function_call.function.full_name(db) != PANIC {
+    if expr_function_call.function.full_path(db) != PANIC {
         return;
     }
 

@@ -34,7 +34,7 @@ pub fn check_int_op_one(
     }
 
     // Check if the function call is the bool greater or equal (>=) or lower or equal (<=).
-    let full_name = expr_func.function.full_name(db);
+    let full_name = expr_func.function.full_path(db);
     if !full_name.contains("core::integer::")
         || (!full_name.contains("PartialOrd::ge") && !full_name.contains("PartialOrd::le"))
     {
@@ -47,7 +47,7 @@ pub fn check_int_op_one(
     // x >= y + 1
     if check_is_variable(lhs, arenas)
         && check_is_add_or_sub_one(db, rhs, arenas, "::add")
-        && expr_func.function.full_name(db).contains("::ge")
+        && expr_func.function.full_path(db).contains("::ge")
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_func.stable_ptr.untyped(),
@@ -59,7 +59,7 @@ pub fn check_int_op_one(
     // x - 1 >= y
     if check_is_add_or_sub_one(db, lhs, arenas, "::sub")
         && check_is_variable(rhs, arenas)
-        && expr_func.function.full_name(db).contains("::ge")
+        && expr_func.function.full_path(db).contains("::ge")
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_func.stable_ptr.untyped(),
@@ -71,7 +71,7 @@ pub fn check_int_op_one(
     // x + 1 <= y
     if check_is_add_or_sub_one(db, lhs, arenas, "::add")
         && check_is_variable(rhs, arenas)
-        && expr_func.function.full_name(db).contains("::le")
+        && expr_func.function.full_path(db).contains("::le")
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_func.stable_ptr.untyped(),
@@ -83,7 +83,7 @@ pub fn check_int_op_one(
     // x <= y - 1
     if check_is_variable(lhs, arenas)
         && check_is_add_or_sub_one(db, rhs, arenas, "::sub")
-        && expr_func.function.full_name(db).contains("::le")
+        && expr_func.function.full_path(db).contains("::le")
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_func.stable_ptr.untyped(),
@@ -115,7 +115,7 @@ fn check_is_add_or_sub_one(
     };
 
     // Check is addition or substraction
-    let full_name = func_call.function.full_name(db);
+    let full_name = func_call.function.full_path(db);
     if !full_name.contains("core::integer::") && !full_name.contains(operation)
         || func_call.args.len() != 2
     {
