@@ -197,7 +197,7 @@ fn check_syntax_ok_arm(
         }
         ManualLint::ManualExpectErr => {
             if let Expr::FunctionCall(func_call) = &arenas.exprs[arm.expression] {
-                let func_name = func_call.function.full_name(db);
+                let func_name = func_call.function.full_path(db);
                 func_name == PANIC_WITH_FELT252
             } else {
                 false
@@ -220,7 +220,7 @@ fn check_syntax_none_arm(
         ManualLint::ManualIsNone => is_expected_variant(arm_expression, arenas, db, TRUE),
         ManualLint::ManualOptExpect => {
             if let Expr::FunctionCall(func_call) = &arenas.exprs[*arm_expression] {
-                let func_name = func_call.function.full_name(db);
+                let func_name = func_call.function.full_path(db);
                 func_name == PANIC_WITH_FELT252
             } else {
                 false
@@ -253,7 +253,7 @@ fn check_syntax_err_arm(
         ),
         ManualLint::ManualResExpect => {
             if let Expr::FunctionCall(func_call) = &arenas.exprs[arm.expression] {
-                let func_name = func_call.function.full_name(db);
+                let func_name = func_call.function.full_path(db);
                 func_name == PANIC_WITH_FELT252
             } else {
                 false
