@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 
+use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
@@ -13,6 +14,7 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use super::function_trait_name_from_fn_id;
 use crate::lints::{EQ, GE, GT, LE, LT};
+use crate::queries::{get_all_function_bodies, get_all_logical_operator_expressions};
 
 pub const SIMPLIFIABLE_COMPARISON: &str = "This double comparison can be simplified.";
 pub const REDUNDANT_COMPARISON: &str =
@@ -43,7 +45,22 @@ pub mod impossible_comparison {
 
 pub fn check_double_comparison(
     db: &dyn SemanticGroup,
-    expr_logical: &ExprLogicalOperator,
+    item: &ModuleItemId,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    let function_bodies = get_all_function_bodies(db, item);
+    for function_body in function_bodies.iter() {
+        let logical_operator_exprs = get_all_logical_operator_expressions(function_body);
+        let arenas = &function_body.arenas;
+        for logical_operator_expr in logical_operator_exprs.iter() {
+            check_single_double_comparison(db, logical_operator_expr, arenas, diagnostics);
+        }
+    }
+}
+
+fn check_single_double_comparison(
+    db: &dyn SemanticGroup,
+    logical_operator_exprs: &ExprLogicalOperator,
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
@@ -54,7 +71,7 @@ pub fn check_double_comparison(
         mut ignore_impossible,
     ) = (false, false, false, false);
     // Checks if the lint is allowed in an upper scope.
-    let mut current_node = expr_logical.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    let mut current_node = logical_operator_exprs.stable_ptr.lookup(db.upcast()).as_syntax_node();
     let syntax_db = db.upcast();
     while let Some(node) = current_node.parent() {
         ignore_redundant |=
@@ -68,7 +85,7 @@ pub fn check_double_comparison(
         current_node = node;
     }
 
-    let Expr::FunctionCall(lhs_comparison) = &arenas.exprs[expr_logical.lhs] else {
+    let Expr::FunctionCall(lhs_comparison) = &arenas.exprs[logical_operator_exprs.lhs] else {
         return;
     };
     // If it's not 2 args it cannot be a regular comparison
@@ -76,7 +93,7 @@ pub fn check_double_comparison(
         return;
     }
 
-    let Expr::FunctionCall(rhs_comparison) = &arenas.exprs[expr_logical.rhs] else {
+    let Expr::FunctionCall(rhs_comparison) = &arenas.exprs[logical_operator_exprs.rhs] else {
         return;
     };
     // If it's not 2 args it cannot be a regular comparison
@@ -96,14 +113,14 @@ pub fn check_double_comparison(
             rhs_comparison,
             &lhs_fn_trait_name,
             &rhs_fn_trait_name,
-            expr_logical,
+            logical_operator_exprs,
             db,
             arenas,
         )
     {
         diagnostics.push(PluginDiagnostic {
             message: IMPOSSIBLE_COMPARISON.to_string(),
-            stable_ptr: expr_logical.stable_ptr.untyped(),
+            stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Error,
         })
     }
@@ -174,32 +191,32 @@ pub fn check_double_comparison(
         && is_simplifiable_double_comparison(
             &lhs_fn_trait_name,
             &rhs_fn_trait_name,
-            &expr_logical.op,
+            &logical_operator_exprs.op,
         )
     {
         diagnostics.push(PluginDiagnostic {
             message: SIMPLIFIABLE_COMPARISON.to_string(),
-            stable_ptr: expr_logical.stable_ptr.untyped(),
+            stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Warning,
         });
     } else if !ignore_redundant
-        && is_redundant_double_comparison(&lhs_fn_trait_name, &rhs_fn_trait_name, &expr_logical.op)
+        && is_redundant_double_comparison(&lhs_fn_trait_name, &rhs_fn_trait_name, &logical_operator_exprs.op)
     {
         diagnostics.push(PluginDiagnostic {
             message: REDUNDANT_COMPARISON.to_string(),
-            stable_ptr: expr_logical.stable_ptr.untyped(),
+            stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Warning,
         });
     } else if !ignore_contradictory
         && is_contradictory_double_comparison(
             &lhs_fn_trait_name,
             &rhs_fn_trait_name,
-            &expr_logical.op,
+            &logical_operator_exprs.op,
         )
     {
         diagnostics.push(PluginDiagnostic {
             message: CONTRADICTORY_COMPARISON.to_string(),
-            stable_ptr: expr_logical.stable_ptr.untyped(),
+            stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Error,
         });
     }
@@ -210,7 +227,7 @@ fn check_impossible_comparison(
     rhs_comparison: &ExprFunctionCall,
     lhs_op: &str,
     rhs_op: &str,
-    expr_logical: &ExprLogicalOperator,
+    logical_operator_exprs: &ExprLogicalOperator,
     db: &dyn SemanticGroup,
     arenas: &Arenas,
 ) -> bool {
@@ -257,7 +274,7 @@ fn check_impossible_comparison(
         return false;
     }
 
-    match (lhs_op, &expr_logical.op, rhs_op) {
+    match (lhs_op, &logical_operator_exprs.op, rhs_op) {
         (GT, LogicalOperator::AndAnd, LT) => lhs_litteral.value >= rhs_litteral.value,
         (GT, LogicalOperator::AndAnd, LE) => lhs_litteral.value >= rhs_litteral.value,
         (GE, LogicalOperator::AndAnd, LT) => lhs_litteral.value >= rhs_litteral.value,

@@ -1,4 +1,4 @@
-use cairo_lang_defs::ids::TopLevelLanguageElementId;
+use cairo_lang_defs::ids::{ModuleItemId, TopLevelLanguageElementId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
@@ -10,6 +10,7 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
 use crate::lints::{NONE, SOME};
+use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
 
 pub const LOOP_MATCH_POP_FRONT: &str =
     "you seem to be trying to use `loop` for iterating over a span. Consider using `for in`";
@@ -37,6 +38,21 @@ pub const LINT_NAME: &str = "loop_match_pop_front";
 /// }
 /// ```
 pub fn check_loop_match_pop_front(
+    db: &dyn SemanticGroup,
+    item: &ModuleItemId,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    let function_bodies = get_all_function_bodies(db, item);
+    for function_body in function_bodies.iter() {
+        let loop_exprs = get_all_loop_expressions(function_body);
+        let arenas = &function_body.arenas;
+        for loop_expr in loop_exprs.iter() {
+            check_single_loop_match_pop_front(db, loop_expr, diagnostics, arenas);
+        }
+    }
+}
+
+fn check_single_loop_match_pop_front(
     db: &dyn SemanticGroup,
     loop_expr: &ExprLoop,
     diagnostics: &mut Vec<PluginDiagnostic>,

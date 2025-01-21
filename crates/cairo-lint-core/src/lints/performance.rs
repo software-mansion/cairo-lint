@@ -1,9 +1,12 @@
+use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprWhile};
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+
+use crate::queries::{get_all_function_bodies, get_all_while_expressions};
 
 const INEFFICIENT_WHILE_COMP_MESSAGE: &str = "using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider \
                                               switching to `!=` or using ArrayTrait::multi_pop_front.";
@@ -20,12 +23,27 @@ const PARTIAL_ORD_PATTERNS: [&str; 4] = [
 
 pub fn check_inefficient_while_comp(
     db: &dyn SemanticGroup,
-    expr_while: &ExprWhile,
+    item: &ModuleItemId,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    let function_bodies = get_all_function_bodies(db, item);
+    for function_body in function_bodies.iter() {
+        let while_exprs = get_all_while_expressions(function_body);
+        let arenas = &function_body.arenas;
+        for while_expr in while_exprs.iter() {
+          check_single_inefficient_while_comp(db, while_expr, diagnostics, arenas);
+        }
+    }
+}
+
+fn check_single_inefficient_while_comp(
+    db: &dyn SemanticGroup,
+    while_expr: &ExprWhile,
     diagnostics: &mut Vec<PluginDiagnostic>,
     arenas: &Arenas,
 ) {
     // Checks if the lint is allowed in an upper scope.
-    let mut current_node = expr_while.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    let mut current_node = while_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
     while let Some(node) = current_node.parent() {
         if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
             return;
@@ -35,7 +53,7 @@ pub fn check_inefficient_while_comp(
     // It might be a false positive, because there can be cases when:
     //  - The rhs arguments is changed in the loop body
     //  - The lhs argument can "skip" the moment where lhs == rhs
-    if let Condition::BoolExpr(expr_cond) = expr_while.condition {
+    if let Condition::BoolExpr(expr_cond) = while_expr.condition {
         check_expression(db, &arenas.exprs[expr_cond], diagnostics, arenas);
     }
 }

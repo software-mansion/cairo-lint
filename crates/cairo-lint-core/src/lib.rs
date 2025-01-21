@@ -21,6 +21,7 @@ pub mod diagnostics;
 pub mod fixes;
 pub mod lints;
 pub mod plugin;
+mod queries;
 
 use context::{CairoLintKind, LINT_CONTEXT};
 

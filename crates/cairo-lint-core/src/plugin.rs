@@ -49,7 +49,7 @@ impl AnalyzerPlugin for CairoLint {
 
     fn diagnostics(&self, db: &dyn SemanticGroup, module_id: ModuleId) -> Vec<PluginDiagnostic> {
         let mut diags = Vec::new();
-        let syntax_db = db.upcast();
+        // let syntax_db = db.upcast();
         let Ok(items) = db.module_items(module_id) else {
             return diags;
         };
@@ -96,18 +96,18 @@ impl AnalyzerPlugin for CairoLint {
             }
             .descendants(syntax_db);
 
-            for node in function_nodes {
-                match node.kind(syntax_db) {
-                    SyntaxKind::ExprParenthesized => double_parens::check_double_parens(
-                        db.upcast(),
-                        &AstExpr::from_syntax_node(db.upcast(), node.clone()),
-                        &mut diags,
-                    ),
-                    SyntaxKind::ExprIf => {}
-                    SyntaxKind::ExprMatch => {}
-                    _ => continue,
-                }
-            }
+            // for node in function_nodes {
+            //     match node.kind(syntax_db) {
+            //         SyntaxKind::ExprParenthesized => double_parens::check_double_parens(
+            //             db.upcast(),
+            //             &AstExpr::from_syntax_node(db.upcast(), node.clone()),
+            //             &mut diags,
+            //         ),
+            //         SyntaxKind::ExprIf => {}
+            //         SyntaxKind::ExprMatch => {}
+            //         _ => continue,
+            //     }
+            // }
         }
         diags
     }
@@ -117,19 +117,20 @@ fn check_function(
     func_id: FunctionWithBodyId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    if let Ok(false) = func_id.has_attr_with_arg(db, "allow", "duplicate_underscore_args") {
-        duplicate_underscore_args::check_duplicate_underscore_args(
-            db.function_with_body_signature(func_id).unwrap().params,
-            diagnostics,
-        );
-    }
+    // if let Ok(false) = func_id.has_attr_with_arg(db, "allow", "duplicate_underscore_args") {
+    //     duplicate_underscore_args::check_duplicate_underscore_args(
+    //         db.function_with_body_signature(func_id).unwrap().params,
+    //         diagnostics,
+    //     );
+    // }
+
     let Ok(function_body) = db.function_body(func_id) else {
         return;
     };
     for (_expression_id, expression) in &function_body.arenas.exprs {
         match &expression {
             Expr::Match(expr_match) => {
-                single_match::check_single_match(
+                single_match::check_single_matches(
                     db,
                     expr_match,
                     diagnostics,

@@ -1,3 +1,4 @@
+use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
@@ -6,6 +7,8 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
+
+use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 use super::{function_trait_name_from_fn_id, AND, DIV, EQ, GE, GT, LE, LT, NE, NOT, OR, SUB, XOR};
 
@@ -29,6 +32,21 @@ pub const ALLOWED: [&str; 1] = [LINT_NAME];
 const LINT_NAME: &str = "eq_op";
 
 pub fn check_eq_op(
+    db: &dyn SemanticGroup,
+    item: &ModuleItemId,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    let function_bodies = get_all_function_bodies(db, item);
+    for function_body in function_bodies.iter() {
+        let function_call_exprs = get_all_function_calls(function_body);
+        let arenas = &function_body.arenas;
+        for function_call_expr in function_call_exprs.iter() {
+            check_single_eq_op(db, function_call_expr, arenas, diagnostics);
+        }
+    }
+}
+
+fn check_single_eq_op(
     db: &dyn SemanticGroup,
     expr_func: &ExprFunctionCall,
     arenas: &Arenas,

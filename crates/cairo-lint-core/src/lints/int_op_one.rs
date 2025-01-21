@@ -1,3 +1,4 @@
+use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
@@ -5,6 +6,8 @@ use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
+
+use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 pub const INT_GE_PLUS_ONE: &str =
     "Unnecessary add operation in integer >= comparison. Use simplified comparison.";
@@ -20,12 +23,27 @@ pub const LINT_NAME: &str = "int_op_one";
 
 pub fn check_int_op_one(
     db: &dyn SemanticGroup,
-    expr_func: &ExprFunctionCall,
+    item: &ModuleItemId,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    let function_bodies = get_all_function_bodies(db, item);
+    for function_body in function_bodies.iter() {
+        let function_call_exprs = get_all_function_calls(function_body);
+        let arenas = &function_body.arenas;
+        for function_call_expr in function_call_exprs.iter() {
+            check_single_int_op_one(db, function_call_expr, arenas, diagnostics);
+        }
+    }
+}
+
+fn check_single_int_op_one(
+    db: &dyn SemanticGroup,
+    function_call_expr: &ExprFunctionCall,
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
     // Checks if the lint is allowed in an upper scope
-    let mut current_node = expr_func.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    let mut current_node = function_call_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
     while let Some(node) = current_node.parent() {
         if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
             return;
@@ -34,23 +52,23 @@ pub fn check_int_op_one(
     }
 
     // Check if the function call is the bool greater or equal (>=) or lower or equal (<=).
-    let full_name = expr_func.function.full_path(db);
+    let full_name = function_call_expr.function.full_path(db);
     if !full_name.contains("core::integer::")
         || (!full_name.contains("PartialOrd::ge") && !full_name.contains("PartialOrd::le"))
     {
         return;
     }
 
-    let lhs = &expr_func.args[0];
-    let rhs = &expr_func.args[1];
+    let lhs = &function_call_expr.args[0];
+    let rhs = &function_call_expr.args[1];
 
     // x >= y + 1
     if check_is_variable(lhs, arenas)
         && check_is_add_or_sub_one(db, rhs, arenas, "::add")
-        && expr_func.function.full_path(db).contains("::ge")
+        && function_call_expr.function.full_path(db).contains("::ge")
     {
         diagnostics.push(PluginDiagnostic {
-            stable_ptr: expr_func.stable_ptr.untyped(),
+            stable_ptr: function_call_expr.stable_ptr.untyped(),
             message: INT_GE_PLUS_ONE.to_string(),
             severity: Severity::Warning,
         })
@@ -59,10 +77,10 @@ pub fn check_int_op_one(
     // x - 1 >= y
     if check_is_add_or_sub_one(db, lhs, arenas, "::sub")
         && check_is_variable(rhs, arenas)
-        && expr_func.function.full_path(db).contains("::ge")
+        && function_call_expr.function.full_path(db).contains("::ge")
     {
         diagnostics.push(PluginDiagnostic {
-            stable_ptr: expr_func.stable_ptr.untyped(),
+            stable_ptr: function_call_expr.stable_ptr.untyped(),
             message: INT_GE_MIN_ONE.to_string(),
             severity: Severity::Warning,
         })
@@ -71,10 +89,10 @@ pub fn check_int_op_one(
     // x + 1 <= y
     if check_is_add_or_sub_one(db, lhs, arenas, "::add")
         && check_is_variable(rhs, arenas)
-        && expr_func.function.full_path(db).contains("::le")
+        && function_call_expr.function.full_path(db).contains("::le")
     {
         diagnostics.push(PluginDiagnostic {
-            stable_ptr: expr_func.stable_ptr.untyped(),
+            stable_ptr: function_call_expr.stable_ptr.untyped(),
             message: INT_LE_PLUS_ONE.to_string(),
             severity: Severity::Warning,
         })
@@ -83,10 +101,10 @@ pub fn check_int_op_one(
     // x <= y - 1
     if check_is_variable(lhs, arenas)
         && check_is_add_or_sub_one(db, rhs, arenas, "::sub")
-        && expr_func.function.full_path(db).contains("::le")
+        && function_call_expr.function.full_path(db).contains("::le")
     {
         diagnostics.push(PluginDiagnostic {
-            stable_ptr: expr_func.stable_ptr.untyped(),
+            stable_ptr: function_call_expr.stable_ptr.untyped(),
             message: INT_LE_MIN_ONE.to_string(),
             severity: Severity::Warning,
         })

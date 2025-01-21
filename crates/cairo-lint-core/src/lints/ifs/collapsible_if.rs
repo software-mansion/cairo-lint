@@ -1,3 +1,4 @@
+use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
@@ -5,6 +6,8 @@ use cairo_lang_semantic::{Arenas, Expr, ExprIf, Statement};
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
+
+use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
 pub const COLLAPSIBLE_IF: &str =
     "Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.";
@@ -26,19 +29,34 @@ pub const LINT_NAME: &str = "collapsible_if";
 /// ```
 pub fn check_collapsible_if(
     db: &dyn SemanticGroup,
-    expr_if: &ExprIf,
+    item: &ModuleItemId,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    let function_bodies = get_all_function_bodies(db, item);
+    for function_body in function_bodies.iter() {
+        let if_exprs = get_all_if_expressions(function_body);
+        let arenas = &function_body.arenas;
+        for if_expr in if_exprs.iter() {
+            check_single_collapsible_if(db, if_expr, arenas, diagnostics);
+        }
+    }
+}
+
+fn check_single_collapsible_if(
+    db: &dyn SemanticGroup,
+    if_expr: &ExprIf,
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
     // Checks if the lint is allowed in any upper scope
-    let mut current_node = expr_if.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    let mut current_node = if_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
     while let Some(node) = current_node.parent() {
         if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
             return;
         }
         current_node = node;
     }
-    let Expr::Block(ref if_block) = arenas.exprs[expr_if.if_block] else {
+    let Expr::Block(ref if_block) = arenas.exprs[if_expr.if_block] else {
         return;
     };
 
@@ -53,12 +71,12 @@ pub fn check_collapsible_if(
         if let Expr::If(ref inner_if_expr) = arenas.exprs[inner_expr_stmt.expr];
         then {
             // Check if any of the ifs (outter and inner) have an else block, if it's the case don't diagnostic
-            if inner_if_expr.else_block.is_some() || expr_if.else_block.is_some() {
+            if inner_if_expr.else_block.is_some() || if_expr.else_block.is_some() {
                 return;
             }
 
             diagnostics.push(PluginDiagnostic {
-                stable_ptr: expr_if.stable_ptr.untyped(),
+                stable_ptr: if_expr.stable_ptr.untyped(),
                 message: COLLAPSIBLE_IF.to_string(),
                 severity: Severity::Warning,
             });
@@ -73,11 +91,11 @@ pub fn check_collapsible_if(
             return false;
         };
         // Check if any of the ifs (outter and inner) have an else block, if it's the case don't diagnostic
-        expr_if.else_block.is_none() && inner_if_expr.else_block.is_none()
+        if_expr.else_block.is_none() && inner_if_expr.else_block.is_none()
     }) && if_block.statements.is_empty()
     {
         diagnostics.push(PluginDiagnostic {
-            stable_ptr: expr_if.stable_ptr.untyped(),
+            stable_ptr: if_expr.stable_ptr.untyped(),
             message: COLLAPSIBLE_IF.to_string(),
             severity: Severity::Warning,
         });

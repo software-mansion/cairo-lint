@@ -1,4 +1,5 @@
 use cairo_lang_defs::diagnostic_utils::StableLocation;
+use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_filesystem::db::get_originating_location;
@@ -8,6 +9,8 @@ use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
+use crate::queries::{get_all_function_bodies, get_all_function_calls};
+
 pub const PANIC_IN_CODE: &str = "Leaving `panic` in the code is discouraged.";
 const PANIC: &str = "core::panics::panic";
 pub const ALLOWED: [&str; 1] = [LINT_NAME];
@@ -16,11 +19,25 @@ pub const LINT_NAME: &str = "panic";
 /// Checks for panic usage.
 pub fn check_panic_usage(
     db: &dyn SemanticGroup,
-    expr_function_call: &ExprFunctionCall,
+    item: &ModuleItemId,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    let function_bodies = get_all_function_bodies(db, item);
+    for function_body in function_bodies.iter() {
+        let function_call_exprs = get_all_function_calls(function_body);
+        for function_call_expr in function_call_exprs.iter() {
+            check_single_panic_usage(db, function_call_expr, diagnostics);
+        }
+    }
+}
+
+fn check_single_panic_usage(
+    db: &dyn SemanticGroup,
+    function_call_expr: &ExprFunctionCall,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
     // Checks if the lint is allowed in an upper scope
-    let mut current_node = expr_function_call
+    let mut current_node = function_call_expr
         .stable_ptr
         .lookup(db.upcast())
         .as_syntax_node();
@@ -33,18 +50,18 @@ pub fn check_panic_usage(
     }
 
     // If the function is not the panic function from the corelib return
-    if expr_function_call.function.full_path(db) != PANIC {
+    if function_call_expr.function.full_path(db) != PANIC {
         return;
     }
 
     // Get the origination location of this panic as there is a `panic!` macro that gerates virtual
     // files
     let initial_file_id =
-        StableLocation::new(expr_function_call.stable_ptr.untyped()).file_id(db.upcast());
+        StableLocation::new(function_call_expr.stable_ptr.untyped()).file_id(db.upcast());
     let (file_id, span) = get_originating_location(
         db.upcast(),
         initial_file_id,
-        expr_function_call
+        function_call_expr
             .stable_ptr
             .lookup(db.upcast())
             .as_syntax_node()
