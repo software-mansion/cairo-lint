@@ -39,7 +39,7 @@ pub fn check_collapsible_if_else(
     for function_body in function_bodies.iter() {
         let if_exprs = get_all_if_expressions(function_body);
         let arenas = &function_body.arenas;
-        for if_expr in if_exprs.iterk() {
+        for if_expr in if_exprs.iter() {
             check_single_collapsible_if_else(db, if_expr, arenas, diagnostics);
         }
     }

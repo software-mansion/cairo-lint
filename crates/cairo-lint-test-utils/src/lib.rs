@@ -17,7 +17,10 @@ pub struct Tests {
     pub should_fix: bool,
 }
 pub fn get_diags(crate_id: CrateId, db: &mut RootDatabase) -> Vec<Diagnostics<SemanticDiagnostic>> {
-    init_dev_corelib(db, PathBuf::from(std::env::var("CORELIB_PATH").unwrap()));
+    init_dev_corelib(
+        db,
+        PathBuf::from("/Users/mateusz/SWM/Starkware/cairo/corelib/src"),
+    );
     let mut diagnostics = Vec::new();
     let module_file = db.module_main_file(ModuleId::CrateRoot(crate_id)).unwrap();
     if db.file_content(module_file).is_none() {
@@ -103,7 +106,7 @@ macro_rules! test_file {
                     file = "Contains nested diagnostics can't fix it".to_string();
                 }
                 let renderer = Renderer::plain();
-                println!("diags: {:?}", diags);
+
                 let formatted_diags =
                     diags.into_iter().flat_map(|diags| diags.get_all().iter().map(|diag| format_diagnostic(diag, &db, &renderer)).collect::<Vec<_>>()).collect::<String>().trim().to_string();
                 if is_fix_mode {

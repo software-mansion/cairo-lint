@@ -18,7 +18,6 @@ pub const INT_LE_PLUS_ONE: &str =
 pub const INT_LE_MIN_ONE: &str =
     "Unnecessary sub operation in integer <= comparison. Use simplified comparison.";
 
-pub const ALLOWED: [&str; 1] = [LINT_NAME];
 pub const LINT_NAME: &str = "int_op_one";
 
 pub fn check_int_op_one(
@@ -43,7 +42,10 @@ fn check_single_int_op_one(
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
     // Checks if the lint is allowed in an upper scope
-    let mut current_node = function_call_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    let mut current_node = function_call_expr
+        .stable_ptr
+        .lookup(db.upcast())
+        .as_syntax_node();
     while let Some(node) = current_node.parent() {
         if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
             return;

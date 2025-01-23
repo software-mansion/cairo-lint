@@ -34,7 +34,7 @@ fn main() {
 //! > cairo_code
 fn main() {
     let res_val: Result<i32> = Result::Err('err');
-    #[allow(manual_is_ok)]
+    #[allow(manual_is)]
     let _a = match res_val {
         Result::Ok(_) => true,
         Result::Err(_) => false
@@ -46,7 +46,7 @@ fn main() {
 //! > fixed
 fn main() {
     let res_val: Result<i32> = Result::Err('err');
-    #[allow(manual_is_ok)]
+    #[allow(manual_is)]
     let _a = match res_val {
         Result::Ok(_) => true,
         Result::Err(_) => false

@@ -36,19 +36,6 @@ pub enum ManualLint {
     ManualExpectErr,
 }
 
-pub const ALLOWED: [&str; 10] = [
-    manual_is::some::LINT_NAME,
-    manual_is::none::LINT_NAME,
-    manual_is::ok::LINT_NAME,
-    manual_is::err::LINT_NAME,
-    manual_ok_or::LINT_NAME,
-    manual_expect::LINT_NAME,
-    manual_unwrap_or_default::LINT_NAME,
-    manual_ok::LINT_NAME,
-    manual_err::LINT_NAME,
-    manual_expect_err::LINT_NAME,
-];
-
 /// Checks for all the manual lint written as `match`.
 /// ```ignore
 /// let res_val: Result<i32> = Result::Err('err');

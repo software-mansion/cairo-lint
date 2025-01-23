@@ -13,7 +13,6 @@ use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 pub const PANIC_IN_CODE: &str = "Leaving `panic` in the code is discouraged.";
 const PANIC: &str = "core::panics::panic";
-pub const ALLOWED: [&str; 1] = [LINT_NAME];
 pub const LINT_NAME: &str = "panic";
 
 /// Checks for panic usage.

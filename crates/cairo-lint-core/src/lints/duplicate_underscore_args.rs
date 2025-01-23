@@ -2,15 +2,14 @@ use std::collections::HashSet;
 
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
+use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::attribute::SemanticQueryAttrs;
-use cairo_lang_semantic::{db::SemanticGroup, Parameter};
 
 use crate::queries::get_all_checkable_functions;
 
 pub const DUPLICATE_UNDERSCORE_ARGS: &str = "duplicate arguments, having another argument having almost the same name \
                                              makes code comprehension and documentation more difficult";
 
-pub const ALLOWED: [&str; 1] = [LINT_NAME];
 pub const LINT_NAME: &str = "duplicate_underscore_args";
 
 /// Checks for functions that have the same argument name but prefix with `_`. For example

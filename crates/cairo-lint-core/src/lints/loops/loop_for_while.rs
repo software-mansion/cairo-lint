@@ -13,7 +13,6 @@ pub const LOOP_FOR_WHILE: &str =
     "you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` \
                                   loop for clarity and conciseness";
 
-pub const ALLOWED: [&str; 1] = [LINT_NAME];
 pub const LINT_NAME: &str = "loop_for_while";
 
 /// Checks for

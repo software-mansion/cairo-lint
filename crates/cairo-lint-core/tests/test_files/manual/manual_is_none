@@ -34,7 +34,7 @@ fn main() {
 //! > cairo_code
 fn main() {
     let foo: Option::<i32> = Option::None;
-    #[allow(manual_is_none)]
+    #[allow(manual_is)]
     let _foo = match foo {
         Option::Some(_) => false,
         Option::None => true,
@@ -46,7 +46,7 @@ fn main() {
 //! > fixed
 fn main() {
     let foo: Option::<i32> = Option::None;
-    #[allow(manual_is_none)]
+    #[allow(manual_is)]
     let _foo = match foo {
         Option::Some(_) => false,
         Option::None => true,

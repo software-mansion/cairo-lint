@@ -8,11 +8,10 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
 use crate::queries::{get_all_function_bodies, get_all_while_expressions};
 
-const INEFFICIENT_WHILE_COMP_MESSAGE: &str = "using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider \
+pub const INEFFICIENT_WHILE_COMP_MESSAGE: &str = "using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider \
                                               switching to `!=` or using ArrayTrait::multi_pop_front.";
 
-pub const ALLOWED: [&str; 1] = [LINT_NAME];
-const LINT_NAME: &str = "inefficient_while_comp";
+pub const LINT_NAME: &str = "inefficient_while_comp";
 // Match all types implementing PartialOrd
 const PARTIAL_ORD_PATTERNS: [&str; 4] = [
     "PartialOrd::lt\"",
@@ -31,7 +30,7 @@ pub fn check_inefficient_while_comp(
         let while_exprs = get_all_while_expressions(function_body);
         let arenas = &function_body.arenas;
         for while_expr in while_exprs.iter() {
-          check_single_inefficient_while_comp(db, while_expr, diagnostics, arenas);
+            check_single_inefficient_while_comp(db, while_expr, diagnostics, arenas);
         }
     }
 }

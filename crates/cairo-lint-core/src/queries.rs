@@ -1,4 +1,3 @@
-use std::slice::Iter;
 use std::sync::Arc;
 
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleItemId};
@@ -7,7 +6,7 @@ use cairo_lang_semantic::{
     Expr, ExprFunctionCall, ExprIf, ExprLogicalOperator, ExprLoop, ExprMatch, ExprWhile,
     FunctionBody, Statement, StatementBreak,
 };
-use cairo_lang_syntax::node::ast::{Expr as AstExpr, ModuleItem};
+use cairo_lang_syntax::node::ast::Expr as AstExpr;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::TypedStablePtr;
 use cairo_lang_syntax::node::TypedSyntaxNode;

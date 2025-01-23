@@ -12,7 +12,6 @@ use crate::queries::{get_all_function_bodies, get_all_function_calls};
 pub const BOOL_COMPARISON: &str =
     "Unnecessary comparison with a boolean value. Use the variable directly.";
 
-pub const ALLOWED: [&str; 1] = [LINT_NAME];
 pub const LINT_NAME: &str = "bool_comparison";
 
 /// Checks for ` a == true`. Bool comparisons are useless and can be rewritten more clearly.

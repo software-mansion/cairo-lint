@@ -16,32 +16,14 @@ use super::function_trait_name_from_fn_id;
 use crate::lints::{EQ, GE, GT, LE, LT};
 use crate::queries::{get_all_function_bodies, get_all_logical_operator_expressions};
 
+pub const ALLOWED_NAME: &str = "double_comparison";
+
 pub const SIMPLIFIABLE_COMPARISON: &str = "This double comparison can be simplified.";
 pub const REDUNDANT_COMPARISON: &str =
     "Redundant double comparison found. Consider simplifying to a single comparison.";
 pub const CONTRADICTORY_COMPARISON: &str =
     "This double comparison is contradictory and always false.";
 pub const IMPOSSIBLE_COMPARISON: &str = "Impossible condition, always false";
-
-pub const ALLOWED: [&str; 4] = [
-    redundant_comaprison::LINT_NAME,
-    contradictory_comparison::LINT_NAME,
-    simplifiable_comparison::LINT_NAME,
-    impossible_comparison::LINT_NAME,
-];
-
-pub mod redundant_comaprison {
-    pub const LINT_NAME: &str = "redundant_comparison";
-}
-pub mod contradictory_comparison {
-    pub const LINT_NAME: &str = "contradictory_comparison";
-}
-pub mod simplifiable_comparison {
-    pub const LINT_NAME: &str = "simplifiable_comparison";
-}
-pub mod impossible_comparison {
-    pub const LINT_NAME: &str = "impossible_comparison";
-}
 
 pub fn check_double_comparison(
     db: &dyn SemanticGroup,
@@ -64,24 +46,15 @@ fn check_single_double_comparison(
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    let (
-        mut ignore_redundant,
-        mut ignore_contradictory,
-        mut ignore_simplifiable,
-        mut ignore_impossible,
-    ) = (false, false, false, false);
     // Checks if the lint is allowed in an upper scope.
-    let mut current_node = logical_operator_exprs.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    let syntax_db = db.upcast();
+    let mut current_node = logical_operator_exprs
+        .stable_ptr
+        .lookup(db.upcast())
+        .as_syntax_node();
     while let Some(node) = current_node.parent() {
-        ignore_redundant |=
-            node.has_attr_with_arg(syntax_db, "allow", redundant_comaprison::LINT_NAME);
-        ignore_contradictory |=
-            node.has_attr_with_arg(syntax_db, "allow", contradictory_comparison::LINT_NAME);
-        ignore_simplifiable |=
-            node.has_attr_with_arg(syntax_db, "allow", simplifiable_comparison::LINT_NAME);
-        ignore_impossible |=
-            node.has_attr_with_arg(syntax_db, "allow", impossible_comparison::LINT_NAME);
+        if node.has_attr_with_arg(db.upcast(), "allow", ALLOWED_NAME) {
+            return;
+        }
         current_node = node;
     }
 
@@ -107,17 +80,15 @@ fn check_single_double_comparison(
     );
 
     // Check the impossible comparison
-    if !ignore_impossible
-        && check_impossible_comparison(
-            lhs_comparison,
-            rhs_comparison,
-            &lhs_fn_trait_name,
-            &rhs_fn_trait_name,
-            logical_operator_exprs,
-            db,
-            arenas,
-        )
-    {
+    if check_impossible_comparison(
+        lhs_comparison,
+        rhs_comparison,
+        &lhs_fn_trait_name,
+        &rhs_fn_trait_name,
+        logical_operator_exprs,
+        db,
+        arenas,
+    ) {
         diagnostics.push(PluginDiagnostic {
             message: IMPOSSIBLE_COMPARISON.to_string(),
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
@@ -187,33 +158,31 @@ fn check_single_double_comparison(
         return;
     }
 
-    if !ignore_simplifiable
-        && is_simplifiable_double_comparison(
-            &lhs_fn_trait_name,
-            &rhs_fn_trait_name,
-            &logical_operator_exprs.op,
-        )
-    {
+    if is_simplifiable_double_comparison(
+        &lhs_fn_trait_name,
+        &rhs_fn_trait_name,
+        &logical_operator_exprs.op,
+    ) {
         diagnostics.push(PluginDiagnostic {
             message: SIMPLIFIABLE_COMPARISON.to_string(),
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Warning,
         });
-    } else if !ignore_redundant
-        && is_redundant_double_comparison(&lhs_fn_trait_name, &rhs_fn_trait_name, &logical_operator_exprs.op)
-    {
+    } else if is_redundant_double_comparison(
+        &lhs_fn_trait_name,
+        &rhs_fn_trait_name,
+        &logical_operator_exprs.op,
+    ) {
         diagnostics.push(PluginDiagnostic {
             message: REDUNDANT_COMPARISON.to_string(),
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Warning,
         });
-    } else if !ignore_contradictory
-        && is_contradictory_double_comparison(
-            &lhs_fn_trait_name,
-            &rhs_fn_trait_name,
-            &logical_operator_exprs.op,
-        )
-    {
+    } else if is_contradictory_double_comparison(
+        &lhs_fn_trait_name,
+        &rhs_fn_trait_name,
+        &logical_operator_exprs.op,
+    ) {
         diagnostics.push(PluginDiagnostic {
             message: CONTRADICTORY_COMPARISON.to_string(),
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
