@@ -25,7 +25,7 @@ pub fn check_bool_comparison(
         let function_call_exprs = get_all_function_calls(function_body);
         let arenas = &function_body.arenas;
         for function_call_expr in function_call_exprs.iter() {
-          check_single_bool_comparison(db, function_call_expr, arenas, diagnostics);
+            check_single_bool_comparison(db, function_call_expr, arenas, diagnostics);
         }
     }
 }
@@ -37,7 +37,10 @@ fn check_single_bool_comparison(
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
     // Checks if the lint is allowed in an upper scope
-    let mut current_node = function_call_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    let mut current_node = function_call_expr
+        .stable_ptr
+        .lookup(db.upcast())
+        .as_syntax_node();
     while let Some(node) = current_node.parent() {
         if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
             return;

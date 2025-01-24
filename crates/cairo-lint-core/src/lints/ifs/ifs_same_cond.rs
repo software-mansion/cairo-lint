@@ -20,14 +20,14 @@ pub fn check_duplicate_if_condition(
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-  let function_bodies = get_all_function_bodies(db, item);
+    let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
         let if_exprs = get_all_if_expressions(function_body);
         let arenas = &function_body.arenas;
         for if_expr in if_exprs.iter() {
-          check_single_duplicate_if_condition(db, if_expr, arenas, diagnostics);
+            check_single_duplicate_if_condition(db, if_expr, arenas, diagnostics);
         }
-      }
+    }
 }
 
 fn check_single_duplicate_if_condition(

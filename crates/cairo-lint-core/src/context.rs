@@ -10,6 +10,7 @@ use crate::{fixes, lints};
 type FixingFunction =
     Arc<dyn Fn(&dyn SyntaxGroup, SyntaxNode) -> Option<(SyntaxNode, String)> + Send + Sync>;
 
+/// Type describing a linter group's rule cheking function.
 type CheckingFunction =
     Arc<dyn Fn(&dyn SemanticGroup, &ModuleItemId, &mut Vec<PluginDiagnostic>) + Send + Sync>;
 
@@ -52,22 +53,27 @@ pub enum CairoLintKind {
     Performance,
 }
 
+/// A group of lint rules. We want to group lint rules beucase
+/// some lint rules can share an allowed name for compiler or the cheking function.
 pub struct LintRuleGroup {
-    pub rules: Vec<LintRule>,
-    pub check_function: CheckingFunction,
+    /// Collection of `LintRule`s that are directly connected to this group's checking function.
+    rules: Vec<LintRule>,
+    /// A Function which will be fired during linter plugin analysis.
+    /// This one should emit certain diagnostics in order to later identify (and maybe fix) the linting problem.
+    check_function: CheckingFunction,
     /// A name that is going to be registered by the compiler as an allowed lint to be ignored.
     /// Some multiple lint rules might have the same allowed name. This way all of the will be ignored with only one allow attribute.
-    pub allowed_name: &'static str,
+    allowed_name: &'static str,
 }
 
 /// Core struct describing a single lint rule with its properties.
 pub struct LintRule {
     /// A predefined message that is going to appear in the compiler's diagnostic output. It should be the same as the one in the lint check function.
-    pub diagnostic_message: &'static str,
+    diagnostic_message: &'static str,
     /// The kind of the lint rule. Some lint rules might have the same kind.
-    pub kind: CairoLintKind,
+    kind: CairoLintKind,
     /// The fixing function for the lint rule. It is optional as not all lint rules have a fix.
-    pub fix_function: Option<FixingFunction>,
+    fix_function: Option<FixingFunction>,
     // pub check_function: CheckingFunction,
 }
 
@@ -471,6 +477,7 @@ impl LintContext {
             .collect()
     }
 
+    /// Get all the checking functions that exist for each `LintRuleGroup`.
     pub fn get_all_checking_functions(&self) -> impl Iterator<Item = &CheckingFunction> {
         self.lint_rules
             .iter()

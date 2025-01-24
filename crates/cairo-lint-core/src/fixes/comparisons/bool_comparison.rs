@@ -1,4 +1,6 @@
-use cairo_lang_syntax::node::{ast::ExprBinary, db::SyntaxGroup, kind::SyntaxKind, SyntaxNode, TypedSyntaxNode};
+use cairo_lang_syntax::node::{
+    ast::ExprBinary, db::SyntaxGroup, kind::SyntaxKind, SyntaxNode, TypedSyntaxNode,
+};
 
 /// Rewrites a bool comparison to a simple bool. Ex: `some_bool == false` would be rewritten to
 /// `!some_bool`

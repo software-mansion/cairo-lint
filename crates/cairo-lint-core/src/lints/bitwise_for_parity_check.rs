@@ -40,7 +40,10 @@ fn check_single_bitwise_for_parity(
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
     // Checks if the lint is allowed in any upper scope
-    let mut current_node = function_call_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
+    let mut current_node = function_call_expr
+        .stable_ptr
+        .lookup(db.upcast())
+        .as_syntax_node();
     while let Some(node) = current_node.parent() {
         if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
             return;
