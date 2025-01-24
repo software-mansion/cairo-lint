@@ -17,10 +17,7 @@ pub struct Tests {
     pub should_fix: bool,
 }
 pub fn get_diags(crate_id: CrateId, db: &mut RootDatabase) -> Vec<Diagnostics<SemanticDiagnostic>> {
-    init_dev_corelib(
-        db,
-        PathBuf::from("/Users/mateusz/SWM/Starkware/cairo/corelib/src"),
-    );
+    init_dev_corelib(db, PathBuf::from(std::env::var("CORELIB_PATH").unwrap()));
     let mut diagnostics = Vec::new();
     let module_file = db.module_main_file(ModuleId::CrateRoot(crate_id)).unwrap();
     if db.file_content(module_file).is_none() {

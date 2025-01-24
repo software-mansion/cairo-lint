@@ -37,7 +37,6 @@ impl AnalyzerPlugin for CairoLint {
 
     fn diagnostics(&self, db: &dyn SemanticGroup, module_id: ModuleId) -> Vec<PluginDiagnostic> {
         let mut diags = Vec::new();
-        // let syntax_db = db.upcast();
         let Ok(items) = db.module_items(module_id) else {
             return diags;
         };
