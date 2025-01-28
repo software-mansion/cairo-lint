@@ -3,8 +3,12 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprIf, Pattern, PatternId};
+use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{
+    ast::{Condition as AstCondition, ExprIf as AstExprIf},
+    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
+};
 
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
@@ -87,4 +91,40 @@ fn is_simple_equality_condition(patterns: &[PatternId], arenas: &Arenas) -> bool
         }
     }
     false
+}
+
+/// Rewrites a useless `if let` to a simple `if`
+pub fn fix_equatable_if_let(
+    db: &dyn SyntaxGroup,
+    node: SyntaxNode,
+) -> Option<(SyntaxNode, String)> {
+    let expr = AstExprIf::from_syntax_node(db, node.clone());
+    let condition = expr.condition(db);
+
+    let fixed_condition = match condition {
+        AstCondition::Let(condition_let) => {
+            format!(
+                "{} == {} ",
+                condition_let
+                    .expr(db)
+                    .as_syntax_node()
+                    .get_text_without_trivia(db),
+                condition_let
+                    .patterns(db)
+                    .as_syntax_node()
+                    .get_text_without_trivia(db),
+            )
+        }
+        _ => panic!("Incorrect diagnostic"),
+    };
+
+    Some((
+        node,
+        format!(
+            "{}{}{}",
+            expr.if_kw(db).as_syntax_node().get_text(db),
+            fixed_condition,
+            expr.if_block(db).as_syntax_node().get_text(db),
+        ),
+    ))
 }

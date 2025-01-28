@@ -1,4 +1,4 @@
-use crate::{fixes, lints};
+use crate::lints;
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::{db::SyntaxGroup, SyntaxNode};
@@ -93,7 +93,7 @@ impl LintContext {
                     LintRule {
                         diagnostic_message: lints::single_match::DESTRUCT_MATCH,
                         kind: CairoLintKind::DestructMatch,
-                        fix_function: Some(Arc::new(fixes::desctruct_match::fix_destruct_match)),
+                        fix_function: Some(Arc::new(lints::single_match::fix_destruct_match)),
                     },
                     LintRule {
                         diagnostic_message: lints::single_match::MATCH_FOR_EQUALITY,
@@ -108,7 +108,7 @@ impl LintContext {
                 rules: vec![LintRule {
                     diagnostic_message: lints::double_parens::DOUBLE_PARENS,
                     kind: CairoLintKind::DoubleParens,
-                    fix_function: Some(Arc::new(fixes::double_parens::fix_double_parens)),
+                    fix_function: Some(Arc::new(lints::double_parens::fix_double_parens)),
                 }],
                 allowed_name: lints::double_parens::LINT_NAME,
                 check_function: Arc::new(lints::double_parens::check_double_parens),
@@ -119,21 +119,21 @@ impl LintContext {
                         diagnostic_message: lints::double_comparison::REDUNDANT_COMPARISON,
                         kind: CairoLintKind::DoubleComparison,
                         fix_function: Some(Arc::new(
-                            fixes::double_comparison::fix_double_comparison,
+                            lints::double_comparison::fix_double_comparison,
                         )),
                     },
                     LintRule {
                         diagnostic_message: lints::double_comparison::SIMPLIFIABLE_COMPARISON,
                         kind: CairoLintKind::DoubleComparison,
                         fix_function: Some(Arc::new(
-                            fixes::double_comparison::fix_double_comparison,
+                            lints::double_comparison::fix_double_comparison,
                         )),
                     },
                     LintRule {
                         diagnostic_message: lints::double_comparison::CONTRADICTORY_COMPARISON,
                         kind: CairoLintKind::DoubleComparison,
                         fix_function: Some(Arc::new(
-                            fixes::double_comparison::fix_double_comparison,
+                            lints::double_comparison::fix_double_comparison,
                         )),
                     },
                     LintRule {
@@ -150,7 +150,7 @@ impl LintContext {
                     diagnostic_message: lints::ifs::equatable_if_let::EQUATABLE_IF_LET,
                     kind: CairoLintKind::EquatableIfLet,
                     fix_function: Some(Arc::new(
-                        fixes::ifs::equatable_if_let::fix_equatable_if_let,
+                        lints::ifs::equatable_if_let::fix_equatable_if_let,
                     )),
                 }],
                 allowed_name: lints::ifs::equatable_if_let::LINT_NAME,
@@ -160,7 +160,7 @@ impl LintContext {
                 rules: vec![LintRule {
                     diagnostic_message: lints::breaks::BREAK_UNIT,
                     kind: CairoLintKind::BreakUnit,
-                    fix_function: Some(Arc::new(fixes::break_unit::fix_break_unit)),
+                    fix_function: Some(Arc::new(lints::breaks::fix_break_unit)),
                 }],
                 allowed_name: lints::breaks::LINT_NAME,
                 check_function: Arc::new(lints::breaks::check_break),
@@ -169,9 +169,7 @@ impl LintContext {
                 rules: vec![LintRule {
                     diagnostic_message: lints::bool_comparison::BOOL_COMPARISON,
                     kind: CairoLintKind::BoolComparison,
-                    fix_function: Some(Arc::new(
-                        fixes::comparisons::bool_comparison::fix_bool_comparison,
-                    )),
+                    fix_function: Some(Arc::new(lints::bool_comparison::fix_bool_comparison)),
                 }],
                 allowed_name: lints::bool_comparison::LINT_NAME,
                 check_function: Arc::new(lints::bool_comparison::check_bool_comparison),
@@ -181,7 +179,7 @@ impl LintContext {
                     diagnostic_message: lints::ifs::collapsible_if_else::COLLAPSIBLE_IF_ELSE,
                     kind: CairoLintKind::CollapsibleIfElse,
                     fix_function: Some(Arc::new(
-                        fixes::ifs::collapsible_if_else::fix_collapsible_if_else,
+                        lints::ifs::collapsible_if_else::fix_collapsible_if_else,
                     )),
                 }],
                 allowed_name: lints::ifs::collapsible_if_else::LINT_NAME,
@@ -193,7 +191,7 @@ impl LintContext {
                 rules: vec![LintRule {
                     diagnostic_message: lints::ifs::collapsible_if::COLLAPSIBLE_IF,
                     kind: CairoLintKind::CollapsibleIf,
-                    fix_function: Some(Arc::new(fixes::ifs::collapsible_if::fix_collapsible_if)),
+                    fix_function: Some(Arc::new(lints::ifs::collapsible_if::fix_collapsible_if)),
                 }],
                 allowed_name: lints::ifs::collapsible_if::LINT_NAME,
                 check_function: Arc::new(lints::ifs::collapsible_if::check_collapsible_if),
@@ -214,7 +212,7 @@ impl LintContext {
                     diagnostic_message: lints::loops::loop_match_pop_front::LOOP_MATCH_POP_FRONT,
                     kind: CairoLintKind::LoopMatchPopFront,
                     fix_function: Some(Arc::new(
-                        fixes::loops::loop_match_pop_front::fix_loop_match_pop_front,
+                        lints::loops::loop_match_pop_front::fix_loop_match_pop_front,
                     )),
                 }],
                 allowed_name: lints::loops::loop_match_pop_front::LINT_NAME,
@@ -228,7 +226,7 @@ impl LintContext {
                         lints::manual::manual_unwrap_or_default::MANUAL_UNWRAP_OR_DEFAULT,
                     kind: CairoLintKind::ManualUnwrapOrDefault,
                     fix_function: Some(Arc::new(
-                        fixes::manual::manual_unwrap_or_default::fix_manual_unwrap_or_default,
+                        lints::manual::manual_unwrap_or_default::fix_manual_unwrap_or_default,
                     )),
                 }],
                 allowed_name: lints::manual::manual_unwrap_or_default::LINT_NAME,
@@ -249,7 +247,7 @@ impl LintContext {
                 rules: vec![LintRule {
                     diagnostic_message: lints::loops::loop_for_while::LOOP_FOR_WHILE,
                     kind: CairoLintKind::LoopForWhile,
-                    fix_function: Some(Arc::new(fixes::loops::loop_break::fix_loop_break)),
+                    fix_function: Some(Arc::new(lints::loops::loop_for_while::fix_loop_break)),
                 }],
                 allowed_name: lints::loops::loop_for_while::LINT_NAME,
                 check_function: Arc::new(lints::loops::loop_for_while::check_loop_for_while),
@@ -276,7 +274,7 @@ impl LintContext {
                 rules: vec![LintRule {
                     diagnostic_message: lints::manual::manual_ok_or::MANUAL_OK_OR,
                     kind: CairoLintKind::ManualOkOr,
-                    fix_function: Some(Arc::new(fixes::manual::manual_ok_or::fix_manual_ok_or)),
+                    fix_function: Some(Arc::new(lints::manual::manual_ok_or::fix_manual_ok_or)),
                 }],
                 allowed_name: lints::manual::manual_ok_or::LINT_NAME,
                 check_function: Arc::new(lints::manual::manual_ok_or::check_manual_ok_or),
@@ -285,7 +283,7 @@ impl LintContext {
                 rules: vec![LintRule {
                     diagnostic_message: lints::manual::manual_ok::MANUAL_OK,
                     kind: CairoLintKind::ManualOk,
-                    fix_function: Some(Arc::new(fixes::manual::manual_ok::fix_manual_ok)),
+                    fix_function: Some(Arc::new(lints::manual::manual_ok::fix_manual_ok)),
                 }],
                 allowed_name: lints::manual::manual_ok::LINT_NAME,
                 check_function: Arc::new(lints::manual::manual_ok::check_manual_ok),
@@ -294,7 +292,7 @@ impl LintContext {
                 rules: vec![LintRule {
                     diagnostic_message: lints::manual::manual_err::MANUAL_ERR,
                     kind: CairoLintKind::ManualErr,
-                    fix_function: Some(Arc::new(fixes::manual::manual_err::fix_manual_err)),
+                    fix_function: Some(Arc::new(lints::manual::manual_err::fix_manual_err)),
                 }],
                 allowed_name: lints::manual::manual_err::LINT_NAME,
                 check_function: Arc::new(lints::manual::manual_err::check_manual_err),
@@ -304,28 +302,22 @@ impl LintContext {
                     LintRule {
                         diagnostic_message: lints::manual::manual_is::MANUAL_IS_SOME,
                         kind: CairoLintKind::ManualIsSome,
-                        fix_function: Some(Arc::new(
-                            fixes::manual::manual_is_some::fix_manual_is_some,
-                        )),
+                        fix_function: Some(Arc::new(lints::manual::manual_is::fix_manual_is_some)),
                     },
                     LintRule {
                         diagnostic_message: lints::manual::manual_is::MANUAL_IS_NONE,
                         kind: CairoLintKind::ManualIsNone,
-                        fix_function: Some(Arc::new(
-                            fixes::manual::manual_is_none::fix_manual_is_none,
-                        )),
+                        fix_function: Some(Arc::new(lints::manual::manual_is::fix_manual_is_none)),
                     },
                     LintRule {
                         diagnostic_message: lints::manual::manual_is::MANUAL_IS_OK,
                         kind: CairoLintKind::ManualIsOk,
-                        fix_function: Some(Arc::new(fixes::manual::manual_is_ok::fix_manual_is_ok)),
+                        fix_function: Some(Arc::new(lints::manual::manual_is::fix_manual_is_ok)),
                     },
                     LintRule {
                         diagnostic_message: lints::manual::manual_is::MANUAL_IS_ERR,
                         kind: CairoLintKind::ManualIsErr,
-                        fix_function: Some(Arc::new(
-                            fixes::manual::manual_is_err::fix_manual_is_err,
-                        )),
+                        fix_function: Some(Arc::new(lints::manual::manual_is::fix_manual_is_err)),
                     },
                 ],
                 allowed_name: lints::manual::manual_is::ALLOWED_NAME,
@@ -335,7 +327,7 @@ impl LintContext {
                 rules: vec![LintRule {
                     diagnostic_message: lints::manual::manual_expect::MANUAL_EXPECT,
                     kind: CairoLintKind::ManualExpect,
-                    fix_function: Some(Arc::new(fixes::manual::manual_expect::fix_manual_expect)),
+                    fix_function: Some(Arc::new(lints::manual::manual_expect::fix_manual_expect)),
                 }],
                 allowed_name: lints::manual::manual_expect::LINT_NAME,
                 check_function: Arc::new(lints::manual::manual_expect::check_manual_expect),
@@ -354,7 +346,7 @@ impl LintContext {
                     diagnostic_message: lints::manual::manual_expect_err::MANUAL_EXPECT_ERR,
                     kind: CairoLintKind::ManualExpectErr,
                     fix_function: Some(Arc::new(
-                        fixes::manual::manual_expect_err::fix_manual_expect_err,
+                        lints::manual::manual_expect_err::fix_manual_expect_err,
                     )),
                 }],
                 allowed_name: lints::manual::manual_expect_err::LINT_NAME,
@@ -365,30 +357,22 @@ impl LintContext {
                     LintRule {
                         diagnostic_message: lints::int_op_one::INT_GE_PLUS_ONE,
                         kind: CairoLintKind::IntGePlusOne,
-                        fix_function: Some(Arc::new(
-                            fixes::comparisons::int_ge_plus_one::fix_int_ge_plus_one,
-                        )),
+                        fix_function: Some(Arc::new(lints::int_op_one::fix_int_ge_plus_one)),
                     },
                     LintRule {
                         diagnostic_message: lints::int_op_one::INT_GE_MIN_ONE,
                         kind: CairoLintKind::IntGeMinOne,
-                        fix_function: Some(Arc::new(
-                            fixes::comparisons::int_ge_min_one::fix_int_ge_min_one,
-                        )),
+                        fix_function: Some(Arc::new(lints::int_op_one::fix_int_ge_min_one)),
                     },
                     LintRule {
                         diagnostic_message: lints::int_op_one::INT_LE_PLUS_ONE,
                         kind: CairoLintKind::IntLePlusOne,
-                        fix_function: Some(Arc::new(
-                            fixes::comparisons::int_le_plus_one::fix_int_le_plus_one,
-                        )),
+                        fix_function: Some(Arc::new(lints::int_op_one::fix_int_le_plus_one)),
                     },
                     LintRule {
                         diagnostic_message: lints::int_op_one::INT_LE_MIN_ONE,
                         kind: CairoLintKind::IntLeMinOne,
-                        fix_function: Some(Arc::new(
-                            fixes::comparisons::int_le_min_one::fix_int_le_min_one,
-                        )),
+                        fix_function: Some(Arc::new(lints::int_op_one::fix_int_le_min_one)),
                     },
                 ],
                 allowed_name: lints::int_op_one::LINT_NAME,

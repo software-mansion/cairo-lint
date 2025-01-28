@@ -3,8 +3,10 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
+use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBinary};
+use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
@@ -163,4 +165,60 @@ fn check_is_add_or_sub_one(
     }
 
     true
+}
+
+/// Rewrites a manual implementation of int ge plus one x >= y + 1
+pub fn fix_int_ge_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    let node = ExprBinary::from_syntax_node(db, node);
+    let lhs = node.lhs(db).as_syntax_node().get_text(db);
+
+    let AstExpr::Binary(rhs_exp) = node.rhs(db) else {
+        panic!("should be addition")
+    };
+    let rhs = rhs_exp.lhs(db).as_syntax_node().get_text(db);
+
+    let fix = format!("{} > {} ", lhs.trim(), rhs.trim());
+    Some((node.as_syntax_node(), fix))
+}
+
+/// Rewrites a manual implementation of int ge min one x - 1 >= y
+pub fn fix_int_ge_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    let node = ExprBinary::from_syntax_node(db, node);
+    let AstExpr::Binary(lhs_exp) = node.lhs(db) else {
+        panic!("should be substraction")
+    };
+    let rhs = node.rhs(db).as_syntax_node().get_text(db);
+
+    let lhs = lhs_exp.lhs(db).as_syntax_node().get_text(db);
+
+    let fix = format!("{} > {} ", lhs.trim(), rhs.trim());
+    Some((node.as_syntax_node(), fix))
+}
+
+/// Rewrites a manual implementation of int le plus one x + 1 <= y
+pub fn fix_int_le_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    let node = ExprBinary::from_syntax_node(db, node);
+    let AstExpr::Binary(lhs_exp) = node.lhs(db) else {
+        panic!("should be addition")
+    };
+    let rhs = node.rhs(db).as_syntax_node().get_text(db);
+
+    let lhs = lhs_exp.lhs(db).as_syntax_node().get_text(db);
+
+    let fix = format!("{} < {} ", lhs.trim(), rhs.trim());
+    Some((node.as_syntax_node(), fix))
+}
+
+/// Rewrites a manual implementation of int le min one x <= y -1
+pub fn fix_int_le_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    let node = ExprBinary::from_syntax_node(db, node);
+    let lhs = node.lhs(db).as_syntax_node().get_text(db);
+
+    let AstExpr::Binary(rhs_exp) = node.rhs(db) else {
+        panic!("should be substraction")
+    };
+    let rhs = rhs_exp.lhs(db).as_syntax_node().get_text(db);
+
+    let fix = format!("{} < {} ", lhs.trim(), rhs.trim());
+    Some((node.as_syntax_node(), fix))
 }

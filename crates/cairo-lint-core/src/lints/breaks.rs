@@ -3,8 +3,9 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, StatementBreak};
+use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
 use crate::queries::{get_all_break_statements, get_all_function_bodies};
@@ -52,4 +53,12 @@ fn check_single_break(
             });
         }
     }
+}
+
+/// Rewrites `break ();` as `break;` given the node text contains it.
+pub fn fix_break_unit(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    Some((
+        node.clone(),
+        node.get_text(db).replace("break ();", "break;").to_string(),
+    ))
 }

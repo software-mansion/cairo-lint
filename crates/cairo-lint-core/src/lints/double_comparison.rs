@@ -10,7 +10,7 @@ use cairo_lang_semantic::{
 use cairo_lang_syntax::node::ast::{BinaryOperator, Expr as AstExpr};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 
 use super::function_trait_name_from_fn_id;
 use crate::lints::{EQ, GE, GT, LE, LT};
@@ -300,7 +300,40 @@ fn is_contradictory_double_comparison(
     )
 }
 
-pub fn operator_to_replace(lhs_op: BinaryOperator) -> Option<&'static str> {
+/// Rewrites a double comparison. Ex: `a > b || a == b` to `a >= b`
+pub fn fix_double_comparison(
+    db: &dyn SyntaxGroup,
+    node: SyntaxNode,
+) -> Option<(SyntaxNode, String)> {
+    let expr = AstExpr::from_syntax_node(db, node.clone());
+
+    if let AstExpr::Binary(binary_op) = expr {
+        let lhs = binary_op.lhs(db);
+        let rhs = binary_op.rhs(db);
+        let middle_op = binary_op.op(db);
+
+        if let (Some(lhs_op), Some(rhs_op)) = (
+            extract_binary_operator_expr(&lhs, db),
+            extract_binary_operator_expr(&rhs, db),
+        ) {
+            let simplified_op = determine_simplified_operator(&lhs_op, &rhs_op, &middle_op);
+
+            if let Some(simplified_op) = simplified_op {
+                if let Some(operator_to_replace) = operator_to_replace(lhs_op) {
+                    let lhs_text = lhs
+                        .as_syntax_node()
+                        .get_text(db)
+                        .replace(operator_to_replace, simplified_op);
+                    return Some((node, lhs_text.to_string()));
+                }
+            }
+        }
+    }
+
+    None
+}
+
+fn operator_to_replace(lhs_op: BinaryOperator) -> Option<&'static str> {
     match lhs_op {
         BinaryOperator::EqEq(_) => Some("=="),
         BinaryOperator::GT(_) => Some(">"),
@@ -311,7 +344,7 @@ pub fn operator_to_replace(lhs_op: BinaryOperator) -> Option<&'static str> {
     }
 }
 
-pub fn determine_simplified_operator(
+fn determine_simplified_operator(
     lhs_op: &BinaryOperator,
     rhs_op: &BinaryOperator,
     middle_op: &BinaryOperator,
@@ -333,10 +366,7 @@ pub fn determine_simplified_operator(
     }
 }
 
-pub fn extract_binary_operator_expr(
-    expr: &AstExpr,
-    db: &dyn SyntaxGroup,
-) -> Option<BinaryOperator> {
+fn extract_binary_operator_expr(expr: &AstExpr, db: &dyn SyntaxGroup) -> Option<BinaryOperator> {
     if let AstExpr::Binary(binary_op) = expr {
         Some(binary_op.op(db))
     } else {

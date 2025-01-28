@@ -2,10 +2,13 @@ use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_syntax::node::TypedStablePtr;
+use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions};
+
+use super::helpers::fix_manual;
 
 pub const MANUAL_OK: &str = "Manual match for `ok` detected. Consider using `ok()` instead";
 pub const LINT_NAME: &str = "manual_ok";
@@ -39,4 +42,9 @@ pub fn check_manual_ok(
             }
         }
     }
+}
+
+/// Rewrites a manual implementation of ok
+pub fn fix_manual_ok(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    Some((node.clone(), fix_manual("ok", db, node)))
 }

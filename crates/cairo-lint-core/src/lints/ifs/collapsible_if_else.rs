@@ -3,8 +3,15 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprBlock, ExprIf, Statement};
+use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{
+    ast::{
+        BlockOrIf, Expr as AstExpr, ExprIf as AstExprIf, OptionElseClause,
+        Statement as AstStatement,
+    },
+    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
+};
 use if_chain::if_chain;
 
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
@@ -100,4 +107,58 @@ fn is_only_statement_if(block_expr: &ExprBlock, arenas: &Arenas) -> bool {
     }
 
     false
+}
+
+/// Transforms nested `if-else` statements into a more compact `if-else if` format.
+///
+/// Simplifies an expression by converting nested `if-else` structures into a single `if-else
+/// if` statement while preserving the original formatting and indentation.
+///
+/// # Arguments
+///
+/// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
+/// * `node` - The `SyntaxNode` containing the expression.
+///
+/// # Returns
+///
+/// A `String` with the refactored `if-else` structure.
+pub fn fix_collapsible_if_else(
+    db: &dyn SyntaxGroup,
+    node: SyntaxNode,
+) -> Option<(SyntaxNode, String)> {
+    let if_expr = AstExprIf::from_syntax_node(db, node);
+    let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) else {
+        return None;
+    };
+    if let BlockOrIf::Block(block_expr) = else_clause.else_block_or_if(db) {
+        if let Some(AstStatement::Expr(statement_expr)) =
+            block_expr.statements(db).elements(db).first()
+        {
+            if let AstExpr::If(if_expr) = statement_expr.expr(db) {
+                // Construct the new "else if" expression
+                let condition = if_expr.condition(db).as_syntax_node().get_text(db);
+                let if_body = if_expr.if_block(db).as_syntax_node().get_text(db);
+                let else_body = if_expr.else_clause(db).as_syntax_node().get_text(db);
+
+                // Preserve original indentation
+                let original_indent = else_clause
+                    .as_syntax_node()
+                    .get_text(db)
+                    .chars()
+                    .take_while(|c| c.is_whitespace())
+                    .collect::<String>();
+
+                return Some((
+                    else_clause.as_syntax_node(),
+                    format!(
+                        "{}else if {} {} {}",
+                        original_indent, condition, if_body, else_body
+                    ),
+                ));
+            }
+        }
+    }
+
+    // If we can't transform it, return the original text
+    None
 }

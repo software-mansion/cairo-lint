@@ -19,6 +19,7 @@ use cairo_lang_utils::Upcast;
 pub mod context;
 pub mod diagnostics;
 pub mod fixes;
+mod helper;
 pub mod lints;
 pub mod plugin;
 mod queries;
