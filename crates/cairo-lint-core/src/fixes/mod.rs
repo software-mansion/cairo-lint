@@ -7,7 +7,7 @@ use cairo_lang_utils::Upcast;
 pub use import_fixes::{apply_import_fixes, collect_unused_imports, ImportFix};
 use log::debug;
 
-use crate::LINT_CONTEXT;
+use crate::context::get_fixing_function_for_diagnostic_message;
 
 pub mod break_unit;
 pub mod comparisons;
@@ -78,11 +78,6 @@ fn fix_plugin_diagnostic(
     db: &RootDatabase,
     plugin_diag: &PluginDiagnostic,
 ) -> Option<(SyntaxNode, String)> {
-    let fix_function =
-        LINT_CONTEXT.get_fixing_function_for_diagnostic_message(&plugin_diag.message);
-    if let Some(func) = fix_function {
-        func(db, plugin_diag.stable_ptr.lookup(db.upcast()))
-    } else {
-        None
-    }
+    let fix_function = get_fixing_function_for_diagnostic_message(&plugin_diag.message)?;
+    fix_function(db, plugin_diag.stable_ptr.lookup(db.upcast()))
 }

@@ -43,11 +43,7 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 /// ```
 ///
 /// This function skips the `break` statement and preserves the remaining statements in the block.
-pub(crate) fn remove_break_from_block(
-    db: &dyn SyntaxGroup,
-    block: ExprBlock,
-    indent: &str,
-) -> String {
+pub fn remove_break_from_block(db: &dyn SyntaxGroup, block: ExprBlock, indent: &str) -> String {
     let mut block_body = String::new();
     for statement in block.statements(db).elements(db) {
         if !matches!(statement, Statement::Break(_)) {
@@ -90,7 +86,7 @@ pub(crate) fn remove_break_from_block(
 /// ```
 ///
 /// This function formats the `else` or `else if` block and returns it as a string.
-pub(crate) fn remove_break_from_else_clause(
+pub fn remove_break_from_else_clause(
     db: &dyn SyntaxGroup,
     else_clause: ElseClause,
     indent: &str,
@@ -132,7 +128,7 @@ pub(crate) fn remove_break_from_else_clause(
 /// Output: `"x < 5 || y >= 10"`  
 ///
 /// This inverts both the logical operator (`&&` becomes `||`) and the comparison operators.
-pub(crate) fn invert_condition(condition: &str) -> String {
+pub fn invert_condition(condition: &str) -> String {
     if condition.contains("&&") {
         condition
             .split("&&")
@@ -166,7 +162,7 @@ pub(crate) fn invert_condition(condition: &str) -> String {
 /// Output: `"x < 5"`  
 ///
 /// This will invert the condition by reversing the comparison operator.
-pub(crate) fn invert_simple_condition(condition: &str) -> String {
+pub fn invert_simple_condition(condition: &str) -> String {
     if condition.contains(">=") {
         condition.replace(">=", "<")
     } else if condition.contains("<=") {
@@ -184,7 +180,7 @@ pub(crate) fn invert_simple_condition(condition: &str) -> String {
     }
 }
 
-pub(crate) fn indent_snippet(input: &str, initial_indentation: usize) -> String {
+pub fn indent_snippet(input: &str, initial_indentation: usize) -> String {
     let mut indented_code = String::new();
     let mut indentation_level = initial_indentation;
     let indent = "    "; // 4 spaces for each level of indentation

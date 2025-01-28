@@ -20,7 +20,7 @@ use cairo_lang_starknet::starknet_plugin_suite;
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_test_plugin::test_plugin_suite;
 use cairo_lang_utils::{Upcast, UpcastMut};
-use cairo_lint_core::context::{CairoLintKind, LINT_CONTEXT};
+use cairo_lint_core::context::{get_lint_type_from_diagnostic_message, CairoLintKind};
 use cairo_lint_core::diagnostics::format_diagnostic;
 use cairo_lint_core::fixes::{
     apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix,
@@ -183,8 +183,7 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                             if let SemanticDiagnosticKind::PluginDiagnostic(diag) = &diag.kind {
                                 should_lint_panics
                                     || !matches!(
-                                        LINT_CONTEXT
-                                            .get_lint_type_from_diagnostic_message(&diag.message),
+                                        get_lint_type_from_diagnostic_message(&diag.message),
                                         CairoLintKind::Panic
                                     )
                             } else {

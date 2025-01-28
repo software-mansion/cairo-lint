@@ -5,7 +5,7 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_utils::LookupIntern;
 
-use crate::LINT_CONTEXT;
+use crate::context::{get_all_checking_functions, get_unique_allowed_names};
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
@@ -28,8 +28,7 @@ impl CairoLint {
 
 impl AnalyzerPlugin for CairoLint {
     fn declared_allows(&self) -> Vec<String> {
-        LINT_CONTEXT
-            .get_unique_allowed_names()
+        get_unique_allowed_names()
             .iter()
             .map(ToString::to_string)
             .collect()
@@ -53,7 +52,7 @@ impl AnalyzerPlugin for CairoLint {
                 continue;
             }
 
-            let checking_functions = LINT_CONTEXT.get_all_checking_functions();
+            let checking_functions = get_all_checking_functions();
 
             for checking_function in checking_functions {
                 checking_function(db, item, &mut diags);

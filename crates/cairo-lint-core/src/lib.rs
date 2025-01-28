@@ -23,7 +23,7 @@ pub mod lints;
 pub mod plugin;
 mod queries;
 
-use context::{CairoLintKind, LINT_CONTEXT};
+use context::{get_lint_type_from_diagnostic_message, CairoLintKind};
 
 /// Gets the fixes for a set of a compiler diagnostics (that uses Cairo lint analyzer plugin).
 /// # Arguments
@@ -117,5 +117,5 @@ pub fn apply_file_fixes(file_id: FileId, fixes: Vec<Fix>, db: &RootDatabase) -> 
 
 /// Checks if the diagnostic is a panic diagnostic.
 pub fn is_panic_diagnostic(diag: &PluginDiagnostic) -> bool {
-    LINT_CONTEXT.get_lint_type_from_diagnostic_message(&diag.message) == CairoLintKind::Panic
+    get_lint_type_from_diagnostic_message(&diag.message) == CairoLintKind::Panic
 }

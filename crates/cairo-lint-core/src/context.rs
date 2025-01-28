@@ -1,10 +1,10 @@
+use crate::{fixes, lints};
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::{db::SyntaxGroup, SyntaxNode};
-use once_cell::sync::Lazy;
+use std::collections::HashMap;
 use std::sync::Arc;
-
-use crate::{fixes, lints};
+use std::sync::LazyLock;
 
 /// Type describing a linter's rule fixing function.
 type FixingFunction =
@@ -53,8 +53,9 @@ pub enum CairoLintKind {
     Performance,
 }
 
-/// A group of lint rules. We want to group lint rules beucase
-/// some lint rules can share an allowed name for compiler or the cheking function.
+/// A group of lint rules.
+///
+/// We want to group lint rules beucase some lint rules can share an allowed name for compiler or the cheking function.
 pub struct LintRuleGroup {
     /// Collection of `LintRule`s that are directly connected to this group's checking function.
     rules: Vec<LintRule>,
@@ -78,8 +79,9 @@ pub struct LintRule {
 }
 
 /// A global Linter context. It contains all the lint rules.
-pub struct LintContext {
+struct LintContext {
     lint_rules: Vec<LintRuleGroup>,
+    diagnostic_to_lint_kind_map: HashMap<&'static str, CairoLintKind>,
 }
 
 impl LintContext {
@@ -440,50 +442,66 @@ impl LintContext {
         ]
     }
 
-    fn new() -> Self {
-        Self {
-            lint_rules: Self::get_all_rules(),
+    fn precompute_diagnostic_to_lint_kind_map(mut self) -> Self {
+        let mut result: HashMap<&'static str, CairoLintKind> = HashMap::default();
+        for rule_group in self.lint_rules.iter() {
+            for rule in rule_group.rules.iter() {
+                result.insert(rule.diagnostic_message, rule.kind);
+            }
         }
+        self.diagnostic_to_lint_kind_map = result;
+        self
     }
 
-    /// Get the lint type based on the diagnostic message.
-    /// If the diagnostic message doesn't match any of the rules, it returns `CairoLintKind::Unknown`.
-    pub fn get_lint_type_from_diagnostic_message(&self, message: &str) -> CairoLintKind {
-        self.lint_rules
-            .iter()
-            .flat_map(|rule_group| &rule_group.rules)
-            .find(|rule| rule.diagnostic_message == message)
-            .map_or(CairoLintKind::Unknown, |rule| rule.kind)
+    fn new() -> Self {
+        let new = Self {
+            lint_rules: Self::get_all_rules(),
+            diagnostic_to_lint_kind_map: Default::default(),
+        };
+        new.precompute_diagnostic_to_lint_kind_map()
     }
 
-    /// Get the fixing function based on the diagnostic message.
-    /// For some of the rules there is no fixing function, so it returns `None`.
-    pub fn get_fixing_function_for_diagnostic_message(
-        &self,
-        message: &str,
-    ) -> Option<FixingFunction> {
-        self.lint_rules
-            .iter()
-            .flat_map(|rule_group| &rule_group.rules)
-            .find(|rule| rule.diagnostic_message == message)
-            .and_then(|rule| rule.fix_function.clone())
-    }
-
-    /// Get all the unique allowed names for the lint rule groups.
-    pub fn get_unique_allowed_names(&self) -> Vec<&'static str> {
-        self.lint_rules
-            .iter()
-            .map(|rule_group| rule_group.allowed_name)
-            .collect()
-    }
-
-    /// Get all the checking functions that exist for each `LintRuleGroup`.
-    pub fn get_all_checking_functions(&self) -> impl Iterator<Item = &CheckingFunction> {
-        self.lint_rules
-            .iter()
-            .map(|rule_group| &rule_group.check_function)
+    fn get_lint_type_from_diagnostic_message(&self, message: &str) -> CairoLintKind {
+        self.diagnostic_to_lint_kind_map
+            .get(message)
+            .copied()
+            .unwrap_or(CairoLintKind::Unknown)
     }
 }
 
 /// A singleton instance of the `LintContext`. It should be the only instance of the `LintContext`.
-pub static LINT_CONTEXT: Lazy<LintContext> = Lazy::new(LintContext::new);
+static LINT_CONTEXT: LazyLock<LintContext> = LazyLock::new(LintContext::new);
+
+/// Get the lint type based on the diagnostic message.
+/// If the diagnostic message doesn't match any of the rules, it returns `CairoLintKind::Unknown`.
+pub fn get_lint_type_from_diagnostic_message(message: &str) -> CairoLintKind {
+    LINT_CONTEXT.get_lint_type_from_diagnostic_message(message)
+}
+
+/// Get the fixing function based on the diagnostic message.
+/// For some of the rules there is no fixing function, so it returns `None`.
+pub fn get_fixing_function_for_diagnostic_message(message: &str) -> Option<FixingFunction> {
+    LINT_CONTEXT
+        .lint_rules
+        .iter()
+        .flat_map(|rule_group| &rule_group.rules)
+        .find(|rule| rule.diagnostic_message == message)
+        .and_then(|rule| rule.fix_function.clone())
+}
+
+/// Get all the unique allowed names for the lint rule groups.
+pub fn get_unique_allowed_names() -> Vec<&'static str> {
+    LINT_CONTEXT
+        .lint_rules
+        .iter()
+        .map(|rule_group| rule_group.allowed_name)
+        .collect()
+}
+
+/// Get all the checking functions that exist for each `LintRuleGroup`.
+pub fn get_all_checking_functions() -> impl Iterator<Item = &'static CheckingFunction> {
+    LINT_CONTEXT
+        .lint_rules
+        .iter()
+        .map(|rule_group| &rule_group.check_function)
+}

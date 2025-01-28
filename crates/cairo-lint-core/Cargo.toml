@@ -19,7 +19,6 @@ log.workspace = true
 num-bigint.workspace = true
 annotate-snippets.workspace = true
 if_chain.workspace = true
-once_cell.workspace = true
 itertools.workspace = true
 
 [dev-dependencies]
