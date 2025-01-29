@@ -14,7 +14,11 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprId, ExprIf, ExprMatch, MatchArm, Pattern};
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
-use helpers::{check_is_default, if_expr_condition_and_block_match_enum_pattern, if_expr_pattern_matches_tail_var, is_destructured_variable_used_and_expected_variant, is_expected_function, pattern_check_enum_arg};
+use helpers::{
+    check_is_default, if_expr_condition_and_block_match_enum_pattern,
+    if_expr_pattern_matches_tail_var, is_destructured_variable_used_and_expected_variant,
+    is_expected_function, pattern_check_enum_arg,
+};
 use if_chain::if_chain;
 
 use super::{FALSE, OK, PANIC_WITH_FELT252, TRUE};

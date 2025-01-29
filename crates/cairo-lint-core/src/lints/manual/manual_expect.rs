@@ -9,7 +9,9 @@ use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
 
-use crate::lints::manual::helpers::{expr_if_get_var_name_and_err, expr_match_get_var_name_and_err};
+use crate::lints::manual::helpers::{
+    expr_if_get_var_name_and_err, expr_match_get_var_name_and_err,
+};
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions};
 
