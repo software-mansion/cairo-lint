@@ -357,6 +357,7 @@ pub fn get_all_checking_functions() -> impl Iterator<Item = &'static CheckingFun
         .map(|rule_group| &rule_group.check_function)
 }
 
+/// Get lint name based on the diagnostic message.
 pub fn get_name_for_diagnostic_message(message: &str) -> Option<&'static str> {
     LINT_CONTEXT
         .lint_groups

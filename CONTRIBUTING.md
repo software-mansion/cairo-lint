@@ -17,7 +17,7 @@ include that information in the pull request description.
 
 ## Adding new lint rule
 
-In order to add a new rule, you must extend a [context](crates/cairo-lint-core/src/context.rs) with a new rule or whole rule group.
+In order to add a new rule, you must extend a [context](crates/cairo-lint-core/src/context.rs) with a new lint or whole lint group.
 
 ## Testing
 
