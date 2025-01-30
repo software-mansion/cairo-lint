@@ -23,23 +23,23 @@ const MANUAL_UNWRAP_OR_DEFAULT_LINT_NAME: &str = "manual_unwrap_or_default";
 pub struct ManualUnwrapOrDefault;
 
 impl Lint for ManualUnwrapOrDefault {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         MANUAL_UNWRAP_OR_DEFAULT_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         MANUAL_UNWRAP_OR_DEFAULT
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::ManualUnwrapOrDefault
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_manual_unwrap_or_default(db, node)
     }
 }

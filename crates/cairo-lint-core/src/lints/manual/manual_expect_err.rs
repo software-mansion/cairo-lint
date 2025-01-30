@@ -29,23 +29,23 @@ const MANUAL_EXPECT_ERR_LINT_NAME: &str = "manual_expect_err";
 pub struct ManualExpectErr;
 
 impl Lint for ManualExpectErr {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         MANUAL_EXPECT_ERR_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         MANUAL_EXPECT_ERR
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::ManualExpectErr
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_manual_expect_err(db, node)
     }
 }

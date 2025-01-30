@@ -18,23 +18,23 @@ const MANUAL_IS_SOME_LINT_NAME: &str = "manual_is_some";
 pub struct ManualIsSome;
 
 impl Lint for ManualIsSome {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         MANUAL_IS_SOME_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         MANUAL_IS_SOME
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::ManualIsSome
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_manual_is_some(db, node)
     }
 }
@@ -46,23 +46,23 @@ const MANUAL_IS_NONE_LINT_NAME: &str = "manual_is_none";
 pub struct ManualIsNone;
 
 impl Lint for ManualIsNone {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         MANUAL_IS_NONE_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         MANUAL_IS_NONE
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::ManualIsNone
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_manual_is_none(db, node)
     }
 }
@@ -73,23 +73,23 @@ const MANUAL_IS_OK_LINT_NAME: &str = "manual_is_ok";
 pub struct ManualIsOk;
 
 impl Lint for ManualIsOk {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         MANUAL_IS_OK_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         MANUAL_IS_OK
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::ManualIsOk
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_manual_is_ok(db, node)
     }
 }
@@ -100,23 +100,23 @@ const MANUAL_IS_ERR_LINT_NAME: &str = "manual_is_err";
 pub struct ManualIsErr;
 
 impl Lint for ManualIsErr {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         MANUAL_IS_ERR_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         MANUAL_IS_ERR
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::ManualIsErr
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_manual_is_err(db, node)
     }
 }

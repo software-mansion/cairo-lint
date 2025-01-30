@@ -15,15 +15,15 @@ const DUPLICATE_IF_CONDITION_LINT_NAME: &str = "ifs_same_cond";
 pub struct DuplicateIfCondition;
 
 impl Lint for DuplicateIfCondition {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         DUPLICATE_IF_CONDITION_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         DUPLICATE_IF_CONDITION
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::DuplicateIfCondition
     }
 }

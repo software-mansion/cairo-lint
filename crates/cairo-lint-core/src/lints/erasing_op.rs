@@ -20,15 +20,15 @@ const ERASING_OPERATION_LINT_NAME: &str = "erasing_op";
 pub struct ErasingOperation;
 
 impl Lint for ErasingOperation {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         ERASING_OPERATION_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         ERASING_OPERATION
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::ErasingOperation
     }
 }

@@ -22,23 +22,23 @@ const COLLAPSIBLE_IF_ELSE_LINT_NAME: &str = "collapsible_if_else";
 pub struct CollapsibleIfElse;
 
 impl Lint for CollapsibleIfElse {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         COLLAPSIBLE_IF_ELSE_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         COLLAPSIBLE_IF_ELSE
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::CollapsibleIfElse
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_collapsible_if_else(db, node)
     }
 }

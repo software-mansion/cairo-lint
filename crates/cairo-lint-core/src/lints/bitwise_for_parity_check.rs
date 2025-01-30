@@ -19,15 +19,15 @@ const BITWISE_FOR_PARITY_LINT_NAME: &str = "bitwise_for_parity_check";
 pub struct BitwiseForParity;
 
 impl Lint for BitwiseForParity {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         BITWISE_FOR_PARITY_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         BITWISE_FOR_PARITY
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::BitwiseForParityCheck
     }
 }

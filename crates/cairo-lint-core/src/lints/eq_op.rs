@@ -20,15 +20,15 @@ const DIV_EQ_OP_LINT_NAME: &str = "div_eq_op";
 pub struct DivisionEqualityOperation;
 
 impl Lint for DivisionEqualityOperation {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         DIV_EQ_OP_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         DIV_EQ_OP
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::EqualityOperation
     }
 }
@@ -40,15 +40,15 @@ const EQ_COMP_OP_LINT_NAME: &str = "eq_comp_op";
 pub struct EqualComparisonOperation;
 
 impl Lint for EqualComparisonOperation {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         EQ_COMP_OP_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         EQ_COMP_OP
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::EqualityOperation
     }
 }
@@ -60,15 +60,15 @@ const NEQ_COMP_OP_LINT_NAME: &str = "neq_comp_op";
 pub struct NotEqualComparisonOperation;
 
 impl Lint for NotEqualComparisonOperation {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         NEQ_COMP_OP_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         NEQ_COMP_OP
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::EqualityOperation
     }
 }
@@ -80,15 +80,15 @@ const EQ_DIFF_OP_LINT_NAME: &str = "eq_diff_op";
 pub struct DifferenceEqualityOperation;
 
 impl Lint for DifferenceEqualityOperation {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         EQ_DIFF_OP_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         EQ_DIFF_OP
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::EqualityOperation
     }
 }
@@ -101,15 +101,15 @@ const EQ_BITWISE_OP_LINT_NAME: &str = "eq_bitwise_op";
 pub struct BitwiseEqualityOperation;
 
 impl Lint for BitwiseEqualityOperation {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         EQ_BITWISE_OP_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         EQ_BITWISE_OP
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::EqualityOperation
     }
 }
@@ -122,15 +122,15 @@ const EQ_LOGICAL_OP_LINT_NAME: &str = "eq_logical_op";
 pub struct LogicalEqualityOperation;
 
 impl Lint for LogicalEqualityOperation {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         EQ_LOGICAL_OP_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         EQ_LOGICAL_OP
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::EqualityOperation
     }
 }

@@ -117,15 +117,15 @@ pub enum CairoLintKind {
 pub trait Lint: Sync {
     /// A name that is going to be registered by the compiler as an allowed lint to be ignored.
     /// Some multiple lint rules might have the same allowed name. This way all of the will be ignored with only one allow attribute.
-    fn allowed_name(self: &Self) -> &'static str;
+    fn allowed_name(&self) -> &'static str;
     /// A predefined message that is going to appear in the compiler's diagnostic output. It should be the same as the one in the lint check function.
-    fn diagnostic_message(self: &Self) -> &'static str;
+    fn diagnostic_message(&self) -> &'static str;
     /// The kind of the lint rule. Some lint rules might have the same kind.
-    fn kind(self: &Self) -> CairoLintKind;
+    fn kind(&self) -> CairoLintKind;
 
     /// Checks if the instance has a fixer.
     /// By default it return false.
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         false
     }
 
@@ -142,7 +142,7 @@ pub trait Lint: Sync {
     ///
     /// By default there is no fixing procedure for a Lint.
     #[expect(unused_variables)]
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         None
     }
 }

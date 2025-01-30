@@ -22,23 +22,23 @@ const DESTRUCT_MATCH_LINT_NAME: &str = "equality_match";
 pub struct DestructMatchLint;
 
 impl Lint for DestructMatchLint {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         DESTRUCT_MATCH_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         DESTRUCT_MATCH
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::DestructMatch
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_destruct_match(db, node)
     }
 }
@@ -58,7 +58,7 @@ impl Lint for EqualityMatch {
         MATCH_FOR_EQUALITY
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::MatchForEquality
     }
 }

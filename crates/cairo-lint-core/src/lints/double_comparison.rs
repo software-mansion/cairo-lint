@@ -22,15 +22,15 @@ const IMPOSSIBLE_COMPARISON: &str = "Impossible condition, always false";
 pub struct ImpossibleComparison;
 
 impl Lint for ImpossibleComparison {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         IMPOSSIBLE_COMPARISON_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         IMPOSSIBLE_COMPARISON
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::ImpossibleComparison
     }
 }
@@ -41,23 +41,23 @@ const SIMPLIFIABLE_COMPARISON: &str = "This double comparison can be simplified.
 pub struct SimplifiableComparison;
 
 impl Lint for SimplifiableComparison {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         SIMPLIFIABLE_COMPARISON_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         SIMPLIFIABLE_COMPARISON
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::DoubleComparison
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_double_comparison(db, node)
     }
 }
@@ -69,23 +69,23 @@ const REDUNDANT_COMPARISON: &str =
 pub struct RedundantComparison;
 
 impl Lint for RedundantComparison {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         REDUNDANT_COMPARISON_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         REDUNDANT_COMPARISON
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::DoubleComparison
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_double_comparison(db, node)
     }
 }
@@ -96,23 +96,23 @@ const CONTRADICTORY_COMPARISON: &str = "This double comparison is contradictory 
 pub struct ContradictoryComparison;
 
 impl Lint for ContradictoryComparison {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         CONTRADICTORY_COMPARISON_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         CONTRADICTORY_COMPARISON
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::DoubleComparison
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_double_comparison(db, node)
     }
 }

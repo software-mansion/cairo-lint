@@ -30,23 +30,23 @@ const LOOP_MATCH_POP_FRONT_LINT_NAME: &str = "loop_match_pop_front";
 pub struct LoopMatchPopFront;
 
 impl Lint for LoopMatchPopFront {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         LOOP_MATCH_POP_FRONT_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         LOOP_MATCH_POP_FRONT
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::LoopMatchPopFront
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_loop_match_pop_front(db, node)
     }
 }

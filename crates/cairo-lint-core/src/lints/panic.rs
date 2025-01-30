@@ -19,15 +19,15 @@ const PANIC_IN_CODE_LINT_NAME: &str = "panic";
 pub struct PanicInCode;
 
 impl Lint for PanicInCode {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         PANIC_IN_CODE_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         PANIC_IN_CODE
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::Panic
     }
 }

@@ -14,15 +14,15 @@ const INEFFICIENT_WHILE_COMP_LINT_NAME: &str = "inefficient_while_comp";
 pub struct InefficientWhileComparison;
 
 impl Lint for InefficientWhileComparison {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         INEFFICIENT_WHILE_COMP_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         INEFFICIENT_WHILE_COMP
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::Performance
     }
 }

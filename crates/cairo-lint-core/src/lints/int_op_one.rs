@@ -18,23 +18,23 @@ const INT_GE_PLUS_ONE_LINT_NAME: &str = "int_ge_plus_one";
 pub struct IntegerGreaterEqualPlusOne;
 
 impl Lint for IntegerGreaterEqualPlusOne {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         INT_GE_PLUS_ONE_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         INT_GE_PLUS_ONE
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::IntGePlusOne
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_int_ge_plus_one(db, node)
     }
 }
@@ -46,23 +46,23 @@ const INT_GE_MIN_ONE_LINT_NAME: &str = "int_ge_min_one";
 pub struct IntegerGreaterEqualMinusOne;
 
 impl Lint for IntegerGreaterEqualMinusOne {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         INT_GE_MIN_ONE_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         INT_GE_MIN_ONE
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::IntGeMinOne
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_int_ge_min_one(db, node)
     }
 }
@@ -74,23 +74,23 @@ const INT_LE_PLUS_ONE_LINT_NAME: &str = "int_le_plus_one";
 pub struct IntegerLessEqualPlusOne;
 
 impl Lint for IntegerLessEqualPlusOne {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         INT_LE_PLUS_ONE_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         INT_LE_PLUS_ONE
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::IntLePlusOne
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_int_le_plus_one(db, node)
     }
 }
@@ -102,23 +102,23 @@ const INT_LE_MIN_ONE_LINT_NAME: &str = "int_le_min_one";
 pub struct IntegerLessEqualMinusOne;
 
 impl Lint for IntegerLessEqualMinusOne {
-    fn allowed_name(self: &Self) -> &'static str {
+    fn allowed_name(&self) -> &'static str {
         INT_LE_MIN_ONE_LINT_NAME
     }
 
-    fn diagnostic_message(self: &Self) -> &'static str {
+    fn diagnostic_message(&self) -> &'static str {
         INT_LE_MIN_ONE
     }
 
-    fn kind(self: &Self) -> CairoLintKind {
+    fn kind(&self) -> CairoLintKind {
         CairoLintKind::IntLeMinOne
     }
 
-    fn has_fixer(self: &Self) -> bool {
+    fn has_fixer(&self) -> bool {
         true
     }
 
-    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_int_le_min_one(db, node)
     }
 }
