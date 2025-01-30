@@ -19,6 +19,7 @@ log.workspace = true
 num-bigint.workspace = true
 annotate-snippets.workspace = true
 if_chain.workspace = true
+itertools.workspace = true
 
 [dev-dependencies]
 cairo-lang-test-utils.workspace = true
@@ -27,7 +28,6 @@ pretty_assertions.workspace = true
 ctor.workspace = true
 cairo-lint-test-utils = { path = "../cairo-lint-test-utils" }
 paste.workspace = true
-itertools.workspace = true
 
 [features]
 testing-colors = ["annotate-snippets/testing-colors"]

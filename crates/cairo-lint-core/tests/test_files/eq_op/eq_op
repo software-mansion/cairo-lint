@@ -40,7 +40,7 @@ fn foo(a: u256) -> u256 {
 
 //! > cairo_code
 fn foo(a: u256) -> u256 {
-    #[allow(eq_op)]
+    #[allow(eq_logical_op)]
     a & a
 }
 
@@ -48,7 +48,7 @@ fn foo(a: u256) -> u256 {
 
 //! > fixed
 fn foo(a: u256) -> u256 {
-    #[allow(eq_op)]
+    #[allow(eq_logical_op)]
     a & a
 }
 

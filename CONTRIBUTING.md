@@ -15,6 +15,10 @@ work.
 - If the change you are introducing is changing or breaking the behavior of any already existing features, make sure to
 include that information in the pull request description.
 
+## Adding new lint rule
+
+In order to add a new rule, you must extend a [context](crates/cairo-lint-core/src/context.rs) with a new lint or whole lint group.
+
 ## Testing
 
 ### Running tests

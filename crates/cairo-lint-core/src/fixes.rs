@@ -14,14 +14,81 @@ use std::collections::HashMap;
 
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_defs::ids::UseId;
+use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::DiagnosticEntry;
 use cairo_lang_filesystem::ids::FileId;
+use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
+use log::debug;
+
+use crate::context::get_fix_for_diagnostic_message;
+
+/// Represents a fix for a diagnostic, containing the span of code to be replaced
+/// and the suggested replacement.
+#[derive(Debug, Clone)]
+pub struct Fix {
+    pub span: TextSpan,
+    pub suggestion: String,
+}
+
+/// Attempts to fix a semantic diagnostic.
+///
+/// This function is the entry point for fixing semantic diagnostics. It examines the
+/// diagnostic kind and delegates to specific fix functions based on the diagnostic type.
+///
+/// # Arguments
+///
+/// * `db` - A reference to the RootDatabase
+/// * `diag` - A reference to the SemanticDiagnostic to be fixed
+///
+/// # Returns
+///
+/// An `Option<(SyntaxNode, String)>` where the `SyntaxNode` represents the node to be
+/// replaced, and the `String` is the suggested replacement. Returns `None` if no fix
+/// is available for the given diagnostic.
+pub fn fix_semantic_diagnostic(
+    db: &RootDatabase,
+    diag: &SemanticDiagnostic,
+) -> Option<(SyntaxNode, String)> {
+    match diag.kind {
+        SemanticDiagnosticKind::PluginDiagnostic(ref plugin_diag) => {
+            fix_plugin_diagnostic(db, plugin_diag)
+        }
+        SemanticDiagnosticKind::UnusedImport(_) => {
+            debug!("Unused imports should be handled in preemptively");
+            None
+        }
+        _ => {
+            debug!("No fix available for diagnostic: {:?}", diag.kind);
+            None
+        }
+    }
+}
+
+/// Fixes a plugin diagnostic by delegating to the appropriate Fixer method.
+///
+/// # Arguments
+///
+/// * `db` - A reference to the RootDatabase
+/// * `diag` - A reference to the SemanticDiagnostic
+/// * `plugin_diag` - A reference to the PluginDiagnostic
+///
+/// # Returns
+///
+/// An `Option<(SyntaxNode, String)>` containing the node to be replaced and the
+/// suggested replacement.
+fn fix_plugin_diagnostic(
+    db: &RootDatabase,
+    plugin_diag: &PluginDiagnostic,
+) -> Option<(SyntaxNode, String)> {
+    let node = plugin_diag.stable_ptr.lookup(db.upcast());
+    get_fix_for_diagnostic_message(db.upcast(), node, &plugin_diag.message)
+}
 
 /// Represents a fix for unused imports in a specific syntax node.
 #[derive(Debug, Clone)]
@@ -41,8 +108,6 @@ impl ImportFix {
         }
     }
 }
-
-use crate::fix::Fix;
 
 /// Collects unused imports from semantic diagnostics.
 ///
