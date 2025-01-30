@@ -26,7 +26,7 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
 use log::debug;
 
-use crate::context::get_fixing_function_for_diagnostic_message;
+use crate::context::get_fix_for_diagnostic_message;
 
 /// Represents a fix for a diagnostic, containing the span of code to be replaced
 /// and the suggested replacement.
@@ -86,8 +86,8 @@ fn fix_plugin_diagnostic(
     db: &RootDatabase,
     plugin_diag: &PluginDiagnostic,
 ) -> Option<(SyntaxNode, String)> {
-    let fix_function = get_fixing_function_for_diagnostic_message(&plugin_diag.message)?;
-    fix_function(db, plugin_diag.stable_ptr.lookup(db.upcast()))
+    let node = plugin_diag.stable_ptr.lookup(db.upcast());
+    get_fix_for_diagnostic_message(db.upcast(), node, &plugin_diag.message)
 }
 
 /// Represents a fix for unused imports in a specific syntax node.

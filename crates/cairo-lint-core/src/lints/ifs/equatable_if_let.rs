@@ -4,17 +4,41 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprIf, Pattern, PatternId};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{
     ast::{Condition as AstCondition, ExprIf as AstExprIf},
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
 
+use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
-pub const EQUATABLE_IF_LET: &str =
+const EQUATABLE_IF_LET: &str =
     "`if let` pattern used for equatable value. Consider using a simple comparison `==` instead";
-pub const LINT_NAME: &str = "equatable_if_let";
+const EQUATABLE_IF_LET_LINT_NAME: &str = "equatable_if_let";
+
+pub struct EquatableIfLet;
+
+impl Lint for EquatableIfLet {
+    fn allowed_name(self: &Self) -> &'static str {
+        EQUATABLE_IF_LET_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        EQUATABLE_IF_LET
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::EquatableIfLet
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_equatable_if_let(db, node)
+    }
+}
 
 /// Checks for
 /// ```ignore
@@ -44,19 +68,11 @@ pub fn check_equatable_if_let(
 }
 
 fn check_single_equatable_if_let(
-    db: &dyn SemanticGroup,
+    _db: &dyn SemanticGroup,
     if_expr: &ExprIf,
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    let mut current_node = if_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
-
     if let Condition::Let(condition_let, patterns) = &if_expr.condition {
         // Simple literals and variables
         let expr_is_simple = matches!(

@@ -4,19 +4,43 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprIf, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{
     ast::{Expr as AstExpr, ExprIf as AstExprIf, OptionElseClause, Statement as AstStatement},
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
 use if_chain::if_chain;
 
+use crate::context::{CairoLintKind, Lint};
 use crate::helper::indent_snippet;
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
-pub const COLLAPSIBLE_IF: &str =
+const COLLAPSIBLE_IF: &str =
     "Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.";
-pub const LINT_NAME: &str = "collapsible_if";
+const COLLAPSIBLE_IF_LINT_NAME: &str = "collapsible_if";
+
+pub struct CollapsibleIf;
+
+impl Lint for CollapsibleIf {
+    fn allowed_name(self: &Self) -> &'static str {
+        COLLAPSIBLE_IF_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        COLLAPSIBLE_IF
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::CollapsibleIf
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_collapsible_if(db, node)
+    }
+}
 
 /// Checks for
 /// ```ignore
@@ -48,19 +72,11 @@ pub fn check_collapsible_if(
 }
 
 fn check_single_collapsible_if(
-    db: &dyn SemanticGroup,
+    _db: &dyn SemanticGroup,
     if_expr: &ExprIf,
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    // Checks if the lint is allowed in any upper scope
-    let mut current_node = if_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
     let Expr::Block(ref if_block) = arenas.exprs[if_expr.if_block] else {
         return;
     };

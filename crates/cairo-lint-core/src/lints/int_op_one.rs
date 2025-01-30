@@ -5,22 +5,123 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBinary};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
+use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
-pub const INT_GE_PLUS_ONE: &str =
+const INT_GE_PLUS_ONE: &str =
     "Unnecessary add operation in integer >= comparison. Use simplified comparison.";
-pub const INT_GE_MIN_ONE: &str =
-    "Unnecessary sub operation in integer >= comparison. Use simplified comparison.";
-pub const INT_LE_PLUS_ONE: &str =
-    "Unnecessary add operation in integer <= comparison. Use simplified comparison.";
-pub const INT_LE_MIN_ONE: &str =
-    "Unnecessary sub operation in integer <= comparison. Use simplified comparison.";
+const INT_GE_PLUS_ONE_LINT_NAME: &str = "int_ge_plus_one";
 
-pub const LINT_NAME: &str = "int_op_one";
+pub struct IntegerGreaterEqualPlusOne;
+
+impl Lint for IntegerGreaterEqualPlusOne {
+    fn allowed_name(self: &Self) -> &'static str {
+        INT_GE_PLUS_ONE_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        INT_GE_PLUS_ONE
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::IntGePlusOne
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_int_ge_plus_one(db, node)
+    }
+}
+
+const INT_GE_MIN_ONE: &str =
+    "Unnecessary sub operation in integer >= comparison. Use simplified comparison.";
+const INT_GE_MIN_ONE_LINT_NAME: &str = "int_ge_min_one";
+
+pub struct IntegerGreaterEqualMinusOne;
+
+impl Lint for IntegerGreaterEqualMinusOne {
+    fn allowed_name(self: &Self) -> &'static str {
+        INT_GE_MIN_ONE_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        INT_GE_MIN_ONE
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::IntGeMinOne
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_int_ge_min_one(db, node)
+    }
+}
+
+const INT_LE_PLUS_ONE: &str =
+    "Unnecessary add operation in integer <= comparison. Use simplified comparison.";
+const INT_LE_PLUS_ONE_LINT_NAME: &str = "int_le_plus_one";
+
+pub struct IntegerLessEqualPlusOne;
+
+impl Lint for IntegerLessEqualPlusOne {
+    fn allowed_name(self: &Self) -> &'static str {
+        INT_LE_PLUS_ONE_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        INT_LE_PLUS_ONE
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::IntLePlusOne
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_int_le_plus_one(db, node)
+    }
+}
+
+const INT_LE_MIN_ONE: &str =
+    "Unnecessary sub operation in integer <= comparison. Use simplified comparison.";
+const INT_LE_MIN_ONE_LINT_NAME: &str = "int_le_min_one";
+
+pub struct IntegerLessEqualMinusOne;
+
+impl Lint for IntegerLessEqualMinusOne {
+    fn allowed_name(self: &Self) -> &'static str {
+        INT_LE_MIN_ONE_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        INT_LE_MIN_ONE
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::IntLeMinOne
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_int_le_min_one(db, node)
+    }
+}
 
 pub fn check_int_op_one(
     db: &dyn SemanticGroup,
@@ -43,18 +144,6 @@ fn check_single_int_op_one(
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    // Checks if the lint is allowed in an upper scope
-    let mut current_node = function_call_expr
-        .stable_ptr
-        .lookup(db.upcast())
-        .as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
-
     // Check if the function call is the bool greater or equal (>=) or lower or equal (<=).
     let full_name = function_call_expr.function.full_path(db);
     if !full_name.contains("core::integer::")

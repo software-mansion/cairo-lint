@@ -9,16 +9,46 @@ use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
 
-use crate::lints::manual::{
-    check_manual, check_manual_if,
-    helpers::{expr_if_get_var_name_and_err, expr_match_get_var_name_and_err},
-    ManualLint,
+use crate::{
+    context::CairoLintKind,
+    queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions},
 };
-use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions};
+use crate::{
+    context::Lint,
+    lints::manual::{
+        check_manual, check_manual_if,
+        helpers::{expr_if_get_var_name_and_err, expr_match_get_var_name_and_err},
+        ManualLint,
+    },
+};
 
-pub const MANUAL_EXPECT_ERR: &str =
+const MANUAL_EXPECT_ERR: &str =
     "Manual match for `expect_err` detected. Consider using `expect_err()` instead";
-pub const LINT_NAME: &str = "manual_expect_err";
+const MANUAL_EXPECT_ERR_LINT_NAME: &str = "manual_expect_err";
+
+pub struct ManualExpectErr;
+
+impl Lint for ManualExpectErr {
+    fn allowed_name(self: &Self) -> &'static str {
+        MANUAL_EXPECT_ERR_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        MANUAL_EXPECT_ERR
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::ManualExpectErr
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_manual_expect_err(db, node)
+    }
+}
 
 pub fn check_manual_expect_err(
     db: &dyn SemanticGroup,
@@ -31,13 +61,7 @@ pub fn check_manual_expect_err(
         let match_exprs = get_all_match_expressions(function_body);
         let arenas = &function_body.arenas;
         for match_expr in match_exprs.iter() {
-            if check_manual(
-                db,
-                match_expr,
-                arenas,
-                ManualLint::ManualExpectErr,
-                LINT_NAME,
-            ) {
+            if check_manual(db, match_expr, arenas, ManualLint::ManualExpectErr) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
                     message: MANUAL_EXPECT_ERR.to_owned(),
@@ -46,7 +70,7 @@ pub fn check_manual_expect_err(
             }
         }
         for if_expr in if_exprs.iter() {
-            if check_manual_if(db, if_expr, arenas, ManualLint::ManualExpectErr, LINT_NAME) {
+            if check_manual_if(db, if_expr, arenas, ManualLint::ManualExpectErr) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
                     message: MANUAL_EXPECT_ERR.to_owned(),

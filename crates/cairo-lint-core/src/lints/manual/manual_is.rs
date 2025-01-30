@@ -5,21 +5,121 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 
+use crate::context::{CairoLintKind, Lint};
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions};
 
 use super::helpers::fix_manual;
 
-pub const MANUAL_IS_SOME: &str =
+const MANUAL_IS_SOME: &str =
     "Manual match for `is_some` detected. Consider using `is_some()` instead";
-pub const MANUAL_IS_NONE: &str =
-    "Manual match for `is_none` detected. Consider using `is_none()` instead";
-pub const MANUAL_IS_OK: &str =
-    "Manual match for `is_ok` detected. Consider using `is_ok()` instead";
-pub const MANUAL_IS_ERR: &str =
-    "Manual match for `is_err` detected. Consider using `is_err()` instead";
+const MANUAL_IS_SOME_LINT_NAME: &str = "manual_is_some";
 
-pub const ALLOWED_NAME: &str = "manual_is";
+pub struct ManualIsSome;
+
+impl Lint for ManualIsSome {
+    fn allowed_name(self: &Self) -> &'static str {
+        MANUAL_IS_SOME_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        MANUAL_IS_SOME
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::ManualIsSome
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_manual_is_some(db, node)
+    }
+}
+
+const MANUAL_IS_NONE: &str =
+    "Manual match for `is_none` detected. Consider using `is_none()` instead";
+const MANUAL_IS_NONE_LINT_NAME: &str = "manual_is_none";
+
+pub struct ManualIsNone;
+
+impl Lint for ManualIsNone {
+    fn allowed_name(self: &Self) -> &'static str {
+        MANUAL_IS_NONE_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        MANUAL_IS_NONE
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::ManualIsNone
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_manual_is_none(db, node)
+    }
+}
+
+const MANUAL_IS_OK: &str = "Manual match for `is_ok` detected. Consider using `is_ok()` instead";
+const MANUAL_IS_OK_LINT_NAME: &str = "manual_is_ok";
+
+pub struct ManualIsOk;
+
+impl Lint for ManualIsOk {
+    fn allowed_name(self: &Self) -> &'static str {
+        MANUAL_IS_OK_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        MANUAL_IS_OK
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::ManualIsOk
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_manual_is_ok(db, node)
+    }
+}
+
+const MANUAL_IS_ERR: &str = "Manual match for `is_err` detected. Consider using `is_err()` instead";
+const MANUAL_IS_ERR_LINT_NAME: &str = "manual_is_err";
+
+pub struct ManualIsErr;
+
+impl Lint for ManualIsErr {
+    fn allowed_name(self: &Self) -> &'static str {
+        MANUAL_IS_ERR_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        MANUAL_IS_ERR
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::ManualIsErr
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_manual_is_err(db, node)
+    }
+}
 
 pub fn check_manual_is(
     db: &dyn SemanticGroup,
@@ -32,46 +132,28 @@ pub fn check_manual_is(
         let match_exprs = get_all_match_expressions(function_body);
         let arenas = &function_body.arenas;
         for match_expr in match_exprs.iter() {
-            if check_manual(
-                db,
-                match_expr,
-                arenas,
-                ManualLint::ManualIsSome,
-                ALLOWED_NAME,
-            ) {
+            if check_manual(db, match_expr, arenas, ManualLint::ManualIsSome) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
                     message: MANUAL_IS_SOME.to_owned(),
                     severity: Severity::Warning,
                 });
             }
-            if check_manual(
-                db,
-                match_expr,
-                arenas,
-                ManualLint::ManualIsNone,
-                ALLOWED_NAME,
-            ) {
+            if check_manual(db, match_expr, arenas, ManualLint::ManualIsNone) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
                     message: MANUAL_IS_NONE.to_owned(),
                     severity: Severity::Warning,
                 });
             }
-            if check_manual(db, match_expr, arenas, ManualLint::ManualIsOk, ALLOWED_NAME) {
+            if check_manual(db, match_expr, arenas, ManualLint::ManualIsOk) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
                     message: MANUAL_IS_OK.to_owned(),
                     severity: Severity::Warning,
                 });
             }
-            if check_manual(
-                db,
-                match_expr,
-                arenas,
-                ManualLint::ManualIsErr,
-                ALLOWED_NAME,
-            ) {
+            if check_manual(db, match_expr, arenas, ManualLint::ManualIsErr) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
                     message: MANUAL_IS_ERR.to_owned(),
@@ -80,28 +162,28 @@ pub fn check_manual_is(
             }
         }
         for if_expr in if_exprs.iter() {
-            if check_manual_if(db, if_expr, arenas, ManualLint::ManualIsSome, ALLOWED_NAME) {
+            if check_manual_if(db, if_expr, arenas, ManualLint::ManualIsSome) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
                     message: MANUAL_IS_SOME.to_owned(),
                     severity: Severity::Warning,
                 });
             }
-            if check_manual_if(db, if_expr, arenas, ManualLint::ManualIsNone, ALLOWED_NAME) {
+            if check_manual_if(db, if_expr, arenas, ManualLint::ManualIsNone) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
                     message: MANUAL_IS_NONE.to_owned(),
                     severity: Severity::Warning,
                 });
             }
-            if check_manual_if(db, if_expr, arenas, ManualLint::ManualIsOk, ALLOWED_NAME) {
+            if check_manual_if(db, if_expr, arenas, ManualLint::ManualIsOk) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
                     message: MANUAL_IS_OK.to_owned(),
                     severity: Severity::Warning,
                 });
             }
-            if check_manual_if(db, if_expr, arenas, ManualLint::ManualIsErr, ALLOWED_NAME) {
+            if check_manual_if(db, if_expr, arenas, ManualLint::ManualIsErr) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
                     message: MANUAL_IS_ERR.to_owned(),

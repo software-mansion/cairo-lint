@@ -4,31 +4,136 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
+use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 use super::{function_trait_name_from_fn_id, AND, DIV, EQ, GE, GT, LE, LT, NE, NOT, OR, SUB, XOR};
 
-pub const DIV_EQ_OP: &str =
+const DIV_EQ_OP: &str =
     "Division with identical operands, this operation always results in one (except for zero) and \
                          may indicate a logic error";
-pub const EQ_COMP_OP: &str =
+const DIV_EQ_OP_LINT_NAME: &str = "div_eq_op";
+
+pub struct DivisionEqualityOperation;
+
+impl Lint for DivisionEqualityOperation {
+    fn allowed_name(self: &Self) -> &'static str {
+        DIV_EQ_OP_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        DIV_EQ_OP
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::EqualityOperation
+    }
+}
+
+const EQ_COMP_OP: &str =
     "Comparison with identical operands, this operation always results in true and may indicate a logic error";
-pub const NEQ_COMP_OP: &str =
+const EQ_COMP_OP_LINT_NAME: &str = "eq_comp_op";
+
+pub struct EqualComparisonOperation;
+
+impl Lint for EqualComparisonOperation {
+    fn allowed_name(self: &Self) -> &'static str {
+        EQ_COMP_OP_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        EQ_COMP_OP
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::EqualityOperation
+    }
+}
+
+const NEQ_COMP_OP: &str =
     "Comparison with identical operands, this operation always results in false and may indicate a logic error";
-pub const EQ_DIFF_OP: &str =
+const NEQ_COMP_OP_LINT_NAME: &str = "neq_comp_op";
+
+pub struct NotEqualComparisonOperation;
+
+impl Lint for NotEqualComparisonOperation {
+    fn allowed_name(self: &Self) -> &'static str {
+        NEQ_COMP_OP_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        NEQ_COMP_OP
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::EqualityOperation
+    }
+}
+
+const EQ_DIFF_OP: &str =
     "Subtraction with identical operands, this operation always results in zero and may indicate a logic error";
-pub const EQ_BITWISE_OP: &str =
+const EQ_DIFF_OP_LINT_NAME: &str = "eq_diff_op";
+
+pub struct DifferenceEqualityOperation;
+
+impl Lint for DifferenceEqualityOperation {
+    fn allowed_name(self: &Self) -> &'static str {
+        EQ_DIFF_OP_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        EQ_DIFF_OP
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::EqualityOperation
+    }
+}
+
+const EQ_BITWISE_OP: &str =
     "Bitwise operation with identical operands, this operation always results in the same \
                              value and may indicate a logic error";
-pub const EQ_LOGICAL_OP: &str =
+const EQ_BITWISE_OP_LINT_NAME: &str = "eq_bitwise_op";
+
+pub struct BitwiseEqualityOperation;
+
+impl Lint for BitwiseEqualityOperation {
+    fn allowed_name(self: &Self) -> &'static str {
+        EQ_BITWISE_OP_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        EQ_BITWISE_OP
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::EqualityOperation
+    }
+}
+
+const EQ_LOGICAL_OP: &str =
     "Logical operation with identical operands, this operation always results in the same \
                              value and may indicate a logic error";
+const EQ_LOGICAL_OP_LINT_NAME: &str = "eq_logical_op";
 
-pub const LINT_NAME: &str = "eq_op";
+pub struct LogicalEqualityOperation;
+
+impl Lint for LogicalEqualityOperation {
+    fn allowed_name(self: &Self) -> &'static str {
+        EQ_LOGICAL_OP_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        EQ_LOGICAL_OP
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::EqualityOperation
+    }
+}
 
 pub fn check_eq_op(
     db: &dyn SemanticGroup,
@@ -51,15 +156,6 @@ fn check_single_eq_op(
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    // Checks if the lint is allowed in any upper scope
-    let mut current_node = expr_func.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
-
     // We're looking for binary operations
     if expr_func.args.len() != 2 {
         return;

@@ -4,18 +4,41 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_syntax::node::{ast::ExprBinary, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
+use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
-pub const BOOL_COMPARISON: &str =
+const BOOL_COMPARISON: &str =
     "Unnecessary comparison with a boolean value. Use the variable directly.";
+const BOOL_COMPARISON_LINT_NAME: &str = "bool_comparison";
 
-pub const LINT_NAME: &str = "bool_comparison";
+pub struct BoolComparison;
+
+impl Lint for BoolComparison {
+    fn allowed_name(self: &Self) -> &'static str {
+        BOOL_COMPARISON_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        BOOL_COMPARISON
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::BoolComparison
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_bool_comparison(db, node)
+    }
+}
 
 /// Checks for ` a == true`. Bool comparisons are useless and can be rewritten more clearly.
 pub fn check_bool_comparison(
@@ -39,17 +62,6 @@ fn check_single_bool_comparison(
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    // Checks if the lint is allowed in an upper scope
-    let mut current_node = function_call_expr
-        .stable_ptr
-        .lookup(db.upcast())
-        .as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
     // Check if the function call is the bool partial eq function (==).
     if !function_call_expr
         .function

@@ -4,21 +4,44 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprId, ExprLoop, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{
     ast::{Expr as AstExpr, ExprLoop as AstExprLoop, OptionElseClause, Statement as AstStatement},
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
 use if_chain::if_chain;
 
+use crate::context::{CairoLintKind, Lint};
 use crate::helper::{invert_condition, remove_break_from_block, remove_break_from_else_clause};
 use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
 
-pub const LOOP_FOR_WHILE: &str =
+const LOOP_FOR_WHILE: &str =
     "you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` \
                                   loop for clarity and conciseness";
+const LOOP_FOR_WHILE_LINT_NAME: &str = "loop_for_while";
 
-pub const LINT_NAME: &str = "loop_for_while";
+pub struct LoopForWhile;
+
+impl Lint for LoopForWhile {
+    fn allowed_name(self: &Self) -> &'static str {
+        LOOP_FOR_WHILE_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        LOOP_FOR_WHILE
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::LoopForWhile
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_loop_break(db, node)
+    }
+}
 
 /// Checks for
 /// ```ignore
@@ -45,26 +68,16 @@ pub fn check_loop_for_while(
         let loop_exprs = get_all_loop_expressions(function_body);
         let arenas = &function_body.arenas;
         for loop_expr in loop_exprs.iter() {
-            check_single_loop_for_while(db, loop_expr, arenas, diagnostics);
+            check_single_loop_for_while(loop_expr, arenas, diagnostics);
         }
     }
 }
 
 fn check_single_loop_for_while(
-    db: &dyn SemanticGroup,
     loop_expr: &ExprLoop,
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    // Check if the lint is allowed in an upper scope
-    let mut current_node = loop_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
-
     // Get the else block  expression
     let Expr::Block(block_expr) = &arenas.exprs[loop_expr.body] else {
         return;

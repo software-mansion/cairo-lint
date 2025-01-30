@@ -4,7 +4,7 @@
 fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
-    #[allow(double_comparison)]
+    #[allow(contradictory_comparison)]
     if x == y && x != y {
         true
     } else {
@@ -18,7 +18,7 @@ fn main() -> bool {
 fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
-    #[allow(double_comparison)]
+    #[allow(contradictory_comparison)]
     if x == y && x != y {
         true
     } else {
@@ -603,7 +603,7 @@ fn main() {
 //! > cairo_code
 fn main() {
     let x: u32 = 1;
-    #[allow(double_comparison)]
+    #[allow(impossible_comparison)]
     if x <= 100 && x >= 200 {
         //impossible to reach
     }
@@ -614,7 +614,7 @@ fn main() {
 //! > fixed
 fn main() {
     let x: u32 = 1;
-    #[allow(double_comparison)]
+    #[allow(impossible_comparison)]
     if x <= 100 && x >= 200 {
         //impossible to reach
     }

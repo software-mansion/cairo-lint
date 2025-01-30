@@ -4,16 +4,39 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, StatementBreak};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 use if_chain::if_chain;
 
+use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_break_statements, get_all_function_bodies};
 
-pub const BREAK_UNIT: &str =
+const BREAK_UNIT: &str =
     "unnecessary double parentheses found after break. Consider removing them.";
+const BREAK_UNIT_LINT_NAME: &str = "break_unit";
 
-pub const LINT_NAME: &str = "break_unit";
+pub struct BreakUnit;
+
+impl Lint for BreakUnit {
+    fn allowed_name(self: &Self) -> &'static str {
+        BREAK_UNIT_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        BREAK_UNIT
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::BreakUnit
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_break_unit(db, node)
+    }
+}
 
 pub fn check_break(
     db: &dyn SemanticGroup,
@@ -35,13 +58,6 @@ fn check_single_break(
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    let mut current_node = break_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
     if_chain! {
         if let Some(expr) = break_expr.expr_option;
         if arenas.exprs[expr].ty().is_unit(db);

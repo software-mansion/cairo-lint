@@ -3,19 +3,34 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
-use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::TypedStablePtr;
 use if_chain::if_chain;
 use num_bigint::BigInt;
 
+use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 use super::AND;
 
-pub const BITWISE_FOR_PARITY: &str =
+const BITWISE_FOR_PARITY: &str =
     "You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.";
+const BITWISE_FOR_PARITY_LINT_NAME: &str = "bitwise_for_parity_check";
 
-pub const LINT_NAME: &str = "bitwise_for_parity_check";
+pub struct BitwiseForParity;
+
+impl Lint for BitwiseForParity {
+    fn allowed_name(self: &Self) -> &'static str {
+        BITWISE_FOR_PARITY_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        BITWISE_FOR_PARITY
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::BitwiseForParityCheck
+    }
+}
 
 /// Checks for `x & 1` which is unoptimized in cairo and can be replaced by `x % 1`
 pub fn check_bitwise_for_parity(
@@ -39,17 +54,6 @@ fn check_single_bitwise_for_parity(
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    // Checks if the lint is allowed in any upper scope
-    let mut current_node = function_call_expr
-        .stable_ptr
-        .lookup(db.upcast())
-        .as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
     let Ok(Some(func_id)) = function_call_expr.function.get_concrete(db).body(db) else {
         return;
     };

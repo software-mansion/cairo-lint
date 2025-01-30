@@ -5,22 +5,63 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, ExprMatch, Pattern};
 use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBlock, ExprListParenthesized, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{
     ast::{ExprMatch as AstExprMatch, Pattern as AstPattern},
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
 use if_chain::if_chain;
 
+use crate::context::{CairoLintKind, Lint};
 use crate::helper::indent_snippet;
 use crate::queries::{get_all_function_bodies, get_all_match_expressions};
 
-pub const DESTRUCT_MATCH: &str =
+const DESTRUCT_MATCH: &str =
     "you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`";
-pub const MATCH_FOR_EQUALITY: &str =
+const DESTRUCT_MATCH_LINT_NAME: &str = "equality_match";
+
+pub struct DestructMatchLint;
+
+impl Lint for DestructMatchLint {
+    fn allowed_name(self: &Self) -> &'static str {
+        DESTRUCT_MATCH_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        DESTRUCT_MATCH
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::DestructMatch
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_destruct_match(db, node)
+    }
+}
+
+const MATCH_FOR_EQUALITY_LINT_NAME: &str = "destruct_match";
+const MATCH_FOR_EQUALITY: &str =
     "you seem to be trying to use `match` for an equality check. Consider using `if`";
 
-pub const LINT_NAME: &str = "single_match";
+pub struct EqualityMatch;
+
+impl Lint for EqualityMatch {
+    fn allowed_name(&self) -> &'static str {
+        MATCH_FOR_EQUALITY_LINT_NAME
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        MATCH_FOR_EQUALITY
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::MatchForEquality
+    }
+}
 
 /// Checks for matches that do something only in 1 arm and can be rewrote as an `if let`
 /// ```ignore
@@ -57,15 +98,6 @@ fn check_single_match(
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    // Checks if the lint is allowed in an upper scope.
-    let mut current_node = match_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
-
     let arms = &match_expr.arms;
     let mut is_single_armed = false;
     let mut is_complete = false;

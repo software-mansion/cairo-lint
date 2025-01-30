@@ -5,15 +5,32 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_filesystem::db::get_originating_location;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::ExprFunctionCall;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
+use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
-pub const PANIC_IN_CODE: &str = "Leaving `panic` in the code is discouraged.";
 const PANIC: &str = "core::panics::panic";
-pub const LINT_NAME: &str = "panic";
+
+const PANIC_IN_CODE: &str = "Leaving `panic` in the code is discouraged.";
+const PANIC_IN_CODE_LINT_NAME: &str = "panic";
+
+pub struct PanicInCode;
+
+impl Lint for PanicInCode {
+    fn allowed_name(self: &Self) -> &'static str {
+        PANIC_IN_CODE_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        PANIC_IN_CODE
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::Panic
+    }
+}
 
 /// Checks for panic usage.
 pub fn check_panic_usage(
@@ -35,18 +52,11 @@ fn check_single_panic_usage(
     function_call_expr: &ExprFunctionCall,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    // Checks if the lint is allowed in an upper scope
-    let mut current_node = function_call_expr
+    let init_node = function_call_expr
         .stable_ptr
         .lookup(db.upcast())
-        .as_syntax_node();
-    let init_node = current_node.clone();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
+        .as_syntax_node()
+        .clone();
 
     // If the function is not the panic function from the corelib return
     if function_call_expr.function.full_path(db) != PANIC {
@@ -82,14 +92,6 @@ fn check_single_panic_usage(
             if let Ok(file_node) = db.file_syntax(file_id);
             then {
                 let syntax_node = file_node.lookup_position(db.upcast(), text_position.start);
-                // Checks if the lint is allowed in the original file
-                let mut current_node = syntax_node.clone();
-                while let Some(node) = current_node.parent() {
-                    if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-                        return;
-                    }
-                    current_node = node;
-                }
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: syntax_node.stable_ptr(),
                     message: PANIC_IN_CODE.to_owned(),

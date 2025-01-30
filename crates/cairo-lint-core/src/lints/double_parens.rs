@@ -4,15 +4,34 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::ast::Expr;
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 
+use crate::context::{CairoLintKind, Lint};
 use crate::helper::indent_snippet;
 use crate::queries::get_all_parenthesized_expressions;
 
-pub const DOUBLE_PARENS: &str = "unnecessary double parentheses found. Consider removing them.";
+const DOUBLE_PARENS: &str = "unnecessary double parentheses found. Consider removing them.";
+const DOUBLE_PARENS_LINT_NAME: &str = "double_parens";
 
-pub const LINT_NAME: &str = "double_parens";
+pub struct DoubleParens;
+
+impl Lint for DoubleParens {
+    fn allowed_name(self: &Self) -> &'static str {
+        DOUBLE_PARENS_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        DOUBLE_PARENS
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::DoubleParens
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_double_parens(db, node)
+    }
+}
 
 pub fn check_double_parens(
     db: &dyn SemanticGroup,
@@ -30,13 +49,6 @@ fn check_single_double_parens(
     parens_expr: &Expr,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    let mut current_node = parens_expr.as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
     let is_double_parens = if let Expr::Parenthesized(parenthesized_expr) = parens_expr {
         matches!(
             parenthesized_expr.expr(db.upcast()),

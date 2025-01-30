@@ -3,15 +3,30 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprWhile};
-use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 
+use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_while_expressions};
 
-pub const INEFFICIENT_WHILE_COMP_MESSAGE: &str = "using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider \
+const INEFFICIENT_WHILE_COMP: &str = "using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider \
                                               switching to `!=` or using ArrayTrait::multi_pop_front.";
+const INEFFICIENT_WHILE_COMP_LINT_NAME: &str = "inefficient_while_comp";
 
-pub const LINT_NAME: &str = "inefficient_while_comp";
+pub struct InefficientWhileComparison;
+
+impl Lint for InefficientWhileComparison {
+    fn allowed_name(self: &Self) -> &'static str {
+        INEFFICIENT_WHILE_COMP_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        INEFFICIENT_WHILE_COMP
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::Performance
+    }
+}
+
 // Match all types implementing PartialOrd
 const PARTIAL_ORD_PATTERNS: [&str; 4] = [
     "PartialOrd::lt\"",
@@ -41,14 +56,6 @@ fn check_single_inefficient_while_comp(
     diagnostics: &mut Vec<PluginDiagnostic>,
     arenas: &Arenas,
 ) {
-    // Checks if the lint is allowed in an upper scope.
-    let mut current_node = while_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
     // It might be a false positive, because there can be cases when:
     //  - The rhs arguments is changed in the loop body
     //  - The lhs argument can "skip" the moment where lhs == rhs
@@ -69,7 +76,7 @@ fn check_expression(
             if PARTIAL_ORD_PATTERNS.iter().any(|p| func_name.ends_with(p)) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: func_call.stable_ptr.into(),
-                    message: INEFFICIENT_WHILE_COMP_MESSAGE.to_owned(),
+                    message: INEFFICIENT_WHILE_COMP.to_owned(),
                     severity: Severity::Warning,
                 });
             }

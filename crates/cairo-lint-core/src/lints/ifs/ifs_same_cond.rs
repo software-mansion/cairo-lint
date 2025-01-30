@@ -2,18 +2,31 @@ use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_semantic::{Arenas, Condition, Expr, ExprIf};
-use cairo_lang_syntax::node::helpers::QueryAttrs;
+use cairo_lang_semantic::{Arenas, Condition, Expr, ExprFunctionCall, ExprFunctionCallArg, ExprIf};
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
+use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
-use super::ensure_no_ref_arg;
+const DUPLICATE_IF_CONDITION: &str = "Consecutive `if` with the same condition found.";
+const DUPLICATE_IF_CONDITION_LINT_NAME: &str = "ifs_same_cond";
 
-pub const DUPLICATE_IF_CONDITION: &str = "Consecutive `if` with the same condition found.";
+pub struct DuplicateIfCondition;
 
-pub const LINT_NAME: &str = "ifs_same_cond";
+impl Lint for DuplicateIfCondition {
+    fn allowed_name(self: &Self) -> &'static str {
+        DUPLICATE_IF_CONDITION_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        DUPLICATE_IF_CONDITION
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::DuplicateIfCondition
+    }
+}
 
 pub fn check_duplicate_if_condition(
     db: &dyn SemanticGroup,
@@ -36,14 +49,6 @@ fn check_single_duplicate_if_condition(
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    // Checks if the lint is allowed in any upper scope
-    let mut current_node = if_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
     let cond_expr = match &if_expr.condition {
         Condition::BoolExpr(expr_id) => &arenas.exprs[*expr_id],
         Condition::Let(expr_id, _patterns) => &arenas.exprs[*expr_id],
@@ -98,4 +103,14 @@ fn check_single_duplicate_if_condition(
             break;
         }
     }
+}
+
+fn ensure_no_ref_arg(arenas: &Arenas, func_call: &ExprFunctionCall) -> bool {
+    func_call.args.iter().any(|arg| match arg {
+        ExprFunctionCallArg::Reference(_) => true,
+        ExprFunctionCallArg::Value(expr_id) => match &arenas.exprs[*expr_id] {
+            Expr::FunctionCall(expr_func) => ensure_no_ref_arg(arenas, expr_func),
+            _ => false,
+        },
+    })
 }

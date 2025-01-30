@@ -3,14 +3,29 @@ use std::collections::HashSet;
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_semantic::items::attribute::SemanticQueryAttrs;
 
+use crate::context::{CairoLintKind, Lint};
 use crate::queries::get_all_checkable_functions;
 
-pub const DUPLICATE_UNDERSCORE_ARGS: &str = "duplicate arguments, having another argument having almost the same name \
+const DUPLICATE_UNDERSCORE_ARGS: &str = "duplicate arguments, having another argument having almost the same name \
                                              makes code comprehension and documentation more difficult";
+const DUPLICATE_UNDERSCORE_ARGS_LINT_NAME: &str = "duplicate_underscore_args";
 
-pub const LINT_NAME: &str = "duplicate_underscore_args";
+pub struct DuplicateUnderscoreArgs;
+
+impl Lint for DuplicateUnderscoreArgs {
+    fn allowed_name(self: &Self) -> &'static str {
+        DUPLICATE_UNDERSCORE_ARGS_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        DUPLICATE_UNDERSCORE_ARGS
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::DuplicateUnderscoreArgs
+    }
+}
 
 /// Checks for functions that have the same argument name but prefix with `_`. For example
 /// `fn foo(a, _a)`
@@ -22,10 +37,6 @@ pub fn check_duplicate_underscore_args(
     let functions = get_all_checkable_functions(db, item);
 
     for function in functions {
-        if let Ok(true) = function.has_attr_with_arg(db, "allow", LINT_NAME) {
-            continue;
-        }
-
         let mut registered_names: HashSet<String> = HashSet::new();
         let params = db.function_with_body_signature(function).unwrap().params;
 

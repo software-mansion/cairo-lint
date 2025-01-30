@@ -4,7 +4,6 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprBlock, ExprIf, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{
     ast::{
         BlockOrIf, Expr as AstExpr, ExprIf as AstExprIf, OptionElseClause,
@@ -14,10 +13,35 @@ use cairo_lang_syntax::node::{
 };
 use if_chain::if_chain;
 
+use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
-pub const COLLAPSIBLE_IF_ELSE: &str = "Consider using else if instead of else { if ... }";
-pub const LINT_NAME: &str = "collapsible_if_else";
+const COLLAPSIBLE_IF_ELSE: &str = "Consider using else if instead of else { if ... }";
+const COLLAPSIBLE_IF_ELSE_LINT_NAME: &str = "collapsible_if_else";
+
+pub struct CollapsibleIfElse;
+
+impl Lint for CollapsibleIfElse {
+    fn allowed_name(self: &Self) -> &'static str {
+        COLLAPSIBLE_IF_ELSE_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        COLLAPSIBLE_IF_ELSE
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::CollapsibleIfElse
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_collapsible_if_else(db, node)
+    }
+}
 
 /// Checks for
 /// ```ignore
@@ -47,24 +71,16 @@ pub fn check_collapsible_if_else(
         let if_exprs = get_all_if_expressions(function_body);
         let arenas = &function_body.arenas;
         for if_expr in if_exprs.iter() {
-            check_single_collapsible_if_else(db, if_expr, arenas, diagnostics);
+            check_single_collapsible_if_else(if_expr, arenas, diagnostics);
         }
     }
 }
 
 fn check_single_collapsible_if_else(
-    db: &dyn SemanticGroup,
     if_expr: &ExprIf,
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    let mut current_node = if_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
     // Extract the expression from the ElseClause
     let Some(else_block) = if_expr.else_block else {
         return;

@@ -6,7 +6,6 @@ use cairo_lang_semantic::{
     Arenas, Expr, ExprBlock, ExprId, ExprLoop, ExprMatch, Pattern, PatternEnumVariant, Statement,
 };
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_syntax::node::{
     ast::{
@@ -17,16 +16,40 @@ use cairo_lang_syntax::node::{
 };
 use if_chain::if_chain;
 
+use crate::context::{CairoLintKind, Lint};
 use crate::helper::indent_snippet;
 use crate::lints::{NONE, SOME};
 use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
 
-pub const LOOP_MATCH_POP_FRONT: &str =
-    "you seem to be trying to use `loop` for iterating over a span. Consider using `for in`";
-
 const SPAN_MATCH_POP_FRONT: &str = "\"SpanImpl::pop_front\"";
 
-pub const LINT_NAME: &str = "loop_match_pop_front";
+const LOOP_MATCH_POP_FRONT: &str =
+    "you seem to be trying to use `loop` for iterating over a span. Consider using `for in`";
+const LOOP_MATCH_POP_FRONT_LINT_NAME: &str = "loop_match_pop_front";
+
+pub struct LoopMatchPopFront;
+
+impl Lint for LoopMatchPopFront {
+    fn allowed_name(self: &Self) -> &'static str {
+        LOOP_MATCH_POP_FRONT_LINT_NAME
+    }
+
+    fn diagnostic_message(self: &Self) -> &'static str {
+        LOOP_MATCH_POP_FRONT
+    }
+
+    fn kind(self: &Self) -> CairoLintKind {
+        CairoLintKind::LoopMatchPopFront
+    }
+
+    fn has_fixer(self: &Self) -> bool {
+        true
+    }
+
+    fn fix(self: &Self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_loop_match_pop_front(db, node)
+    }
+}
 
 /// Checks for
 /// ```ignore
@@ -66,15 +89,6 @@ fn check_single_loop_match_pop_front(
     diagnostics: &mut Vec<PluginDiagnostic>,
     arenas: &Arenas,
 ) {
-    // Checks if the lint is allowed in an upper scope
-    let mut current_node = loop_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
-
     // Checks that the loop doesn't return anything
     if !loop_expr.ty.is_unit(db) {
         return;

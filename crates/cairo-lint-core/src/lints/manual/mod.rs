@@ -12,8 +12,6 @@ use std::fmt::Debug;
 use cairo_lang_defs::ids::TopLevelLanguageElementId;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprId, ExprIf, ExprMatch, MatchArm, Pattern};
-use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use helpers::{
     check_is_default, if_expr_condition_and_block_match_enum_pattern,
     if_expr_pattern_matches_tail_var, is_destructured_variable_used_and_expected_variant,
@@ -53,17 +51,7 @@ pub fn check_manual(
     expr_match: &ExprMatch,
     arenas: &Arenas,
     manual_lint: ManualLint,
-    lint_name: &str,
 ) -> bool {
-    // Checks if the lint is allowed in an upper scope.
-    let mut current_node = expr_match.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", lint_name) {
-            return false;
-        }
-        current_node = node;
-    }
-
     // All the manual lints are for options and results which only have 2 variants
     if expr_match.arms.len() != 2 {
         return false;
@@ -277,16 +265,7 @@ pub fn check_manual_if(
     expr: &ExprIf,
     arenas: &Arenas,
     manual_lint: ManualLint,
-    lint_name: &str,
 ) -> bool {
-    let mut current_node = expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", lint_name) {
-            return false;
-        }
-        current_node = node;
-    }
-
     if_chain! {
         if let Condition::Let(_condition_let, patterns) = &expr.condition;
         if let Pattern::EnumVariant(enum_pattern) = &arenas.patterns[patterns[0]];
