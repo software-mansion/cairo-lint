@@ -356,3 +356,12 @@ pub fn get_all_checking_functions() -> impl Iterator<Item = &'static CheckingFun
         .unique_by(|rule| Arc::as_ptr(&rule.check_function))
         .map(|rule_group| &rule_group.check_function)
 }
+
+pub fn get_name_for_diagnostic_message(message: &str) -> Option<&'static str> {
+    LINT_CONTEXT
+        .lint_groups
+        .iter()
+        .flat_map(|group| group.lints.iter())
+        .find(|rule| rule.diagnostic_message() == message)
+        .map(|rule| rule.allowed_name())
+}

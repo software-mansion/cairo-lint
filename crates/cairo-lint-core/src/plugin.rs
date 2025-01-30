@@ -3,9 +3,14 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::ids::FileLongId;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
+use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::helpers::QueryAttrs;
+use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_utils::LookupIntern;
 
-use crate::context::{get_all_checking_functions, get_unique_allowed_names};
+use crate::context::{
+    get_all_checking_functions, get_name_for_diagnostic_message, get_unique_allowed_names,
+};
 
 pub fn cairo_lint_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
@@ -58,6 +63,29 @@ impl AnalyzerPlugin for CairoLint {
                 checking_function(db, item, &mut diags);
             }
         }
+
         diags
+            .into_iter()
+            .filter(|diag| {
+                let node = diag.stable_ptr.lookup(db.upcast());
+                let allowed_name = get_name_for_diagnostic_message(&diag.message).unwrap();
+                !node_has_ascendants_with_allow_name_attr(db.upcast(), node, allowed_name)
+            })
+            .collect()
     }
+}
+
+fn node_has_ascendants_with_allow_name_attr(
+    db: &dyn SyntaxGroup,
+    node: SyntaxNode,
+    allowed_name: &'static str,
+) -> bool {
+    let mut current_node = node;
+    while let Some(node) = current_node.parent() {
+        if node.has_attr_with_arg(db, "allow", allowed_name) {
+            return true;
+        }
+        current_node = node;
+    }
+    false
 }

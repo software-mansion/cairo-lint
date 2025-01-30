@@ -106,7 +106,7 @@ fn foo(a: i32) -> Result<i32,felt252> {
     Result::Err('err')
 }
 fn main() {
-    #[allow(manual_is)]
+    #[allow(manual_is_err)]
     let _a = if let Result::Ok(_) = foo(0) {
         false
     } else {
@@ -121,7 +121,7 @@ fn foo(a: i32) -> Result<i32,felt252> {
     Result::Err('err')
 }
 fn main() {
-    #[allow(manual_is)]
+    #[allow(manual_is_err)]
     let _a = if let Result::Ok(_) = foo(0) {
         false
     } else {
