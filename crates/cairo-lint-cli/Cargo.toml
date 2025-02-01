@@ -24,7 +24,7 @@ scarb-ui = "0.1.5"
 anyhow.workspace = true
 scarb-metadata = "1.13.0"
 cairo-lint-core = { path = "../cairo-lint-core" }
-semver = "1.0.24"
+semver = "1.0.25"
 # scarb = { git = "https://github.com/software-mansion/scarb", branch = "main" }
 smol_str.workspace = true
 annotate-snippets.workspace = true
