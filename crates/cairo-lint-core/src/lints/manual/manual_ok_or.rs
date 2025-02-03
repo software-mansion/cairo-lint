@@ -22,18 +22,15 @@ use crate::{
     },
 };
 
-const MANUAL_OK_OR: &str = "Manual match for Option<T> detected. Consider using ok_or instead";
-const MANUAL_OK_OR_LINT_NAME: &str = "manual_ok_or";
-
 pub struct ManualOkOr;
 
 impl Lint for ManualOkOr {
     fn allowed_name(&self) -> &'static str {
-        MANUAL_OK_OR_LINT_NAME
+        "manual_ok_or"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        MANUAL_OK_OR
+        "Manual match for Option<T> detected. Consider using ok_or instead"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -63,7 +60,7 @@ pub fn check_manual_ok_or(
             if check_manual(db, match_expr, arenas, ManualLint::ManualOkOr) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
-                    message: MANUAL_OK_OR.to_owned(),
+                    message: ManualOkOr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }
@@ -72,7 +69,7 @@ pub fn check_manual_ok_or(
             if check_manual_if(db, if_expr, arenas, ManualLint::ManualOkOr) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
-                    message: MANUAL_OK_OR.to_owned(),
+                    message: ManualOkOr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }

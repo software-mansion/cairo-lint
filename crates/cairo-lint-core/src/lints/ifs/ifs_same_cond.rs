@@ -9,18 +9,15 @@ use if_chain::if_chain;
 use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
-const DUPLICATE_IF_CONDITION: &str = "Consecutive `if` with the same condition found.";
-const DUPLICATE_IF_CONDITION_LINT_NAME: &str = "ifs_same_cond";
-
 pub struct DuplicateIfCondition;
 
 impl Lint for DuplicateIfCondition {
     fn allowed_name(&self) -> &'static str {
-        DUPLICATE_IF_CONDITION_LINT_NAME
+        "ifs_same_cond"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        DUPLICATE_IF_CONDITION
+        "Consecutive `if` with the same condition found."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -94,7 +91,7 @@ fn check_single_duplicate_if_condition(
             if if_condition_text == else_if_condition_text {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
-                    message: DUPLICATE_IF_CONDITION.to_string(),
+                    message: DuplicateIfCondition.diagnostic_message().to_string(),
                     severity: Severity::Warning,
                 });
                 break;

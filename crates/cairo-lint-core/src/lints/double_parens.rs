@@ -10,18 +10,15 @@ use crate::context::{CairoLintKind, Lint};
 use crate::helper::indent_snippet;
 use crate::queries::get_all_parenthesized_expressions;
 
-const DOUBLE_PARENS: &str = "unnecessary double parentheses found. Consider removing them.";
-const DOUBLE_PARENS_LINT_NAME: &str = "double_parens";
-
 pub struct DoubleParens;
 
 impl Lint for DoubleParens {
     fn allowed_name(&self) -> &'static str {
-        DOUBLE_PARENS_LINT_NAME
+        "double_parens"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        DOUBLE_PARENS
+        "unnecessary double parentheses found. Consider removing them."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -61,7 +58,7 @@ fn check_single_double_parens(
     if is_double_parens {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: parens_expr.stable_ptr().untyped(),
-            message: DOUBLE_PARENS.to_string(),
+            message: DoubleParens.diagnostic_message().to_string(),
             severity: Severity::Warning,
         });
     }

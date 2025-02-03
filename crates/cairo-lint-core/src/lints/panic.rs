@@ -13,18 +13,15 @@ use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 const PANIC: &str = "core::panics::panic";
 
-const PANIC_IN_CODE: &str = "Leaving `panic` in the code is discouraged.";
-const PANIC_IN_CODE_LINT_NAME: &str = "panic";
-
 pub struct PanicInCode;
 
 impl Lint for PanicInCode {
     fn allowed_name(&self) -> &'static str {
-        PANIC_IN_CODE_LINT_NAME
+        "panic"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        PANIC_IN_CODE
+        "Leaving `panic` in the code is discouraged."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -81,7 +78,7 @@ fn check_single_panic_usage(
     if initial_file_id == file_id {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: init_node.stable_ptr(),
-            message: PANIC_IN_CODE.to_owned(),
+            message: PanicInCode.diagnostic_message().to_owned(),
             severity: Severity::Warning,
         });
     } else {
@@ -94,7 +91,7 @@ fn check_single_panic_usage(
                 let syntax_node = file_node.lookup_position(db.upcast(), text_position.start);
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: syntax_node.stable_ptr(),
-                    message: PANIC_IN_CODE.to_owned(),
+                    message: PanicInCode.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }

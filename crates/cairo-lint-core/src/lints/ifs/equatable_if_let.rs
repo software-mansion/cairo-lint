@@ -12,19 +12,15 @@ use cairo_lang_syntax::node::{
 use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
-const EQUATABLE_IF_LET: &str =
-    "`if let` pattern used for equatable value. Consider using a simple comparison `==` instead";
-const EQUATABLE_IF_LET_LINT_NAME: &str = "equatable_if_let";
-
 pub struct EquatableIfLet;
 
 impl Lint for EquatableIfLet {
     fn allowed_name(&self) -> &'static str {
-        EQUATABLE_IF_LET_LINT_NAME
+        "equatable_if_let"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        EQUATABLE_IF_LET
+        "`if let` pattern used for equatable value. Consider using a simple comparison `==` instead"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -84,7 +80,7 @@ fn check_single_equatable_if_let(
         if expr_is_simple && condition_is_simple {
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: if_expr.stable_ptr.untyped(),
-                message: EQUATABLE_IF_LET.to_string(),
+                message: EquatableIfLet.diagnostic_message().to_string(),
                 severity: Severity::Warning,
             });
         }

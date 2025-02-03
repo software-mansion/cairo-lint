@@ -12,19 +12,15 @@ use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 use super::AND;
 
-const BITWISE_FOR_PARITY: &str =
-    "You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.";
-const BITWISE_FOR_PARITY_LINT_NAME: &str = "bitwise_for_parity_check";
-
 pub struct BitwiseForParity;
 
 impl Lint for BitwiseForParity {
     fn allowed_name(&self) -> &'static str {
-        BITWISE_FOR_PARITY_LINT_NAME
+        "bitwise_for_parity_check"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        BITWISE_FOR_PARITY
+        "You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -75,7 +71,7 @@ fn check_single_bitwise_for_parity(
         then {
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: function_call_expr.stable_ptr.untyped(),
-                message: BITWISE_FOR_PARITY.to_string(),
+                message: BitwiseForParity.diagnostic_message().to_string(),
                 severity: Severity::Warning,
             });
         }

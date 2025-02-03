@@ -11,19 +11,15 @@ use if_chain::if_chain;
 use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
-const INT_GE_PLUS_ONE: &str =
-    "Unnecessary add operation in integer >= comparison. Use simplified comparison.";
-const INT_GE_PLUS_ONE_LINT_NAME: &str = "int_ge_plus_one";
-
 pub struct IntegerGreaterEqualPlusOne;
 
 impl Lint for IntegerGreaterEqualPlusOne {
     fn allowed_name(&self) -> &'static str {
-        INT_GE_PLUS_ONE_LINT_NAME
+        "int_ge_plus_one"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        INT_GE_PLUS_ONE
+        "Unnecessary add operation in integer >= comparison. Use simplified comparison."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -39,19 +35,15 @@ impl Lint for IntegerGreaterEqualPlusOne {
     }
 }
 
-const INT_GE_MIN_ONE: &str =
-    "Unnecessary sub operation in integer >= comparison. Use simplified comparison.";
-const INT_GE_MIN_ONE_LINT_NAME: &str = "int_ge_min_one";
-
 pub struct IntegerGreaterEqualMinusOne;
 
 impl Lint for IntegerGreaterEqualMinusOne {
     fn allowed_name(&self) -> &'static str {
-        INT_GE_MIN_ONE_LINT_NAME
+        "int_ge_min_one"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        INT_GE_MIN_ONE
+        "Unnecessary sub operation in integer >= comparison. Use simplified comparison."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -67,19 +59,15 @@ impl Lint for IntegerGreaterEqualMinusOne {
     }
 }
 
-const INT_LE_PLUS_ONE: &str =
-    "Unnecessary add operation in integer <= comparison. Use simplified comparison.";
-const INT_LE_PLUS_ONE_LINT_NAME: &str = "int_le_plus_one";
-
 pub struct IntegerLessEqualPlusOne;
 
 impl Lint for IntegerLessEqualPlusOne {
     fn allowed_name(&self) -> &'static str {
-        INT_LE_PLUS_ONE_LINT_NAME
+        "int_le_plus_one"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        INT_LE_PLUS_ONE
+        "Unnecessary add operation in integer <= comparison. Use simplified comparison."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -95,19 +83,15 @@ impl Lint for IntegerLessEqualPlusOne {
     }
 }
 
-const INT_LE_MIN_ONE: &str =
-    "Unnecessary sub operation in integer <= comparison. Use simplified comparison.";
-const INT_LE_MIN_ONE_LINT_NAME: &str = "int_le_min_one";
-
 pub struct IntegerLessEqualMinusOne;
 
 impl Lint for IntegerLessEqualMinusOne {
     fn allowed_name(&self) -> &'static str {
-        INT_LE_MIN_ONE_LINT_NAME
+        "int_le_min_one"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        INT_LE_MIN_ONE
+        "Unnecessary sub operation in integer <= comparison. Use simplified comparison."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -162,7 +146,7 @@ fn check_single_int_op_one(
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: function_call_expr.stable_ptr.untyped(),
-            message: INT_GE_PLUS_ONE.to_string(),
+            message: IntegerGreaterEqualPlusOne.diagnostic_message().to_string(),
             severity: Severity::Warning,
         })
     }
@@ -174,7 +158,7 @@ fn check_single_int_op_one(
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: function_call_expr.stable_ptr.untyped(),
-            message: INT_GE_MIN_ONE.to_string(),
+            message: IntegerGreaterEqualMinusOne.diagnostic_message().to_string(),
             severity: Severity::Warning,
         })
     }
@@ -186,7 +170,7 @@ fn check_single_int_op_one(
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: function_call_expr.stable_ptr.untyped(),
-            message: INT_LE_PLUS_ONE.to_string(),
+            message: IntegerLessEqualPlusOne.diagnostic_message().to_string(),
             severity: Severity::Warning,
         })
     }
@@ -198,7 +182,7 @@ fn check_single_int_op_one(
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: function_call_expr.stable_ptr.untyped(),
-            message: INT_LE_MIN_ONE.to_string(),
+            message: IntegerLessEqualMinusOne.diagnostic_message().to_string(),
             severity: Severity::Warning,
         })
     }

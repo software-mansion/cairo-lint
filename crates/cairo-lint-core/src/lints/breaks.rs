@@ -10,19 +10,15 @@ use if_chain::if_chain;
 use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_break_statements, get_all_function_bodies};
 
-const BREAK_UNIT: &str =
-    "unnecessary double parentheses found after break. Consider removing them.";
-const BREAK_UNIT_LINT_NAME: &str = "break_unit";
-
 pub struct BreakUnit;
 
 impl Lint for BreakUnit {
     fn allowed_name(&self) -> &'static str {
-        BREAK_UNIT_LINT_NAME
+        "break_unit"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        BREAK_UNIT
+        "unnecessary double parentheses found after break. Consider removing them."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -64,7 +60,7 @@ fn check_single_break(
         then {
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: break_expr.stable_ptr.untyped(),
-                message: BREAK_UNIT.to_string(),
+                message: BreakUnit.diagnostic_message().to_string(),
                 severity: Severity::Warning,
             });
         }

@@ -23,19 +23,15 @@ use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
 
 const SPAN_MATCH_POP_FRONT: &str = "\"SpanImpl::pop_front\"";
 
-const LOOP_MATCH_POP_FRONT: &str =
-    "you seem to be trying to use `loop` for iterating over a span. Consider using `for in`";
-const LOOP_MATCH_POP_FRONT_LINT_NAME: &str = "loop_match_pop_front";
-
 pub struct LoopMatchPopFront;
 
 impl Lint for LoopMatchPopFront {
     fn allowed_name(&self) -> &'static str {
-        LOOP_MATCH_POP_FRONT_LINT_NAME
+        "loop_match_pop_front"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        LOOP_MATCH_POP_FRONT
+        "you seem to be trying to use `loop` for iterating over a span. Consider using `for in`"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -112,7 +108,7 @@ fn check_single_loop_match_pop_front(
             }
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: loop_expr.stable_ptr.into(),
-                message: LOOP_MATCH_POP_FRONT.to_owned(),
+                message: LoopMatchPopFront.diagnostic_message().to_owned(),
                 severity: Severity::Warning,
             });
             return;
@@ -136,7 +132,7 @@ fn check_single_loop_match_pop_front(
             if func_call.function.name(db) == SPAN_MATCH_POP_FRONT {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: loop_expr.stable_ptr.into(),
-                    message: LOOP_MATCH_POP_FRONT.to_owned(),
+                    message: LoopMatchPopFront.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 })
             }

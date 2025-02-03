@@ -16,18 +16,15 @@ use crate::lints::manual::helpers::{
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions};
 
-const MANUAL_EXPECT: &str = "Manual match for expect detected. Consider using `expect()` instead";
-const MANUAL_EXPECT_LINT_NAME: &str = "manual_expect";
-
 pub struct ManualExpect;
 
 impl Lint for ManualExpect {
     fn allowed_name(&self) -> &'static str {
-        MANUAL_EXPECT_LINT_NAME
+        "manual_expect"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        MANUAL_EXPECT
+        "Manual match for expect detected. Consider using `expect()` instead"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -57,7 +54,7 @@ pub fn check_manual_expect(
             if check_manual(db, match_expr, arenas, ManualLint::ManualOptExpect) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
-                    message: MANUAL_EXPECT.to_owned(),
+                    message: ManualExpect.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }
@@ -65,7 +62,7 @@ pub fn check_manual_expect(
             if check_manual(db, match_expr, arenas, ManualLint::ManualResExpect) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
-                    message: MANUAL_EXPECT.to_owned(),
+                    message: ManualExpect.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }
@@ -74,7 +71,7 @@ pub fn check_manual_expect(
             if check_manual_if(db, if_expr, arenas, ManualLint::ManualOptExpect) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
-                    message: MANUAL_EXPECT.to_owned(),
+                    message: ManualExpect.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }
@@ -82,7 +79,7 @@ pub fn check_manual_expect(
             if check_manual_if(db, if_expr, arenas, ManualLint::ManualResExpect) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
-                    message: MANUAL_EXPECT.to_owned(),
+                    message: ManualExpect.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }

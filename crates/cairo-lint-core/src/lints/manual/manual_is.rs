@@ -11,19 +11,15 @@ use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_ma
 
 use super::helpers::fix_manual;
 
-const MANUAL_IS_SOME: &str =
-    "Manual match for `is_some` detected. Consider using `is_some()` instead";
-const MANUAL_IS_SOME_LINT_NAME: &str = "manual_is_some";
-
 pub struct ManualIsSome;
 
 impl Lint for ManualIsSome {
     fn allowed_name(&self) -> &'static str {
-        MANUAL_IS_SOME_LINT_NAME
+        "manual_is_some"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        MANUAL_IS_SOME
+        "Manual match for `is_some` detected. Consider using `is_some()` instead"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -39,19 +35,15 @@ impl Lint for ManualIsSome {
     }
 }
 
-const MANUAL_IS_NONE: &str =
-    "Manual match for `is_none` detected. Consider using `is_none()` instead";
-const MANUAL_IS_NONE_LINT_NAME: &str = "manual_is_none";
-
 pub struct ManualIsNone;
 
 impl Lint for ManualIsNone {
     fn allowed_name(&self) -> &'static str {
-        MANUAL_IS_NONE_LINT_NAME
+        "manual_is_none"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        MANUAL_IS_NONE
+        "Manual match for `is_none` detected. Consider using `is_none()` instead"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -67,18 +59,15 @@ impl Lint for ManualIsNone {
     }
 }
 
-const MANUAL_IS_OK: &str = "Manual match for `is_ok` detected. Consider using `is_ok()` instead";
-const MANUAL_IS_OK_LINT_NAME: &str = "manual_is_ok";
-
 pub struct ManualIsOk;
 
 impl Lint for ManualIsOk {
     fn allowed_name(&self) -> &'static str {
-        MANUAL_IS_OK_LINT_NAME
+        "manual_is_ok"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        MANUAL_IS_OK
+        "Manual match for `is_ok` detected. Consider using `is_ok()` instead"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -94,18 +83,15 @@ impl Lint for ManualIsOk {
     }
 }
 
-const MANUAL_IS_ERR: &str = "Manual match for `is_err` detected. Consider using `is_err()` instead";
-const MANUAL_IS_ERR_LINT_NAME: &str = "manual_is_err";
-
 pub struct ManualIsErr;
 
 impl Lint for ManualIsErr {
     fn allowed_name(&self) -> &'static str {
-        MANUAL_IS_ERR_LINT_NAME
+        "manual_is_err"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        MANUAL_IS_ERR
+        "Manual match for `is_err` detected. Consider using `is_err()` instead"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -135,28 +121,28 @@ pub fn check_manual_is(
             if check_manual(db, match_expr, arenas, ManualLint::ManualIsSome) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
-                    message: MANUAL_IS_SOME.to_owned(),
+                    message: ManualIsSome.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }
             if check_manual(db, match_expr, arenas, ManualLint::ManualIsNone) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
-                    message: MANUAL_IS_NONE.to_owned(),
+                    message: ManualIsNone.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }
             if check_manual(db, match_expr, arenas, ManualLint::ManualIsOk) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
-                    message: MANUAL_IS_OK.to_owned(),
+                    message: ManualIsOk.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }
             if check_manual(db, match_expr, arenas, ManualLint::ManualIsErr) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
-                    message: MANUAL_IS_ERR.to_owned(),
+                    message: ManualIsErr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }
@@ -165,28 +151,28 @@ pub fn check_manual_is(
             if check_manual_if(db, if_expr, arenas, ManualLint::ManualIsSome) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
-                    message: MANUAL_IS_SOME.to_owned(),
+                    message: ManualIsSome.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }
             if check_manual_if(db, if_expr, arenas, ManualLint::ManualIsNone) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
-                    message: MANUAL_IS_NONE.to_owned(),
+                    message: ManualIsNone.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }
             if check_manual_if(db, if_expr, arenas, ManualLint::ManualIsOk) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
-                    message: MANUAL_IS_OK.to_owned(),
+                    message: ManualIsOk.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }
             if check_manual_if(db, if_expr, arenas, ManualLint::ManualIsErr) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
-                    message: MANUAL_IS_ERR.to_owned(),
+                    message: ManualIsErr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }

@@ -7,19 +7,16 @@ use cairo_lang_semantic::{Arenas, Condition, Expr, ExprWhile};
 use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_while_expressions};
 
-const INEFFICIENT_WHILE_COMP: &str = "using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider \
-                                              switching to `!=` or using ArrayTrait::multi_pop_front.";
-const INEFFICIENT_WHILE_COMP_LINT_NAME: &str = "inefficient_while_comp";
-
 pub struct InefficientWhileComparison;
 
 impl Lint for InefficientWhileComparison {
     fn allowed_name(&self) -> &'static str {
-        INEFFICIENT_WHILE_COMP_LINT_NAME
+        "inefficient_while_comp"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        INEFFICIENT_WHILE_COMP
+        "using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider \
+                                              switching to `!=` or using ArrayTrait::multi_pop_front."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -76,7 +73,7 @@ fn check_expression(
             if PARTIAL_ORD_PATTERNS.iter().any(|p| func_name.ends_with(p)) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: func_call.stable_ptr.into(),
-                    message: INEFFICIENT_WHILE_COMP.to_owned(),
+                    message: InefficientWhileComparison.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }

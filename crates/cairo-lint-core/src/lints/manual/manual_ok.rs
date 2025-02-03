@@ -11,18 +11,15 @@ use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_ma
 
 use super::helpers::fix_manual;
 
-const MANUAL_OK: &str = "Manual match for `ok` detected. Consider using `ok()` instead";
-const MANUAL_OK_LINT_NAME: &str = "manual_ok";
-
 pub struct ManualOk;
 
 impl Lint for ManualOk {
     fn allowed_name(&self) -> &'static str {
-        MANUAL_OK_LINT_NAME
+        "manual_ok"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        MANUAL_OK
+        "Manual match for `ok` detected. Consider using `ok()` instead"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -52,7 +49,7 @@ pub fn check_manual_ok(
             if check_manual(db, match_expr, arenas, ManualLint::ManualOk) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
-                    message: MANUAL_OK.to_owned(),
+                    message: ManualOk.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }
@@ -61,7 +58,7 @@ pub fn check_manual_ok(
             if check_manual_if(db, if_expr, arenas, ManualLint::ManualOk) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
-                    message: MANUAL_OK.to_owned(),
+                    message: ManualOk.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }

@@ -12,101 +12,81 @@ use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 use super::{function_trait_name_from_fn_id, AND, DIV, EQ, GE, GT, LE, LT, NE, NOT, OR, SUB, XOR};
 
-const DIV_EQ_OP: &str =
-    "Division with identical operands, this operation always results in one (except for zero) and \
-                         may indicate a logic error";
-const DIV_EQ_OP_LINT_NAME: &str = "div_eq_op";
-
 pub struct DivisionEqualityOperation;
 
 impl Lint for DivisionEqualityOperation {
     fn allowed_name(&self) -> &'static str {
-        DIV_EQ_OP_LINT_NAME
+        "div_eq_op"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        DIV_EQ_OP
+        "Division with identical operands, this operation always results in one (except for zero) and \
+                         may indicate a logic error"
     }
 
     fn kind(&self) -> CairoLintKind {
         CairoLintKind::EqualityOperation
     }
 }
-
-const EQ_COMP_OP: &str =
-    "Comparison with identical operands, this operation always results in true and may indicate a logic error";
-const EQ_COMP_OP_LINT_NAME: &str = "eq_comp_op";
 
 pub struct EqualComparisonOperation;
 
 impl Lint for EqualComparisonOperation {
     fn allowed_name(&self) -> &'static str {
-        EQ_COMP_OP_LINT_NAME
+        "eq_comp_op"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        EQ_COMP_OP
+        "Comparison with identical operands, this operation always results in true and may indicate a logic error"
     }
 
     fn kind(&self) -> CairoLintKind {
         CairoLintKind::EqualityOperation
     }
 }
-
-const NEQ_COMP_OP: &str =
-    "Comparison with identical operands, this operation always results in false and may indicate a logic error";
-const NEQ_COMP_OP_LINT_NAME: &str = "neq_comp_op";
 
 pub struct NotEqualComparisonOperation;
 
 impl Lint for NotEqualComparisonOperation {
     fn allowed_name(&self) -> &'static str {
-        NEQ_COMP_OP_LINT_NAME
+        "neq_comp_op"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        NEQ_COMP_OP
+        "Comparison with identical operands, this operation always results in false and may indicate a logic error"
     }
 
     fn kind(&self) -> CairoLintKind {
         CairoLintKind::EqualityOperation
     }
 }
-
-const EQ_DIFF_OP: &str =
-    "Subtraction with identical operands, this operation always results in zero and may indicate a logic error";
-const EQ_DIFF_OP_LINT_NAME: &str = "eq_diff_op";
 
 pub struct DifferenceEqualityOperation;
 
 impl Lint for DifferenceEqualityOperation {
     fn allowed_name(&self) -> &'static str {
-        EQ_DIFF_OP_LINT_NAME
+        "eq_diff_op"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        EQ_DIFF_OP
+        "Subtraction with identical operands, this operation always results in zero and may indicate a logic error"
     }
 
     fn kind(&self) -> CairoLintKind {
         CairoLintKind::EqualityOperation
     }
 }
-
-const EQ_BITWISE_OP: &str =
-    "Bitwise operation with identical operands, this operation always results in the same \
-                             value and may indicate a logic error";
-const EQ_BITWISE_OP_LINT_NAME: &str = "eq_bitwise_op";
 
 pub struct BitwiseEqualityOperation;
 
 impl Lint for BitwiseEqualityOperation {
     fn allowed_name(&self) -> &'static str {
-        EQ_BITWISE_OP_LINT_NAME
+        "eq_bitwise_op"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        EQ_BITWISE_OP
+        "Bitwise operation with identical operands, this operation always results in the same \
+                             value and may indicate a logic error"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -114,20 +94,16 @@ impl Lint for BitwiseEqualityOperation {
     }
 }
 
-const EQ_LOGICAL_OP: &str =
-    "Logical operation with identical operands, this operation always results in the same \
-                             value and may indicate a logic error";
-const EQ_LOGICAL_OP_LINT_NAME: &str = "eq_logical_op";
-
 pub struct LogicalEqualityOperation;
 
 impl Lint for LogicalEqualityOperation {
     fn allowed_name(&self) -> &'static str {
-        EQ_LOGICAL_OP_LINT_NAME
+        "eq_logical_op"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        EQ_LOGICAL_OP
+        "Logical operation with identical operands, this operation always results in the same \
+                             value and may indicate a logic error"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -227,12 +203,12 @@ fn are_operands_equal(db: &dyn SyntaxGroup, lhs: SyntaxNode, rhs: SyntaxNode) ->
 
 fn get_diagnostic_message(op: &str) -> Option<&'static str> {
     match op {
-        EQ | LE | GE => Some(EQ_COMP_OP),
-        NE | LT | GT => Some(NEQ_COMP_OP),
-        AND | OR => Some(EQ_LOGICAL_OP),
-        XOR | NOT => Some(EQ_BITWISE_OP),
-        SUB => Some(EQ_DIFF_OP),
-        DIV => Some(DIV_EQ_OP),
+        EQ | LE | GE => Some(EqualComparisonOperation.diagnostic_message()),
+        NE | LT | GT => Some(NotEqualComparisonOperation.diagnostic_message()),
+        AND | OR => Some(LogicalEqualityOperation.diagnostic_message()),
+        XOR | NOT => Some(BitwiseEqualityOperation.diagnostic_message()),
+        SUB => Some(DifferenceEqualityOperation.diagnostic_message()),
+        DIV => Some(DivisionEqualityOperation.diagnostic_message()),
         _ => None,
     }
 }

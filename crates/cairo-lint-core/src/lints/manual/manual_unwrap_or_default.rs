@@ -17,18 +17,15 @@ use crate::{
     lints::manual::{check_manual, check_manual_if, ManualLint},
 };
 
-const MANUAL_UNWRAP_OR_DEFAULT: &str = "This can be done in one call with `.unwrap_or_default()`";
-const MANUAL_UNWRAP_OR_DEFAULT_LINT_NAME: &str = "manual_unwrap_or_default";
-
 pub struct ManualUnwrapOrDefault;
 
 impl Lint for ManualUnwrapOrDefault {
     fn allowed_name(&self) -> &'static str {
-        MANUAL_UNWRAP_OR_DEFAULT_LINT_NAME
+        "manual_unwrap_or_default"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        MANUAL_UNWRAP_OR_DEFAULT
+        "This can be done in one call with `.unwrap_or_default()`"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -58,7 +55,7 @@ pub fn check_manual_unwrap_or_default(
             if check_manual(db, match_expr, arenas, ManualLint::ManualUnwrapOrDefault) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
-                    message: MANUAL_UNWRAP_OR_DEFAULT.to_owned(),
+                    message: ManualUnwrapOrDefault.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }
@@ -67,7 +64,7 @@ pub fn check_manual_unwrap_or_default(
             if check_manual_if(db, if_expr, arenas, ManualLint::ManualUnwrapOrDefault) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
-                    message: MANUAL_UNWRAP_OR_DEFAULT.to_owned(),
+                    message: ManualUnwrapOrDefault.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }

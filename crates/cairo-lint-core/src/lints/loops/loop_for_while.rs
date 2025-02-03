@@ -14,20 +14,16 @@ use crate::context::{CairoLintKind, Lint};
 use crate::helper::{invert_condition, remove_break_from_block, remove_break_from_else_clause};
 use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
 
-const LOOP_FOR_WHILE: &str =
-    "you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` \
-                                  loop for clarity and conciseness";
-const LOOP_FOR_WHILE_LINT_NAME: &str = "loop_for_while";
-
 pub struct LoopForWhile;
 
 impl Lint for LoopForWhile {
     fn allowed_name(&self) -> &'static str {
-        LOOP_FOR_WHILE_LINT_NAME
+        "loop_for_while"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        LOOP_FOR_WHILE
+        "you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` \
+                                  loop for clarity and conciseness"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -90,7 +86,7 @@ fn check_single_loop_for_while(
             then {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: loop_expr.stable_ptr.untyped(),
-                    message: LOOP_FOR_WHILE.to_string(),
+                    message: LoopForWhile.diagnostic_message().to_string(),
                     severity: Severity::Warning,
                 });
             }
@@ -104,7 +100,7 @@ fn check_single_loop_for_while(
         then {
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: loop_expr.stable_ptr.untyped(),
-                message: LOOP_FOR_WHILE.to_string(),
+                message: LoopForWhile.diagnostic_message().to_string(),
                 severity: Severity::Warning,
             });
         }

@@ -1,4 +1,3 @@
-use crate::lints;
 use crate::lints::bitwise_for_parity_check::check_bitwise_for_parity;
 use crate::lints::bitwise_for_parity_check::BitwiseForParity;
 use crate::lints::bool_comparison::check_bool_comparison;
@@ -46,6 +45,7 @@ use crate::lints::manual::manual_expect::check_manual_expect;
 use crate::lints::manual::manual_expect::ManualExpect;
 use crate::lints::manual::manual_expect_err::check_manual_expect_err;
 use crate::lints::manual::manual_expect_err::ManualExpectErr;
+use crate::lints::manual::manual_is::check_manual_is;
 use crate::lints::manual::manual_is::ManualIsErr;
 use crate::lints::manual::manual_is::ManualIsNone;
 use crate::lints::manual::manual_is::ManualIsOk;
@@ -61,19 +61,17 @@ use crate::lints::panic::PanicInCode;
 use crate::lints::performance::check_inefficient_while_comp;
 use crate::lints::performance::InefficientWhileComparison;
 use crate::lints::single_match::check_single_matches;
-use crate::lints::single_match::DestructMatchLint;
+use crate::lints::single_match::DestructMatch;
 use crate::lints::single_match::EqualityMatch;
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::{db::SyntaxGroup, SyntaxNode};
 use itertools::Itertools;
 use std::collections::HashMap;
-use std::sync::Arc;
 use std::sync::LazyLock;
 
 /// Type describing a linter group's rule checking function.
-type CheckingFunction =
-    Arc<dyn Fn(&dyn SemanticGroup, &ModuleItemId, &mut Vec<PluginDiagnostic>) + Send + Sync>;
+type CheckingFunction = fn(&dyn SemanticGroup, &ModuleItemId, &mut Vec<PluginDiagnostic>);
 
 /// Enum representing the kind of a linter. Some lint rules might have the same kind.
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -114,7 +112,7 @@ pub enum CairoLintKind {
     Performance,
 }
 
-pub trait Lint: Sync {
+pub trait Lint: Sync + Send {
     /// A name that is going to be registered by the compiler as an allowed lint to be ignored.
     /// Some multiple lint rules might have the same allowed name. This way all of the will be ignored with only one allow attribute.
     fn allowed_name(&self) -> &'static str;
@@ -150,140 +148,145 @@ pub trait Lint: Sync {
 /// A group of lint rules.
 ///
 /// We want to group lint rules because some lint rules can share an allowed name for compiler or the checking function.
-pub struct LintRuleGroup<'a> {
+pub struct LintRuleGroup {
     /// Collection of `LintRule`s that are directly connected to this group's checking function.
-    lints: Vec<&'a (dyn Lint + Sync)>,
+    lints: Vec<Box<dyn Lint>>,
     /// A Function which will be fired during linter plugin analysis.
     /// This one should emit certain diagnostics in order to later identify (and maybe fix) the linting problem.
     check_function: CheckingFunction,
 }
 
 /// A global Linter context. It contains all the lint rules.
-struct LintContext<'a> {
-    lint_groups: Vec<LintRuleGroup<'a>>,
+struct LintContext {
+    lint_groups: Vec<LintRuleGroup>,
     diagnostic_to_lint_kind_map: HashMap<&'static str, CairoLintKind>,
 }
 
-impl<'a> LintContext<'a> {
+impl LintContext {
     /// All of the predefined rules are stored here. If a new rule is added it should be added here as well.
-    fn get_all_lints() -> Vec<LintRuleGroup<'a>> {
+    fn get_all_lints() -> Vec<LintRuleGroup> {
         vec![
             LintRuleGroup {
-                lints: vec![&DestructMatchLint, &EqualityMatch],
-                check_function: Arc::new(check_single_matches),
+                lints: vec![Box::new(DestructMatch), Box::new(EqualityMatch)],
+                check_function: check_single_matches,
             },
             LintRuleGroup {
-                lints: vec![&DoubleParens],
-                check_function: Arc::new(check_double_parens),
-            },
-            LintRuleGroup {
-                lints: vec![
-                    &ImpossibleComparison,
-                    &SimplifiableComparison,
-                    &RedundantComparison,
-                    &ContradictoryComparison,
-                ],
-                check_function: Arc::new(check_double_comparison),
-            },
-            LintRuleGroup {
-                lints: vec![&EquatableIfLet],
-                check_function: Arc::new(check_equatable_if_let),
-            },
-            LintRuleGroup {
-                lints: vec![&BreakUnit],
-                check_function: Arc::new(check_break),
-            },
-            LintRuleGroup {
-                lints: vec![&BoolComparison],
-                check_function: Arc::new(check_bool_comparison),
-            },
-            LintRuleGroup {
-                lints: vec![&CollapsibleIfElse],
-                check_function: Arc::new(check_collapsible_if_else),
-            },
-            LintRuleGroup {
-                lints: vec![&CollapsibleIf],
-                check_function: Arc::new(check_collapsible_if),
-            },
-            LintRuleGroup {
-                lints: vec![&DuplicateUnderscoreArgs],
-                check_function: Arc::new(check_duplicate_underscore_args),
-            },
-            LintRuleGroup {
-                lints: vec![&LoopMatchPopFront],
-                check_function: Arc::new(check_loop_match_pop_front),
-            },
-            LintRuleGroup {
-                lints: vec![&ManualUnwrapOrDefault],
-                check_function: Arc::new(check_manual_unwrap_or_default),
-            },
-            LintRuleGroup {
-                lints: vec![&BitwiseForParity],
-                check_function: Arc::new(check_bitwise_for_parity),
-            },
-            LintRuleGroup {
-                lints: vec![&LoopForWhile],
-                check_function: Arc::new(check_loop_for_while),
-            },
-            LintRuleGroup {
-                lints: vec![&PanicInCode],
-                check_function: Arc::new(check_panic_usage),
-            },
-            LintRuleGroup {
-                lints: vec![&ErasingOperation],
-                check_function: Arc::new(check_erasing_operation),
-            },
-            LintRuleGroup {
-                lints: vec![&ManualOkOr],
-                check_function: Arc::new(check_manual_ok_or),
-            },
-            LintRuleGroup {
-                lints: vec![&ManualOk],
-                check_function: Arc::new(check_manual_ok),
-            },
-            LintRuleGroup {
-                lints: vec![&ManualErr],
-                check_function: Arc::new(check_manual_err),
-            },
-            LintRuleGroup {
-                lints: vec![&ManualIsSome, &ManualIsNone, &ManualIsOk, &ManualIsErr],
-                check_function: Arc::new(lints::manual::manual_is::check_manual_is),
-            },
-            LintRuleGroup {
-                lints: vec![&ManualExpect],
-                check_function: Arc::new(check_manual_expect),
-            },
-            LintRuleGroup {
-                lints: vec![&DuplicateIfCondition],
-                check_function: Arc::new(check_duplicate_if_condition),
-            },
-            LintRuleGroup {
-                lints: vec![&ManualExpectErr],
-                check_function: Arc::new(check_manual_expect_err),
+                lints: vec![Box::new(DoubleParens)],
+                check_function: check_double_parens,
             },
             LintRuleGroup {
                 lints: vec![
-                    &IntegerGreaterEqualPlusOne,
-                    &IntegerGreaterEqualMinusOne,
-                    &IntegerLessEqualPlusOne,
-                    &IntegerLessEqualMinusOne,
+                    Box::new(ImpossibleComparison),
+                    Box::new(SimplifiableComparison),
+                    Box::new(RedundantComparison),
+                    Box::new(ContradictoryComparison),
                 ],
-                check_function: Arc::new(check_int_op_one),
+                check_function: check_double_comparison,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(EquatableIfLet)],
+                check_function: check_equatable_if_let,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(BreakUnit)],
+                check_function: check_break,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(BoolComparison)],
+                check_function: check_bool_comparison,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(CollapsibleIfElse)],
+                check_function: check_collapsible_if_else,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(CollapsibleIf)],
+                check_function: check_collapsible_if,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(DuplicateUnderscoreArgs)],
+                check_function: check_duplicate_underscore_args,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(LoopMatchPopFront)],
+                check_function: check_loop_match_pop_front,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(ManualUnwrapOrDefault)],
+                check_function: check_manual_unwrap_or_default,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(BitwiseForParity)],
+                check_function: check_bitwise_for_parity,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(LoopForWhile)],
+                check_function: check_loop_for_while,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(PanicInCode)],
+                check_function: check_panic_usage,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(ErasingOperation)],
+                check_function: check_erasing_operation,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(ManualOkOr)],
+                check_function: check_manual_ok_or,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(ManualOk)],
+                check_function: check_manual_ok,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(ManualErr)],
+                check_function: check_manual_err,
             },
             LintRuleGroup {
                 lints: vec![
-                    &DivisionEqualityOperation,
-                    &EqualComparisonOperation,
-                    &NotEqualComparisonOperation,
-                    &DifferenceEqualityOperation,
-                    &BitwiseEqualityOperation,
-                    &LogicalEqualityOperation,
+                    Box::new(ManualIsSome),
+                    Box::new(ManualIsNone),
+                    Box::new(ManualIsOk),
+                    Box::new(ManualIsErr),
                 ],
-                check_function: Arc::new(check_eq_op),
+                check_function: check_manual_is,
             },
             LintRuleGroup {
-                lints: vec![&InefficientWhileComparison],
-                check_function: Arc::new(check_inefficient_while_comp),
+                lints: vec![Box::new(ManualExpect)],
+                check_function: check_manual_expect,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(DuplicateIfCondition)],
+                check_function: check_duplicate_if_condition,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(ManualExpectErr)],
+                check_function: check_manual_expect_err,
+            },
+            LintRuleGroup {
+                lints: vec![
+                    Box::new(IntegerGreaterEqualPlusOne),
+                    Box::new(IntegerGreaterEqualMinusOne),
+                    Box::new(IntegerLessEqualPlusOne),
+                    Box::new(IntegerLessEqualMinusOne),
+                ],
+                check_function: check_int_op_one,
+            },
+            LintRuleGroup {
+                lints: vec![
+                    Box::new(DivisionEqualityOperation),
+                    Box::new(EqualComparisonOperation),
+                    Box::new(NotEqualComparisonOperation),
+                    Box::new(DifferenceEqualityOperation),
+                    Box::new(BitwiseEqualityOperation),
+                    Box::new(LogicalEqualityOperation),
+                ],
+                check_function: check_eq_op,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(InefficientWhileComparison)],
+                check_function: check_inefficient_while_comp,
             },
         ]
     }
@@ -353,7 +356,7 @@ pub fn get_all_checking_functions() -> impl Iterator<Item = &'static CheckingFun
     LINT_CONTEXT
         .lint_groups
         .iter()
-        .unique_by(|rule| Arc::as_ptr(&rule.check_function))
+        .unique_by(|rule| rule.check_function)
         .map(|rule_group| &rule_group.check_function)
 }
 

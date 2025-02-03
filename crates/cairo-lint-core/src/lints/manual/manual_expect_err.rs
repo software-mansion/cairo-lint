@@ -22,19 +22,15 @@ use crate::{
     },
 };
 
-const MANUAL_EXPECT_ERR: &str =
-    "Manual match for `expect_err` detected. Consider using `expect_err()` instead";
-const MANUAL_EXPECT_ERR_LINT_NAME: &str = "manual_expect_err";
-
 pub struct ManualExpectErr;
 
 impl Lint for ManualExpectErr {
     fn allowed_name(&self) -> &'static str {
-        MANUAL_EXPECT_ERR_LINT_NAME
+        "manual_expect_err"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        MANUAL_EXPECT_ERR
+        "Manual match for `expect_err` detected. Consider using `expect_err()` instead"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -64,7 +60,7 @@ pub fn check_manual_expect_err(
             if check_manual(db, match_expr, arenas, ManualLint::ManualExpectErr) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
-                    message: MANUAL_EXPECT_ERR.to_owned(),
+                    message: ManualExpectErr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }
@@ -73,7 +69,7 @@ pub fn check_manual_expect_err(
             if check_manual_if(db, if_expr, arenas, ManualLint::ManualExpectErr) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
-                    message: MANUAL_EXPECT_ERR.to_owned(),
+                    message: ManualExpectErr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }

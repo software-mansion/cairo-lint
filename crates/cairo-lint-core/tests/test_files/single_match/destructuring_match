@@ -36,7 +36,7 @@ fn main() {
 //! > cairo_code
 fn main() {
     let variable = Option::Some(1_felt252);
-    #[allow(destruct_match)]
+    #[allow(equality_match)]
     match variable {
         Option::None => println!("None"),
         Option::Some => (),
@@ -48,7 +48,7 @@ fn main() {
 //! > fixed
 fn main() {
     let variable = Option::Some(1_felt252);
-    #[allow(destruct_match)]
+    #[allow(equality_match)]
     match variable {
         Option::None => println!("None"),
         Option::Some => (),

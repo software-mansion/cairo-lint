@@ -15,19 +15,15 @@ use crate::context::{CairoLintKind, Lint};
 use crate::helper::indent_snippet;
 use crate::queries::{get_all_function_bodies, get_all_match_expressions};
 
-const DESTRUCT_MATCH: &str =
-    "you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`";
-const DESTRUCT_MATCH_LINT_NAME: &str = "equality_match";
+pub struct DestructMatch;
 
-pub struct DestructMatchLint;
-
-impl Lint for DestructMatchLint {
+impl Lint for DestructMatch {
     fn allowed_name(&self) -> &'static str {
-        DESTRUCT_MATCH_LINT_NAME
+        "destruct_match"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        DESTRUCT_MATCH
+        "you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -43,19 +39,15 @@ impl Lint for DestructMatchLint {
     }
 }
 
-const MATCH_FOR_EQUALITY_LINT_NAME: &str = "destruct_match";
-const MATCH_FOR_EQUALITY: &str =
-    "you seem to be trying to use `match` for an equality check. Consider using `if`";
-
 pub struct EqualityMatch;
 
 impl Lint for EqualityMatch {
     fn allowed_name(&self) -> &'static str {
-        MATCH_FOR_EQUALITY_LINT_NAME
+        "equality_match"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        MATCH_FOR_EQUALITY
+        "you seem to be trying to use `match` for an equality check. Consider using `if`"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -160,12 +152,12 @@ fn check_single_match(
     match (is_single_armed, is_destructuring) {
         (true, false) => diagnostics.push(PluginDiagnostic {
             stable_ptr: match_expr.stable_ptr.into(),
-            message: MATCH_FOR_EQUALITY.to_string(),
+            message: EqualityMatch.diagnostic_message().to_string(),
             severity: Severity::Warning,
         }),
         (true, true) => diagnostics.push(PluginDiagnostic {
             stable_ptr: match_expr.stable_ptr.into(),
-            message: DESTRUCT_MATCH.to_string(),
+            message: DestructMatch.diagnostic_message().to_string(),
             severity: Severity::Warning,
         }),
         (_, _) => (),

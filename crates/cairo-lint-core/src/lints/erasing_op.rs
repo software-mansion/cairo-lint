@@ -11,21 +11,16 @@ use crate::context::{CairoLintKind, Lint};
 use crate::lints::{DIV, MUL};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
-const ERASING_OPERATION: &str =
-    "This operation results in the value being erased (e.g., multiplication by 0). \
-                                     Consider replacing the entire expression with 0.";
-
-const ERASING_OPERATION_LINT_NAME: &str = "erasing_op";
-
 pub struct ErasingOperation;
 
 impl Lint for ErasingOperation {
     fn allowed_name(&self) -> &'static str {
-        ERASING_OPERATION_LINT_NAME
+        "erasing_op"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        ERASING_OPERATION
+        "This operation results in the value being erased (e.g., multiplication by 0). \
+                                     Consider replacing the entire expression with 0."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -64,7 +59,7 @@ fn check_single_erasing_operation(
     if is_erasing_operation {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: expr_func.stable_ptr.untyped(),
-            message: ERASING_OPERATION.to_string(),
+            message: ErasingOperation.diagnostic_message().to_string(),
             severity: Severity::Warning,
         });
     }

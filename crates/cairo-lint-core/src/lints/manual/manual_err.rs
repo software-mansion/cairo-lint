@@ -11,18 +11,15 @@ use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_ma
 
 use super::helpers::fix_manual;
 
-const MANUAL_ERR: &str = "Manual match for `err` detected. Consider using `err()` instead";
-const MANUAL_ERR_LINT_NAME: &str = "manual_err";
-
 pub struct ManualErr;
 
 impl Lint for ManualErr {
     fn allowed_name(&self) -> &'static str {
-        MANUAL_ERR_LINT_NAME
+        "manual_err"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        MANUAL_ERR
+        "Manual match for `err` detected. Consider using `err()` instead"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -52,7 +49,7 @@ pub fn check_manual_err(
             if check_manual(db, match_expr, arenas, ManualLint::ManualErr) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
-                    message: MANUAL_ERR.to_owned(),
+                    message: ManualErr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }
@@ -61,7 +58,7 @@ pub fn check_manual_err(
             if check_manual_if(db, if_expr, arenas, ManualLint::ManualErr) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
-                    message: MANUAL_ERR.to_owned(),
+                    message: ManualErr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
             }

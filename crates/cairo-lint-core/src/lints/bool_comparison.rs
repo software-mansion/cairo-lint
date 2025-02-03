@@ -12,19 +12,15 @@ use if_chain::if_chain;
 use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
-const BOOL_COMPARISON: &str =
-    "Unnecessary comparison with a boolean value. Use the variable directly.";
-const BOOL_COMPARISON_LINT_NAME: &str = "bool_comparison";
-
 pub struct BoolComparison;
 
 impl Lint for BoolComparison {
     fn allowed_name(&self) -> &'static str {
-        BOOL_COMPARISON_LINT_NAME
+        "bool_comparison"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        BOOL_COMPARISON
+        "Unnecessary comparison with a boolean value. Use the variable directly."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -81,7 +77,7 @@ fn check_single_bool_comparison(
             then {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: function_call_expr.stable_ptr.untyped(),
-                    message: BOOL_COMPARISON.to_string(),
+                    message: BoolComparison.diagnostic_message().to_string(),
                     severity: Severity::Warning,
                 });
             }

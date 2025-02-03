@@ -16,18 +16,15 @@ use if_chain::if_chain;
 use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
-const COLLAPSIBLE_IF_ELSE: &str = "Consider using else if instead of else { if ... }";
-const COLLAPSIBLE_IF_ELSE_LINT_NAME: &str = "collapsible_if_else";
-
 pub struct CollapsibleIfElse;
 
 impl Lint for CollapsibleIfElse {
     fn allowed_name(&self) -> &'static str {
-        COLLAPSIBLE_IF_ELSE_LINT_NAME
+        "collapsible_if_else"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        COLLAPSIBLE_IF_ELSE
+        "Consider using else if instead of else { if ... }"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -95,7 +92,7 @@ fn check_single_collapsible_if_else(
     if is_if {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: if_expr.stable_ptr.untyped(),
-            message: COLLAPSIBLE_IF_ELSE.to_string(),
+            message: CollapsibleIfElse.diagnostic_message().to_string(),
             severity: Severity::Warning,
         });
     }

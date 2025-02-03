@@ -14,19 +14,15 @@ use crate::context::{CairoLintKind, Lint};
 use crate::helper::indent_snippet;
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
-const COLLAPSIBLE_IF: &str =
-    "Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.";
-const COLLAPSIBLE_IF_LINT_NAME: &str = "collapsible_if";
-
 pub struct CollapsibleIf;
 
 impl Lint for CollapsibleIf {
     fn allowed_name(&self) -> &'static str {
-        COLLAPSIBLE_IF_LINT_NAME
+        "collapsible_if"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        COLLAPSIBLE_IF
+        "Each `if`-statement adds one level of nesting, which makes code look more complex than it really is."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -98,7 +94,7 @@ fn check_single_collapsible_if(
 
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: if_expr.stable_ptr.untyped(),
-                message: COLLAPSIBLE_IF.to_string(),
+                message: CollapsibleIf.diagnostic_message().to_string(),
                 severity: Severity::Warning,
             });
             return;
@@ -117,7 +113,7 @@ fn check_single_collapsible_if(
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: if_expr.stable_ptr.untyped(),
-            message: COLLAPSIBLE_IF.to_string(),
+            message: CollapsibleIf.diagnostic_message().to_string(),
             severity: Severity::Warning,
         });
     }
