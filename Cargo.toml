@@ -47,10 +47,10 @@ if_chain = "1.0.2"
 itertools = "0.13.0"
 log = "0.4.22"
 num-bigint = "0.4.6"
-paste = "1.0.15"
 pretty_assertions = "1.4.1"
 smol_str = "0.2.2"
 test-case = "3.0"
+insta = "1.41.0"
 
 # Here we specify real dependency specifications for Cairo crates *if* currently we want to use
 # a particular unreleased commit (which is frequent mid-development).

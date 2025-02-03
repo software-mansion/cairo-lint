@@ -26,8 +26,8 @@ test-case.workspace = true
 pretty_assertions.workspace = true
 ctor.workspace = true
 cairo-lint-test-utils = { path = "../cairo-lint-test-utils" }
-paste.workspace = true
 itertools.workspace = true
+insta.workspace = true
 
 [features]
 testing-colors = ["annotate-snippets/testing-colors"]

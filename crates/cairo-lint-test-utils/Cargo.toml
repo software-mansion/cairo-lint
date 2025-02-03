@@ -13,4 +13,3 @@ cairo-lang-diagnostics.workspace = true
 cairo-lang-semantic.workspace = true
 cairo-lang-defs.workspace = true
 cairo-lang-compiler.workspace = true
-paste.workspace = true
