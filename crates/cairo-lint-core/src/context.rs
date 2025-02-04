@@ -141,7 +141,7 @@ pub trait Lint: Sync + Send {
     /// By default there is no fixing procedure for a Lint.
     #[expect(unused_variables)]
     fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        None
+        unreachable!("fix() has been called for a lint which has_fixer() returned false")
     }
 }
 
@@ -338,7 +338,7 @@ pub fn get_fix_for_diagnostic_message(
         .lint_groups
         .iter()
         .flat_map(|rule_group| &rule_group.lints)
-        .find(|rule| rule.diagnostic_message() == message)
+        .find(|rule| rule.diagnostic_message() == message && rule.has_fixer())
         .and_then(|rule| rule.fix(db, node))
 }
 

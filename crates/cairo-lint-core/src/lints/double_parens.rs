@@ -25,6 +25,10 @@ impl Lint for DoubleParens {
         CairoLintKind::DoubleParens
     }
 
+    fn has_fixer(&self) -> bool {
+        true
+    }
+
     fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         fix_double_parens(db, node)
     }
