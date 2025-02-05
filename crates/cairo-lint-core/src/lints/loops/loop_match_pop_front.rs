@@ -1,23 +1,51 @@
-use cairo_lang_defs::ids::TopLevelLanguageElementId;
+use cairo_lang_defs::ids::{ModuleItemId, TopLevelLanguageElementId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
     Arenas, Expr, ExprBlock, ExprId, ExprLoop, ExprMatch, Pattern, PatternEnumVariant, Statement,
 };
-use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::SyntaxNode;
+use cairo_lang_syntax::node::{
+    ast::{
+        Expr as AstExpr, ExprLoop as AstExprLoop, OptionPatternEnumInnerPattern,
+        Pattern as AstPattern, Statement as AstStatement,
+    },
+    TypedStablePtr, TypedSyntaxNode,
+};
 use if_chain::if_chain;
 
+use crate::context::{CairoLintKind, Lint};
+use crate::helper::indent_snippet;
 use crate::lints::{NONE, SOME};
-
-pub const LOOP_MATCH_POP_FRONT: &str =
-    "you seem to be trying to use `loop` for iterating over a span. Consider using `for in`";
+use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
 
 const SPAN_MATCH_POP_FRONT: &str = "\"SpanImpl::pop_front\"";
 
-pub const ALLOWED: [&str; 1] = [LINT_NAME];
-pub(super) const LINT_NAME: &str = "loop_match_pop_front";
+pub struct LoopMatchPopFront;
+
+impl Lint for LoopMatchPopFront {
+    fn allowed_name(&self) -> &'static str {
+        "loop_match_pop_front"
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        "you seem to be trying to use `loop` for iterating over a span. Consider using `for in`"
+    }
+
+    fn kind(&self) -> CairoLintKind {
+        CairoLintKind::LoopMatchPopFront
+    }
+
+    fn has_fixer(&self) -> bool {
+        true
+    }
+
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_loop_match_pop_front(db, node)
+    }
+}
 
 /// Checks for
 /// ```ignore
@@ -38,19 +66,25 @@ pub(super) const LINT_NAME: &str = "loop_match_pop_front";
 /// ```
 pub fn check_loop_match_pop_front(
     db: &dyn SemanticGroup,
+    item: &ModuleItemId,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    let function_bodies = get_all_function_bodies(db, item);
+    for function_body in function_bodies.iter() {
+        let loop_exprs = get_all_loop_expressions(function_body);
+        let arenas = &function_body.arenas;
+        for loop_expr in loop_exprs.iter() {
+            check_single_loop_match_pop_front(db, loop_expr, diagnostics, arenas);
+        }
+    }
+}
+
+fn check_single_loop_match_pop_front(
+    db: &dyn SemanticGroup,
     loop_expr: &ExprLoop,
     diagnostics: &mut Vec<PluginDiagnostic>,
     arenas: &Arenas,
 ) {
-    // Checks if the lint is allowed in an upper scope
-    let mut current_node = loop_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
-
     // Checks that the loop doesn't return anything
     if !loop_expr.ty.is_unit(db) {
         return;
@@ -74,7 +108,7 @@ pub fn check_loop_match_pop_front(
             }
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: loop_expr.stable_ptr.into(),
-                message: LOOP_MATCH_POP_FRONT.to_owned(),
+                message: LoopMatchPopFront.diagnostic_message().to_owned(),
                 severity: Severity::Warning,
             });
             return;
@@ -98,7 +132,7 @@ pub fn check_loop_match_pop_front(
             if func_call.function.name(db) == SPAN_MATCH_POP_FRONT {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: loop_expr.stable_ptr.into(),
-                    message: LOOP_MATCH_POP_FRONT.to_owned(),
+                    message: LoopMatchPopFront.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 })
             }
@@ -195,4 +229,90 @@ fn check_block_is_break(db: &dyn SemanticGroup, expr_block: &ExprBlock, arenas: 
         }
     }
     false
+}
+
+/// Rewrites this:
+///
+/// ```ignore
+/// loop {
+///     match some_span.pop_front() {
+///         Option::Some(val) => do_smth(val),
+///         Option::None => break;
+///     }
+/// }
+/// ```
+/// to this:
+/// ```ignore
+/// for val in span {
+///     do_smth(val);
+/// };
+/// ```
+pub fn fix_loop_match_pop_front(
+    db: &dyn SyntaxGroup,
+    node: SyntaxNode,
+) -> Option<(SyntaxNode, String)> {
+    let expr_loop = AstExprLoop::from_syntax_node(db, node.clone());
+    let body = expr_loop.body(db);
+    let AstStatement::Expr(expr) = &body.statements(db).elements(db)[0] else {
+        panic!(
+            "Wrong statement type. This is probably a bug in the lint detection. Please report it"
+        )
+    };
+    let AstExpr::Match(expr_match) = expr.expr(db) else {
+        panic!(
+            "Wrong expression type. This is probably a bug in the lint detection. Please report it"
+        )
+    };
+    let val = expr_match.expr(db);
+    let span_name = match val {
+        AstExpr::FunctionCall(func_call) => func_call.arguments(db).arguments(db).elements(db)[0]
+            .arg_clause(db)
+            .as_syntax_node()
+            .get_text_without_trivia(db),
+        AstExpr::Binary(dot_call) => dot_call
+            .lhs(db)
+            .as_syntax_node()
+            .get_text_without_trivia(db),
+        _ => panic!(
+            "Wrong expressiin type. This is probably a bug in the lint detection. Please report it"
+        ),
+    };
+    let mut elt_name = "".to_owned();
+    let mut some_arm = "".to_owned();
+    let arms = expr_match.arms(db).elements(db);
+
+    let mut loop_span = node.span(db);
+    loop_span.end = node.span_start_without_trivia(db);
+    let indent = node
+        .get_text(db)
+        .chars()
+        .take_while(|c| c.is_whitespace())
+        .collect::<String>();
+    let trivia = node.clone().get_text_of_span(db, loop_span);
+    let trivia = if trivia.is_empty() {
+        trivia
+    } else {
+        format!("{indent}{trivia}\n")
+    };
+    for arm in arms {
+        if_chain! {
+            if let AstPattern::Enum(enum_pattern) = &arm.patterns(db).elements(db)[0];
+            if let OptionPatternEnumInnerPattern::PatternEnumInnerPattern(var) = enum_pattern.pattern(db);
+            then {
+                elt_name = var.pattern(db).as_syntax_node().get_text_without_trivia(db);
+                some_arm = if let AstExpr::Block(block_expr) = arm.expression(db) {
+                    block_expr.statements(db).as_syntax_node().get_text(db)
+                } else {
+                    arm.expression(db).as_syntax_node().get_text(db)
+                }
+            }
+        }
+    }
+    Some((
+        node,
+        indent_snippet(
+            &format!("{trivia}for {elt_name} in {span_name} {{\n{some_arm}\n}};\n"),
+            indent.len() / 4,
+        ),
+    ))
 }

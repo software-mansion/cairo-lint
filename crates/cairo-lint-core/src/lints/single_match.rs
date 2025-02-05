@@ -1,20 +1,59 @@
+use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, ExprMatch, Pattern};
 use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBlock, ExprListParenthesized, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{
+    ast::{ExprMatch as AstExprMatch, Pattern as AstPattern},
+    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
+};
 use if_chain::if_chain;
 
-pub const DESTRUCT_MATCH: &str =
-    "you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`";
-pub const MATCH_FOR_EQUALITY: &str =
-    "you seem to be trying to use `match` for an equality check. Consider using `if`";
+use crate::context::{CairoLintKind, Lint};
+use crate::helper::indent_snippet;
+use crate::queries::{get_all_function_bodies, get_all_match_expressions};
 
-pub const ALLOWED: [&str; 1] = [LINT_NAME];
-const LINT_NAME: &str = "single_match";
+pub struct DestructMatch;
+
+impl Lint for DestructMatch {
+    fn allowed_name(&self) -> &'static str {
+        "destruct_match"
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        "you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`"
+    }
+
+    fn kind(&self) -> CairoLintKind {
+        CairoLintKind::DestructMatch
+    }
+
+    fn has_fixer(&self) -> bool {
+        true
+    }
+
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_destruct_match(db, node)
+    }
+}
+
+pub struct EqualityMatch;
+
+impl Lint for EqualityMatch {
+    fn allowed_name(&self) -> &'static str {
+        "equality_match"
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        "you seem to be trying to use `match` for an equality check. Consider using `if`"
+    }
+
+    fn kind(&self) -> CairoLintKind {
+        CairoLintKind::MatchForEquality
+    }
+}
 
 /// Checks for matches that do something only in 1 arm and can be rewrote as an `if let`
 /// ```ignore
@@ -30,21 +69,27 @@ const LINT_NAME: &str = "single_match";
 ///     do_smth(val),
 /// }
 /// ```
-pub fn check_single_match(
+pub fn check_single_matches(
+    db: &dyn SemanticGroup,
+    item: &ModuleItemId,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    let function_bodies = get_all_function_bodies(db, item);
+    for function_body in function_bodies.iter() {
+        let match_exprs = get_all_match_expressions(function_body);
+        let arenas = &function_body.arenas;
+        for match_expr in match_exprs.iter() {
+            check_single_match(db, match_expr, arenas, diagnostics);
+        }
+    }
+}
+
+fn check_single_match(
     db: &dyn SemanticGroup,
     match_expr: &ExprMatch,
-    diagnostics: &mut Vec<PluginDiagnostic>,
     arenas: &Arenas,
+    diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    // Checks if the lint is allowed in an upper scope.
-    let mut current_node = match_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
-
     let arms = &match_expr.arms;
     let mut is_single_armed = false;
     let mut is_complete = false;
@@ -107,12 +152,12 @@ pub fn check_single_match(
     match (is_single_armed, is_destructuring) {
         (true, false) => diagnostics.push(PluginDiagnostic {
             stable_ptr: match_expr.stable_ptr.into(),
-            message: MATCH_FOR_EQUALITY.to_string(),
+            message: EqualityMatch.diagnostic_message().to_string(),
             severity: Severity::Warning,
         }),
         (true, true) => diagnostics.push(PluginDiagnostic {
             stable_ptr: match_expr.stable_ptr.into(),
-            message: DESTRUCT_MATCH.to_string(),
+            message: DestructMatch.diagnostic_message().to_string(),
             severity: Severity::Warning,
         }),
         (_, _) => (),
@@ -164,4 +209,71 @@ pub fn is_expr_unit(expr: AstExpr, db: &dyn SyntaxGroup) -> bool {
         AstExpr::Tuple(tuple_expr) => is_expr_list_parenthesised_unit(&tuple_expr, db),
         _ => false,
     }
+}
+
+/// Fixes a destructuring match by converting it to an if-let expression.
+///
+/// This method handles matches with two arms, where one arm is a wildcard (_)
+/// and the other is either an enum or struct pattern.
+///
+/// # Arguments
+///
+/// * `db` - A reference to the SyntaxGroup
+/// * `node` - The SyntaxNode representing the match expression
+///
+/// # Returns
+///
+/// A `String` containing the if-let expression that replaces the match.
+///
+/// # Panics
+///
+/// Panics if the diagnostic is incorrect (i.e., the match doesn't have the expected structure).
+pub fn fix_destruct_match(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    let match_expr = AstExprMatch::from_syntax_node(db, node.clone());
+    let arms = match_expr.arms(db).elements(db);
+    let first_arm = &arms[0];
+    let second_arm = &arms[1];
+    let (pattern, first_expr) = match (
+        &first_arm.patterns(db).elements(db)[0],
+        &second_arm.patterns(db).elements(db)[0],
+    ) {
+        (AstPattern::Underscore(_), AstPattern::Enum(pat)) => (pat.as_syntax_node(), second_arm),
+        (AstPattern::Enum(pat), AstPattern::Underscore(_)) => (pat.as_syntax_node(), first_arm),
+        (AstPattern::Underscore(_), AstPattern::Struct(pat)) => (pat.as_syntax_node(), second_arm),
+        (AstPattern::Struct(pat), AstPattern::Underscore(_)) => (pat.as_syntax_node(), first_arm),
+        (AstPattern::Enum(pat1), AstPattern::Enum(pat2)) => {
+            if is_expr_unit(second_arm.expression(db), db) {
+                (pat1.as_syntax_node(), first_arm)
+            } else {
+                (pat2.as_syntax_node(), second_arm)
+            }
+        }
+        (_, _) => panic!("Incorrect diagnostic"),
+    };
+    let mut pattern_span = pattern.span(db);
+    pattern_span.end = pattern.span_start_without_trivia(db);
+    let indent = node
+        .get_text(db)
+        .chars()
+        .take_while(|c| c.is_whitespace())
+        .collect::<String>();
+    let trivia = pattern.clone().get_text_of_span(db, pattern_span);
+    Some((
+        node,
+        indent_snippet(
+            &format!(
+                "{trivia}{indent}if let {} = {} {{\n{}\n}}",
+                pattern.get_text_without_trivia(db),
+                match_expr
+                    .expr(db)
+                    .as_syntax_node()
+                    .get_text_without_trivia(db),
+                first_expr
+                    .expression(db)
+                    .as_syntax_node()
+                    .get_text_without_trivia(db),
+            ),
+            indent.len() / 4,
+        ),
+    ))
 }

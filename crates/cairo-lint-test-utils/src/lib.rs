@@ -60,10 +60,15 @@ macro_rules! test_file {
                 let test =  [<PARSED_TEST_FILE_ $file_path:upper>].get(test_name).expect("Couldn't get test");
                 let is_fix_mode = std::env::var("FIX_TESTS") == Ok("1".into());
                 let mut file = test.attributes.get("cairo_code").expect("Couldn't get cairo code").clone();
+
+                let mut testing_suite = PluginSuite::default();
+                testing_suite.add_analyzer_plugin_ex(Arc::new(CairoLint::new(true)));
+
+
                 let mut db = RootDatabase::builder()
                     .with_plugin_suite(get_default_plugin_suite())
                     .with_plugin_suite(test_plugin_suite())
-                    .with_plugin_suite(cairo_lint_plugin_suite())
+                    .with_plugin_suite(testing_suite)
                     .build()
                     .unwrap();
 
@@ -98,6 +103,7 @@ macro_rules! test_file {
                     file = "Contains nested diagnostics can't fix it".to_string();
                 }
                 let renderer = Renderer::plain();
+
                 let formatted_diags =
                     diags.into_iter().flat_map(|diags| diags.get_all().iter().map(|diag| format_diagnostic(diag, &db, &renderer)).collect::<Vec<_>>()).collect::<String>().trim().to_string();
                 if is_fix_mode {

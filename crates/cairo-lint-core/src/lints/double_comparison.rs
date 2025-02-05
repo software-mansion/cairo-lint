@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 
+use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
@@ -8,67 +9,136 @@ use cairo_lang_semantic::{
 };
 use cairo_lang_syntax::node::ast::{BinaryOperator, Expr as AstExpr};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 
 use super::function_trait_name_from_fn_id;
+use crate::context::{CairoLintKind, Lint};
 use crate::lints::{EQ, GE, GT, LE, LT};
+use crate::queries::{get_all_function_bodies, get_all_logical_operator_expressions};
 
-pub const SIMPLIFIABLE_COMPARISON: &str = "This double comparison can be simplified.";
-pub const REDUNDANT_COMPARISON: &str =
+const IMPOSSIBLE_COMPARISON_LINT_NAME: &str = "impossible_comparison";
+const IMPOSSIBLE_COMPARISON: &str = "Impossible condition, always false";
+
+pub struct ImpossibleComparison;
+
+impl Lint for ImpossibleComparison {
+    fn allowed_name(&self) -> &'static str {
+        IMPOSSIBLE_COMPARISON_LINT_NAME
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        IMPOSSIBLE_COMPARISON
+    }
+
+    fn kind(&self) -> CairoLintKind {
+        CairoLintKind::ImpossibleComparison
+    }
+}
+
+const SIMPLIFIABLE_COMPARISON_LINT_NAME: &str = "simplifiable_comparison";
+const SIMPLIFIABLE_COMPARISON: &str = "This double comparison can be simplified.";
+
+pub struct SimplifiableComparison;
+
+impl Lint for SimplifiableComparison {
+    fn allowed_name(&self) -> &'static str {
+        SIMPLIFIABLE_COMPARISON_LINT_NAME
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        SIMPLIFIABLE_COMPARISON
+    }
+
+    fn kind(&self) -> CairoLintKind {
+        CairoLintKind::DoubleComparison
+    }
+
+    fn has_fixer(&self) -> bool {
+        true
+    }
+
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_double_comparison(db, node)
+    }
+}
+
+const REDUNDANT_COMPARISON_LINT_NAME: &str = "redundant_comparison";
+const REDUNDANT_COMPARISON: &str =
     "Redundant double comparison found. Consider simplifying to a single comparison.";
-pub const CONTRADICTORY_COMPARISON: &str =
-    "This double comparison is contradictory and always false.";
-pub const IMPOSSIBLE_COMPARISON: &str = "Impossible condition, always false";
 
-pub const ALLOWED: [&str; 4] = [
-    redundant_comaprison::LINT_NAME,
-    contradictory_comparison::LINT_NAME,
-    simplifiable_comparison::LINT_NAME,
-    impossible_comparison::LINT_NAME,
-];
+pub struct RedundantComparison;
 
-mod redundant_comaprison {
-    pub(super) const LINT_NAME: &str = "redundant_comparison";
+impl Lint for RedundantComparison {
+    fn allowed_name(&self) -> &'static str {
+        REDUNDANT_COMPARISON_LINT_NAME
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        REDUNDANT_COMPARISON
+    }
+
+    fn kind(&self) -> CairoLintKind {
+        CairoLintKind::DoubleComparison
+    }
+
+    fn has_fixer(&self) -> bool {
+        true
+    }
+
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_double_comparison(db, node)
+    }
 }
-mod contradictory_comparison {
-    pub(super) const LINT_NAME: &str = "contradictory_comparison";
-}
-mod simplifiable_comparison {
-    pub(super) const LINT_NAME: &str = "simplifiable_comparison";
-}
-mod impossible_comparison {
-    pub(super) const LINT_NAME: &str = "impossible_comparison";
+
+const CONTRADICTORY_COMPARISON_LINT_NAME: &str = "contradictory_comparison";
+const CONTRADICTORY_COMPARISON: &str = "This double comparison is contradictory and always false.";
+
+pub struct ContradictoryComparison;
+
+impl Lint for ContradictoryComparison {
+    fn allowed_name(&self) -> &'static str {
+        CONTRADICTORY_COMPARISON_LINT_NAME
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        CONTRADICTORY_COMPARISON
+    }
+
+    fn kind(&self) -> CairoLintKind {
+        CairoLintKind::DoubleComparison
+    }
+
+    fn has_fixer(&self) -> bool {
+        true
+    }
+
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_double_comparison(db, node)
+    }
 }
 
 pub fn check_double_comparison(
     db: &dyn SemanticGroup,
-    expr_logical: &ExprLogicalOperator,
+    item: &ModuleItemId,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    let function_bodies = get_all_function_bodies(db, item);
+    for function_body in function_bodies.iter() {
+        let logical_operator_exprs = get_all_logical_operator_expressions(function_body);
+        let arenas = &function_body.arenas;
+        for logical_operator_expr in logical_operator_exprs.iter() {
+            check_single_double_comparison(db, logical_operator_expr, arenas, diagnostics);
+        }
+    }
+}
+
+fn check_single_double_comparison(
+    db: &dyn SemanticGroup,
+    logical_operator_exprs: &ExprLogicalOperator,
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    let (
-        mut ignore_redundant,
-        mut ignore_contradictory,
-        mut ignore_simplifiable,
-        mut ignore_impossible,
-    ) = (false, false, false, false);
-    // Checks if the lint is allowed in an upper scope.
-    let mut current_node = expr_logical.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    let syntax_db = db.upcast();
-    while let Some(node) = current_node.parent() {
-        ignore_redundant |=
-            node.has_attr_with_arg(syntax_db, "allow", redundant_comaprison::LINT_NAME);
-        ignore_contradictory |=
-            node.has_attr_with_arg(syntax_db, "allow", contradictory_comparison::LINT_NAME);
-        ignore_simplifiable |=
-            node.has_attr_with_arg(syntax_db, "allow", simplifiable_comparison::LINT_NAME);
-        ignore_impossible |=
-            node.has_attr_with_arg(syntax_db, "allow", impossible_comparison::LINT_NAME);
-        current_node = node;
-    }
-
-    let Expr::FunctionCall(lhs_comparison) = &arenas.exprs[expr_logical.lhs] else {
+    let Expr::FunctionCall(lhs_comparison) = &arenas.exprs[logical_operator_exprs.lhs] else {
         return;
     };
     // If it's not 2 args it cannot be a regular comparison
@@ -76,7 +146,7 @@ pub fn check_double_comparison(
         return;
     }
 
-    let Expr::FunctionCall(rhs_comparison) = &arenas.exprs[expr_logical.rhs] else {
+    let Expr::FunctionCall(rhs_comparison) = &arenas.exprs[logical_operator_exprs.rhs] else {
         return;
     };
     // If it's not 2 args it cannot be a regular comparison
@@ -90,20 +160,18 @@ pub fn check_double_comparison(
     );
 
     // Check the impossible comparison
-    if !ignore_impossible
-        && check_impossible_comparison(
-            lhs_comparison,
-            rhs_comparison,
-            &lhs_fn_trait_name,
-            &rhs_fn_trait_name,
-            expr_logical,
-            db,
-            arenas,
-        )
-    {
+    if check_impossible_comparison(
+        lhs_comparison,
+        rhs_comparison,
+        &lhs_fn_trait_name,
+        &rhs_fn_trait_name,
+        logical_operator_exprs,
+        db,
+        arenas,
+    ) {
         diagnostics.push(PluginDiagnostic {
             message: IMPOSSIBLE_COMPARISON.to_string(),
-            stable_ptr: expr_logical.stable_ptr.untyped(),
+            stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Error,
         })
     }
@@ -170,36 +238,34 @@ pub fn check_double_comparison(
         return;
     }
 
-    if !ignore_simplifiable
-        && is_simplifiable_double_comparison(
-            &lhs_fn_trait_name,
-            &rhs_fn_trait_name,
-            &expr_logical.op,
-        )
-    {
+    if is_simplifiable_double_comparison(
+        &lhs_fn_trait_name,
+        &rhs_fn_trait_name,
+        &logical_operator_exprs.op,
+    ) {
         diagnostics.push(PluginDiagnostic {
             message: SIMPLIFIABLE_COMPARISON.to_string(),
-            stable_ptr: expr_logical.stable_ptr.untyped(),
+            stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Warning,
         });
-    } else if !ignore_redundant
-        && is_redundant_double_comparison(&lhs_fn_trait_name, &rhs_fn_trait_name, &expr_logical.op)
-    {
+    } else if is_redundant_double_comparison(
+        &lhs_fn_trait_name,
+        &rhs_fn_trait_name,
+        &logical_operator_exprs.op,
+    ) {
         diagnostics.push(PluginDiagnostic {
             message: REDUNDANT_COMPARISON.to_string(),
-            stable_ptr: expr_logical.stable_ptr.untyped(),
+            stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Warning,
         });
-    } else if !ignore_contradictory
-        && is_contradictory_double_comparison(
-            &lhs_fn_trait_name,
-            &rhs_fn_trait_name,
-            &expr_logical.op,
-        )
-    {
+    } else if is_contradictory_double_comparison(
+        &lhs_fn_trait_name,
+        &rhs_fn_trait_name,
+        &logical_operator_exprs.op,
+    ) {
         diagnostics.push(PluginDiagnostic {
             message: CONTRADICTORY_COMPARISON.to_string(),
-            stable_ptr: expr_logical.stable_ptr.untyped(),
+            stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Error,
         });
     }
@@ -210,15 +276,15 @@ fn check_impossible_comparison(
     rhs_comparison: &ExprFunctionCall,
     lhs_op: &str,
     rhs_op: &str,
-    expr_logical: &ExprLogicalOperator,
+    logical_operator_exprs: &ExprLogicalOperator,
     db: &dyn SemanticGroup,
     arenas: &Arenas,
 ) -> bool {
-    let (lhs_var, lhs_litteral) = match (&lhs_comparison.args[0], &lhs_comparison.args[1]) {
+    let (lhs_var, lhs_literal) = match (&lhs_comparison.args[0], &lhs_comparison.args[1]) {
         (ExprFunctionCallArg::Value(l_expr_id), ExprFunctionCallArg::Value(r_expr_id)) => {
             match (&arenas.exprs[*l_expr_id], &arenas.exprs[*r_expr_id]) {
-                (Expr::Var(var), Expr::Literal(litteral)) => (var, litteral),
-                (Expr::Literal(litteral), Expr::Var(var)) => (var, litteral),
+                (Expr::Var(var), Expr::Literal(literal)) => (var, literal),
+                (Expr::Literal(literal), Expr::Var(var)) => (var, literal),
                 _ => {
                     return false;
                 }
@@ -228,11 +294,11 @@ fn check_impossible_comparison(
             return false;
         }
     };
-    let (rhs_var, rhs_litteral) = match (&rhs_comparison.args[0], &rhs_comparison.args[1]) {
+    let (rhs_var, rhs_literal) = match (&rhs_comparison.args[0], &rhs_comparison.args[1]) {
         (ExprFunctionCallArg::Value(l_expr_id), ExprFunctionCallArg::Value(r_expr_id)) => {
             match (&arenas.exprs[*l_expr_id], &arenas.exprs[*r_expr_id]) {
-                (Expr::Var(var), Expr::Literal(litteral)) => (var, litteral),
-                (Expr::Literal(litteral), Expr::Var(var)) => (var, litteral),
+                (Expr::Var(var), Expr::Literal(literal)) => (var, literal),
+                (Expr::Literal(literal), Expr::Var(var)) => (var, literal),
                 _ => {
                     return false;
                 }
@@ -257,15 +323,15 @@ fn check_impossible_comparison(
         return false;
     }
 
-    match (lhs_op, &expr_logical.op, rhs_op) {
-        (GT, LogicalOperator::AndAnd, LT) => lhs_litteral.value >= rhs_litteral.value,
-        (GT, LogicalOperator::AndAnd, LE) => lhs_litteral.value >= rhs_litteral.value,
-        (GE, LogicalOperator::AndAnd, LT) => lhs_litteral.value >= rhs_litteral.value,
-        (GE, LogicalOperator::AndAnd, LE) => lhs_litteral.value > rhs_litteral.value,
-        (LT, LogicalOperator::AndAnd, GT) => lhs_litteral.value <= rhs_litteral.value,
-        (LT, LogicalOperator::AndAnd, GE) => lhs_litteral.value <= rhs_litteral.value,
-        (LE, LogicalOperator::AndAnd, GT) => lhs_litteral.value <= rhs_litteral.value,
-        (LE, LogicalOperator::AndAnd, GE) => lhs_litteral.value < rhs_litteral.value,
+    match (lhs_op, &logical_operator_exprs.op, rhs_op) {
+        (GT, LogicalOperator::AndAnd, LT) => lhs_literal.value >= rhs_literal.value,
+        (GT, LogicalOperator::AndAnd, LE) => lhs_literal.value >= rhs_literal.value,
+        (GE, LogicalOperator::AndAnd, LT) => lhs_literal.value >= rhs_literal.value,
+        (GE, LogicalOperator::AndAnd, LE) => lhs_literal.value > rhs_literal.value,
+        (LT, LogicalOperator::AndAnd, GT) => lhs_literal.value <= rhs_literal.value,
+        (LT, LogicalOperator::AndAnd, GE) => lhs_literal.value <= rhs_literal.value,
+        (LE, LogicalOperator::AndAnd, GT) => lhs_literal.value <= rhs_literal.value,
+        (LE, LogicalOperator::AndAnd, GE) => lhs_literal.value < rhs_literal.value,
         _ => false,
     }
 }
@@ -314,7 +380,40 @@ fn is_contradictory_double_comparison(
     )
 }
 
-pub fn operator_to_replace(lhs_op: BinaryOperator) -> Option<&'static str> {
+/// Rewrites a double comparison. Ex: `a > b || a == b` to `a >= b`
+pub fn fix_double_comparison(
+    db: &dyn SyntaxGroup,
+    node: SyntaxNode,
+) -> Option<(SyntaxNode, String)> {
+    let expr = AstExpr::from_syntax_node(db, node.clone());
+
+    if let AstExpr::Binary(binary_op) = expr {
+        let lhs = binary_op.lhs(db);
+        let rhs = binary_op.rhs(db);
+        let middle_op = binary_op.op(db);
+
+        if let (Some(lhs_op), Some(rhs_op)) = (
+            extract_binary_operator_expr(&lhs, db),
+            extract_binary_operator_expr(&rhs, db),
+        ) {
+            let simplified_op = determine_simplified_operator(&lhs_op, &rhs_op, &middle_op);
+
+            if let Some(simplified_op) = simplified_op {
+                if let Some(operator_to_replace) = operator_to_replace(lhs_op) {
+                    let lhs_text = lhs
+                        .as_syntax_node()
+                        .get_text(db)
+                        .replace(operator_to_replace, simplified_op);
+                    return Some((node, lhs_text.to_string()));
+                }
+            }
+        }
+    }
+
+    None
+}
+
+fn operator_to_replace(lhs_op: BinaryOperator) -> Option<&'static str> {
     match lhs_op {
         BinaryOperator::EqEq(_) => Some("=="),
         BinaryOperator::GT(_) => Some(">"),
@@ -325,7 +424,7 @@ pub fn operator_to_replace(lhs_op: BinaryOperator) -> Option<&'static str> {
     }
 }
 
-pub fn determine_simplified_operator(
+fn determine_simplified_operator(
     lhs_op: &BinaryOperator,
     rhs_op: &BinaryOperator,
     middle_op: &BinaryOperator,
@@ -347,10 +446,7 @@ pub fn determine_simplified_operator(
     }
 }
 
-pub fn extract_binary_operator_expr(
-    expr: &AstExpr,
-    db: &dyn SyntaxGroup,
-) -> Option<BinaryOperator> {
+fn extract_binary_operator_expr(expr: &AstExpr, db: &dyn SyntaxGroup) -> Option<BinaryOperator> {
     if let AstExpr::Binary(binary_op) = expr {
         Some(binary_op.op(db))
     } else {

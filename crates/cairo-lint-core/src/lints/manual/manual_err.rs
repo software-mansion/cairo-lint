@@ -1,40 +1,72 @@
+use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_semantic::{Arenas, ExprIf, ExprMatch};
-use cairo_lang_syntax::node::TypedStablePtr;
+use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 
+use crate::context::{CairoLintKind, Lint};
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
+use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions};
 
-pub const MANUAL_ERR: &str = "Manual match for `err` detected. Consider using `err()` instead";
-pub(super) const LINT_NAME: &str = "manual_err";
+use super::helpers::fix_manual;
 
-pub fn check_manual_err(
-    db: &dyn SemanticGroup,
-    arenas: &Arenas,
-    expr_match: &ExprMatch,
-    diagnostics: &mut Vec<PluginDiagnostic>,
-) {
-    if check_manual(db, expr_match, arenas, ManualLint::ManualErr, LINT_NAME) {
-        diagnostics.push(PluginDiagnostic {
-            stable_ptr: expr_match.stable_ptr.untyped(),
-            message: MANUAL_ERR.to_owned(),
-            severity: Severity::Warning,
-        });
+pub struct ManualErr;
+
+impl Lint for ManualErr {
+    fn allowed_name(&self) -> &'static str {
+        "manual_err"
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        "Manual match for `err` detected. Consider using `err()` instead"
+    }
+
+    fn kind(&self) -> CairoLintKind {
+        CairoLintKind::ManualErr
+    }
+
+    fn has_fixer(&self) -> bool {
+        true
+    }
+
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_manual_err(db, node)
     }
 }
 
-pub fn check_manual_if_err(
+pub fn check_manual_err(
     db: &dyn SemanticGroup,
-    arenas: &Arenas,
-    expr_if: &ExprIf,
+    item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    if check_manual_if(db, expr_if, arenas, ManualLint::ManualErr, LINT_NAME) {
-        diagnostics.push(PluginDiagnostic {
-            stable_ptr: expr_if.stable_ptr.untyped(),
-            message: MANUAL_ERR.to_owned(),
-            severity: Severity::Warning,
-        });
+    let function_bodies = get_all_function_bodies(db, item);
+    for function_body in function_bodies.iter() {
+        let match_exprs = get_all_match_expressions(function_body);
+        let if_exprs = get_all_if_expressions(function_body);
+        let arenas = &function_body.arenas;
+        for match_expr in match_exprs.iter() {
+            if check_manual(db, match_expr, arenas, ManualLint::ManualErr) {
+                diagnostics.push(PluginDiagnostic {
+                    stable_ptr: match_expr.stable_ptr.untyped(),
+                    message: ManualErr.diagnostic_message().to_owned(),
+                    severity: Severity::Warning,
+                });
+            }
+        }
+        for if_expr in if_exprs.iter() {
+            if check_manual_if(db, if_expr, arenas, ManualLint::ManualErr) {
+                diagnostics.push(PluginDiagnostic {
+                    stable_ptr: if_expr.stable_ptr.untyped(),
+                    message: ManualErr.diagnostic_message().to_owned(),
+                    severity: Severity::Warning,
+                });
+            }
+        }
     }
+}
+
+/// Rewrites a manual implementation of err
+pub fn fix_manual_err(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    Some((node.clone(), fix_manual("err", db, node)))
 }

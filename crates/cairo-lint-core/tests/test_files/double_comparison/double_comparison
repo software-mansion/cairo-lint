@@ -824,7 +824,7 @@ fn main() -> bool {
 fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
-    #[allow(redundant_comparison)]
+    #[allow(redundant_comparisons)]
     if x == y && x >= y {
         true
     } else {
@@ -838,7 +838,7 @@ fn main() -> bool {
 fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
-    #[allow(redundant_comparison)]
+    #[allow(redundant_comparisons)]
     if x == y && x >= y {
         true
     } else {

@@ -179,3 +179,32 @@ pub fn invert_simple_condition(condition: &str) -> String {
         format!("!({})", condition)
     }
 }
+
+pub fn indent_snippet(input: &str, initial_indentation: usize) -> String {
+    let mut indented_code = String::new();
+    let mut indentation_level = initial_indentation;
+    let indent = "    "; // 4 spaces for each level of indentation
+    let mut lines = input.split('\n').peekable();
+    while let Some(line) = lines.next() {
+        let trim = line.trim();
+        // Decrease indentation level if line starts with a closing brace
+        if trim.starts_with('}') && indentation_level > 0 {
+            indentation_level -= 1;
+        }
+
+        // Add current indentation level to the line
+        if !trim.is_empty() {
+            indented_code.push_str(&indent.repeat(indentation_level));
+        }
+        indented_code.push_str(trim);
+        if lines.peek().is_some() {
+            indented_code.push('\n');
+        }
+        // Increase indentation level if line ends with an opening brace
+        if trim.ends_with('{') {
+            indentation_level += 1;
+        }
+    }
+
+    indented_code
+}
