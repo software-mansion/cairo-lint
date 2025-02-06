@@ -1,48 +1,137 @@
+use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
+use crate::context::{CairoLintKind, Lint};
+use crate::queries::{get_all_function_bodies, get_all_function_calls};
+
 use super::{function_trait_name_from_fn_id, AND, DIV, EQ, GE, GT, LE, LT, NE, NOT, OR, SUB, XOR};
 
-const DIV_EQ_OP: &str =
-    "Division with identical operands, this operation always results in one (except for zero) and \
-                         may indicate a logic error";
-const EQ_COMP_OP: &str =
-    "Comparison with identical operands, this operation always results in true and may indicate a logic error";
-const NEQ_COMP_OP: &str =
-    "Comparison with identical operands, this operation always results in false and may indicate a logic error";
-const EQ_DIFF_OP: &str =
-    "Subtraction with identical operands, this operation always results in zero and may indicate a logic error";
-const EQ_BITWISE_OP: &str =
-    "Bitwise operation with identical operands, this operation always results in the same \
-                             value and may indicate a logic error";
-const EQ_LOGICAL_OP: &str =
-    "Logical operation with identical operands, this operation always results in the same \
-                             value and may indicate a logic error";
+pub struct DivisionEqualityOperation;
 
-pub const ALLOWED: [&str; 1] = [LINT_NAME];
-const LINT_NAME: &str = "eq_op";
+impl Lint for DivisionEqualityOperation {
+    fn allowed_name(&self) -> &'static str {
+        "div_eq_op"
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        "Division with identical operands, this operation always results in one (except for zero) and \
+                         may indicate a logic error"
+    }
+
+    fn kind(&self) -> CairoLintKind {
+        CairoLintKind::EqualityOperation
+    }
+}
+
+pub struct EqualComparisonOperation;
+
+impl Lint for EqualComparisonOperation {
+    fn allowed_name(&self) -> &'static str {
+        "eq_comp_op"
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        "Comparison with identical operands, this operation always results in true and may indicate a logic error"
+    }
+
+    fn kind(&self) -> CairoLintKind {
+        CairoLintKind::EqualityOperation
+    }
+}
+
+pub struct NotEqualComparisonOperation;
+
+impl Lint for NotEqualComparisonOperation {
+    fn allowed_name(&self) -> &'static str {
+        "neq_comp_op"
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        "Comparison with identical operands, this operation always results in false and may indicate a logic error"
+    }
+
+    fn kind(&self) -> CairoLintKind {
+        CairoLintKind::EqualityOperation
+    }
+}
+
+pub struct DifferenceEqualityOperation;
+
+impl Lint for DifferenceEqualityOperation {
+    fn allowed_name(&self) -> &'static str {
+        "eq_diff_op"
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        "Subtraction with identical operands, this operation always results in zero and may indicate a logic error"
+    }
+
+    fn kind(&self) -> CairoLintKind {
+        CairoLintKind::EqualityOperation
+    }
+}
+
+pub struct BitwiseEqualityOperation;
+
+impl Lint for BitwiseEqualityOperation {
+    fn allowed_name(&self) -> &'static str {
+        "eq_bitwise_op"
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        "Bitwise operation with identical operands, this operation always results in the same \
+                             value and may indicate a logic error"
+    }
+
+    fn kind(&self) -> CairoLintKind {
+        CairoLintKind::EqualityOperation
+    }
+}
+
+pub struct LogicalEqualityOperation;
+
+impl Lint for LogicalEqualityOperation {
+    fn allowed_name(&self) -> &'static str {
+        "eq_logical_op"
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        "Logical operation with identical operands, this operation always results in the same \
+                             value and may indicate a logic error"
+    }
+
+    fn kind(&self) -> CairoLintKind {
+        CairoLintKind::EqualityOperation
+    }
+}
 
 pub fn check_eq_op(
+    db: &dyn SemanticGroup,
+    item: &ModuleItemId,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    let function_bodies = get_all_function_bodies(db, item);
+    for function_body in function_bodies.iter() {
+        let function_call_exprs = get_all_function_calls(function_body);
+        let arenas = &function_body.arenas;
+        for function_call_expr in function_call_exprs.iter() {
+            check_single_eq_op(db, function_call_expr, arenas, diagnostics);
+        }
+    }
+}
+
+fn check_single_eq_op(
     db: &dyn SemanticGroup,
     expr_func: &ExprFunctionCall,
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    // Checks if the lint is allowed in any upper scope
-    let mut current_node = expr_func.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
-
     // We're looking for binary operations
     if expr_func.args.len() != 2 {
         return;
@@ -114,12 +203,12 @@ fn are_operands_equal(db: &dyn SyntaxGroup, lhs: SyntaxNode, rhs: SyntaxNode) ->
 
 fn get_diagnostic_message(op: &str) -> Option<&'static str> {
     match op {
-        EQ | LE | GE => Some(EQ_COMP_OP),
-        NE | LT | GT => Some(NEQ_COMP_OP),
-        AND | OR => Some(EQ_LOGICAL_OP),
-        XOR | NOT => Some(EQ_BITWISE_OP),
-        SUB => Some(EQ_DIFF_OP),
-        DIV => Some(DIV_EQ_OP),
+        EQ | LE | GE => Some(EqualComparisonOperation.diagnostic_message()),
+        NE | LT | GT => Some(NotEqualComparisonOperation.diagnostic_message()),
+        AND | OR => Some(LogicalEqualityOperation.diagnostic_message()),
+        XOR | NOT => Some(BitwiseEqualityOperation.diagnostic_message()),
+        SUB => Some(DifferenceEqualityOperation.diagnostic_message()),
+        DIV => Some(DivisionEqualityOperation.diagnostic_message()),
         _ => None,
     }
 }

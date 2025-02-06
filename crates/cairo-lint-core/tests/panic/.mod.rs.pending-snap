@@ -1,0 +1,88 @@
+{"run_id":"1738764399-969217000","line":177,"new":{"module_name":"main__panic","snapshot_name":"empty_panic_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/panic/mod.rs","assertion_line":177,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__panic","metadata":{},"snapshot":"warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"\");\n  |   -----\n  |"}}
+{"run_id":"1738764399-969217000","line":226,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":220,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":195,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":236,"new":{"module_name":"main__panic","snapshot_name":"empty_panic_function_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/panic/mod.rs","assertion_line":236,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__panic","metadata":{},"snapshot":"warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:5\n  |\n3 |     panic(array![]);\n  |     ---------------\n  |"}}
+{"run_id":"1738764399-969217000","line":248,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":96,"new":{"module_name":"main__panic","snapshot_name":"multiple_panic_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/panic/mod.rs","assertion_line":96,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__panic","metadata":{},"snapshot":"warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"panic\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"panic\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:4:3\n  |\n4 |   panic!(\"panic 2\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:4:3\n  |\n4 |   panic!(\"panic 2\");\n  |   -----\n  |"}}
+{"run_id":"1738764399-969217000","line":136,"new":{"module_name":"main__panic","snapshot_name":"multiple_panic_and_other_macros_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/panic/mod.rs","assertion_line":136,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__panic","metadata":{},"snapshot":"warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"panic\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"panic\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:4:3\n  |\n4 |   panic!(\"panic 2\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:4:3\n  |\n4 |   panic!(\"panic 2\");\n  |   -----\n  |"}}
+{"run_id":"1738764399-969217000","line":166,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":126,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":257,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":263,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":272,"new":{"module_name":"main__panic","snapshot_name":"panic_inside_function_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/panic/mod.rs","assertion_line":272,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__panic","metadata":{},"snapshot":"warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:4:3\n  |\n4 |   panic!(\"panic Alan\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:4:3\n  |\n4 |   panic!(\"panic Alan\");\n  |   -----\n  |"}}
+{"run_id":"1738764399-969217000","line":69,"new":{"module_name":"main__panic","snapshot_name":"single_panic_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/panic/mod.rs","assertion_line":69,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__panic","metadata":{},"snapshot":"warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"panic\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"panic\");\n  |   -----\n  |"}}
+{"run_id":"1738764399-969217000","line":290,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":87,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":204,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":210,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":220,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":226,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":177,"new":{"module_name":"main__panic","snapshot_name":"empty_panic_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/panic/mod.rs","assertion_line":177,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__panic","metadata":{},"snapshot":"warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"\");\n  |   -----\n  |"}}
+{"run_id":"1738858022-855259000","line":195,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":248,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":236,"new":{"module_name":"main__panic","snapshot_name":"empty_panic_function_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/panic/mod.rs","assertion_line":236,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__panic","metadata":{},"snapshot":"warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:5\n  |\n3 |     panic(array![]);\n  |     ---------------\n  |"}}
+{"run_id":"1738858022-855259000","line":96,"new":{"module_name":"main__panic","snapshot_name":"multiple_panic_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/panic/mod.rs","assertion_line":96,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__panic","metadata":{},"snapshot":"warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"panic\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"panic\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:4:3\n  |\n4 |   panic!(\"panic 2\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:4:3\n  |\n4 |   panic!(\"panic 2\");\n  |   -----\n  |"}}
+{"run_id":"1738858022-855259000","line":166,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":136,"new":{"module_name":"main__panic","snapshot_name":"multiple_panic_and_other_macros_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/panic/mod.rs","assertion_line":136,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__panic","metadata":{},"snapshot":"warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"panic\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"panic\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:4:3\n  |\n4 |   panic!(\"panic 2\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:4:3\n  |\n4 |   panic!(\"panic 2\");\n  |   -----\n  |"}}
+{"run_id":"1738858022-855259000","line":126,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":257,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":263,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":69,"new":{"module_name":"main__panic","snapshot_name":"single_panic_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/panic/mod.rs","assertion_line":69,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__panic","metadata":{},"snapshot":"warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"panic\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:3:3\n  |\n3 |   panic!(\"panic\");\n  |   -----\n  |"}}
+{"run_id":"1738858022-855259000","line":87,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":272,"new":{"module_name":"main__panic","snapshot_name":"panic_inside_function_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/panic/mod.rs","assertion_line":272,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__panic","metadata":{},"snapshot":"warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:4:3\n  |\n4 |   panic!(\"panic Alan\");\n  |   -----\n  |\nwarning: Plugin diagnostic: Leaving `panic` in the code is discouraged.\n --> lib.cairo:4:3\n  |\n4 |   panic!(\"panic Alan\");\n  |   -----\n  |"}}
+{"run_id":"1738858022-855259000","line":290,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":204,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":177,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":210,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":220,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":226,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":236,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":195,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":248,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":96,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":136,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":166,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":126,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":257,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":263,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":272,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":290,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":69,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":87,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":204,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":210,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":177,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":220,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":226,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":195,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":236,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":248,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":96,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":136,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":166,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":126,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":257,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":290,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":69,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":263,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":272,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":87,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":204,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":210,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":177,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":220,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":226,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":248,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":236,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":195,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":96,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":136,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":166,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":126,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":257,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":263,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":272,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":69,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":290,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":87,"new":null,"old":null}

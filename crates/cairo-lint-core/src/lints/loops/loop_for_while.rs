@@ -1,17 +1,43 @@
+use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprId, ExprLoop, Statement};
-use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::{
+    ast::{Expr as AstExpr, ExprLoop as AstExprLoop, OptionElseClause, Statement as AstStatement},
+    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
+};
 use if_chain::if_chain;
 
-pub const LOOP_FOR_WHILE: &str =
-    "you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` \
-                                  loop for clarity and conciseness";
+use crate::context::{CairoLintKind, Lint};
+use crate::helper::{invert_condition, remove_break_from_block, remove_break_from_else_clause};
+use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
 
-pub const ALLOWED: [&str; 1] = [LINT_NAME];
-pub(super) const LINT_NAME: &str = "loop_for_while";
+pub struct LoopForWhile;
+
+impl Lint for LoopForWhile {
+    fn allowed_name(&self) -> &'static str {
+        "loop_for_while"
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        "you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` \
+                                  loop for clarity and conciseness"
+    }
+
+    fn kind(&self) -> CairoLintKind {
+        CairoLintKind::LoopForWhile
+    }
+
+    fn has_fixer(&self) -> bool {
+        true
+    }
+
+    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_loop_break(db, node)
+    }
+}
 
 /// Checks for
 /// ```ignore
@@ -30,19 +56,24 @@ pub(super) const LINT_NAME: &str = "loop_for_while";
 /// ```
 pub fn check_loop_for_while(
     db: &dyn SemanticGroup,
+    item: &ModuleItemId,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
+    let function_bodies = get_all_function_bodies(db, item);
+    for function_body in function_bodies.iter() {
+        let loop_exprs = get_all_loop_expressions(function_body);
+        let arenas = &function_body.arenas;
+        for loop_expr in loop_exprs.iter() {
+            check_single_loop_for_while(loop_expr, arenas, diagnostics);
+        }
+    }
+}
+
+fn check_single_loop_for_while(
     loop_expr: &ExprLoop,
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    // Check if the lint is allowed in an upper scope
-    let mut current_node = loop_expr.stable_ptr.lookup(db.upcast()).as_syntax_node();
-    while let Some(node) = current_node.parent() {
-        if node.has_attr_with_arg(db.upcast(), "allow", LINT_NAME) {
-            return;
-        }
-        current_node = node;
-    }
-
     // Get the else block  expression
     let Expr::Block(block_expr) = &arenas.exprs[loop_expr.body] else {
         return;
@@ -55,7 +86,7 @@ pub fn check_loop_for_while(
             then {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: loop_expr.stable_ptr.untyped(),
-                    message: LOOP_FOR_WHILE.to_string(),
+                    message: LoopForWhile.diagnostic_message().to_string(),
                     severity: Severity::Warning,
                 });
             }
@@ -69,7 +100,7 @@ pub fn check_loop_for_while(
         then {
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: loop_expr.stable_ptr.untyped(),
-                message: LOOP_FOR_WHILE.to_string(),
+                message: LoopForWhile.diagnostic_message().to_string(),
                 severity: Severity::Warning,
             });
         }
@@ -91,4 +122,92 @@ fn check_if_contains_break(expr: &ExprId, arenas: &Arenas) -> bool {
         }
     }
     false
+}
+
+/// Converts a `loop` with a conditionally-breaking `if` statement into a `while` loop.
+///
+/// This function transforms loops that have a conditional `if` statement
+/// followed by a `break` into a `while` loop, which can simplify the logic
+/// and improve readability.
+///
+/// # Arguments
+///
+/// * `db` - Reference to the `SyntaxGroup` for syntax tree access.
+/// * `node` - The `SyntaxNode` representing the loop expression.
+///
+/// # Returns
+///
+/// A `String` containing the transformed loop as a `while` loop, preserving
+/// the original formatting and indentation.
+///
+/// # Example
+///
+/// ```
+/// let mut x = 0;
+/// loop {
+///     if x > 5 {
+///         break;
+///     }
+///     x += 1;
+/// }
+/// ```
+///
+/// Would be converted to:
+///
+/// ```
+/// let mut x = 0;
+/// while x <= 5 {
+///     x += 1;
+/// }
+/// ```
+pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    let loop_expr = AstExprLoop::from_syntax_node(db, node.clone());
+    let indent = node
+        .get_text(db)
+        .chars()
+        .take_while(|c| c.is_whitespace())
+        .collect::<String>();
+    let mut condition_text = String::new();
+    let mut loop_body = String::new();
+
+    if let Some(AstStatement::Expr(expr_statement)) =
+        loop_expr.body(db).statements(db).elements(db).first()
+    {
+        if let AstExpr::If(if_expr) = expr_statement.expr(db) {
+            condition_text = invert_condition(
+                &if_expr
+                    .condition(db)
+                    .as_syntax_node()
+                    .get_text_without_trivia(db),
+            );
+
+            loop_body.push_str(&remove_break_from_block(db, if_expr.if_block(db), &indent));
+
+            if let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) {
+                loop_body.push_str(&remove_break_from_else_clause(db, else_clause, &indent));
+            }
+        }
+    }
+
+    for statement in loop_expr
+        .body(db)
+        .statements(db)
+        .elements(db)
+        .iter()
+        .skip(1)
+    {
+        loop_body.push_str(&format!(
+            "{}    {}\n",
+            indent,
+            statement.as_syntax_node().get_text_without_trivia(db)
+        ));
+    }
+
+    Some((
+        node,
+        format!(
+            "{}while {} {{\n{}{}}}\n",
+            indent, condition_text, loop_body, indent
+        ),
+    ))
 }

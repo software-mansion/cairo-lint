@@ -1,0 +1,87 @@
+{"run_id":"1738764399-969217000","line":144,"new":{"module_name":"main__eq_op","snapshot_name":"simple_bitwise_op_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":144,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"warning: Plugin diagnostic: Logical operation with identical operands, this operation always results in the same value and may indicate a logic error\n --> lib.cairo:3:5\n  |\n3 |     a & a\n  |     -----\n  |"}}
+{"run_id":"1738764399-969217000","line":229,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":60,"new":{"module_name":"main__eq_op","snapshot_name":"simple_eq_op_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":60,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"warning: Plugin diagnostic: Comparison with identical operands, this operation always results in true and may indicate a logic error\n --> lib.cairo:3:5\n  |\n3 |     a == a\n  |     ------\n  |"}}
+{"run_id":"1738764399-969217000","line":123,"new":{"module_name":"main__eq_op","snapshot_name":"simple_gt_op_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":123,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"warning: Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error\n --> lib.cairo:3:5\n  |\n3 |     a > a\n  |     -----\n  |"}}
+{"run_id":"1738764399-969217000","line":223,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":72,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":214,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":102,"new":{"module_name":"main__eq_op","snapshot_name":"simple_lt_op_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":102,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"warning: Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error\n --> lib.cairo:3:5\n  |\n3 |     a < a\n  |     -----\n  |"}}
+{"run_id":"1738764399-969217000","line":202,"new":{"module_name":"main__eq_op","snapshot_name":"simple_divide_op_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":202,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"warning: Plugin diagnostic: Division with identical operands, this operation always results in one (except for zero) and may indicate a logic error\n --> lib.cairo:3:5\n  |\n3 |     a / a\n  |     -----\n  |"}}
+{"run_id":"1738764399-969217000","line":135,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":114,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":81,"new":{"module_name":"main__eq_op","snapshot_name":"simple_neq_op_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":81,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"warning: Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error\n --> lib.cairo:3:5\n  |\n3 |     a != a\n  |     ------\n  |"}}
+{"run_id":"1738764399-969217000","line":193,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":181,"new":{"module_name":"main__eq_op","snapshot_name":"simple_sub_op_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":181,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"warning: Plugin diagnostic: Subtraction with identical operands, this operation always results in zero and may indicate a logic error\n --> lib.cairo:3:5\n  |\n3 |     a - a\n  |     -----\n  |"}}
+{"run_id":"1738764399-969217000","line":93,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":165,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":171,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":144,"new":{"module_name":"main__eq_op","snapshot_name":"simple_bitwise_op_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":144,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"warning: Plugin diagnostic: Logical operation with identical operands, this operation always results in the same value and may indicate a logic error\n --> lib.cairo:3:5\n  |\n3 |     a & a\n  |     -----\n  |"}}
+{"run_id":"1738858022-855259000","line":156,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":223,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":229,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":60,"new":{"module_name":"main__eq_op","snapshot_name":"simple_eq_op_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":60,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"warning: Plugin diagnostic: Comparison with identical operands, this operation always results in true and may indicate a logic error\n --> lib.cairo:3:5\n  |\n3 |     a == a\n  |     ------\n  |"}}
+{"run_id":"1738858022-855259000","line":123,"new":{"module_name":"main__eq_op","snapshot_name":"simple_gt_op_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":123,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"warning: Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error\n --> lib.cairo:3:5\n  |\n3 |     a > a\n  |     -----\n  |"}}
+{"run_id":"1738858022-855259000","line":72,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":202,"new":{"module_name":"main__eq_op","snapshot_name":"simple_divide_op_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":202,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"warning: Plugin diagnostic: Division with identical operands, this operation always results in one (except for zero) and may indicate a logic error\n --> lib.cairo:3:5\n  |\n3 |     a / a\n  |     -----\n  |"}}
+{"run_id":"1738858022-855259000","line":214,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":135,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":102,"new":{"module_name":"main__eq_op","snapshot_name":"simple_lt_op_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":102,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"warning: Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error\n --> lib.cairo:3:5\n  |\n3 |     a < a\n  |     -----\n  |"}}
+{"run_id":"1738858022-855259000","line":114,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":81,"new":{"module_name":"main__eq_op","snapshot_name":"simple_neq_op_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":81,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"warning: Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error\n --> lib.cairo:3:5\n  |\n3 |     a != a\n  |     ------\n  |"}}
+{"run_id":"1738858022-855259000","line":181,"new":{"module_name":"main__eq_op","snapshot_name":"simple_sub_op_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":181,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"warning: Plugin diagnostic: Subtraction with identical operands, this operation always results in zero and may indicate a logic error\n --> lib.cairo:3:5\n  |\n3 |     a - a\n  |     -----\n  |"}}
+{"run_id":"1738858022-855259000","line":93,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":193,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":156,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":144,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":171,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":165,"new":{"module_name":"main__eq_op","snapshot_name":"simple_bitwise_op_allowed_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":165,"expression":"formatted_diags"},"snapshot":"warning: Plugin diagnostic: Logical operation with identical operands, this operation always results in the same value and may indicate a logic error\n --> lib.cairo:4:5\n  |\n4 |     a & a\n  |     -----\n  |"},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":""}}
+{"run_id":"1738858697-866846000","line":223,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":123,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":60,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":229,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":72,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":214,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":202,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":135,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":114,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":102,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":81,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":181,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":193,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":93,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":171,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":144,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":156,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":165,"new":{"module_name":"main__eq_op","snapshot_name":"simple_bitwise_op_allowed_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/eq_op/mod.rs","assertion_line":165,"expression":"formatted_diags"},"snapshot":"warning: Plugin diagnostic: Logical operation with identical operands, this operation always results in the same value and may indicate a logic error\n --> lib.cairo:4:5\n  |\n4 |     a & a\n  |     -----\n  |"},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":""}}
+{"run_id":"1738859073-862603000","line":229,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":223,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":60,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":72,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":123,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":135,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":214,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":202,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":102,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":114,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":81,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":181,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":93,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":193,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":165,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":144,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":171,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":156,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":223,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":229,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":60,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":72,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":123,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":202,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":214,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":135,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":102,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":114,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":81,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":93,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":181,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":193,"new":null,"old":null}

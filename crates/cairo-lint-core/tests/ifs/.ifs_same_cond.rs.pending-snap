@@ -1,0 +1,110 @@
+{"run_id":"1738764399-969217000","line":388,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"combined_conditions_with_different_if_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":388,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:7:5\n   |\n 7 | /     if x == z {\n 8 | |         println!(\"x is equal to z\");\n...  |\n12 | |         println!(\"x plus 5 is equal to y\");\n13 | |     }\n   | |_____-\n   |"}}
+{"run_id":"1738764399-969217000","line":404,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":457,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"greater_lesser_comparison_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":457,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:5:5\n  |\n5 | /     if a > 3 {\n6 | |         println!(\"a == 3\");\n7 | |     } else if a > 3 {\n8 | |         println!(\"3 == a\");\n9 | |     }\n  | |_____-\n  |"}}
+{"run_id":"1738764399-969217000","line":473,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":423,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"if_with_functions_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":423,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:8:4\n   |\n 8 | /    if foo() {\n 9 | |         println!(\"foo\");\n10 | |     } else if foo() { \n11 | |         println!(\"foo\");\n12 | |     }\n   | |_____-\n   |"}}
+{"run_id":"1738764399-969217000","line":439,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":192,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_boolean_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":192,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:5:5\n  |\n5 | /     if condition {\n6 | |         println!(\"Condition is true\");\n7 | |     } else if condition {\n8 | |         println!(\"Condition is still true\");\n9 | |     }\n  | |_____-\n  |"}}
+{"run_id":"1738764399-969217000","line":208,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":161,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_else_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":161,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:5:5\n  |\n5 | /     if a == b {\n6 | |         println!(\"a is equal to b\");\n7 | |     } else if a == b {\n8 | |         println!(\"a is equal to b\");\n9 | |     }\n  | |_____-\n  |"}}
+{"run_id":"1738764399-969217000","line":177,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":223,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_felt252_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":223,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:6:5\n   |\n 6 | /     if str1 == str2 {\n 7 | |         println!(\"Strings are equal\");\n 8 | |     } else if str1 == str2 {\n 9 | |         println!(\"Strings are still equal\");\n10 | |     }\n   | |_____-\n   |"}}
+{"run_id":"1738764399-969217000","line":239,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":292,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_multiple_if_else_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":292,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:12:12\n   |\n12 |       } else if str1 == str2 {\n   |  ____________-\n13 | |         println!(\"Strings are still equal\");\n...  |\n16 | |         println!(\"Strings are still equal\");\n17 | |     } \n   | |_____-\n   |\nwarning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:10:12\n   |\n10 |       } else if str1 == str2 {\n   |  ____________-\n11 | |         println!(\"Strings are still equal\");\n...  |\n16 | |         println!(\"Strings are still equal\");\n17 | |     } \n   | |_____-\n   |\nwarning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:8:12\n   |\n 8 |       } else if str1 == str2 {\n   |  ____________-\n 9 | |         println!(\"Strings are still equal\");\n...  |\n16 | |         println!(\"Strings are still equal\");\n17 | |     } \n   | |_____-\n   |\nwarning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:6:5\n   |\n 6 | /     if str1 == str2 {\n 7 | |         println!(\"Strings are equal\");\n...  |\n16 | |         println!(\"Strings are still equal\");\n17 | |     } \n   | |_____-\n   |"}}
+{"run_id":"1738764399-969217000","line":341,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":255,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_struct_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":255,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:11:5\n   |\n11 | /     if p1.x == p2.x && p1.y == p2.y {\n12 | |         println!(\"Points are equal\");\n13 | |     } else if p1.x == p2.x && p1.y == p2.y {\n14 | |         println!(\"Points are still equal\");\n15 | |     }\n   | |_____-\n   |"}}
+{"run_id":"1738764399-969217000","line":271,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":504,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":488,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_conditions_with_literals_and_vars_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":488,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:5:5\n  |\n5 | /     if a == 3 {\n6 | |         println!(\"a == 3\");\n7 | |     } else if a == 3 {\n8 | |         println!(\"a == 3\");\n9 | |     }\n  | |_____-\n  |"}}
+{"run_id":"1738764399-969217000","line":519,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_conditions_with_literals_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":519,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:4:5\n  |\n4 | /     if 2 == 3 {\n5 | |         println!(\"a == 3\");\n6 | |     } else if 2 == 3 {\n7 | |         println!(\"a == 3\");\n8 | |     }\n  | |_____-\n  |"}}
+{"run_id":"1738764399-969217000","line":535,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":364,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":370,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":388,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"combined_conditions_with_different_if_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":388,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:7:5\n   |\n 7 | /     if x == z {\n 8 | |         println!(\"x is equal to z\");\n...  |\n12 | |         println!(\"x plus 5 is equal to y\");\n13 | |     }\n   | |_____-\n   |"}}
+{"run_id":"1738858022-855259000","line":404,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":457,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"greater_lesser_comparison_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":457,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:5:5\n  |\n5 | /     if a > 3 {\n6 | |         println!(\"a == 3\");\n7 | |     } else if a > 3 {\n8 | |         println!(\"3 == a\");\n9 | |     }\n  | |_____-\n  |"}}
+{"run_id":"1738858022-855259000","line":439,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":423,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"if_with_functions_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":423,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:8:4\n   |\n 8 | /    if foo() {\n 9 | |         println!(\"foo\");\n10 | |     } else if foo() { \n11 | |         println!(\"foo\");\n12 | |     }\n   | |_____-\n   |"}}
+{"run_id":"1738858022-855259000","line":473,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":192,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_boolean_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":192,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:5:5\n  |\n5 | /     if condition {\n6 | |         println!(\"Condition is true\");\n7 | |     } else if condition {\n8 | |         println!(\"Condition is still true\");\n9 | |     }\n  | |_____-\n  |"}}
+{"run_id":"1738858022-855259000","line":208,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":161,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_else_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":161,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:5:5\n  |\n5 | /     if a == b {\n6 | |         println!(\"a is equal to b\");\n7 | |     } else if a == b {\n8 | |         println!(\"a is equal to b\");\n9 | |     }\n  | |_____-\n  |"}}
+{"run_id":"1738858022-855259000","line":177,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":223,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_felt252_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":223,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:6:5\n   |\n 6 | /     if str1 == str2 {\n 7 | |         println!(\"Strings are equal\");\n 8 | |     } else if str1 == str2 {\n 9 | |         println!(\"Strings are still equal\");\n10 | |     }\n   | |_____-\n   |"}}
+{"run_id":"1738858022-855259000","line":239,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":341,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":292,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_multiple_if_else_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":292,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:12:12\n   |\n12 |       } else if str1 == str2 {\n   |  ____________-\n13 | |         println!(\"Strings are still equal\");\n...  |\n16 | |         println!(\"Strings are still equal\");\n17 | |     } \n   | |_____-\n   |\nwarning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:10:12\n   |\n10 |       } else if str1 == str2 {\n   |  ____________-\n11 | |         println!(\"Strings are still equal\");\n...  |\n16 | |         println!(\"Strings are still equal\");\n17 | |     } \n   | |_____-\n   |\nwarning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:8:12\n   |\n 8 |       } else if str1 == str2 {\n   |  ____________-\n 9 | |         println!(\"Strings are still equal\");\n...  |\n16 | |         println!(\"Strings are still equal\");\n17 | |     } \n   | |_____-\n   |\nwarning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:6:5\n   |\n 6 | /     if str1 == str2 {\n 7 | |         println!(\"Strings are equal\");\n...  |\n16 | |         println!(\"Strings are still equal\");\n17 | |     } \n   | |_____-\n   |"}}
+{"run_id":"1738858022-855259000","line":488,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_conditions_with_literals_and_vars_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":488,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:5:5\n  |\n5 | /     if a == 3 {\n6 | |         println!(\"a == 3\");\n7 | |     } else if a == 3 {\n8 | |         println!(\"a == 3\");\n9 | |     }\n  | |_____-\n  |"}}
+{"run_id":"1738858022-855259000","line":271,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":504,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":255,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_struct_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":255,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n  --> lib.cairo:11:5\n   |\n11 | /     if p1.x == p2.x && p1.y == p2.y {\n12 | |         println!(\"Points are equal\");\n13 | |     } else if p1.x == p2.x && p1.y == p2.y {\n14 | |         println!(\"Points are still equal\");\n15 | |     }\n   | |_____-\n   |"}}
+{"run_id":"1738858022-855259000","line":519,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_conditions_with_literals_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/ifs/ifs_same_cond.rs","assertion_line":519,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"warning: Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:4:5\n  |\n4 | /     if 2 == 3 {\n5 | |         println!(\"a == 3\");\n6 | |     } else if 2 == 3 {\n7 | |         println!(\"a == 3\");\n8 | |     }\n  | |_____-\n  |"}}
+{"run_id":"1738858022-855259000","line":535,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":364,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":370,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":388,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":404,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":457,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":473,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":423,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":439,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":192,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":208,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":161,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":177,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":223,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":239,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":341,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":292,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":255,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":271,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":488,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":504,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":535,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":519,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":370,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":364,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":388,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":404,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":457,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":473,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":439,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":423,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":192,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":208,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":177,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":223,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":161,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":292,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":341,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":239,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":488,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":255,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":271,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":504,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":519,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":535,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":364,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":370,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":388,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":457,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":404,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":473,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":423,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":439,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":192,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":208,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":161,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":177,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":223,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":341,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":239,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":292,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":255,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":271,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":488,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":504,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":519,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":535,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":364,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":370,"new":null,"old":null}

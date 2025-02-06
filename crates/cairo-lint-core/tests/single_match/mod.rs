@@ -157,7 +157,7 @@ fn main() {
 const COMPREHENSIVE_MATCH_ALLOWED: &str = r#"
 fn main() {
     let variable = Option::Some(1_felt252);
-    #[allow(single_match)]
+    #[allow(equality_match)]
     match variable {
         Option::None => println!("None"),
         Option::Some => (),
@@ -515,7 +515,7 @@ fn comprehensive_match_allowed_fixer() {
     test_lint_fixer!(COMPREHENSIVE_MATCH_ALLOWED, @r#"
     fn main() {
         let variable = Option::Some(1_felt252);
-        #[allow(single_match)]
+        #[allow(equality_match)]
         match variable {
             Option::None => println!("None"),
             Option::Some => (),

@@ -41,11 +41,11 @@ cairo-lang-syntax = "*"
 cairo-lang-test-plugin = "*"
 cairo-lang-test-utils = "*"
 cairo-lang-utils = "*"
-clap = { version = "4.5.23", features = ["derive"]}
+clap = { version = "4.5.27", features = ["derive"]}
 ctor = "0.2.9"
 if_chain = "1.0.2"
 itertools = "0.13.0"
-log = "0.4.22"
+log = "0.4.25"
 num-bigint = "0.4.6"
 pretty_assertions = "1.4.1"
 smol_str = "0.2.2"

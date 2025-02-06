@@ -1,0 +1,57 @@
+{"run_id":"1738764399-969217000","line":60,"new":{"module_name":"main__bitwise_for_parity_check","snapshot_name":"with_single_variable_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/bitwise_for_parity_check/mod.rs","assertion_line":60,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__bitwise_for_parity_check","metadata":{},"snapshot":"warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.\n --> lib.cairo:3:14\n  |\n3 |     let _a = 200_u32 & 1;\n  |              -----------\n  |"}}
+{"run_id":"1738764399-969217000","line":81,"new":{"module_name":"main__bitwise_for_parity_check","snapshot_name":"with_multiple_variables_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/bitwise_for_parity_check/mod.rs","assertion_line":81,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__bitwise_for_parity_check","metadata":{},"snapshot":"warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.\n --> lib.cairo:5:20\n  |\n5 |     let _result = (x & 1) + (y & 1);\n  |                    -----\n  |\nwarning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.\n --> lib.cairo:5:30\n  |\n5 |     let _result = (x & 1) + (y & 1);\n  |                              -----\n  |"}}
+{"run_id":"1738764399-969217000","line":164,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":152,"new":{"module_name":"main__bitwise_for_parity_check","snapshot_name":"with_conditional_logic_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/bitwise_for_parity_check/mod.rs","assertion_line":152,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__bitwise_for_parity_check","metadata":{},"snapshot":"warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.\n --> lib.cairo:4:9\n  |\n4 |     if (x & 1) == 1 {\n  |         -----\n  |"}}
+{"run_id":"1738764399-969217000","line":184,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":178,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":140,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":128,"new":{"module_name":"main__bitwise_for_parity_check","snapshot_name":"in_a_loop_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/bitwise_for_parity_check/mod.rs","assertion_line":128,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__bitwise_for_parity_check","metadata":{},"snapshot":"warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.\n --> lib.cairo:4:17\n  |\n4 |         let y = i & 1;\n  |                 -----\n  |"}}
+{"run_id":"1738764399-969217000","line":72,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":110,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":99,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":116,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":81,"new":{"module_name":"main__bitwise_for_parity_check","snapshot_name":"with_multiple_variables_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/bitwise_for_parity_check/mod.rs","assertion_line":81,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__bitwise_for_parity_check","metadata":{},"snapshot":"warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.\n --> lib.cairo:5:20\n  |\n5 |     let _result = (x & 1) + (y & 1);\n  |                    -----\n  |\nwarning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.\n --> lib.cairo:5:30\n  |\n5 |     let _result = (x & 1) + (y & 1);\n  |                              -----\n  |"}}
+{"run_id":"1738858022-855259000","line":60,"new":{"module_name":"main__bitwise_for_parity_check","snapshot_name":"with_single_variable_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/bitwise_for_parity_check/mod.rs","assertion_line":60,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__bitwise_for_parity_check","metadata":{},"snapshot":"warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.\n --> lib.cairo:3:14\n  |\n3 |     let _a = 200_u32 & 1;\n  |              -----------\n  |"}}
+{"run_id":"1738858022-855259000","line":178,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":164,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":152,"new":{"module_name":"main__bitwise_for_parity_check","snapshot_name":"with_conditional_logic_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/bitwise_for_parity_check/mod.rs","assertion_line":152,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__bitwise_for_parity_check","metadata":{},"snapshot":"warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.\n --> lib.cairo:4:9\n  |\n4 |     if (x & 1) == 1 {\n  |         -----\n  |"}}
+{"run_id":"1738858022-855259000","line":184,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":140,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":128,"new":{"module_name":"main__bitwise_for_parity_check","snapshot_name":"in_a_loop_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/bitwise_for_parity_check/mod.rs","assertion_line":128,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__bitwise_for_parity_check","metadata":{},"snapshot":"warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.\n --> lib.cairo:4:17\n  |\n4 |         let y = i & 1;\n  |                 -----\n  |"}}
+{"run_id":"1738858022-855259000","line":72,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":99,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":81,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":110,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":116,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":60,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":152,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":184,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":164,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":178,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":140,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":128,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":72,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":99,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":110,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":60,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":81,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":116,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":152,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":178,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":184,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":164,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":128,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":140,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":72,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":99,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":110,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":116,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":81,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":60,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":184,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":152,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":178,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":164,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":140,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":128,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":72,"new":null,"old":null}

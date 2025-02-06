@@ -32,7 +32,7 @@ fn foo(a: u256) -> u256 {
 
 const SIMPLE_BITWISE_OP_ALLOWED: &str = r#"
 fn foo(a: u256) -> u256 {
-    #[allow(eq_op)]
+    #[allow(eq_logical_op)]
     a & a
 }
 "#;
@@ -170,7 +170,7 @@ fn simple_bitwise_op_allowed_diagnostics() {
 fn simple_bitwise_op_allowed_fixer() {
     test_lint_fixer!(SIMPLE_BITWISE_OP_ALLOWED, @r#"
     fn foo(a: u256) -> u256 {
-        #[allow(eq_op)]
+        #[allow(eq_logical_op)]
         a & a
     }
     "#);

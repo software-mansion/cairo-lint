@@ -1,0 +1,68 @@
+{"run_id":"1738764399-969217000","line":89,"new":{"module_name":"main__manual__manual_is_some","snapshot_name":"basic_is_some_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/manual/manual_is_some.rs","assertion_line":89,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_is_some","metadata":{},"snapshot":"warning: Plugin diagnostic: Manual match for `is_some` detected. Consider using `is_some()` instead\n --> lib.cairo:4:14\n  |\n4 |     let _foo = match foo {\n  |  ______________-\n5 | |       Option::Some(_) => true,\n6 | |       Option::None => false,\n7 | |   };\n  | |___-\n  |"}}
+{"run_id":"1738764399-969217000","line":105,"new":{"module_name":"main__manual__manual_is_some","snapshot_name":"basic_is_some_fixer","metadata":{"source":"crates/cairo-lint-core/tests/manual/manual_is_some.rs","assertion_line":105,"expression":"code"},"snapshot":"fn main() {\n  let foo: Option::<i32> = Option::None;\n  let _foo = match foo {\n      Option::Some(_) => true,\n      Option::None => false,\n  };\n}"},"old":{"module_name":"main__manual__manual_is_some","metadata":{},"snapshot":"fn main() {\n  let foo: Option::<i32> = Option::None;\n  let _foo = foo.is_some();\n}"}}
+{"run_id":"1738764399-969217000","line":208,"new":{"module_name":"main__manual__manual_is_some","snapshot_name":"manual_if_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/manual/manual_is_some.rs","assertion_line":208,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_is_some","metadata":{},"snapshot":"warning: Plugin diagnostic: Manual match for `is_some` detected. Consider using `is_some()` instead\n --> lib.cairo:4:12\n  |\n4 |     let _a = if let Option::Some(_) = opt_val {\n  |  ____________-\n5 | |       true\n6 | |   } else {\n7 | |       false\n8 | |   };\n  | |___-\n  |"}}
+{"run_id":"1738764399-969217000","line":225,"new":{"module_name":"main__manual__manual_is_some","snapshot_name":"manual_if_fixer","metadata":{"source":"crates/cairo-lint-core/tests/manual/manual_is_some.rs","assertion_line":225,"expression":"code"},"snapshot":"fn main() {\n  let opt_val: Option<i32> = Option::None;\n  let _a = if let Option::Some(_) = opt_val {\n      true\n  } else {\n      false\n  };\n}"},"old":{"module_name":"main__manual__manual_is_some","metadata":{},"snapshot":"fn main() {\n  let opt_val: Option<i32> = Option::None;\n  let _a = opt_val.is_some();\n}"}}
+{"run_id":"1738764399-969217000","line":157,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":163,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":141,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":135,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":195,"new":{"module_name":"main__manual__manual_is_some","snapshot_name":"match_expression_is_a_function_fixer","metadata":{"source":"crates/cairo-lint-core/tests/manual/manual_is_some.rs","assertion_line":195,"expression":"code"},"snapshot":"fn foo(a: u256) -> Option<u256> {\n  Option::Some(a)\n}\nfn main() {\n  let a: u256 = 0;\n  let _a = match foo(a) {\n      Option::Some(_) => true,\n      Option::None => false\n  };\n}"},"old":{"module_name":"main__manual__manual_is_some","metadata":{},"snapshot":"fn foo(a: u256) -> Option<u256> {\n  Option::Some(a)\n}\nfn main() {\n  let a: u256 = 0;\n  let _a = foo(a).is_some();\n}"}}
+{"run_id":"1738764399-969217000","line":179,"new":{"module_name":"main__manual__manual_is_some","snapshot_name":"match_expression_is_a_function_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/manual/manual_is_some.rs","assertion_line":179,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_is_some","metadata":{},"snapshot":"warning: Plugin diagnostic: Manual match for `is_some` detected. Consider using `is_some()` instead\n  --> lib.cairo:7:12\n   |\n 7 |     let _a = match foo(a) {\n   |  ____________-\n 8 | |       Option::Some(_) => true,\n 9 | |       Option::None => false\n10 | |   };\n   | |___-\n   |"}}
+{"run_id":"1738764399-969217000","line":235,"new":null,"old":null}
+{"run_id":"1738764399-969217000","line":241,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":115,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":121,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":89,"new":{"module_name":"main__manual__manual_is_some","snapshot_name":"basic_is_some_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/manual/manual_is_some.rs","assertion_line":89,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_is_some","metadata":{},"snapshot":"warning: Plugin diagnostic: Manual match for `is_some` detected. Consider using `is_some()` instead\n --> lib.cairo:4:14\n  |\n4 |     let _foo = match foo {\n  |  ______________-\n5 | |       Option::Some(_) => true,\n6 | |       Option::None => false,\n7 | |   };\n  | |___-\n  |"}}
+{"run_id":"1738858022-855259000","line":105,"new":{"module_name":"main__manual__manual_is_some","snapshot_name":"basic_is_some_fixer","metadata":{"source":"crates/cairo-lint-core/tests/manual/manual_is_some.rs","assertion_line":105,"expression":"code"},"snapshot":"fn main() {\n  let foo: Option::<i32> = Option::None;\n  let _foo = match foo {\n      Option::Some(_) => true,\n      Option::None => false,\n  };\n}"},"old":{"module_name":"main__manual__manual_is_some","metadata":{},"snapshot":"fn main() {\n  let foo: Option::<i32> = Option::None;\n  let _foo = foo.is_some();\n}"}}
+{"run_id":"1738858022-855259000","line":208,"new":{"module_name":"main__manual__manual_is_some","snapshot_name":"manual_if_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/manual/manual_is_some.rs","assertion_line":208,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_is_some","metadata":{},"snapshot":"warning: Plugin diagnostic: Manual match for `is_some` detected. Consider using `is_some()` instead\n --> lib.cairo:4:12\n  |\n4 |     let _a = if let Option::Some(_) = opt_val {\n  |  ____________-\n5 | |       true\n6 | |   } else {\n7 | |       false\n8 | |   };\n  | |___-\n  |"}}
+{"run_id":"1738858022-855259000","line":225,"new":{"module_name":"main__manual__manual_is_some","snapshot_name":"manual_if_fixer","metadata":{"source":"crates/cairo-lint-core/tests/manual/manual_is_some.rs","assertion_line":225,"expression":"code"},"snapshot":"fn main() {\n  let opt_val: Option<i32> = Option::None;\n  let _a = if let Option::Some(_) = opt_val {\n      true\n  } else {\n      false\n  };\n}"},"old":{"module_name":"main__manual__manual_is_some","metadata":{},"snapshot":"fn main() {\n  let opt_val: Option<i32> = Option::None;\n  let _a = opt_val.is_some();\n}"}}
+{"run_id":"1738858022-855259000","line":157,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":163,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":135,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":141,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":179,"new":{"module_name":"main__manual__manual_is_some","snapshot_name":"match_expression_is_a_function_diagnostics","metadata":{"source":"crates/cairo-lint-core/tests/manual/manual_is_some.rs","assertion_line":179,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_is_some","metadata":{},"snapshot":"warning: Plugin diagnostic: Manual match for `is_some` detected. Consider using `is_some()` instead\n  --> lib.cairo:7:12\n   |\n 7 |     let _a = match foo(a) {\n   |  ____________-\n 8 | |       Option::Some(_) => true,\n 9 | |       Option::None => false\n10 | |   };\n   | |___-\n   |"}}
+{"run_id":"1738858022-855259000","line":195,"new":{"module_name":"main__manual__manual_is_some","snapshot_name":"match_expression_is_a_function_fixer","metadata":{"source":"crates/cairo-lint-core/tests/manual/manual_is_some.rs","assertion_line":195,"expression":"code"},"snapshot":"fn foo(a: u256) -> Option<u256> {\n  Option::Some(a)\n}\nfn main() {\n  let a: u256 = 0;\n  let _a = match foo(a) {\n      Option::Some(_) => true,\n      Option::None => false\n  };\n}"},"old":{"module_name":"main__manual__manual_is_some","metadata":{},"snapshot":"fn foo(a: u256) -> Option<u256> {\n  Option::Some(a)\n}\nfn main() {\n  let a: u256 = 0;\n  let _a = foo(a).is_some();\n}"}}
+{"run_id":"1738858022-855259000","line":235,"new":null,"old":null}
+{"run_id":"1738858022-855259000","line":241,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":115,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":121,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":89,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":105,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":208,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":225,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":157,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":163,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":135,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":141,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":195,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":179,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":235,"new":null,"old":null}
+{"run_id":"1738858697-866846000","line":241,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":115,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":121,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":89,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":105,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":208,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":225,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":157,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":163,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":141,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":135,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":179,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":195,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":235,"new":null,"old":null}
+{"run_id":"1738859073-862603000","line":241,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":115,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":121,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":89,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":105,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":208,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":225,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":157,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":163,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":135,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":141,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":179,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":195,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":235,"new":null,"old":null}
+{"run_id":"1738859416-381850000","line":241,"new":null,"old":null}

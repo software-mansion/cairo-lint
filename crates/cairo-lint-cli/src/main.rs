@@ -20,13 +20,12 @@ use cairo_lang_starknet::starknet_plugin_suite;
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_test_plugin::test_plugin_suite;
 use cairo_lang_utils::{Upcast, UpcastMut};
+use cairo_lint_core::context::{get_lint_type_from_diagnostic_message, CairoLintKind};
 use cairo_lint_core::diagnostics::format_diagnostic;
-use cairo_lint_core::fix::{
+use cairo_lint_core::fixes::{
     apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix,
 };
-use cairo_lint_core::plugin::{
-    cairo_lint_plugin_suite, diagnostic_kind_from_message, CairoLintKind,
-};
+use cairo_lint_core::plugin::cairo_lint_plugin_suite;
 use clap::Parser;
 use helpers::*;
 use scarb_metadata::{MetadataCommand, PackageMetadata, TargetMetadata};
@@ -182,12 +181,9 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                         .iter()
                         .filter(|diag| {
                             if let SemanticDiagnosticKind::PluginDiagnostic(diag) = &diag.kind {
-                                (matches!(
-                                    diagnostic_kind_from_message(&diag.message),
-                                    CairoLintKind::Panic
-                                ) && should_lint_panics)
+                                should_lint_panics
                                     || !matches!(
-                                        diagnostic_kind_from_message(&diag.message),
+                                        get_lint_type_from_diagnostic_message(&diag.message),
                                         CairoLintKind::Panic
                                     )
                             } else {

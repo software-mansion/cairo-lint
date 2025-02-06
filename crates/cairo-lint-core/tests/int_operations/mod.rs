@@ -12,7 +12,7 @@ const INT_GT_PLUS_ONE_ALLOWED: &str = r#"
 fn main() {
     let x: u32 = 1;
     let y: u32 = 1;
-    #[allow(int_op_one)]
+    #[allow(int_ge_plus_one)]
     if x >= y + 1 {}
 }
 "#;
@@ -108,7 +108,7 @@ fn int_gt_plus_one_allowed_fixer() {
     fn main() {
         let x: u32 = 1;
         let y: u32 = 1;
-        #[allow(int_op_one)]
+        #[allow(int_ge_plus_one)]
         if x >= y + 1 {}
     }
     "#);
