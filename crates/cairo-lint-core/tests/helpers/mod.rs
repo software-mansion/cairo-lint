@@ -1,3 +1,33 @@
+use std::path::PathBuf;
+
+use cairo_lang_compiler::db::RootDatabase;
+use cairo_lang_defs::{db::DefsGroup, ids::ModuleId};
+use cairo_lang_diagnostics::Diagnostics;
+use cairo_lang_filesystem::{
+    db::{init_dev_corelib, FilesGroup},
+    ids::{CrateId, FileLongId},
+};
+use cairo_lang_semantic::{db::SemanticGroup, SemanticDiagnostic};
+use cairo_lang_utils::LookupIntern;
+
+pub fn get_diags(crate_id: CrateId, db: &mut RootDatabase) -> Vec<Diagnostics<SemanticDiagnostic>> {
+    init_dev_corelib(db, PathBuf::from(std::env::var("CORELIB_PATH").unwrap()));
+    let mut diagnostics = Vec::new();
+    let module_file = db.module_main_file(ModuleId::CrateRoot(crate_id)).unwrap();
+    if db.file_content(module_file).is_none() {
+        match module_file.lookup_intern(db) {
+            FileLongId::OnDisk(_path) => {}
+            FileLongId::Virtual(_) => panic!("Missing virtual file."),
+            FileLongId::External(_) => (),
+        }
+    }
+
+    for module_id in &*db.crate_modules(crate_id) {
+        diagnostics.push(db.module_semantic_diagnostics(*module_id).unwrap());
+    }
+    diagnostics
+}
+
 #[macro_export]
 macro_rules! test_lint_fixer {
   ($before:literal, @$expected_fix:literal) => {{
@@ -22,7 +52,7 @@ macro_rules! test_lint_fixer {
       .with_plugin_suite(testing_suite)
       .build()
       .unwrap();
-    let diags = ::cairo_lint_test_utils::get_diags(
+    let diags = $crate::helpers::get_diags(
       ::cairo_lang_semantic::test_utils::setup_test_crate_ex(db.upcast(), $before, Some($crate::CRATE_CONFIG)),
       &mut db,
     );
@@ -78,7 +108,7 @@ macro_rules! test_lint_diagnostics {
       .with_plugin_suite(testing_suite)
       .build()
       .unwrap();
-    let diags = ::cairo_lint_test_utils::get_diags(
+    let diags = $crate::helpers::get_diags(
       ::cairo_lang_semantic::test_utils::setup_test_crate_ex(db.upcast(), $before, Some($crate::CRATE_CONFIG)),
       &mut db,
     );

@@ -22,11 +22,9 @@ if_chain.workspace = true
 itertools.workspace = true
 
 [dev-dependencies]
-cairo-lang-test-utils.workspace = true
 test-case.workspace = true
 pretty_assertions.workspace = true
 ctor.workspace = true
-cairo-lint-test-utils = { path = "../cairo-lint-test-utils" }
 insta.workspace = true
 
 [features]
