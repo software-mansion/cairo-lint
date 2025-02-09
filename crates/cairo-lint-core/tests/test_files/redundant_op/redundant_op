@@ -1,0 +1,93 @@
+//! > addition by zero
+
+//! > cairo_code
+fn main() {
+  let x = 42;
+  let _y = x + 0;
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: This operation doesn't change the value and can be simplified.
+ --> lib.cairo:3:12
+  |
+3 |   let _y = x + 0;
+  |            -----
+  |
+
+//! > fixed
+fn main() {
+  let x = 42;
+  let _y = x + 0;
+}
+
+//! > ==========================================================================
+
+//! > division by one
+
+//! > cairo_code
+fn main() {
+  let x = 42_u32;
+  let _y = x / 1;
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: This operation doesn't change the value and can be simplified.
+ --> lib.cairo:3:12
+  |
+3 |   let _y = x / 1;
+  |            -----
+  |
+
+//! > fixed
+fn main() {
+  let x = 42_u32;
+  let _y = x / 1;
+}
+
+//! > ==========================================================================
+
+//! > multiplication by one
+
+//! > cairo_code
+fn main() {
+  let x = 42;
+  let _y = x * 1;
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: This operation doesn't change the value and can be simplified.
+ --> lib.cairo:3:12
+  |
+3 |   let _y = x * 1;
+  |            -----
+  |
+
+//! > fixed
+fn main() {
+  let x = 42;
+  let _y = x * 1;
+}
+
+//! > ==========================================================================
+
+//! > substraction by zero
+
+//! > cairo_code
+fn main() {
+  let x = 42;
+  let _y = x - 0;
+}
+
+//! > diagnostics
+warning: Plugin diagnostic: This operation doesn't change the value and can be simplified.
+ --> lib.cairo:3:12
+  |
+3 |   let _y = x - 0;
+  |            -----
+  |
+
+//! > fixed
+fn main() {
+  let x = 42;
+  let _y = x - 0;
+}

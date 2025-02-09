@@ -60,6 +60,8 @@ use crate::lints::panic::check_panic_usage;
 use crate::lints::panic::PanicInCode;
 use crate::lints::performance::check_inefficient_while_comp;
 use crate::lints::performance::InefficientWhileComparison;
+use crate::lints::redundant_op::check_redundant_operation;
+use crate::lints::redundant_op::RedundantOperation;
 use crate::lints::single_match::check_single_matches;
 use crate::lints::single_match::DestructMatch;
 use crate::lints::single_match::EqualityMatch;
@@ -110,6 +112,7 @@ pub enum CairoLintKind {
     ImpossibleComparison,
     EqualityOperation,
     Performance,
+    RedundantOperation,
 }
 
 pub trait Lint: Sync + Send {
@@ -287,6 +290,10 @@ impl LintContext {
             LintRuleGroup {
                 lints: vec![Box::new(InefficientWhileComparison)],
                 check_function: check_inefficient_while_comp,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(RedundantOperation)],
+                check_function: check_redundant_operation,
             },
         ]
     }

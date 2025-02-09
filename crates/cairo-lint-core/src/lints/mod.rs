@@ -16,6 +16,7 @@ pub mod loops;
 pub mod manual;
 pub mod panic;
 pub mod performance;
+pub mod redundant_op;
 pub mod single_match;
 
 pub(crate) const LE: &str = "core::traits::PartialOrd::le";

@@ -119,6 +119,12 @@ warning: Plugin diagnostic: This operation results in the value being erased (e.
 5 |   let _f = ((x + y) * 0) & (z / 1);
   |             -----------
   |
+warning: Plugin diagnostic: This operation doesn't change the value and can be simplified.
+ --> lib.cairo:5:29
+  |
+5 |   let _f = ((x + y) * 0) & (z / 1);
+  |                             -----
+  |
 
 //! > fixed
 fn main() {

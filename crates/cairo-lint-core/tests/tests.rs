@@ -453,3 +453,12 @@ test_file!(
     "int le min one",
     "int lt min one"
 );
+
+test_file!(
+    redundant_op,
+    redundant_op,
+    "multiplication by one",
+    "addition by zero",
+    "division by one",
+    "substraction by zero"
+);
