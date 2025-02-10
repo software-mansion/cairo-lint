@@ -36,7 +36,7 @@ fn main() {
     let x = 1_u32;
     let y = 5_u32;
     let z = 10_u32;
-    let _f = ((x + y) * 0) & (z / 1);
+    let _f = ((x + y) * 0) & (z / 2);
 }
 "#;
 
@@ -152,7 +152,7 @@ fn multiple_operations_diagnostics() {
     warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
      --> lib.cairo:6:15
       |
-    6 |     let _f = ((x + y) * 0) & (z / 1);
+    6 |     let _f = ((x + y) * 0) & (z / 2);
       |               -----------
       |
     ");
@@ -160,14 +160,14 @@ fn multiple_operations_diagnostics() {
 
 #[test]
 fn multiple_operations_fixer() {
-    test_lint_fixer!(MULTIPLE_OPERATIONS, @r#"
+    test_lint_fixer!(MULTIPLE_OPERATIONS, @r"
     fn main() {
         let x = 1_u32;
         let y = 5_u32;
         let z = 10_u32;
-        let _f = ((x + y) * 0) & (z / 1);
+        let _f = ((x + y) * 0) & (z / 2);
     }
-    "#);
+    ");
 }
 
 #[test]

@@ -2,12 +2,12 @@ use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
+use cairo_lang_semantic::{Arenas, ExprFunctionCall};
 use cairo_lang_syntax::node::TypedStablePtr;
-use num_bigint::BigInt;
 
 use super::{function_trait_name_from_fn_id, AND};
 use crate::context::{CairoLintKind, Lint};
+use crate::helper::is_zero;
 use crate::lints::{DIV, MUL};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
@@ -62,14 +62,5 @@ fn check_single_erasing_operation(
             message: ErasingOperation.diagnostic_message().to_string(),
             severity: Severity::Warning,
         });
-    }
-}
-fn is_zero(arg: &ExprFunctionCallArg, arenas: &Arenas) -> bool {
-    match arg {
-        ExprFunctionCallArg::Value(expr) => match &arenas.exprs[*expr] {
-            Expr::Literal(val) => val.value == BigInt::ZERO,
-            _ => false,
-        },
-        _ => false,
     }
 }

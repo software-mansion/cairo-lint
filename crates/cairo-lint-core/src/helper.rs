@@ -11,10 +11,11 @@
 //!
 //! These helper functions can be reused in various parts of the Cairo Lint codebase to maintain
 //! consistency and modularity when working with blocks and conditions.
-
+use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCallArg};
 use cairo_lang_syntax::node::ast::{BlockOrIf, ElseClause, ExprBlock, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::TypedSyntaxNode;
+use num_bigint::BigInt;
 
 /// Processes a block of code, formatting its content and ignoring any break statements.
 ///
@@ -207,4 +208,56 @@ pub fn indent_snippet(input: &str, initial_indentation: usize) -> String {
     }
 
     indented_code
+}
+
+/// Checks whether a function call argument represents the literal zero.
+///
+/// # Arguments
+///
+/// * `arg` - A reference to an [`ExprFunctionCallArg`] that may contain a literal value.
+/// * `arenas` - The arenas holding the expression nodes where the literal is stored.
+///
+/// # Returns
+///
+/// Returns `true` if the provided argument is a literal whose value equals 0; otherwise returns `false`.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// if is_zero(&expr_func.args, arenas) {
+///     // do something specific if the first argument is zero
+/// }
+/// ```
+pub fn is_zero(arg: &ExprFunctionCallArg, arenas: &Arenas) -> bool {
+    matches!(
+        arg,
+        ExprFunctionCallArg::Value(expr)
+            if matches!(&arenas.exprs[*expr], Expr::Literal(val) if val.value == BigInt::from(0))
+    )
+}
+
+/// Checks whether a function call argument represents the literal one.
+///
+/// # Arguments
+///
+/// * `arg` - A reference to an [`ExprFunctionCallArg`] that may contain a literal value.
+/// * `arenas` - The arenas holding the expression nodes where the literal is stored.
+///
+/// # Returns
+///
+/// Returns `true` if the provided argument is a literal whose value equals 1; otherwise returns `false`.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// if is_one(&expr_func.args[1], arenas) {
+///     // do something specific if the second argument is one
+/// }
+/// ```
+pub fn is_one(arg: &ExprFunctionCallArg, arenas: &Arenas) -> bool {
+    matches!(
+        arg,
+        ExprFunctionCallArg::Value(expr)
+            if matches!(&arenas.exprs[*expr], Expr::Literal(val) if val.value == BigInt::from(1))
+    )
 }

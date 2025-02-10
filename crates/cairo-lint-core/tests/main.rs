@@ -13,6 +13,7 @@ mod loops;
 mod manual;
 mod panic;
 mod performance;
+mod redundant_op;
 mod single_match;
 mod unused_imports;
 mod unused_variables;

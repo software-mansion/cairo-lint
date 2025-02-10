@@ -31,6 +31,7 @@ pub(crate) const XOR: &str = "core::traits::BitXor::bitxor";
 pub(crate) const NOT: &str = "core::traits::BitNot::bitnot";
 pub(crate) const DIV: &str = "core::traits::Div::div";
 pub(crate) const MUL: &str = "core::traits::Mul::mul";
+pub(crate) const ADD: &str = "core::traits::Add::add";
 pub(crate) const SUB: &str = "core::traits::Sub::sub";
 pub(crate) const OK: &str = "core::result::Result::Ok";
 pub(crate) const ERR: &str = "core::result::Result::Err";
