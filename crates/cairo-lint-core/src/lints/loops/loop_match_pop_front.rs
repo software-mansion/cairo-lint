@@ -274,7 +274,7 @@ pub fn fix_loop_match_pop_front(
             .as_syntax_node()
             .get_text_without_trivia(db),
         _ => panic!(
-            "Wrong expressiin type. This is probably a bug in the lint detection. Please report it"
+            "Wrong expression type. This is probably a bug in the lint detection. Please report it"
         ),
     };
     let mut elt_name = "".to_owned();
