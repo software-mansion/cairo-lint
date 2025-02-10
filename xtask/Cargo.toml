@@ -6,5 +6,5 @@ publish = false
 
 [dependencies]
 anyhow.workspace = true
-clap.workspace = true
 cairo-toolchain-xtasks = "1"
+clap.workspace = true

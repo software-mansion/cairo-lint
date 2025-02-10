@@ -30,6 +30,12 @@ not there yet).
 CORELIB_PATH="/path/to/corelib/src" cargo test
 ```
 
+### Reviewing snapshot changes
+
+```sh
+cargo insta review
+```
+
 ### CLI instructions
 
 To add a new test you can use the dev cli with:
@@ -40,29 +46,15 @@ cargo xtask create-test --name "Your lint name" --group "Your lint group name"
 
 ### Manual instructions
 
-Each lint should have its own tests and should be extensive. To create a new test for a lint you need to create a file
-in the [test_files folder](./crates/cairo-lint-core/tests/test_files/) and should be named as your lint. The file should
-have this format:
+Each lint should have its own tests and should be extensive. To create a new test for a lint you need to create a new file/module
+in the [test_files folder](./crates/cairo-lint-core/tests) and should be named as your lint. The file should
 
-```rust
-//! > Test name
+As for tests, we are using [insta](https://insta.rs/) snapshot library. 
+There are 2 testing macros:
+- [test_lint_diagnostics](crates/cairo-lint-core/tests/helpers/mod.rs)
+- [test_lint_fixer](crates/cairo-lint-core/tests/helpers/mod.rs)
 
-//! > cairo_code
-fn main() {
-    let a: Option<felt252> = Option::Some(1);
-}
-```
+Tests should use only the inline snapshots.
 
-Then in the [test file](crates/cairo-lint-core/tests/tests.rs) declare your lint like so:
 
-```rust
-test_file!(if_let, "Test name");
-```
-
-The first argument is the lint name (also the file name) and the other ones are the test names. After that you can run
-
-```
-FIX_TESTS=1 cargo test -p cairo-lint-core <name_of_lint>
-```
-
-This will generate the expected values in your test file. Make sure it is correct.
+When creating a new test, you can run `CORELIB_PATH={path} cargo test`, and see if your snapshots match. It's recommended to use the the [cargo-insta](https://crates.io/crates/cargo-insta) tool to review the snapshots. Just remember to first run the tests with `cargo test`, and after that run `cargo insta review` to review any snapshot differences.
