@@ -42,13 +42,13 @@ cairo-lang-utils = "*"
 clap = { version = "4.5.27", features = ["derive"]}
 ctor = "0.2.9"
 if_chain = "1.0.2"
+insta = "1.41.0"
 itertools = "0.13.0"
 log = "0.4.25"
 num-bigint = "0.4.6"
 pretty_assertions = "1.4.1"
 smol_str = { version = "0.3.2", features = ["serde"] }
 test-case = "3.0"
-insta = "1.41.0"
 
 # Here we specify real dependency specifications for Cairo crates *if* currently we want to use
 # a particular unreleased commit (which is frequent mid-development).

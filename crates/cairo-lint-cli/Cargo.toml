@@ -10,21 +10,20 @@ name = "scarb-cairo-lint"
 path = "src/main.rs"
 
 [dependencies]
+annotate-snippets.workspace = true
+anyhow.workspace = true
 cairo-lang-compiler.workspace = true
-cairo-lang-utils.workspace = true
-cairo-lang-semantic.workspace = true
-cairo-lang-filesystem.workspace = true
+cairo-lang-defs.workspace = true
 cairo-lang-diagnostics.workspace = true
+cairo-lang-filesystem.workspace = true
+cairo-lang-semantic.workspace = true
+cairo-lang-starknet.workspace = true
 cairo-lang-syntax.workspace = true
 cairo-lang-test-plugin.workspace = true
-cairo-lang-defs.workspace = true
-cairo-lang-starknet.workspace = true
-clap = { workspace = true, features = ["derive"] }
-scarb-ui = "0.1.5"
-anyhow.workspace = true
-scarb-metadata = "1.13.0"
+cairo-lang-utils.workspace = true
 cairo-lint-core = { path = "../cairo-lint-core" }
+clap = { workspace = true, features = ["derive"] }
+scarb-metadata = "1.13.0"
+scarb-ui = "0.1.5"
 semver = "1.0.25"
-# scarb = { git = "https://github.com/software-mansion/scarb", branch = "main" }
 smol_str.workspace = true
-annotate-snippets.workspace = true
