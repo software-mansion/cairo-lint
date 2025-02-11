@@ -12,6 +12,18 @@ fn main() {
 }
 "#;
 
+const SIMPLE_LOOP_WITH_BREAK_WITH_COMMENT: &str = r#"
+fn main() {
+    let mut x: u16 = 0;
+    loop {
+        if x == 10 {
+            break;
+        }
+        x += 1;
+    }
+}
+"#;
+
 const LOOP_WITH_COMPARISON_CONDITION: &str = r#"
 fn main() {
     let mut counter: u16 = 0;
@@ -52,6 +64,7 @@ const LOOP_WITH_ARITHMETIC_CONDITION_ALLOWED: &str = r#"
 fn main() {
     let mut x: u16 = 5;
     #[allow(loop_for_while)]
+    // This is a loop.
     loop {
         if x * 2 >= 20 {
             break;
@@ -106,12 +119,16 @@ fn main() {
 const LOOP_WITH_ARITHMETIC_CONDITION_AND_SECOND_INCREMENT: &str = r#"
 fn main() {
     let mut x: u16 = 5;
+    // This is a loop.
     loop {
         if x * 2 >= 20 {
+            // This is a break statement.
             break;
         } else {
+            // This just increments the x variable.
             x += 1;
         }
+        // Same as above.
         x += 1;
     }
 }
@@ -163,6 +180,34 @@ fn simple_loop_with_break_diagnostics() {
 #[test]
 fn simple_loop_with_break_fixer() {
     test_lint_fixer!(SIMPLE_LOOP_WITH_BREAK, @r#"
+    fn main() {
+        let mut x: u16 = 0;
+        while x != 10 {
+            x += 1;
+        }
+    }
+    "#);
+}
+
+#[test]
+fn simple_loop_with_break_with_comment_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_LOOP_WITH_BREAK_WITH_COMMENT, @r"
+    warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+     --> lib.cairo:4:5
+      |
+    4 | /     loop {
+    5 | |         if x == 10 {
+    ... |
+    8 | |         x += 1;
+    9 | |     }
+      | |_____-
+      |
+    ");
+}
+
+#[test]
+fn simple_loop_with_break_with_comment_fixer() {
+    test_lint_fixer!(SIMPLE_LOOP_WITH_BREAK_WITH_COMMENT, @r#"
     fn main() {
         let mut x: u16 = 0;
         while x != 10 {
@@ -264,10 +309,11 @@ fn loop_with_arithmetic_condition_allowed_diagnostics() {
 
 #[test]
 fn loop_with_arithmetic_condition_allowed_fixer() {
-    test_lint_fixer!(LOOP_WITH_ARITHMETIC_CONDITION_ALLOWED, @r#"
+    test_lint_fixer!(LOOP_WITH_ARITHMETIC_CONDITION_ALLOWED, @r"
     fn main() {
         let mut x: u16 = 5;
         #[allow(loop_for_while)]
+        // This is a loop.
         loop {
             if x * 2 >= 20 {
                 break;
@@ -275,7 +321,7 @@ fn loop_with_arithmetic_condition_allowed_fixer() {
             x += 1;
         }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -364,13 +410,13 @@ fn loop_with_multiple_condition_inside_if_block_fixer() {
 fn loop_with_arithmetic_condition_and_second_increment_diagnostics() {
     test_lint_diagnostics!(LOOP_WITH_ARITHMETIC_CONDITION_AND_SECOND_INCREMENT, @r"
     warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
-      --> lib.cairo:4:5
+      --> lib.cairo:5:5
        |
-     4 | /     loop {
-     5 | |         if x * 2 >= 20 {
+     5 | /     loop {
+     6 | |         if x * 2 >= 20 {
     ...  |
-    10 | |         x += 1;
-    11 | |     }
+    14 | |         x += 1;
+    15 | |     }
        | |_____-
        |
     ");
@@ -378,15 +424,18 @@ fn loop_with_arithmetic_condition_and_second_increment_diagnostics() {
 
 #[test]
 fn loop_with_arithmetic_condition_and_second_increment_fixer() {
-    test_lint_fixer!(LOOP_WITH_ARITHMETIC_CONDITION_AND_SECOND_INCREMENT, @r#"
+    test_lint_fixer!(LOOP_WITH_ARITHMETIC_CONDITION_AND_SECOND_INCREMENT, @r"
     fn main() {
         let mut x: u16 = 5;
+        // This is a loop.
         while x * 2 < 20 {
+            // This just increments the x variable.
             x += 1;
+            // Same as above.
             x += 1;
         }
     }
-    "#);
+    ");
 }
 
 #[test]

@@ -120,11 +120,13 @@ pub fn fix_equatable_if_let(
                 condition_let
                     .expr(db)
                     .as_syntax_node()
-                    .get_text_without_trivia(db),
+                    .get_text(db)
+                    .trim_end(),
                 condition_let
                     .patterns(db)
                     .as_syntax_node()
-                    .get_text_without_trivia(db),
+                    .get_text(db)
+                    .trim_end(),
             )
         }
         _ => panic!("Incorrect diagnostic"),

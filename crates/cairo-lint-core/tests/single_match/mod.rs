@@ -59,6 +59,7 @@ fn main() {
 const DESTRUCTURING_MATCH_TWISTED: &str = r#"
 fn main() {
     let variable = Option::Some(Option::Some(1_felt252));
+    // This comment should be omitted.
     match variable {
         // This match is invalid hence no diag/fix for this one
         Option::Some(a) => match a {
@@ -303,13 +304,13 @@ fn nested_destructuring_match_fixer() {
 fn destructuring_match_twisted_diagnostics() {
     test_lint_diagnostics!(DESTRUCTURING_MATCH_TWISTED, @r"
     warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
-      --> lib.cairo:4:5
+      --> lib.cairo:5:5
        |
-     4 | /     match variable {
-     5 | |         // This match is invalid hence no diag/fix for this one
+     5 | /     match variable {
+     6 | |         // This match is invalid hence no diag/fix for this one
     ...  |
-    10 | |         _ => (),
-    11 | |     };
+    11 | |         _ => (),
+    12 | |     };
        | |_____-
        |
     ");

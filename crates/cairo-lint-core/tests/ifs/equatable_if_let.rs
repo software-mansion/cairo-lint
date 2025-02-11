@@ -29,6 +29,15 @@ fn main() {
 }
 "#;
 
+const SIMPLE_VALUE_PATTERN_MATCHING_WITH_COMMENT: &str = r#"
+fn main() {
+    let a = 2;
+    if let 2 = a {
+      // Just a comment.
+    }
+}
+"#;
+
 const ENUM_UNIT_VARIANT_PATTERN_MATCHING: &str = r#"
 enum Enum {
     UnitVariant
@@ -133,6 +142,32 @@ fn simple_value_pattern_matching_fixer() {
         if a == 2 {}
     }
     "#);
+}
+
+#[test]
+fn simple_value_pattern_matching_with_comment_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_VALUE_PATTERN_MATCHING_WITH_COMMENT, @r"
+    warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
+     --> lib.cairo:4:5
+      |
+    4 | /     if let 2 = a {
+    5 | |       // Just a comment.
+    6 | |     }
+      | |_____-
+      |
+    ");
+}
+
+#[test]
+fn simple_value_pattern_matching_with_comment_fixer() {
+    test_lint_fixer!(SIMPLE_VALUE_PATTERN_MATCHING_WITH_COMMENT, @r"
+    fn main() {
+        let a = 2;
+        if a == 2 {
+          // Just a comment.
+        }
+    }
+    ");
 }
 
 #[test]

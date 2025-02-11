@@ -287,26 +287,20 @@ pub fn fix_manual(func_name: &str, db: &dyn SyntaxGroup, node: SyntaxNode) -> St
         SyntaxKind::ExprMatch => {
             let expr_match = ExprMatch::from_syntax_node(db, node.clone());
 
-            let option_var_name = expr_match
-                .expr(db)
-                .as_syntax_node()
-                .get_text_without_trivia(db);
+            let option_var_name = expr_match.expr(db).as_syntax_node().get_text(db);
 
-            format!("{option_var_name}.{func_name}()")
+            format!("{}.{func_name}()", option_var_name.trim_end())
         }
         SyntaxKind::ExprIf => {
             let expr_if = AstExprIf::from_syntax_node(db, node.clone());
 
             let var_name = if let AstCondition::Let(condition_let) = expr_if.condition(db) {
-                condition_let
-                    .expr(db)
-                    .as_syntax_node()
-                    .get_text_without_trivia(db)
+                condition_let.expr(db).as_syntax_node().get_text(db)
             } else {
                 panic!("Expected an ConditionLet condition")
             };
 
-            format!("{var_name}.{func_name}()")
+            format!("{}.{func_name}()", var_name.trim_end())
         }
         _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
     }
@@ -317,10 +311,7 @@ pub fn expr_match_get_var_name_and_err(
     db: &dyn SyntaxGroup,
     arm_index: usize,
 ) -> (String, String) {
-    let option_var_name = expr_match
-        .expr(db)
-        .as_syntax_node()
-        .get_text_without_trivia(db);
+    let option_var_name = expr_match.expr(db).as_syntax_node().get_text(db);
 
     let arms = expr_match.arms(db).elements(db);
     if arms.len() != 2 {
@@ -338,7 +329,7 @@ pub fn expr_match_get_var_name_and_err(
     let args = func_call.arguments(db).arguments(db).elements(db);
     let arg = args.first().expect("Should have arg");
 
-    let none_arm_err = arg.as_syntax_node().get_text_without_trivia(db).to_string();
+    let none_arm_err = arg.as_syntax_node().get_text(db).to_string();
 
     (option_var_name, none_arm_err)
 }
@@ -347,10 +338,7 @@ pub fn expr_if_get_var_name_and_err(expr_if: AstExprIf, db: &dyn SyntaxGroup) ->
     let AstCondition::Let(condition_let) = expr_if.condition(db) else {
         panic!("Expected a ConditionLet condition");
     };
-    let option_var_name = condition_let
-        .expr(db)
-        .as_syntax_node()
-        .get_text_without_trivia(db);
+    let option_var_name = condition_let.expr(db).as_syntax_node().get_text(db);
 
     let OptionElseClause::ElseClause(else_clause) = expr_if.else_clause(db) else {
         panic!("Expected a non-empty else clause");
@@ -371,7 +359,7 @@ pub fn expr_if_get_var_name_and_err(expr_if: AstExprIf, db: &dyn SyntaxGroup) ->
 
     let args = func_call.arguments(db).arguments(db).elements(db);
     let arg = args.first().expect("Should have arg");
-    let err = arg.as_syntax_node().get_text_without_trivia(db).to_string();
+    let err = arg.as_syntax_node().get_text(db).to_string();
 
     (option_var_name, err)
 }
