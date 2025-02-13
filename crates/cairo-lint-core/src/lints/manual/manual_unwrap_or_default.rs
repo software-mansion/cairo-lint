@@ -121,7 +121,7 @@ pub fn fix_manual_unwrap_or_default(
     };
 
     Some((
-        node.clone(),
+        node,
         format!(
             "{trivia}{indent}{}.unwrap_or_default()",
             matched_expr.get_text(db).trim_end()
