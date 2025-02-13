@@ -64,7 +64,7 @@ fn check_single_duplicate_if_condition(
         .stable_ptr()
         .lookup(db.upcast())
         .as_syntax_node()
-        .get_text_without_trivia(db.upcast());
+        .get_text(db.upcast());
 
     while let Some(expr_id) = current_block {
         if let Expr::If(else_if_block) = &arenas.exprs[expr_id] {
@@ -86,7 +86,7 @@ fn check_single_duplicate_if_condition(
                 .stable_ptr()
                 .lookup(db.upcast())
                 .as_syntax_node()
-                .get_text_without_trivia(db.upcast());
+                .get_text(db.upcast());
 
             if if_condition_text == else_if_condition_text {
                 diagnostics.push(PluginDiagnostic {

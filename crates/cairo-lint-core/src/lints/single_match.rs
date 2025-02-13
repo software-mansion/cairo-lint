@@ -268,10 +268,7 @@ pub fn fix_destruct_match(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Syn
                     .expr(db)
                     .as_syntax_node()
                     .get_text_without_trivia(db),
-                first_expr
-                    .expression(db)
-                    .as_syntax_node()
-                    .get_text_without_trivia(db),
+                first_expr.expression(db).as_syntax_node().get_text(db),
             ),
             indent.len() / 4,
         ),

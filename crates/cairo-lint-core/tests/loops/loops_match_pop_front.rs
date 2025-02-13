@@ -12,6 +12,24 @@ fn main() {
 }
 "#;
 
+const SIMPLE_LOOP_MATCH_POP_FRONT_WITH_COMMENT: &str = r#"
+fn main() {
+    let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+    // This one is just a loop.
+    loop {
+        // This comment should be omitted.
+        match a.pop_front() {
+            // This comment should be also omitted.
+            Option::Some(val) => {
+              // This comment should be persisted during fixing.
+              println!("{val}")
+            },
+            Option::None => { break; },
+        }
+    }
+}
+"#;
+
 const SIMPLE_LOOP_MATCH_POP_FRONT_WITH_LET: &str = r#"
 fn main() {
     let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
@@ -142,9 +160,39 @@ fn simple_loop_match_pop_front_fixer() {
     test_lint_fixer!(SIMPLE_LOOP_MATCH_POP_FRONT, @r#"
     fn main() {
         let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
-
         for val in a {
             println!("{val}")
+        };
+    }
+    "#);
+}
+
+#[test]
+fn simple_loop_match_pop_front_with_comment_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_LOOP_MATCH_POP_FRONT_WITH_COMMENT, @r"
+    warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
+      --> lib.cairo:5:5
+       |
+     5 | /     loop {
+     6 | |         // This comment should be omitted.
+    ...  |
+    14 | |         }
+    15 | |     }
+       | |_____-
+       |
+    ");
+}
+
+#[test]
+fn simple_loop_match_pop_front_with_comment_fixer() {
+    test_lint_fixer!(SIMPLE_LOOP_MATCH_POP_FRONT_WITH_COMMENT, @r#"
+    fn main() {
+        let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
+        // This one is just a loop.
+        for val in a {
+            // This comment should be persisted during fixing.
+            println!("{val}")
+
         };
     }
     "#);
@@ -194,7 +242,6 @@ fn simple_loop_match_pop_front_impl_path_fixer() {
     use core::array::SpanImpl;
     fn main() {
         let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
-
         for val in a {
             println!("{val}")
         };
@@ -229,7 +276,6 @@ fn simple_loop_match_pop_front_multiple_dots_fixer() {
     }
     fn main() {
         let mut a = A { b: B {c: array![1, 2, 3, 4, 5].span()} };
-
         for val in a.b.c {
             println!("{val}")
         };
@@ -258,7 +304,6 @@ fn loop_match_pop_front_with_comment_in_some_fixer() {
     test_lint_fixer!(LOOP_MATCH_POP_FRONT_WITH_COMMENT_IN_SOME, @r#"
     fn main() {
         let mut a: Span<u32> = array![1, 2, 3, 4, 5].span();
-
         for val in a {
             // This is a comment
             println!("{val}")

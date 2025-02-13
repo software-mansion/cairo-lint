@@ -96,7 +96,7 @@ pub fn fix_double_parens(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synt
     Some((
         node.clone(),
         indent_snippet(
-            &expr.as_syntax_node().get_text_without_trivia(db),
+            &expr.as_syntax_node().get_text(db),
             node.get_text(db)
                 .chars()
                 .take_while(|c| c.is_whitespace())

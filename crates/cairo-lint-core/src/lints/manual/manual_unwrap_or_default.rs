@@ -106,11 +106,25 @@ pub fn fix_manual_unwrap_or_default(
         .chars()
         .take_while(|c| c.is_whitespace())
         .collect::<String>();
+
+    let mut loop_span = node.span(db);
+    loop_span.end = node.span_start_without_trivia(db);
+    let trivia = node
+        .clone()
+        .get_text_of_span(db, loop_span)
+        .trim()
+        .to_string();
+    let trivia = if trivia.is_empty() {
+        trivia
+    } else {
+        format!("{indent}{trivia}\n")
+    };
+
     Some((
         node,
         format!(
-            "{indent}{}.unwrap_or_default()",
-            matched_expr.get_text_without_trivia(db)
+            "{trivia}{indent}{}.unwrap_or_default()",
+            matched_expr.get_text(db).trim_end()
         ),
     ))
 }

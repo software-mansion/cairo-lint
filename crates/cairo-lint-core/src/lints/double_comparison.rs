@@ -196,22 +196,22 @@ fn check_single_double_comparison(
         .stable_ptr()
         .lookup(db.upcast())
         .as_syntax_node()
-        .get_text_without_trivia(db.upcast());
+        .get_text(db.upcast());
     let rlhs_var = rlhs
         .stable_ptr()
         .lookup(db.upcast())
         .as_syntax_node()
-        .get_text_without_trivia(db.upcast());
+        .get_text(db.upcast());
     let lrhs_var = lrhs
         .stable_ptr()
         .lookup(db.upcast())
         .as_syntax_node()
-        .get_text_without_trivia(db.upcast());
+        .get_text(db.upcast());
     let rrhs_var = rrhs
         .stable_ptr()
         .lookup(db.upcast())
         .as_syntax_node()
-        .get_text_without_trivia(db.upcast());
+        .get_text(db.upcast());
     // Put them in a hashset to check equality without order
     let lhs: HashSet<String> = HashSet::from_iter([llhs_var, rlhs_var]);
     let rhs: HashSet<String> = HashSet::from_iter([lrhs_var, rrhs_var]);
@@ -313,12 +313,12 @@ fn check_impossible_comparison(
         .stable_ptr
         .lookup(db.upcast())
         .as_syntax_node()
-        .get_text_without_trivia(db.upcast())
+        .get_text(db.upcast())
         != rhs_var
             .stable_ptr
             .lookup(db.upcast())
             .as_syntax_node()
-            .get_text_without_trivia(db.upcast())
+            .get_text(db.upcast())
     {
         return false;
     }

@@ -136,10 +136,7 @@ fn check_single_collapsible_if(
 /// returned.
 pub fn fix_collapsible_if(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
     let expr_if = AstExprIf::from_syntax_node(db, node.clone());
-    let outer_condition = expr_if
-        .condition(db)
-        .as_syntax_node()
-        .get_text_without_trivia(db);
+    let outer_condition = expr_if.condition(db).as_syntax_node().get_text(db);
     let if_block = expr_if.if_block(db);
 
     let statements = if_block.statements(db).elements(db);
@@ -163,11 +160,12 @@ pub fn fix_collapsible_if(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Syn
                 }
             }
 
-            let inner_condition = inner_if_expr
-                .condition(db)
-                .as_syntax_node()
-                .get_text_without_trivia(db);
-            let combined_condition = format!("({}) && ({})", outer_condition, inner_condition);
+            let inner_condition = inner_if_expr.condition(db).as_syntax_node().get_text(db);
+            let combined_condition = format!(
+                "({}) && ({})",
+                outer_condition.trim(),
+                inner_condition.trim()
+            );
             let inner_if_block = inner_if_expr.if_block(db).as_syntax_node().get_text(db);
 
             let indent = expr_if

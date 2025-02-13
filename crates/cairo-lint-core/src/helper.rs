@@ -48,11 +48,10 @@ pub fn remove_break_from_block(db: &dyn SyntaxGroup, block: ExprBlock, indent: &
     let mut block_body = String::new();
     for statement in block.statements(db).elements(db) {
         if !matches!(statement, Statement::Break(_)) {
-            block_body.push_str(&format!(
-                "{}    {}\n",
-                indent,
-                statement.as_syntax_node().get_text_without_trivia(db)
-            ));
+            let statement_code = statement.as_syntax_node().get_text(db);
+            statement_code.trim().split("\n").for_each(|line| {
+                block_body.push_str(&format!("{}    {}\n", indent, line.trim()));
+            });
         }
     }
     block_body
@@ -101,10 +100,7 @@ pub fn remove_break_from_else_clause(
             else_body.push_str(&format!(
                 "{}else if {} {{\n",
                 indent,
-                else_if
-                    .condition(db)
-                    .as_syntax_node()
-                    .get_text_without_trivia(db)
+                else_if.condition(db).as_syntax_node().get_text(db)
             ));
             else_body.push_str(&remove_break_from_block(db, else_if.if_block(db), indent));
             else_body.push_str(&format!("{}}}\n", indent));

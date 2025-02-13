@@ -170,6 +170,19 @@ pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxN
     let mut condition_text = String::new();
     let mut loop_body = String::new();
 
+    let mut loop_span = node.span(db);
+    loop_span.end = node.span_start_without_trivia(db);
+    let trivia = node
+        .clone()
+        .get_text_of_span(db, loop_span)
+        .trim()
+        .to_string();
+    let trivia = if trivia.is_empty() {
+        trivia
+    } else {
+        format!("{indent}{trivia}\n")
+    };
+
     if let Some(AstStatement::Expr(expr_statement)) =
         loop_expr.body(db).statements(db).elements(db).first()
     {
@@ -199,14 +212,14 @@ pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxN
         loop_body.push_str(&format!(
             "{}    {}\n",
             indent,
-            statement.as_syntax_node().get_text_without_trivia(db)
+            statement.as_syntax_node().get_text(db).trim()
         ));
     }
 
     Some((
         node,
         format!(
-            "{}while {} {{\n{}{}}}\n",
+            "{trivia}{}while {} {{\n{}{}}}\n",
             indent, condition_text, loop_body, indent
         ),
     ))
