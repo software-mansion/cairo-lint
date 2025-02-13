@@ -144,6 +144,56 @@ fn main() {
 }
 "#;
 
+const ADVANCED_LOOP_WITH_BREAK_IN_THE_MIDDLE: &str = r#"
+fn main() -> u32 {
+    let mut exponent: u32 = 3;
+    let two: u32 = 2;
+    let mut result: u32 = 0;
+    let mut base: u32 = 0;
+    loop {
+        if exponent % two != 0 {
+            let new_result = 10;
+            result = new_result;
+        }
+
+        exponent = exponent / two;
+
+        if exponent == 0 {
+            break result;
+        }
+
+        let new_base = 2;
+
+        base = new_base;
+    };
+    1
+}
+"#;
+
+const SIMPLE_LOOP_WITH_BREAK_AT_THE_END: &str = r#"
+fn main() {
+    let mut x: u16 = 0;
+    loop {
+        x += 1;
+        if x == 10 {
+            break;
+        }
+    }
+}
+"#;
+
+const SIMPLE_LOOP_WITH_BREAK_WITH_RETURN_VALUE: &str = r#"
+fn main() -> u16 {
+    let mut x: u16 = 0;
+    loop {
+        if x == 10 {
+            break x;
+        }
+        x += 1;
+    }
+}
+"#;
+
 #[test]
 fn simple_loop_with_break_diagnostics() {
     test_lint_diagnostics!(SIMPLE_LOOP_WITH_BREAK, @r"
@@ -446,4 +496,78 @@ fn loop_with_condition_depending_on_external_variable_fixer() {
         }
     }
     "#);
+}
+
+#[test]
+fn advanced_loop_with_break_in_the_middle_diagnostics() {
+    test_lint_diagnostics!(ADVANCED_LOOP_WITH_BREAK_IN_THE_MIDDLE, @"");
+}
+
+#[test]
+fn advanced_loop_with_break_in_the_middle_fixer() {
+    test_lint_fixer!(ADVANCED_LOOP_WITH_BREAK_IN_THE_MIDDLE, @r"
+    fn main() -> u32 {
+        let mut exponent: u32 = 3;
+        let two: u32 = 2;
+        let mut result: u32 = 0;
+        let mut base: u32 = 0;
+        loop {
+            if exponent % two != 0 {
+                let new_result = 10;
+                result = new_result;
+            }
+
+            exponent = exponent / two;
+
+            if exponent == 0 {
+                break result;
+            }
+
+            let new_base = 2;
+
+            base = new_base;
+        };
+        1
+    }
+    ");
+}
+
+#[test]
+fn simple_loop_with_break_at_the_end_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_LOOP_WITH_BREAK_AT_THE_END, @r"");
+}
+
+#[test]
+fn simple_loop_with_break_at_the_end_fixer() {
+    test_lint_fixer!(SIMPLE_LOOP_WITH_BREAK_AT_THE_END, @r"
+    fn main() {
+        let mut x: u16 = 0;
+        loop {
+            x += 1;
+            if x == 10 {
+                break;
+            }
+        }
+    }
+    ");
+}
+
+#[test]
+fn simple_loop_with_break_with_return_value_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_LOOP_WITH_BREAK_WITH_RETURN_VALUE, @"");
+}
+
+#[test]
+fn simple_loop_with_break_with_return_value_fixer() {
+    test_lint_fixer!(SIMPLE_LOOP_WITH_BREAK_WITH_RETURN_VALUE, @r"
+    fn main() -> u16 {
+        let mut x: u16 = 0;
+        loop {
+            if x == 10 {
+                break x;
+            }
+            x += 1;
+        }
+    }
+    ");
 }

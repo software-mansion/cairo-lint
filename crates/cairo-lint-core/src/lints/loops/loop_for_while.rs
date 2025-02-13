@@ -78,25 +78,28 @@ fn check_single_loop_for_while(
     let Expr::Block(block_expr) = &arenas.exprs[loop_expr.body] else {
         return;
     };
-    // Checks if one of the statements is an if expression that only contains a break instruction
-    for statement in &block_expr.statements {
-        if_chain! {
-            if let Statement::Expr(ref expr_statement) = arenas.statements[*statement];
-            if check_if_contains_break(&expr_statement.expr, arenas);
-            then {
-                diagnostics.push(PluginDiagnostic {
-                    stable_ptr: loop_expr.stable_ptr.untyped(),
-                    message: LoopForWhile.diagnostic_message().to_string(),
-                    severity: Severity::Warning,
-                });
-            }
+
+    // Checks if the first statement is an if expression that only contains a break instruction.
+    if_chain! {
+        if let Some(statement) = block_expr.statements.first();
+        if let Statement::Expr(ref expr_statement) = arenas.statements[*statement];
+        if check_if_contains_break_with_no_return_value(&expr_statement.expr, arenas);
+        then {
+            diagnostics.push(PluginDiagnostic {
+                stable_ptr: loop_expr.stable_ptr.untyped(),
+                message: LoopForWhile.diagnostic_message().to_string(),
+                severity: Severity::Warning,
+            });
         }
     }
 
     // Do the same thing if the if is in the tail of the block
     if_chain! {
+        // Loop with single if-else statement will only have a tail expr and the statements will be empty.
+        // We check if the tail if statement is a single one. If it's not, we ignore the loop as a whole.
+        if block_expr.statements.is_empty();
         if let Some(tail_expr) = block_expr.tail;
-        if check_if_contains_break(&tail_expr, arenas);
+        if check_if_contains_break_with_no_return_value(&tail_expr, arenas);
         then {
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: loop_expr.stable_ptr.untyped(),
@@ -107,7 +110,7 @@ fn check_single_loop_for_while(
     }
 }
 
-fn check_if_contains_break(expr: &ExprId, arenas: &Arenas) -> bool {
+fn check_if_contains_break_with_no_return_value(expr: &ExprId, arenas: &Arenas) -> bool {
     if_chain! {
         // Is an if expression
         if let Expr::If(ref if_expr) = arenas.exprs[*expr];
@@ -116,9 +119,10 @@ fn check_if_contains_break(expr: &ExprId, arenas: &Arenas) -> bool {
         // Get the first statement of the if
         if let Some(inner_stmt) = if_block.statements.first();
         // Is it a break statement
-        if matches!(arenas.statements[*inner_stmt], Statement::Break(_));
+        if let Statement::Break(break_expr) = &arenas.statements[*inner_stmt];
         then {
-            return true;
+            // If break also has a return value like `break 1;` then it's not a simple break.
+            return break_expr.expr_option.is_none();
         }
     }
     false
