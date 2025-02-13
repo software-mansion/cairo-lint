@@ -262,7 +262,7 @@ fn negated_comparison_with_false_fixer() {
     test_lint_fixer!(NEGATED_COMPARISON_WITH_FALSE, @r#"
     fn main() {
         let x = true;
-        if !x {
+        if x {
             println!("x is not false");
         }
     }
@@ -286,7 +286,7 @@ fn negated_comparison_with_false_on_lhs_fixer() {
     test_lint_fixer!(NEGATED_COMPARISON_WITH_FALSE_ON_LHS, @r#"
     fn main() {
         let x = true;
-        if !x {
+        if x {
             println!("x is not false");
         }
     }
