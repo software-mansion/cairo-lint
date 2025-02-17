@@ -61,7 +61,7 @@ fn check_single_bool_comparison(
     // Check if the function call is the bool partial eq function (==).
     if !function_call_expr
         .function
-        .full_path(db)
+        .full_name(db)
         .contains("core::BoolPartialEq::")
     {
         return;

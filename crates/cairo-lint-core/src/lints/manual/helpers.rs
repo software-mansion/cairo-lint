@@ -22,7 +22,7 @@ pub fn is_expected_function(expr: &Expr, db: &dyn SemanticGroup, func_name: &str
     let Expr::FunctionCall(func_call) = expr else {
         return false;
     };
-    func_call.function.full_path(db).as_str() == func_name
+    func_call.function.full_name(db).as_str() == func_name
 }
 
 /// Checks if the inner_pattern in the input `Pattern::Enum` matches the given argument name.
