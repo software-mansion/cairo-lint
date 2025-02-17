@@ -86,14 +86,14 @@ pub fn fix_manual_ok_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synta
             let (option_var_name, none_arm_err) =
                 expr_match_get_var_name_and_err(expr_match, db, 1);
 
-            format!("{option_var_name}.ok_or({none_arm_err})")
+            format!("{}.ok_or({none_arm_err})", option_var_name.trim_end())
         }
         SyntaxKind::ExprIf => {
             let expr_if = ExprIf::from_syntax_node(db, node.clone());
 
             let (option_var_name, err) = expr_if_get_var_name_and_err(expr_if, db);
 
-            format!("{option_var_name}.ok_or({err})")
+            format!("{}.ok_or({})", option_var_name.trim_end(), err)
         }
         _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
     };

@@ -14,6 +14,21 @@ fn main() {
 }
 "#;
 
+const COLLAPSIBLE_IF_IN_BOOLEAN_CONDITIONS_WITH_COMMENT: &str = r#"
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+
+    if x || z {
+        if y && z {
+            // Just a comment.
+            println!("Hello");
+        }
+    }
+}
+"#;
+
 const COLLAPSIBLE_IF_IN_BOOLEAN_CONDITIONS_ALLOWED: &str = r#"
 fn main() {
     let x = true;
@@ -157,6 +172,37 @@ fn collapsible_if_in_boolean_conditions_fixer() {
         let y = true;
         let z = false;
         if (x || z) && (y && z) {
+            println!("Hello");
+        }
+    }
+    "#);
+}
+
+#[test]
+fn collapsible_if_in_boolean_conditions_with_comment_diagnostics() {
+    test_lint_diagnostics!(COLLAPSIBLE_IF_IN_BOOLEAN_CONDITIONS_WITH_COMMENT, @r"
+    warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+      --> lib.cairo:7:5
+       |
+     7 | /     if x || z {
+     8 | |         if y && z {
+    ...  |
+    11 | |         }
+    12 | |     }
+       | |_____-
+       |
+    ");
+}
+
+#[test]
+fn collapsible_if_in_boolean_conditions_with_comment_fixer() {
+    test_lint_fixer!(COLLAPSIBLE_IF_IN_BOOLEAN_CONDITIONS_WITH_COMMENT, @r#"
+    fn main() {
+        let x = true;
+        let y = true;
+        let z = false;
+        if (x || z) && (y && z) {
+            // Just a comment.
             println!("Hello");
         }
     }

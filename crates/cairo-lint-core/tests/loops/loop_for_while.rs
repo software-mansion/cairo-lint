@@ -12,6 +12,18 @@ fn main() {
 }
 "#;
 
+const SIMPLE_LOOP_WITH_BREAK_WITH_COMMENT: &str = r#"
+fn main() {
+    let mut x: u16 = 0;
+    loop {
+        if x == 10 {
+            break;
+        }
+        x += 1;
+    }
+}
+"#;
+
 const LOOP_WITH_COMPARISON_CONDITION: &str = r#"
 fn main() {
     let mut counter: u16 = 0;
@@ -52,6 +64,7 @@ const LOOP_WITH_ARITHMETIC_CONDITION_ALLOWED: &str = r#"
 fn main() {
     let mut x: u16 = 5;
     #[allow(loop_for_while)]
+    // This is a loop.
     loop {
         if x * 2 >= 20 {
             break;
@@ -106,12 +119,16 @@ fn main() {
 const LOOP_WITH_ARITHMETIC_CONDITION_AND_SECOND_INCREMENT: &str = r#"
 fn main() {
     let mut x: u16 = 5;
+    // This is a loop.
     loop {
         if x * 2 >= 20 {
+            // This is a break statement.
             break;
         } else {
+            // This just increments the x variable.
             x += 1;
         }
+        // Same as above.
         x += 1;
     }
 }
@@ -144,6 +161,56 @@ fn main() {
 }
 "#;
 
+const ADVANCED_LOOP_WITH_BREAK_IN_THE_MIDDLE: &str = r#"
+fn main() -> u32 {
+    let mut exponent: u32 = 3;
+    let two: u32 = 2;
+    let mut result: u32 = 0;
+    let mut base: u32 = 0;
+    loop {
+        if exponent % two != 0 {
+            let new_result = 10;
+            result = new_result;
+        }
+
+        exponent = exponent / two;
+
+        if exponent == 0 {
+            break result;
+        }
+
+        let new_base = 2;
+
+        base = new_base;
+    };
+    1
+}
+"#;
+
+const SIMPLE_LOOP_WITH_BREAK_AT_THE_END: &str = r#"
+fn main() {
+    let mut x: u16 = 0;
+    loop {
+        x += 1;
+        if x == 10 {
+            break;
+        }
+    }
+}
+"#;
+
+const SIMPLE_LOOP_WITH_BREAK_WITH_RETURN_VALUE: &str = r#"
+fn main() -> u16 {
+    let mut x: u16 = 0;
+    loop {
+        if x == 10 {
+            break x;
+        }
+        x += 1;
+    }
+}
+"#;
+
 #[test]
 fn simple_loop_with_break_diagnostics() {
     test_lint_diagnostics!(SIMPLE_LOOP_WITH_BREAK, @r"
@@ -163,6 +230,34 @@ fn simple_loop_with_break_diagnostics() {
 #[test]
 fn simple_loop_with_break_fixer() {
     test_lint_fixer!(SIMPLE_LOOP_WITH_BREAK, @r#"
+    fn main() {
+        let mut x: u16 = 0;
+        while x != 10 {
+            x += 1;
+        }
+    }
+    "#);
+}
+
+#[test]
+fn simple_loop_with_break_with_comment_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_LOOP_WITH_BREAK_WITH_COMMENT, @r"
+    warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+     --> lib.cairo:4:5
+      |
+    4 | /     loop {
+    5 | |         if x == 10 {
+    ... |
+    8 | |         x += 1;
+    9 | |     }
+      | |_____-
+      |
+    ");
+}
+
+#[test]
+fn simple_loop_with_break_with_comment_fixer() {
+    test_lint_fixer!(SIMPLE_LOOP_WITH_BREAK_WITH_COMMENT, @r#"
     fn main() {
         let mut x: u16 = 0;
         while x != 10 {
@@ -264,10 +359,11 @@ fn loop_with_arithmetic_condition_allowed_diagnostics() {
 
 #[test]
 fn loop_with_arithmetic_condition_allowed_fixer() {
-    test_lint_fixer!(LOOP_WITH_ARITHMETIC_CONDITION_ALLOWED, @r#"
+    test_lint_fixer!(LOOP_WITH_ARITHMETIC_CONDITION_ALLOWED, @r"
     fn main() {
         let mut x: u16 = 5;
         #[allow(loop_for_while)]
+        // This is a loop.
         loop {
             if x * 2 >= 20 {
                 break;
@@ -275,7 +371,7 @@ fn loop_with_arithmetic_condition_allowed_fixer() {
             x += 1;
         }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -364,13 +460,13 @@ fn loop_with_multiple_condition_inside_if_block_fixer() {
 fn loop_with_arithmetic_condition_and_second_increment_diagnostics() {
     test_lint_diagnostics!(LOOP_WITH_ARITHMETIC_CONDITION_AND_SECOND_INCREMENT, @r"
     warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
-      --> lib.cairo:4:5
+      --> lib.cairo:5:5
        |
-     4 | /     loop {
-     5 | |         if x * 2 >= 20 {
+     5 | /     loop {
+     6 | |         if x * 2 >= 20 {
     ...  |
-    10 | |         x += 1;
-    11 | |     }
+    14 | |         x += 1;
+    15 | |     }
        | |_____-
        |
     ");
@@ -378,15 +474,18 @@ fn loop_with_arithmetic_condition_and_second_increment_diagnostics() {
 
 #[test]
 fn loop_with_arithmetic_condition_and_second_increment_fixer() {
-    test_lint_fixer!(LOOP_WITH_ARITHMETIC_CONDITION_AND_SECOND_INCREMENT, @r#"
+    test_lint_fixer!(LOOP_WITH_ARITHMETIC_CONDITION_AND_SECOND_INCREMENT, @r"
     fn main() {
         let mut x: u16 = 5;
+        // This is a loop.
         while x * 2 < 20 {
+            // This just increments the x variable.
             x += 1;
+            // Same as above.
             x += 1;
         }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -446,4 +545,78 @@ fn loop_with_condition_depending_on_external_variable_fixer() {
         }
     }
     "#);
+}
+
+#[test]
+fn advanced_loop_with_break_in_the_middle_diagnostics() {
+    test_lint_diagnostics!(ADVANCED_LOOP_WITH_BREAK_IN_THE_MIDDLE, @"");
+}
+
+#[test]
+fn advanced_loop_with_break_in_the_middle_fixer() {
+    test_lint_fixer!(ADVANCED_LOOP_WITH_BREAK_IN_THE_MIDDLE, @r"
+    fn main() -> u32 {
+        let mut exponent: u32 = 3;
+        let two: u32 = 2;
+        let mut result: u32 = 0;
+        let mut base: u32 = 0;
+        loop {
+            if exponent % two != 0 {
+                let new_result = 10;
+                result = new_result;
+            }
+
+            exponent = exponent / two;
+
+            if exponent == 0 {
+                break result;
+            }
+
+            let new_base = 2;
+
+            base = new_base;
+        };
+        1
+    }
+    ");
+}
+
+#[test]
+fn simple_loop_with_break_at_the_end_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_LOOP_WITH_BREAK_AT_THE_END, @r"");
+}
+
+#[test]
+fn simple_loop_with_break_at_the_end_fixer() {
+    test_lint_fixer!(SIMPLE_LOOP_WITH_BREAK_AT_THE_END, @r"
+    fn main() {
+        let mut x: u16 = 0;
+        loop {
+            x += 1;
+            if x == 10 {
+                break;
+            }
+        }
+    }
+    ");
+}
+
+#[test]
+fn simple_loop_with_break_with_return_value_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_LOOP_WITH_BREAK_WITH_RETURN_VALUE, @"");
+}
+
+#[test]
+fn simple_loop_with_break_with_return_value_fixer() {
+    test_lint_fixer!(SIMPLE_LOOP_WITH_BREAK_WITH_RETURN_VALUE, @r"
+    fn main() -> u16 {
+        let mut x: u16 = 0;
+        loop {
+            if x == 10 {
+                break x;
+            }
+            x += 1;
+        }
+    }
+    ");
 }

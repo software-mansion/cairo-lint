@@ -12,6 +12,20 @@ fn main() {
 }
 "#;
 
+const SAME_CONDITION_WITH_ELSE_WITH_COMMENT: &str = r#"
+fn main() {
+    let a = 1;
+    let b = 1;
+    if a == b {
+        // Just a comment.
+        println!("a is equal to b");
+    } else if a == b {
+        // Just a comment 2.
+        println!("a is equal to b");
+    }
+}
+"#;
+
 const SAME_CONDITION_WITH_BOOLEAN: &str = r#"
 fn main() {
     let condition = true;
@@ -181,6 +195,39 @@ fn same_condition_with_else_fixer() {
         if a == b {
             println!("a is equal to b");
         } else if a == b {
+            println!("a is equal to b");
+        }
+    }
+    "#);
+}
+
+#[test]
+fn same_condition_with_else_with_comment_diagnostics() {
+    test_lint_diagnostics!(SAME_CONDITION_WITH_ELSE_WITH_COMMENT, @r#"
+    warning: Plugin diagnostic: Consecutive `if` with the same condition found.
+      --> lib.cairo:5:5
+       |
+     5 | /     if a == b {
+     6 | |         // Just a comment.
+    ...  |
+    10 | |         println!("a is equal to b");
+    11 | |     }
+       | |_____-
+       |
+    "#);
+}
+
+#[test]
+fn same_condition_with_else_with_comment_fixer() {
+    test_lint_fixer!(SAME_CONDITION_WITH_ELSE_WITH_COMMENT, @r#"
+    fn main() {
+        let a = 1;
+        let b = 1;
+        if a == b {
+            // Just a comment.
+            println!("a is equal to b");
+        } else if a == b {
+            // Just a comment 2.
             println!("a is equal to b");
         }
     }

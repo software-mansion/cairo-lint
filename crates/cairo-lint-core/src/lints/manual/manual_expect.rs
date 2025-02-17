@@ -96,14 +96,14 @@ pub fn fix_manual_expect(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synt
             let (option_var_name, none_arm_err) =
                 expr_match_get_var_name_and_err(expr_match, db, 1);
 
-            format!("{option_var_name}.expect({none_arm_err})")
+            format!("{}.expect({none_arm_err})", option_var_name.trim_end())
         }
         SyntaxKind::ExprIf => {
             let expr_if = ExprIf::from_syntax_node(db, node.clone());
 
             let (option_var_name, err) = expr_if_get_var_name_and_err(expr_if, db);
 
-            format!("{option_var_name}.expect({err})")
+            format!("{}.expect({err})", option_var_name.trim_end())
         }
         _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
     };

@@ -6,6 +6,15 @@ fn main() -> u32 {
 }
 "#;
 
+const SIMPLE_DOUBLE_PARENS_WITH_COMMENT: &str = r#"
+fn main() -> u32 {
+    ((
+    // Just a comment.
+    0
+    ))
+}
+"#;
+
 const UNNECESSARY_PARENTHESES_IN_ARITHMETIC_EXPRESSION: &str = r#"
 fn main() -> u32 {
     ((3 + 5))
@@ -99,6 +108,31 @@ fn simple_double_parens_fixer() {
     test_lint_fixer!(SIMPLE_DOUBLE_PARENS, @r"
     fn main() -> u32 {
         0}
+    ");
+}
+
+#[test]
+fn simple_double_parens_with_comment_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_DOUBLE_PARENS_WITH_COMMENT, @r"
+    warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:3:5
+      |
+    3 | /     ((
+    4 | |     // Just a comment.
+    5 | |     0
+    6 | |     ))
+      | |______-
+      |
+    ");
+}
+
+#[test]
+fn simple_double_parens_with_comment_fixer() {
+    test_lint_fixer!(SIMPLE_DOUBLE_PARENS_WITH_COMMENT, @r"
+    fn main() -> u32 {
+        // Just a comment.
+        0
+    }
     ");
 }
 

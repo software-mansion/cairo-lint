@@ -22,6 +22,7 @@ const DOUBLE_COMPARISON_EQUAL_OR_GREATER_THAN: &str = r#"
 fn main() -> bool {
     let x = 5_u32;
     let y = 10_u32;
+    // Just a comment here.
     if x == y || x > y {
         true
     } else {
@@ -389,9 +390,9 @@ fn simple_let_double_comparison_allowed_fixer() {
 fn double_comparison_equal_or_greater_than_diagnostics() {
     test_lint_diagnostics!(DOUBLE_COMPARISON_EQUAL_OR_GREATER_THAN, @r"
     warning: Plugin diagnostic: This double comparison can be simplified.
-     --> lib.cairo:5:8
+     --> lib.cairo:6:8
       |
-    5 |     if x == y || x > y {
+    6 |     if x == y || x > y {
       |        ---------------
       |
     ");
@@ -399,17 +400,18 @@ fn double_comparison_equal_or_greater_than_diagnostics() {
 
 #[test]
 fn double_comparison_equal_or_greater_than_fixer() {
-    test_lint_fixer!(DOUBLE_COMPARISON_EQUAL_OR_GREATER_THAN, @r#"
+    test_lint_fixer!(DOUBLE_COMPARISON_EQUAL_OR_GREATER_THAN, @r"
     fn main() -> bool {
         let x = 5_u32;
         let y = 10_u32;
+        // Just a comment here.
         if x >= y {
             true
         } else {
             false
         }
     }
-    "#);
+    ");
 }
 
 #[test]

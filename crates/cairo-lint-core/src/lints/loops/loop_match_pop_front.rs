@@ -268,13 +268,10 @@ pub fn fix_loop_match_pop_front(
         AstExpr::FunctionCall(func_call) => func_call.arguments(db).arguments(db).elements(db)[0]
             .arg_clause(db)
             .as_syntax_node()
-            .get_text_without_trivia(db),
-        AstExpr::Binary(dot_call) => dot_call
-            .lhs(db)
-            .as_syntax_node()
-            .get_text_without_trivia(db),
+            .get_text(db),
+        AstExpr::Binary(dot_call) => dot_call.lhs(db).as_syntax_node().get_text(db),
         _ => panic!(
-            "Wrong expressiin type. This is probably a bug in the lint detection. Please report it"
+            "Wrong expression type. This is probably a bug in the lint detection. Please report it"
         ),
     };
     let mut elt_name = "".to_owned();
@@ -288,7 +285,11 @@ pub fn fix_loop_match_pop_front(
         .chars()
         .take_while(|c| c.is_whitespace())
         .collect::<String>();
-    let trivia = node.clone().get_text_of_span(db, loop_span);
+    let trivia = node
+        .clone()
+        .get_text_of_span(db, loop_span)
+        .trim()
+        .to_string();
     let trivia = if trivia.is_empty() {
         trivia
     } else {
@@ -299,7 +300,7 @@ pub fn fix_loop_match_pop_front(
             if let AstPattern::Enum(enum_pattern) = &arm.patterns(db).elements(db)[0];
             if let OptionPatternEnumInnerPattern::PatternEnumInnerPattern(var) = enum_pattern.pattern(db);
             then {
-                elt_name = var.pattern(db).as_syntax_node().get_text_without_trivia(db);
+                elt_name = var.pattern(db).as_syntax_node().get_text(db);
                 some_arm = if let AstExpr::Block(block_expr) = arm.expression(db) {
                     block_expr.statements(db).as_syntax_node().get_text(db)
                 } else {
