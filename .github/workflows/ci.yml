@@ -33,10 +33,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-        with:
-          ref: "2.10.0"
 
       - name: Get corelib
-        run: git clone https://github.com/starkware-libs/cairo
+        run: |
+          git clone https://github.com/starkware-libs/cairo
+          cd cairo
+          git checkout tags/v2.10.0
       - name: Run cargo test
         run: CORELIB_PATH="$(pwd)/cairo/corelib/src" cargo test
