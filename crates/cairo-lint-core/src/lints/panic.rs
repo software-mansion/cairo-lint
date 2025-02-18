@@ -56,7 +56,7 @@ fn check_single_panic_usage(
         .clone();
 
     // If the function is not the panic function from the corelib return
-    if function_call_expr.function.full_name(db) != PANIC {
+    if function_call_expr.function.full_path(db) != PANIC {
         return;
     }
 
