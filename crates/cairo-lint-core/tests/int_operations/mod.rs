@@ -49,6 +49,17 @@ fn main() {
 }
 "#;
 
+const INT_LE_PLUS_ONE_NOT: &str = r#"
+fn f() -> u32 {
+    2
+}
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    if x + f() <= y {}
+}
+"#;
+
 const INT_LT_PLUS_ONE: &str = r#"
 fn main() {
     let x: u32 = 1;
@@ -181,6 +192,11 @@ fn int_le_plus_one_diagnostics() {
       |        ----------
       |
     ");
+}
+
+#[test]
+fn int_le_plus_one_not_diagnostics() {
+    test_lint_diagnostics!(INT_LE_PLUS_ONE_NOT, @r"");
 }
 
 #[test]
