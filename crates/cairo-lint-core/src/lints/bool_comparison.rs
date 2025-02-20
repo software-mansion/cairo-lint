@@ -14,6 +14,7 @@ use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 pub struct BoolComparison;
 
+/// Tutaj here.
 impl Lint for BoolComparison {
     fn allowed_name(&self) -> &'static str {
         "bool_comparison"
