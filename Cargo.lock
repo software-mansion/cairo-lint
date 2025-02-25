@@ -679,7 +679,9 @@ name = "cairo-lint-dev"
 version = "0.0.1"
 dependencies = [
  "anyhow",
+ "cairo-lint-core",
  "clap",
+ "if_chain",
  "minijinja",
  "scarb-ui",
  "serde",
