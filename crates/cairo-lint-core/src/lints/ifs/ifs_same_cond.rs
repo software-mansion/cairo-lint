@@ -28,9 +28,9 @@ pub struct DuplicateIfCondition;
 ///     }
 /// }
 /// ```
-/// 
+///
 /// Could be rewritten as just:
-/// 
+///
 /// ```cairo
 /// fn main() {
 ///     let a = 1;

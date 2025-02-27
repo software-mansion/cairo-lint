@@ -21,9 +21,9 @@ pub struct ManualExpect;
 /// ## What it does
 ///
 /// Checks for manual implementations of `expect`.
-/// 
+///
 /// ## Example
-/// 
+///
 /// ```cairo
 /// fn main() {
 ///     let foo: Option::<i32> = Option::None;
@@ -33,9 +33,9 @@ pub struct ManualExpect;
 ///     };
 /// }
 /// ```
-/// 
+///
 /// Can be rewritten as:
-/// 
+///
 /// ```cairo
 /// fn main() {
 ///     let foo: Option::<i32> = Option::None;
