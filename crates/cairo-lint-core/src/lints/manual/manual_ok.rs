@@ -13,6 +13,30 @@ use super::helpers::fix_manual;
 
 pub struct ManualOk;
 
+/// ## What it does
+///
+/// Checks for manual implementation of `ok` method in match and if expressions.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() {
+///     let res_val: Result<i32> = Result::Err('err');
+///     let _a = match res_val {
+///         Result::Ok(x) => Option::Some(x),
+///         Result::Err(_) => Option::None,
+///     };
+/// }
+/// ```
+///
+/// Can be replaced with:
+///
+/// ```cairo
+// fn main() {
+///     let res_val: Result<i32> = Result::Err('err');
+///     let _a = res_val.ok();
+/// }
+/// ```
 impl Lint for ManualOk {
     fn allowed_name(&self) -> &'static str {
         "manual_ok"

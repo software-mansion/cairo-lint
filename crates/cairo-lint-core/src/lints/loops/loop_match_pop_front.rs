@@ -25,6 +25,30 @@ const SPAN_MATCH_POP_FRONT: &str = "\"SpanImpl::pop_front\"";
 
 pub struct LoopMatchPopFront;
 
+/// ## What it does
+///
+/// Checks for loops that are used to iterate over a span using `pop_front`.
+///
+/// ## Example
+///
+/// ```cairo
+/// let a: Span<u32> = array![1, 2, 3].span();
+/// loop {
+///     match a.pop_front() {
+///         Option::Some(val) => {do_smth(val); },
+///         Option::None => { break; }
+///     }
+/// }
+/// ```
+///
+/// Which can be rewritten as
+///
+/// ```cairo
+/// let a: Span<u32> = array![1, 2, 3].span();
+/// for val in a {
+///     do_smth(val);
+/// }
+/// ```
 impl Lint for LoopMatchPopFront {
     fn allowed_name(&self) -> &'static str {
         "loop_match_pop_front"
@@ -47,23 +71,6 @@ impl Lint for LoopMatchPopFront {
     }
 }
 
-/// Checks for
-/// ```ignore
-/// let a: Span<u32> = array![1, 2, 3].span();
-/// loop {
-///    match a.pop_front() {
-///        Option::Some(val) => {do_smth(val); },
-///        Option::None => { break; }
-///    }
-/// }
-/// ```
-/// Which can be rewritten as
-/// ```ignore
-/// let a: Span<u32> = array![1, 2, 3].span();
-/// for val in a {
-///     do_smth(val);
-/// }
-/// ```
 pub fn check_loop_match_pop_front(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,

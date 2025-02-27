@@ -16,9 +16,14 @@ pub struct BitwiseForParity;
 
 /// ## What it does
 ///
+/// Checks for `x & 1` which is unoptimized in cairo and could be replaced by `x % 1`.
+///
 /// ## Example
+///
 /// ```cairo
-/// let a = 5;
+/// fn main() {
+///     let _a = 200_u32 & 1;
+/// }
 /// ```
 impl Lint for BitwiseForParity {
     fn allowed_name(&self) -> &'static str {

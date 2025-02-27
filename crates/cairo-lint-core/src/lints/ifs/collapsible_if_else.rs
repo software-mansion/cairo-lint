@@ -18,6 +18,38 @@ use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
 pub struct CollapsibleIfElse;
 
+/// ## What it does
+///
+/// Checks for nested `if` statements inside the `else` statement
+/// that can be collapsed into a single `if-else` statement.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() {
+///     let x = true;
+///     if x {
+///         println!("x is true");
+///     } else {
+///         if !x {
+///             println!("x is false");
+///         }
+///     }
+/// }
+/// ```
+///
+/// Can be refactored to:
+///
+/// ```cairo
+/// fn main() {
+///     let x = true;
+///     if x {
+///         println!("x is true");
+///     } else if !x {
+///         println!("x is false");
+///     }
+/// }
+/// ```
 impl Lint for CollapsibleIfElse {
     fn allowed_name(&self) -> &'static str {
         "collapsible_if_else"

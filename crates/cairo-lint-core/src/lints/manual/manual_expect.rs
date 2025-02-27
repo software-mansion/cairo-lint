@@ -18,6 +18,30 @@ use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_ma
 
 pub struct ManualExpect;
 
+/// ## What it does
+///
+/// Checks for manual implementations of `expect`.
+/// 
+/// ## Example
+/// 
+/// ```cairo
+/// fn main() {
+///     let foo: Option::<i32> = Option::None;
+///     let _foo = match foo {
+///         Option::Some(x) => x,
+///         Option::None => core::panic_with_felt252('err'),
+///     };
+/// }
+/// ```
+/// 
+/// Can be rewritten as:
+/// 
+/// ```cairo
+/// fn main() {
+///     let foo: Option::<i32> = Option::None;
+///     let _foo = foo.expect('err');
+/// }
+/// ```
 impl Lint for ManualExpect {
     fn allowed_name(&self) -> &'static str {
         "manual_expect"

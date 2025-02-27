@@ -16,6 +16,35 @@ use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
 
 pub struct LoopForWhile;
 
+/// ## What it does
+///
+/// Checks for `loop` expressions that contain a conditional `if` statement with break inside that
+/// can be simplified to a `while` loop.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() {
+///     let mut x: u16 = 0;
+///     loop {
+///         if x == 10 {
+///             break;
+///         }
+///         x += 1;
+///     }
+/// }
+/// ```
+///
+/// Can be simplified to:
+///
+/// ```cairo
+/// fn main() {
+///     let mut x: u16 = 0;
+///     while x != 10 {
+///         x += 1;
+///     }
+/// }
+/// ```
 impl Lint for LoopForWhile {
     fn allowed_name(&self) -> &'static str {
         "loop_for_while"

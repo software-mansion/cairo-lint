@@ -12,6 +12,25 @@ use crate::queries::get_all_parenthesized_expressions;
 
 pub struct DoubleParens;
 
+/// ## What it does
+///
+/// Checks for unnecessary double parentheses in expressions.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() -> u32 {
+///     ((0))
+/// }
+/// ```
+///
+/// Can be simplified to:
+///
+/// ```cairo
+/// fn main() -> u32 {
+///     0
+/// }
+/// ```
 impl Lint for DoubleParens {
     fn allowed_name(&self) -> &'static str {
         "double_parens"

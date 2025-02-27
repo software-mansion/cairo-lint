@@ -11,6 +11,35 @@ use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
 pub struct DuplicateIfCondition;
 
+/// ## What it does
+///
+/// Checks for consecutive `if` expressions with the same condition.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() {
+///     let a = 1;
+///     let b = 1;
+///     if a == b {
+///         println!("a is equal to b");
+///     } else if a == b {
+///         println!("a is equal to b");
+///     }
+/// }
+/// ```
+/// 
+/// Could be rewritten as just:
+/// 
+/// ```cairo
+/// fn main() {
+///     let a = 1;
+///     let b = 1;
+///     if a == b {
+///         println!("a is equal to b");
+///     }
+/// }
+/// ```
 impl Lint for DuplicateIfCondition {
     fn allowed_name(&self) -> &'static str {
         "ifs_same_cond"

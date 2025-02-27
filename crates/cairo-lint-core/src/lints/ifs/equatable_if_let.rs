@@ -14,6 +14,25 @@ use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
 pub struct EquatableIfLet;
 
+/// ## What it does
+///
+/// Checks for `if let` pattern matching that can be replaced by a simple comparison.
+///
+/// ## Example
+///
+/// ```cairo
+/// if let Some(2) = a {
+///     // Code
+/// }
+/// ```
+///
+/// Could be replaced by
+///
+/// ```cairo
+/// if a == Some(2) {
+///     // Code
+/// }
+/// ````
 impl Lint for EquatableIfLet {
     fn allowed_name(&self) -> &'static str {
         "equatable_if_let"
@@ -36,18 +55,6 @@ impl Lint for EquatableIfLet {
     }
 }
 
-/// Checks for
-/// ```ignore
-/// if let Some(2) = a {
-///     ...
-/// }
-/// ```
-/// Which can be replaced by
-/// ```ignore
-/// if a == Some(2) {
-///    ...
-/// }
-/// ````
 pub fn check_equatable_if_let(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,

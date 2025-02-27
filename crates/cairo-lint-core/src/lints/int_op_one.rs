@@ -13,6 +13,29 @@ use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 pub struct IntegerGreaterEqualPlusOne;
 
+/// ## What it does
+///
+/// Check for unnecessary add operation in integer >= comparison.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() {
+///     let x: u32 = 1;
+///     let y: u32 = 1;
+///     if x >= y + 1 {}
+/// }
+/// ```
+///
+/// Can be simplified to:
+///
+/// ```cairo
+/// fn main() {
+///     let x: u32 = 1;
+///     let y: u32 = 1;
+///     if x > y {}
+/// }
+/// ```
 impl Lint for IntegerGreaterEqualPlusOne {
     fn allowed_name(&self) -> &'static str {
         "int_ge_plus_one"
@@ -37,6 +60,28 @@ impl Lint for IntegerGreaterEqualPlusOne {
 
 pub struct IntegerGreaterEqualMinusOne;
 
+/// ## What it does
+///
+/// Check for unnecessary sub operation in integer >= comparison.
+///
+/// ## Example
+/// ```cairo
+/// fn main() {
+///     let x: u32 = 1;
+///     let y: u32 = 1;
+///     if x - 1 >= y {}
+/// }
+/// ```
+///
+/// Can be simplified to:
+///
+/// ```cairo
+/// fn main() {
+///     let x: u32 = 1;
+///     let y: u32 = 1;
+///     if x > y {}
+/// }
+/// ```
 impl Lint for IntegerGreaterEqualMinusOne {
     fn allowed_name(&self) -> &'static str {
         "int_ge_min_one"
@@ -61,6 +106,29 @@ impl Lint for IntegerGreaterEqualMinusOne {
 
 pub struct IntegerLessEqualPlusOne;
 
+/// ## What it does
+///
+/// Check for unnecessary add operation in integer <= comparison.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() {
+///     let x: u32 = 1;
+///     let y: u32 = 1;
+///     if x + 1 <= y {}
+/// }
+/// ```
+///
+/// Can be simplified to:
+///
+/// ```cairo
+/// fn main() {
+///     let x: u32 = 1;
+///     let y: u32 = 1;
+///     if x < y {}
+/// }
+/// ```
 impl Lint for IntegerLessEqualPlusOne {
     fn allowed_name(&self) -> &'static str {
         "int_le_plus_one"
@@ -85,6 +153,28 @@ impl Lint for IntegerLessEqualPlusOne {
 
 pub struct IntegerLessEqualMinusOne;
 
+/// ## What it does
+///
+/// Check for unnecessary sub operation in integer <= comparison.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() {
+///     let x: u32 = 1;
+///     let y: u32 = 1;
+///     if x <= y - 1 {}
+/// }
+/// ```
+/// Can be simplified to:
+///
+/// ```cairo
+/// fn main() {
+///     let x: u32 = 1;
+///     let y: u32 = 1;
+///     if x < y {}
+/// }
+/// ```
 impl Lint for IntegerLessEqualMinusOne {
     fn allowed_name(&self) -> &'static str {
         "int_le_min_one"

@@ -9,6 +9,29 @@ use crate::queries::{get_all_function_bodies, get_all_while_expressions};
 
 pub struct InefficientWhileComparison;
 
+/// ## What it does
+///
+/// Checks if the while loop exit condition is using [`<`, `<=`, `>=`, `>`] operators.
+///
+/// ## Example
+/// ```cairo
+/// fn main() {
+///     let mut a = 1_u32;
+///     while a <= 10 {
+///         a += 1;
+///     }
+/// }
+/// ```
+///
+/// Can be optimized to:
+/// ```cairo
+/// fn main() {
+///     let mut a = 1_u32;
+///     while a != 10 {
+///         a += 1;
+///     }
+/// }
+/// ```
 impl Lint for InefficientWhileComparison {
     fn allowed_name(&self) -> &'static str {
         "inefficient_while_comp"

@@ -16,6 +16,38 @@ use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
 pub struct CollapsibleIf;
 
+/// ## What it does
+///
+/// Checks for nested `if` statements that can be collapsed into a single `if` statement.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() {
+///     let x = true;
+///     let y = true;
+///     let z = false;
+///
+///     if x || z {
+///         if y && z {
+///             println!("Hello");
+///         }
+///     }
+/// }
+/// ```
+///
+/// Can be collapsed to
+///
+/// ```cairo
+/// fn main() {
+///     let x = true;
+///     let y = true;
+///     let z = false;
+///     if (x || z) && (y && z) {
+///         println!("Hello");
+///     }
+/// }
+/// ```
 impl Lint for CollapsibleIf {
     fn allowed_name(&self) -> &'static str {
         "collapsible_if"
@@ -38,20 +70,6 @@ impl Lint for CollapsibleIf {
     }
 }
 
-/// Checks for
-/// ```ignore
-/// if cond {
-///     if second_cond {
-///         ...
-///     }
-/// }
-/// ```
-/// This can be collapsed to
-/// ```ignore
-/// if cond && second_cond {
-///     ...
-/// }
-/// ```
 pub fn check_collapsible_if(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,

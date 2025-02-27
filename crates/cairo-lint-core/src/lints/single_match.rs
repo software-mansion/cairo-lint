@@ -17,6 +17,26 @@ use crate::queries::{get_all_function_bodies, get_all_match_expressions};
 
 pub struct DestructMatch;
 
+/// ## What it does
+///
+/// Checks for matches that do something only in 1 arm and can be rewrote as an `if let`
+///
+/// ## Example
+///
+/// ```cairo
+/// let var = Option::Some(1_u32);
+/// match var {
+///     Option::Some(val) => do_smth(val),
+///     _ => (),
+/// }
+/// ```
+/// Which can be rewritten as
+///
+/// ```cairo
+/// if let Option::Some(val) = var {
+///     do_smth(val),
+/// }
+/// ```
 impl Lint for DestructMatch {
     fn allowed_name(&self) -> &'static str {
         "destruct_match"
@@ -41,6 +61,26 @@ impl Lint for DestructMatch {
 
 pub struct EqualityMatch;
 
+/// ## What it does
+///
+/// Checks for matches that do something only in 1 arm and can be rewrote as an `if`
+///
+/// ## Example
+///
+/// ```cairo
+/// match variable {
+///     Option::None => println!("None"),
+///     Option::Some => (),
+/// };
+/// ```
+///
+/// Which can be probably rewritten as
+///
+/// ```cairo
+/// if variable.is_none() {
+///     println!("None");
+/// }
+/// ```
 impl Lint for EqualityMatch {
     fn allowed_name(&self) -> &'static str {
         "equality_match"
@@ -55,20 +95,6 @@ impl Lint for EqualityMatch {
     }
 }
 
-/// Checks for matches that do something only in 1 arm and can be rewrote as an `if let`
-/// ```ignore
-/// let var = Option::Some(1_u32);
-/// match var {
-///     Option::Some(val) => do_smth(val),
-///     _ => (),
-/// }
-/// ```
-/// Which can be rewritten as
-/// ```ignore
-/// if let Option::Some(val) = var {
-///     do_smth(val),
-/// }
-/// ```
 pub fn check_single_matches(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
