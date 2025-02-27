@@ -1,6 +1,6 @@
 name: Feature Request
 description: Suggest an idea for enhancing Cairo language linter.
-labels: Feature
+type: Feature
 body:
   - type: markdown
     attributes:

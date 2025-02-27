@@ -321,13 +321,13 @@ fn check_is_add_or_sub_one(
     if_chain! {
         if let ExprFunctionCallArg::Value(v) = rhs;
         if let Expr::Literal(ref litteral_expr) = arenas.exprs[*v];
-        if litteral_expr.value != 1.into();
+        if litteral_expr.value == 1.into();
         then {
-            return false;
+            return true;
         }
     }
 
-    true
+    false
 }
 
 /// Rewrites a manual implementation of int ge plus one x >= y + 1

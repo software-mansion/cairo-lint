@@ -652,7 +652,7 @@ dependencies = [
 
 [[package]]
 name = "cairo-lint-core"
-version = "2.9.2"
+version = "2.10.0"
 dependencies = [
  "annotate-snippets",
  "anyhow",
@@ -1713,7 +1713,7 @@ dependencies = [
 
 [[package]]
 name = "scarb-cairo-lint"
-version = "2.9.2"
+version = "2.10.0"
 dependencies = [
  "annotate-snippets",
  "anyhow",
