@@ -1,0 +1,28 @@
+name: Website Deploy
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "website-deploy"
+  cancel-in-progress: true
+
+jobs:
+  build-website:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./website
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18.x"
+      - uses: actions/configure-pages@v5
+      - run: npm ci
+      - run: npm run build
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: website/.vitepress/dist

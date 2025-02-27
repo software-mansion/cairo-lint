@@ -19,6 +19,20 @@ include that information in the pull request description.
 
 In order to add a new rule, you must extend a [context](crates/cairo-lint-core/src/context.rs) with a new lint or whole lint group.
 
+Each individual lint rule should be documented. When implementing [Lint trait](crates/cairo-lint-core/src/context.rs#L118) for the Lint rule, remember to include a documentation for it which should look like this:
+
+```rust
+/// ## What it does
+///
+/// ## Example
+/// ```cairo
+/// // example code
+/// ```
+impl Lint for MyRule {
+  // implementation ...
+}
+```
+
 ## Testing
 
 ### Running tests

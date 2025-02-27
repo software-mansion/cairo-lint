@@ -1,0 +1,207 @@
+[
+  {
+    "name": "bitwise_for_parity_check",
+    "docs": "## What it does\n\n## Example\n```cairo\nlet a = 5;\n```",
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/bitwise_for_parity_check.rs#L23"
+  },
+  {
+    "name": "bool_comparison",
+    "docs": "Tutaj here.",
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/bool_comparison.rs#L18"
+  },
+  {
+    "name": "break_unit",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/breaks.rs#L15"
+  },
+  {
+    "name": "impossible_comparison",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/double_comparison.rs#L24"
+  },
+  {
+    "name": "simplifiable_comparison",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/double_comparison.rs#L43"
+  },
+  {
+    "name": "redundant_comparison",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/double_comparison.rs#L71"
+  },
+  {
+    "name": "contradictory_comparison",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/double_comparison.rs#L98"
+  },
+  {
+    "name": "double_parens",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/double_parens.rs#L15"
+  },
+  {
+    "name": "duplicate_underscore_args",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/duplicate_underscore_args.rs#L12"
+  },
+  {
+    "name": "div_eq_op",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/eq_op.rs#L17"
+  },
+  {
+    "name": "eq_comp_op",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/eq_op.rs#L34"
+  },
+  {
+    "name": "neq_comp_op",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/eq_op.rs#L50"
+  },
+  {
+    "name": "eq_diff_op",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/eq_op.rs#L66"
+  },
+  {
+    "name": "eq_bitwise_op",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/eq_op.rs#L82"
+  },
+  {
+    "name": "eq_logical_op",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/eq_op.rs#L99"
+  },
+  {
+    "name": "erasing_op",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/erasing_op.rs#L16"
+  },
+  {
+    "name": "collapsible_if",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/ifs/collapsible_if.rs#L19"
+  },
+  {
+    "name": "collapsible_if_else",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/ifs/collapsible_if_else.rs#L21"
+  },
+  {
+    "name": "equatable_if_let",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/ifs/equatable_if_let.rs#L17"
+  },
+  {
+    "name": "ifs_same_cond",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/ifs/ifs_same_cond.rs#L14"
+  },
+  {
+    "name": "int_ge_plus_one",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/int_op_one.rs#L16"
+  },
+  {
+    "name": "int_ge_min_one",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/int_op_one.rs#L40"
+  },
+  {
+    "name": "int_le_plus_one",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/int_op_one.rs#L64"
+  },
+  {
+    "name": "int_le_min_one",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/int_op_one.rs#L88"
+  },
+  {
+    "name": "loop_for_while",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/loops/loop_for_while.rs#L19"
+  },
+  {
+    "name": "loop_match_pop_front",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/loops/loop_match_pop_front.rs#L28"
+  },
+  {
+    "name": "manual_err",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_err.rs#L16"
+  },
+  {
+    "name": "manual_expect",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_expect.rs#L21"
+  },
+  {
+    "name": "manual_expect_err",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_expect_err.rs#L27"
+  },
+  {
+    "name": "manual_is_some",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_is.rs#L16"
+  },
+  {
+    "name": "manual_is_none",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_is.rs#L40"
+  },
+  {
+    "name": "manual_is_ok",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_is.rs#L64"
+  },
+  {
+    "name": "manual_is_err",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_is.rs#L88"
+  },
+  {
+    "name": "manual_ok",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_ok.rs#L16"
+  },
+  {
+    "name": "manual_ok_or",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_ok_or.rs#L27"
+  },
+  {
+    "name": "manual_unwrap_or_default",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_unwrap_or_default.rs#L22"
+  },
+  {
+    "name": "panic",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/panic.rs#L18"
+  },
+  {
+    "name": "inefficient_while_comp",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/performance.rs#L12"
+  },
+  {
+    "name": "redundant_op",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/redundant_op.rs#L15"
+  },
+  {
+    "name": "destruct_match",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/single_match.rs#L20"
+  },
+  {
+    "name": "equality_match",
+    "docs": null,
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/single_match.rs#L44"
+  }
+]

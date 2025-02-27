@@ -14,6 +14,12 @@ use super::AND;
 
 pub struct BitwiseForParity;
 
+/// ## What it does
+///
+/// ## Example
+/// ```cairo
+/// let a = 5;
+/// ```
 impl Lint for BitwiseForParity {
     fn allowed_name(&self) -> &'static str {
         "bitwise_for_parity_check"
