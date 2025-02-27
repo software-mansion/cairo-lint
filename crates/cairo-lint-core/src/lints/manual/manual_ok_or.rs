@@ -48,7 +48,6 @@ pub struct ManualOkOr;
 ///     let _foo = foo.ok_or('this is an err');
 /// }
 /// ```
-
 impl Lint for ManualOkOr {
     fn allowed_name(&self) -> &'static str {
         "manual_ok_or"

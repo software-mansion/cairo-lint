@@ -382,6 +382,7 @@ pub fn get_name_for_diagnostic_message(message: &str) -> Option<&'static str> {
         .map(|rule| rule.allowed_name())
 }
 
+#[allow(clippy::borrowed_box)]
 /// Finds the lint by it's struct's name.
 /// By struct name we mean the last part of the path of the lint rule.
 /// For example, for `crate::lints::bool_comparison::BoolComparison` the struct name is `BoolComparison`.

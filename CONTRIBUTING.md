@@ -61,7 +61,7 @@ cargo insta review
 
 ### Manual instructions
 
-Each lint should have its own tests and should be e tensive. To create a new test for a lint you need to create a new file/module
+Each lint should have its own tests and should be extensive. To create a new test for a lint you need to create a new file/module
 in the [test_files folder](./crates/cairo-lint-core/tests) and should be named as your lint. The file should
 
 As for tests, we are using [insta](https://insta.rs/) snapshot library. 

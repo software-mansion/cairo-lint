@@ -126,7 +126,7 @@
   },
   {
     "name": "loop_match_pop_front",
-    "docs": "## What it does\n\nChecks for loops that are used to iterate over a span using `pop_front`.\n\n## Example\n\n```cairo\nlet a: Span<u32> = array![1, 2, 3].span();\nloop {\n   match a.pop_front() {\n       Option::Some(val) => {do_smth(val); },\n       Option::None => { break; }\n   }\n}\n```\n\nWhich can be rewritten as\n\n```cairo\nlet a: Span<u32> = array![1, 2, 3].span();\nfor val in a {\n    do_smth(val);\n}\n```",
+    "docs": "## What it does\n\nChecks for loops that are used to iterate over a span using `pop_front`.\n\n## Example\n\n```cairo\nlet a: Span<u32> = array![1, 2, 3].span();\nloop {\n    match a.pop_front() {\n        Option::Some(val) => {do_smth(val); },\n        Option::None => { break; }\n    }\n}\n```\n\nWhich can be rewritten as\n\n```cairo\nlet a: Span<u32> = array![1, 2, 3].span();\nfor val in a {\n    do_smth(val);\n}\n```",
     "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/loops/loop_match_pop_front.rs#L52"
   },
   {
@@ -161,7 +161,7 @@
   },
   {
     "name": "manual_is_err",
-    "docs": "## What it does\n\nChecks for manual implementations of `is_err`.\n\n## Example\n\n```cairo\nfn main() {\n  let res_val: Result<i32> = Result::Err('err');\n  let _a = match res_val {\n      Result::Ok(_) => false,\n      Result::Err(_) => true\n  };\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n  let res_val: Result<i32> = Result::Err('err');\n  let _a = res_val.is_err();\n}\n```",
+    "docs": "## What it does\n\nChecks for manual implementations of `is_err`.\n\n## Example\n\n```cairo\nfn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    let _a = match res_val {\n        Result::Ok(_) => false,\n        Result::Err(_) => true\n    };\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    let _a = res_val.is_err();\n}\n```",
     "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_is.rs#L184"
   },
   {
@@ -172,7 +172,7 @@
   {
     "name": "manual_ok_or",
     "docs": "## What it does\n\nChecks for manual implementations of ok_or.\n\n## Example\n\n```cairo\nfn main() {\n    let foo: Option<i32> = Option::None;\n    let _foo = match foo {\n        Option::Some(v) => Result::Ok(v),\n        Option::None => Result::Err('this is an err'),\n    };\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let foo: Option<i32> = Option::None;\n    let _foo = foo.ok_or('this is an err');\n}\n```",
-    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_ok_or.rs#L52"
+    "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_ok_or.rs#L51"
   },
   {
     "name": "manual_unwrap_or_default",

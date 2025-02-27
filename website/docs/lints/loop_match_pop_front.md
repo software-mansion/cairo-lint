@@ -11,10 +11,10 @@ Checks for loops that are used to iterate over a span using `pop_front`.
 ```cairo
 let a: Span<u32> = array![1, 2, 3].span();
 loop {
-   match a.pop_front() {
-       Option::Some(val) => {do_smth(val); },
-       Option::None => { break; }
-   }
+    match a.pop_front() {
+        Option::Some(val) => {do_smth(val); },
+        Option::None => { break; }
+    }
 }
 ```
 

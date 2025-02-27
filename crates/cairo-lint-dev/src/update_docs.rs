@@ -38,10 +38,12 @@ impl LintDoc {
         let struct_start_line = value.pointer("/span/begin/0").unwrap().as_u64().unwrap();
         LintDoc {
             name: find_lint_by_struct_name(&lint_struct_name)
-                .expect(&format!(
-                    "Could not find the lint {} inside the Lint Context.",
-                    lint_struct_name
-                ))
+                .unwrap_or_else(|| {
+                    panic!(
+                        "Could not find the lint inside the Lint Context: {}",
+                        lint_struct_name
+                    )
+                })
                 .allowed_name()
                 .to_string(),
             docs: value.get("docs").and_then(|doc| {
@@ -144,7 +146,7 @@ fn get_docs_as_json() -> anyhow::Result<Vec<LintDoc>> {
                 .filter(|value| {
                     value
                         .pointer("/inner/impl/trait/path")
-                        .map_or(false, |path| path == "Lint")
+                        .is_some_and(|path| path == "Lint")
                 })
                 .map(LintDoc::from_rustdoc_json_item)
                 .collect());

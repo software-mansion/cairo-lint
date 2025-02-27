@@ -682,7 +682,6 @@ dependencies = [
  "cairo-lint-core",
  "clap",
  "if_chain",
- "minijinja",
  "scarb-ui",
  "serde",
  "serde_json",
@@ -1326,15 +1325,6 @@ checksum = "edaa5264bc1f7668bc12e10757f8f529a526656c796cc2106cf2be10c5b8d483"
 dependencies = [
  "log",
  "sprs",
-]
-
-[[package]]
-name = "minijinja"
-version = "2.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cff7b8df5e85e30b87c2b0b3f58ba3a87b68e133738bf512a7713769326dbca9"
-dependencies = [
- "serde",
 ]
 
 [[package]]
