@@ -29,7 +29,7 @@ license-file = "LICENSE"
 # for manipulating these dependencies.
 [workspace.dependencies]
 annotate-snippets = "0.11.5"
-anyhow = "1.0.95"
+anyhow = "1.0.96"
 cairo-lang-compiler = "*"
 cairo-lang-defs = "*"
 cairo-lang-diagnostics = "*"
@@ -39,12 +39,12 @@ cairo-lang-starknet = "*"
 cairo-lang-syntax = "*"
 cairo-lang-test-plugin = "*"
 cairo-lang-utils = "*"
-clap = { version = "4.5.27", features = ["derive"]}
+clap = { version = "4.5.31", features = ["derive"]}
 ctor = "0.2.9"
 if_chain = "1.0.2"
 insta = "1.41.0"
-itertools = "0.13.0"
-log = "0.4.25"
+itertools = "0.14.0"
+log = "0.4.26"
 num-bigint = "0.4.6"
 pretty_assertions = "1.4.1"
 serde = { version = "1", features = ["serde_derive"] }
