@@ -1,5 +1,3 @@
-<script setup></script>
-
 <template>
     <footer class="vp-doc">
         <a class="logo" href="https://swmansion.com/" rel="noopener noreferrer" target="_blank">

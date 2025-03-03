@@ -38,3 +38,18 @@ jobs:
         run: git clone https://github.com/starkware-libs/cairo
       - name: Run cargo test
         run: CORELIB_PATH="$(pwd)/cairo/corelib/src" cargo test
+  check-website:
+    name: Website prettier check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./website
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18.x"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci
+      - run: npm run fmt:check

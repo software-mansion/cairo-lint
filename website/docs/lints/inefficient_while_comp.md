@@ -1,12 +1,13 @@
 # inefficient_while_comp
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/performance.rs#L35)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/performance.rs#L37)
 
 ## What it does
 
 Checks if the while loop exit condition is using [`<`, `<=`, `>=`, `>`] operators.
 
 ## Example
+
 ```cairo
 fn main() {
     let mut a = 1_u32;
@@ -17,6 +18,7 @@ fn main() {
 ```
 
 Can be optimized to:
+
 ```cairo
 fn main() {
     let mut a = 1_u32;

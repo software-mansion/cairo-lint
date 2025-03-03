@@ -1,19 +1,19 @@
 {
-  "name": "cairo-lint-website",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "vitepress dev",
-    "build": "vitepress build",
-    "clean": "rm -rf .vitepress/cache .vitepress/dist",
-    "fmt": "prettier --write .",
-    "fmt:check": "prettier --check .",
-    "preview": "vitepress preview"
-  },
-  "dependencies": {
-    "cairo-tm-grammar": "github:software-mansion-labs/cairo-tm-grammar",
-    "prettier": "3.3.2",
-    "vitepress": "1.2.3",
-    "vue": "3.4.30"
-  }
+    "name": "cairo-lint-website",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "vitepress dev",
+        "build": "vitepress build",
+        "clean": "rm -rf .vitepress/cache .vitepress/dist",
+        "fmt": "prettier --write .",
+        "fmt:check": "prettier --check .",
+        "preview": "vitepress preview"
+    },
+    "dependencies": {
+        "cairo-tm-grammar": "github:software-mansion-labs/cairo-tm-grammar",
+        "prettier": "3.3.2",
+        "vitepress": "1.2.3",
+        "vue": "3.4.30"
+    }
 }

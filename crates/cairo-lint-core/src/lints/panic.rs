@@ -20,6 +20,7 @@ pub struct PanicInCode;
 /// Checks for panic usages.
 ///
 /// ## Example
+///
 /// ```cairo
 /// fn main() {
 ///     panic!("panic");

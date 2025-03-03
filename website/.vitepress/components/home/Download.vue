@@ -1,8 +1,3 @@
-<script setup>
-import { computed } from "vue";
-import { withBase } from "vitepress";
-</script>
-
 <template>
     <div class="container vp-doc">
         <h1>Installation</h1>

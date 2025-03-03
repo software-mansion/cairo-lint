@@ -3,7 +3,6 @@ resolver = "2"
 members = [
   "crates/cairo-lint-cli",
   "crates/cairo-lint-core",
-  "crates/cairo-lint-dev",
   "xtask"
 ]
 
@@ -48,10 +47,10 @@ itertools = "0.13.0"
 log = "0.4.25"
 num-bigint = "0.4.6"
 pretty_assertions = "1.4.1"
-smol_str = { version = "0.3.2", features = ["serde"] }
-test-case = "3.0"
 serde = { version = "1", features = ["serde_derive"] }
 serde_json = { version = "1" }
+smol_str = { version = "0.3.2", features = ["serde"] }
+test-case = "3.0"
 
 # Here we specify real dependency specifications for Cairo crates *if* currently we want to use
 # a particular unreleased commit (which is frequent mid-development).

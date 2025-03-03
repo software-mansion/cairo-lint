@@ -30,6 +30,7 @@ pub struct DestructMatch;
 ///     _ => (),
 /// }
 /// ```
+///
 /// Which can be rewritten as
 ///
 /// ```cairo

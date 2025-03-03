@@ -36,10 +36,10 @@ export default defineConfig({
         ["meta", { httpEquiv: "Content-Language", content: lang }],
         ["link", { rel: "icon", href: `${base}favicon.svg`, type: "image/x-icon" }],
         ["link", { rel: "apple-touch-icon", href: `${base}apple-touch-icon.png` }],
-        ["meta", { name: "apple-mobile-web-app-title", content: "Cairo-lint" }],
+        ["meta", { name: "apple-mobile-web-app-title", content: "Cairo lint" }],
         ["meta", { name: "twitter:card", content: "summary_large_image" }],
         ["meta", { name: "twitter:site", content: "@swmansionxyz" }],
-        ["meta", { name: "twitter:creator", content: "@jajakobyly" }],
+        ["meta", { name: "twitter:creator", content: "@_Tobysmy_" }],
         [
             "meta",
             {
@@ -72,9 +72,9 @@ export default defineConfig({
         logo: {
             light: "/favicon.svg",
             dark: "/favicon.svg",
-            alt: "Cairo-lint",
+            alt: "Cairo lint",
         },
-        siteTitle: "Cairo Lint",
+        siteTitle: "Cairo lint",
 
         nav: [
             { text: "Download", link: "https://docs.swmansion.com/scarb/download.html" },

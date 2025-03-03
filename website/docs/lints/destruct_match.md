@@ -1,6 +1,6 @@
 # destruct_match
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/single_match.rs#L40)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/single_match.rs#L41)
 
 ## What it does
 
@@ -15,6 +15,7 @@ match var {
     _ => (),
 }
 ```
+
 Which can be rewritten as
 
 ```cairo

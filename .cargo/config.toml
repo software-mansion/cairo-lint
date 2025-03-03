@@ -1,3 +1,2 @@
 [alias]
 xtask = "run --quiet --package xtask --"
-dev = "run --package cairo-lint-dev --bin cairo-lint-dev --manifest-path crates/cairo-lint-dev/Cargo.toml --"

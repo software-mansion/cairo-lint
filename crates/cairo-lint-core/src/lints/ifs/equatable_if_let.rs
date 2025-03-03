@@ -32,7 +32,7 @@ pub struct EquatableIfLet;
 /// if a == Some(2) {
 ///     // Code
 /// }
-/// ````
+/// ```
 impl Lint for EquatableIfLet {
     fn allowed_name(&self) -> &'static str {
         "equatable_if_let"

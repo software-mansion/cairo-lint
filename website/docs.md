@@ -2,17 +2,18 @@
 
 Cairo lint is a static code analysis tool for the Cairo language.
 
-It can help you improve your code quality and consistency by checking the codebase against a set of predefined rules, called lints. It can also automatically fix some of the issues found.
+It can help you improve your code quality and consistency by checking the codebase against a set of predefined rules, called lints.
+It can also automatically fix some of the issues found.
 
 This tool is mostly depended on the separate lint rules. You can also read about every each of them here in the `Lints` section of the documentation.
 
 ## Installation
 
-Currently, linter is provided within the [Scarb](https://docs.swmansion.com/scarb/) toolchain. You can install and download it [here](https://docs.swmansion.com/scarb/download.html)
+Cairo lint is provided within the [Scarb](https://docs.swmansion.com/scarb/) toolchain. You can install and download it [here](https://docs.swmansion.com/scarb/download.html)
 
 ## Getting started
 
-To run `lint` in the current project, just type:
+To run Cairo lint in the current project, just type:
 
 ```sh
 scarb lint

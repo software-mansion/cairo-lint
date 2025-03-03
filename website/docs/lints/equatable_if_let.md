@@ -20,4 +20,4 @@ Could be replaced by
 if a == Some(2) {
     // Code
 }
-````
+```

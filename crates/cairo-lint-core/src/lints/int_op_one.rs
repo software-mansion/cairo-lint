@@ -65,6 +65,7 @@ pub struct IntegerGreaterEqualMinusOne;
 /// Check for unnecessary sub operation in integer >= comparison.
 ///
 /// ## Example
+///
 /// ```cairo
 /// fn main() {
 ///     let x: u32 = 1;
@@ -166,6 +167,7 @@ pub struct IntegerLessEqualMinusOne;
 ///     if x <= y - 1 {}
 /// }
 /// ```
+///
 /// Can be simplified to:
 ///
 /// ```cairo

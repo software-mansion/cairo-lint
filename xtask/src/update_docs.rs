@@ -1,13 +1,9 @@
-//! Main part of this module is the rustdoc. It is used to generate the documentation for the lints.
-//! Currently the `rustdoc 1.84.1 (e71f9a9a9 2025-01-27)` is being used here.
-//! Please update the version here if you plan to use later versions.
-
-use std::{env, fs, process::Command};
-
+use anyhow::Result;
 use cairo_lint_core::context::find_lint_by_struct_name;
-use scarb_ui::{components::Status, Ui};
+use clap::Parser;
 use serde::Serialize;
-use serde_json::Value;
+use serde_json::{ser::PrettyFormatter, Serializer, Value};
+use std::{env, fs, process::Command};
 
 static RUSTDOC_PATH: &str = "target/doc/cairo_lint_core.json";
 static LINT_METADATA_OUTPUT_PATH: &str = "website/lints_metadata.json";
@@ -15,7 +11,7 @@ static LINT_REPO_BASE_URL: &str = "https://github.com/software-mansion/cairo-lin
 static LINT_DOCS_BASE_PATH: &str = "website/docs/lints/";
 
 #[derive(Debug, Serialize)]
-pub struct LintDoc {
+struct LintDoc {
     name: String,
     docs: Option<String>,
     source_link: String,
@@ -58,39 +54,38 @@ impl LintDoc {
     }
 }
 
-pub fn update_docs(ui: &Ui) {
+#[derive(Parser)]
+pub struct Args;
+
+pub fn main(_: Args) -> Result<()> {
     let docs = match get_docs_as_json() {
         Ok(docs) => docs,
         Err(e) => {
-            ui.print(Status::new(
-                "error",
-                &format!("Failed to get docs as json: {:?}", e),
-            ));
-            return;
+            eprintln!("Failed to get docs as json: {:?}", e);
+            return Err(e);
         }
     };
+
+    let mut buf: Vec<u8> = Vec::new();
+    let formatter = PrettyFormatter::with_indent(b"    ");
+    let mut serializer = Serializer::with_formatter(&mut buf, formatter);
+    docs.serialize(&mut serializer).unwrap();
 
     // Write the docs to the lints_metadata.json file inside the website directory.
     match fs::write(
         LINT_METADATA_OUTPUT_PATH,
-        serde_json::to_string_pretty(&docs).unwrap(),
+        String::from_utf8(buf).unwrap() + "\n",
     ) {
-        Ok(_) => ui.print(Status::new(
-            "info",
-            &format!(
-                "Docs metadata successfully written to {}",
-                LINT_METADATA_OUTPUT_PATH
-            ),
-        )),
+        Ok(_) => println!(
+            "Docs metadata successfully written to {}",
+            LINT_METADATA_OUTPUT_PATH
+        ),
         Err(e) => {
-            ui.print(Status::new(
-                "error",
-                &format!(
-                    "Failed to write docs to {}: {:?}",
-                    LINT_METADATA_OUTPUT_PATH, e
-                ),
-            ));
-            return;
+            eprintln!(
+                "Failed to write docs to {}: {:?}",
+                LINT_METADATA_OUTPUT_PATH, e
+            );
+            return Err(e.into());
         }
     };
 
@@ -101,16 +96,15 @@ pub fn update_docs(ui: &Ui) {
         fs::write(
             &doc_path,
             format!(
-                "# {}\n\n[Source Code]({})\n\n{}",
+                "# {}\n\n[Source Code]({})\n\n{}\n",
                 doc.name, doc.source_link, doc_content
             ),
         )
         .unwrap();
-        ui.print(Status::new(
-            "info",
-            &format!("Docs successfully written to {}", doc_path),
-        ))
+        println!("Docs successfully written to {}", doc_path);
     }
+
+    Ok(())
 }
 
 fn get_docs_as_json() -> anyhow::Result<Vec<LintDoc>> {
