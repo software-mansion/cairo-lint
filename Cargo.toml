@@ -49,6 +49,7 @@ num-bigint = "0.4.6"
 pretty_assertions = "1.4.1"
 smol_str = { version = "0.3.2", features = ["serde"] }
 test-case = "3.0"
+which = "7"
 
 # Here we specify real dependency specifications for Cairo crates *if* currently we want to use
 # a particular unreleased commit (which is frequent mid-development).
