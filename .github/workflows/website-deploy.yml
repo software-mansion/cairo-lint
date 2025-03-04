@@ -1,5 +1,8 @@
 name: Website Deploy
 
+on:
+  workflow_dispatch:
+
 permissions:
   contents: read
   pages: write
@@ -10,7 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-website:
+  build-and-deploy:
+    name: Build and deploy documentation website
     runs-on: ubuntu-latest
     defaults:
       run:
