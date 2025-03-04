@@ -37,7 +37,7 @@
                 <a href="https://swmansion.com/" rel="noopener noreferrer" target="_blank"
                     >Software Mansion</a
                 >
-                2023.
+                2025.
             </span>
             All trademarks and copyrights belong to their respective owners.
         </span>
