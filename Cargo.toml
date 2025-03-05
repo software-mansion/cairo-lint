@@ -1,7 +1,6 @@
 [workspace]
 resolver = "2"
 members = [
-  "crates/cairo-lint-cli",
   "crates/cairo-lint-core",
   "xtask"
 ]
