@@ -110,15 +110,15 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
             // Create our db
             let mut db = if args.test {
                 RootDatabase::builder()
-                    .with_plugin_suite(test_plugin_suite())
-                    .with_plugin_suite(cairo_lint_plugin_suite())
-                    .with_plugin_suite(starknet_plugin_suite())
+                    .with_default_plugin_suite(test_plugin_suite())
+                    .with_default_plugin_suite(cairo_lint_plugin_suite())
+                    .with_default_plugin_suite(starknet_plugin_suite())
                     .with_cfg(to_cairo_cfg(&compilation_unit.cfg))
                     .build()?
             } else {
                 RootDatabase::builder()
-                    .with_plugin_suite(cairo_lint_plugin_suite())
-                    .with_plugin_suite(starknet_plugin_suite())
+                    .with_default_plugin_suite(cairo_lint_plugin_suite())
+                    .with_default_plugin_suite(starknet_plugin_suite())
                     .with_cfg(to_cairo_cfg(&compilation_unit.cfg))
                     .build()?
             };

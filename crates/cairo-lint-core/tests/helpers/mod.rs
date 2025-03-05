@@ -47,9 +47,9 @@ macro_rules! test_lint_fixer {
     let mut testing_suite = ::cairo_lang_semantic::plugin::PluginSuite::default();
     testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint_core::plugin::CairoLint::new(true)));
     let mut db = ::cairo_lang_compiler::db::RootDatabase::builder()
-      .with_plugin_suite(::cairo_lang_semantic::inline_macros::get_default_plugin_suite())
-      .with_plugin_suite(::cairo_lang_test_plugin::test_plugin_suite())
-      .with_plugin_suite(testing_suite)
+      .with_default_plugin_suite(::cairo_lang_semantic::inline_macros::get_default_plugin_suite())
+      .with_default_plugin_suite(::cairo_lang_test_plugin::test_plugin_suite())
+      .with_default_plugin_suite(testing_suite)
       .build()
       .unwrap();
     let diags = $crate::helpers::get_diags(
@@ -103,9 +103,9 @@ macro_rules! test_lint_diagnostics {
     let mut testing_suite = ::cairo_lang_semantic::plugin::PluginSuite::default();
     testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint_core::plugin::CairoLint::new(true)));
     let mut db = ::cairo_lang_compiler::db::RootDatabase::builder()
-      .with_plugin_suite(::cairo_lang_semantic::inline_macros::get_default_plugin_suite())
-      .with_plugin_suite(::cairo_lang_test_plugin::test_plugin_suite())
-      .with_plugin_suite(testing_suite)
+      .with_default_plugin_suite(::cairo_lang_semantic::inline_macros::get_default_plugin_suite())
+      .with_default_plugin_suite(::cairo_lang_test_plugin::test_plugin_suite())
+      .with_default_plugin_suite(testing_suite)
       .build()
       .unwrap();
     let diags = $crate::helpers::get_diags(
