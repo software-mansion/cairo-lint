@@ -53,7 +53,7 @@ macro_rules! test_lint_fixer {
       .build()
       .unwrap();
     let diags = $crate::helpers::get_diags(
-      ::cairo_lang_semantic::test_utils::setup_test_crate_ex(db.upcast(), $before, Some($crate::CRATE_CONFIG)),
+      ::cairo_lang_semantic::test_utils::setup_test_crate_ex(db.upcast(), $before, Some($crate::CRATE_CONFIG), None),
       &mut db,
     );
     let semantic_diags: Vec<_> = diags
@@ -109,7 +109,7 @@ macro_rules! test_lint_diagnostics {
       .build()
       .unwrap();
     let diags = $crate::helpers::get_diags(
-      ::cairo_lang_semantic::test_utils::setup_test_crate_ex(db.upcast(), $before, Some($crate::CRATE_CONFIG)),
+      ::cairo_lang_semantic::test_utils::setup_test_crate_ex(db.upcast(), $before, Some($crate::CRATE_CONFIG), None),
       &mut db,
     );
     let renderer = ::annotate_snippets::Renderer::plain();
