@@ -45,6 +45,11 @@
         "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/duplicate_underscore_args.rs#L23"
     },
     {
+        "name": "enum_variant_names",
+        "docs": "## What it does\n\nDetects enumeration variants that are prefixed or suffixed by the same characters.\n\n## Example\n\n```cairo\nenum Cake {\n    BlackForestCake,\n    HummingbirdCake,\n    BattenbergCake,\n}\n```\n\nCan be simplified to:\n\n```cairo\nenum Cake {\n    BlackForest,\n    Hummingbird,\n    Battenberg,\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/enum_variant_names.rs#L36"
+    },
+    {
         "name": "div_eq_op",
         "docs": "## What it does\n\nChecks for division with identical operands.\n\n## Example\n\n```cairo\nfn foo(a: u256) -> u256 {\n    a / a\n}\n```\n\nCould be simplified by replacing the entire expression with 1:\n\n```cairo\nfn foo(a: u256) -> u256 {\n    1\n}\n```",
         "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/eq_op.rs#L36"
