@@ -13,6 +13,8 @@ use crate::lints::double_parens::check_double_parens;
 use crate::lints::double_parens::DoubleParens;
 use crate::lints::duplicate_underscore_args::check_duplicate_underscore_args;
 use crate::lints::duplicate_underscore_args::DuplicateUnderscoreArgs;
+use crate::lints::enum_variant_names::check_enum_variant_names;
+use crate::lints::enum_variant_names::EnumVariantNames;
 use crate::lints::eq_op::check_eq_op;
 use crate::lints::eq_op::BitwiseEqualityOperation;
 use crate::lints::eq_op::DifferenceEqualityOperation;
@@ -113,6 +115,7 @@ pub enum CairoLintKind {
     EqualityOperation,
     Performance,
     RedundantOperation,
+    EnumVariantNames,
 }
 
 pub trait Lint: Sync + Send {
@@ -299,6 +302,10 @@ impl LintContext {
             LintRuleGroup {
                 lints: vec![Box::new(RedundantOperation)],
                 check_function: check_redundant_operation,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(EnumVariantNames)],
+                check_function: check_enum_variant_names,
             },
         ]
     }
