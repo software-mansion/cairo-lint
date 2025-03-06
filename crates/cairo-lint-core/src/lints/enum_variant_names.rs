@@ -113,7 +113,7 @@ fn fix_enum_variant_names(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Syn
     Some((node, fixed_enum))
 }
 
-fn get_prefix_and_suffix(variant_names: &Vec<String>) -> (Vec<String>, Vec<String>) {
+fn get_prefix_and_suffix(variant_names: &[String]) -> (Vec<String>, Vec<String>) {
     let Some(first) = variant_names.first() else {
         return (vec![], vec![]);
     };
