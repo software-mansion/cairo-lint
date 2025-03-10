@@ -60,20 +60,22 @@ pub fn check_enum_variant_names(
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    if let ModuleItemId::Enum(enum_id) = item {
-        if let Ok(variants) = db.enum_variants(*enum_id) {
-            let variant_names: Vec<String> = variants.iter().map(|v| v.0.to_string()).collect();
+    let ModuleItemId::Enum(enum_id) = item else {
+        return;
+    };
+    let Ok(variants) = db.enum_variants(*enum_id) else {
+        return;
+    };
+    let variant_names: Vec<String> = variants.iter().map(|v| v.0.to_string()).collect();
 
-            let (prefix, suffix) = get_prefix_and_suffix(&variant_names);
+    let (prefix, suffix) = get_prefix_and_suffix(&variant_names);
 
-            if !prefix.is_empty() || !suffix.is_empty() {
-                diagnostics.push(PluginDiagnostic {
-                    stable_ptr: enum_id.untyped_stable_ptr(db.upcast()),
-                    message: EnumVariantNames.diagnostic_message().to_string(),
-                    severity: Severity::Warning,
-                });
-            }
-        }
+    if !prefix.is_empty() || !suffix.is_empty() {
+        diagnostics.push(PluginDiagnostic {
+            stable_ptr: enum_id.untyped_stable_ptr(db.upcast()),
+            message: EnumVariantNames.diagnostic_message().to_string(),
+            severity: Severity::Warning,
+        });
     }
 }
 
