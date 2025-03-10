@@ -75,6 +75,25 @@ impl AnalyzerPlugin for CairoLint {
     }
 }
 
+/// Plugin with `declared_allows` matching these of [`CairoLint`] that does not emit diagnostics.
+/// Add it when `CairoLint` is not present to avoid compiler warnings on unsupported
+/// `allow` attribute arguments.
+#[derive(Debug, Default)]
+pub struct CairoLintAllow;
+
+impl AnalyzerPlugin for CairoLintAllow {
+    fn diagnostics(&self, _db: &dyn SemanticGroup, _module_id: ModuleId) -> Vec<PluginDiagnostic> {
+        Vec::new()
+    }
+
+    fn declared_allows(&self) -> Vec<String> {
+        get_unique_allowed_names()
+            .iter()
+            .map(ToString::to_string)
+            .collect()
+    }
+}
+
 fn node_has_ascendants_with_allow_name_attr(
     db: &dyn SyntaxGroup,
     node: SyntaxNode,
