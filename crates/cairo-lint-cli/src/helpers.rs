@@ -8,9 +8,9 @@ use cairo_lang_filesystem::db::{
     CrateIdentifier, CrateSettings, DependencySettings, Edition, ExperimentalFeaturesConfig,
 };
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
+use cairo_lang_utils::smol_str::ToSmolStr;
 use scarb_metadata::{Cfg as ScarbCfg, CompilationUnitMetadata, PackageId, PackageMetadata};
 use semver::Version;
-use smol_str::ToSmolStr;
 
 /// Different targets for cairo.
 pub mod targets {
