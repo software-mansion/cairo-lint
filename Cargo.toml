@@ -58,3 +58,9 @@ test-case = "3.0"
 # on some of them directly.
 # This ensures no duplicate instances of Cairo crates are pulled in by mistake.
 [patch.crates-io]
+
+[profile.ci]
+inherits = "test"
+strip = "debuginfo"
+[profile.ci.package."rust-analyzer-salsa"]
+opt-level = 3
