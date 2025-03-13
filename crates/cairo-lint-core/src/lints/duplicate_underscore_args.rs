@@ -9,6 +9,17 @@ use crate::queries::get_all_checkable_functions;
 
 pub struct DuplicateUnderscoreArgs;
 
+/// ## What it does
+///
+/// Checks for functions that have the same argument name but prefix with `_`.
+///
+/// ## Example
+///
+/// This code will raise a warning because it can be difficult to differentiate between `test` and `_test`.
+///
+/// ```cairo
+/// fn foo(test: u32, _test: u32) {}
+/// ```
 impl Lint for DuplicateUnderscoreArgs {
     fn allowed_name(&self) -> &'static str {
         "duplicate_underscore_args"
@@ -24,8 +35,6 @@ impl Lint for DuplicateUnderscoreArgs {
     }
 }
 
-/// Checks for functions that have the same argument name but prefix with `_`. For example
-/// `fn foo(a, _a)`
 pub fn check_duplicate_underscore_args(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,

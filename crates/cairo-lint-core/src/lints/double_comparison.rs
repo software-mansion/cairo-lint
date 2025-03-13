@@ -16,18 +16,31 @@ use crate::context::{CairoLintKind, Lint};
 use crate::lints::{EQ, GE, GT, LE, LT};
 use crate::queries::{get_all_function_bodies, get_all_logical_operator_expressions};
 
-const IMPOSSIBLE_COMPARISON_LINT_NAME: &str = "impossible_comparison";
-const IMPOSSIBLE_COMPARISON: &str = "Impossible condition, always false";
-
 pub struct ImpossibleComparison;
 
+/// ## What it does
+///
+/// Checks for impossible comparisons. Those ones always return false.
+///
+/// ## Example
+///
+/// Here is an example of impossible comparison:
+///
+/// ```cairo
+/// fn main() {
+///     let x: u32 = 1;
+///     if x > 200 && x < 100 {
+///         //impossible to reach
+///     }
+/// }
+/// ```
 impl Lint for ImpossibleComparison {
     fn allowed_name(&self) -> &'static str {
-        IMPOSSIBLE_COMPARISON_LINT_NAME
+        "impossible_comparison"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        IMPOSSIBLE_COMPARISON
+        "Impossible condition, always false"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -35,18 +48,47 @@ impl Lint for ImpossibleComparison {
     }
 }
 
-const SIMPLIFIABLE_COMPARISON_LINT_NAME: &str = "simplifiable_comparison";
-const SIMPLIFIABLE_COMPARISON: &str = "This double comparison can be simplified.";
-
 pub struct SimplifiableComparison;
 
+/// ## What it does
+///
+/// Checks for double comparisons that can be simplified.
+/// Those are comparisons that can be simplified to a single comparison.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() -> bool {
+///     let x = 5_u32;
+///     let y = 10_u32;
+///     if x == y || x > y {
+///         true
+///     } else {
+///         false
+///     }
+/// }
+/// ```
+///
+/// The above code can be simplified to:
+///
+/// ```cairo
+/// fn main() -> bool {
+///     let x = 5_u32;
+///     let y = 10_u32;
+///     if x >= y {
+///         true
+///     } else {
+///         false
+///     }
+/// }
+/// ```
 impl Lint for SimplifiableComparison {
     fn allowed_name(&self) -> &'static str {
-        SIMPLIFIABLE_COMPARISON_LINT_NAME
+        "simplifiable_comparison"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        SIMPLIFIABLE_COMPARISON
+        "This double comparison can be simplified."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -61,20 +103,43 @@ impl Lint for SimplifiableComparison {
         fix_double_comparison(db, node)
     }
 }
-
-const REDUNDANT_COMPARISON_LINT_NAME: &str = "redundant_comparison";
-const REDUNDANT_COMPARISON: &str =
-    "Redundant double comparison found. Consider simplifying to a single comparison.";
 
 pub struct RedundantComparison;
 
+/// ## What it does
+///
+/// Checks for double comparisons that are redundant. Those are comparisons that can be simplified to a single comparison.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() -> bool {
+///     let x = 5_u32;
+///     let y = 10_u32;
+///     if x >= y || x <= y {
+///         true
+///     } else {
+///         false
+///     }
+/// }
+/// ```
+///
+/// Could be simplified to just:
+///
+/// ```cairo
+/// fn main() -> bool {
+///     let x = 5_u32;
+///     let y = 10_u32;
+///     true
+/// }
+/// ```
 impl Lint for RedundantComparison {
     fn allowed_name(&self) -> &'static str {
-        REDUNDANT_COMPARISON_LINT_NAME
+        "redundant_comparison"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        REDUNDANT_COMPARISON
+        "Redundant double comparison found. Consider simplifying to a single comparison."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -90,18 +155,42 @@ impl Lint for RedundantComparison {
     }
 }
 
-const CONTRADICTORY_COMPARISON_LINT_NAME: &str = "contradictory_comparison";
-const CONTRADICTORY_COMPARISON: &str = "This double comparison is contradictory and always false.";
-
 pub struct ContradictoryComparison;
 
+/// ## What it does
+///
+/// Checks for double comparisons that are contradictory. Those are comparisons that are always false.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() -> bool {
+///     let x = 5_u32;
+///     let y = 10_u32;
+///     if x < y && x > y {
+///         true
+///     } else {
+///         false
+///     }
+/// }
+/// ```
+///
+/// Could be simplified to just:
+///
+/// ```cairo
+/// fn main() -> bool {
+///     let x = 5_u32;
+///     let y = 10_u32;
+///     false
+/// }
+/// ```
 impl Lint for ContradictoryComparison {
     fn allowed_name(&self) -> &'static str {
-        CONTRADICTORY_COMPARISON_LINT_NAME
+        "contradictory_comparison"
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        CONTRADICTORY_COMPARISON
+        "This double comparison is contradictory and always false."
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -170,7 +259,7 @@ fn check_single_double_comparison(
         arenas,
     ) {
         diagnostics.push(PluginDiagnostic {
-            message: IMPOSSIBLE_COMPARISON.to_string(),
+            message: ImpossibleComparison.diagnostic_message().to_string(),
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Error,
         })
@@ -244,7 +333,7 @@ fn check_single_double_comparison(
         &logical_operator_exprs.op,
     ) {
         diagnostics.push(PluginDiagnostic {
-            message: SIMPLIFIABLE_COMPARISON.to_string(),
+            message: SimplifiableComparison.diagnostic_message().to_string(),
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Warning,
         });
@@ -254,7 +343,7 @@ fn check_single_double_comparison(
         &logical_operator_exprs.op,
     ) {
         diagnostics.push(PluginDiagnostic {
-            message: REDUNDANT_COMPARISON.to_string(),
+            message: RedundantComparison.diagnostic_message().to_string(),
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Warning,
         });
@@ -264,7 +353,7 @@ fn check_single_double_comparison(
         &logical_operator_exprs.op,
     ) {
         diagnostics.push(PluginDiagnostic {
-            message: CONTRADICTORY_COMPARISON.to_string(),
+            message: ContradictoryComparison.diagnostic_message().to_string(),
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Error,
         });

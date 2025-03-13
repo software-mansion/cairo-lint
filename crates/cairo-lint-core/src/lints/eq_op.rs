@@ -14,6 +14,25 @@ use super::{function_trait_name_from_fn_id, AND, DIV, EQ, GE, GT, LE, LT, NE, NO
 
 pub struct DivisionEqualityOperation;
 
+/// ## What it does
+///
+/// Checks for division with identical operands.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn foo(a: u256) -> u256 {
+///     a / a
+/// }
+/// ```
+///
+/// Could be simplified by replacing the entire expression with 1:
+///
+/// ```cairo
+/// fn foo(a: u256) -> u256 {
+///     1
+/// }
+/// ```
 impl Lint for DivisionEqualityOperation {
     fn allowed_name(&self) -> &'static str {
         "div_eq_op"
@@ -31,6 +50,25 @@ impl Lint for DivisionEqualityOperation {
 
 pub struct EqualComparisonOperation;
 
+/// ## What it does
+///
+/// Checks for comparison with identical operands.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn foo(a: u256) -> bool {
+///     a == a
+/// }
+/// ```
+///
+/// Could be simplified by replacing the entire expression with true:
+///
+/// ```cairo
+/// fn foo(a: u256) -> bool {
+///     true
+/// }
+/// ```
 impl Lint for EqualComparisonOperation {
     fn allowed_name(&self) -> &'static str {
         "eq_comp_op"
@@ -47,6 +85,29 @@ impl Lint for EqualComparisonOperation {
 
 pub struct NotEqualComparisonOperation;
 
+/// ## What it does
+///
+/// Checks for arithmetical comparison with identical operands.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn foo(a: u256) -> bool {
+///     let _z = a != a;
+///     let _y = a > a;
+///     a < a
+/// }
+/// ```
+///
+/// Could be simplified by replacing the entire expression with false:
+///
+/// ```cairo
+/// fn foo(a: u256) -> bool {
+///     let _z = false;
+///     let _y = false;
+///     false
+/// }
+/// ```
 impl Lint for NotEqualComparisonOperation {
     fn allowed_name(&self) -> &'static str {
         "neq_comp_op"
@@ -63,6 +124,25 @@ impl Lint for NotEqualComparisonOperation {
 
 pub struct DifferenceEqualityOperation;
 
+/// ## What it does
+///
+/// Checks for subtraction with identical operands.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn foo(a: u256) -> u256 {
+///     a - a
+/// }
+/// ```
+///
+/// Could be simplified by replacing the entire expression with zero:
+///
+/// ```cairo
+/// fn foo(a: u256) -> u256 {
+///     0
+/// }
+/// ```
 impl Lint for DifferenceEqualityOperation {
     fn allowed_name(&self) -> &'static str {
         "eq_diff_op"
@@ -79,6 +159,25 @@ impl Lint for DifferenceEqualityOperation {
 
 pub struct BitwiseEqualityOperation;
 
+/// ## What it does
+///
+/// Checks for bitwise operation with identical operands.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn foo(a: u256) -> u256 {
+///     a & a
+/// }
+/// ```
+///
+/// Could be simplified by replacing the entire expression with the operand:
+///
+/// ```cairo
+/// fn foo(a: u256) -> u256 {
+///     a
+/// }
+/// ```
 impl Lint for BitwiseEqualityOperation {
     fn allowed_name(&self) -> &'static str {
         "eq_bitwise_op"
@@ -96,6 +195,25 @@ impl Lint for BitwiseEqualityOperation {
 
 pub struct LogicalEqualityOperation;
 
+/// ## What it does
+///
+/// Checks for logical operation with identical operands.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn foo(a: u256) -> u256 {
+///     a & a
+/// }
+/// ```
+///
+/// Could be simplified by replacing the entire expression with the operand:
+///
+/// ```cairo
+/// fn foo(a: u256) -> u256 {
+///     a
+/// }
+/// ```
 impl Lint for LogicalEqualityOperation {
     fn allowed_name(&self) -> &'static str {
         "eq_logical_op"

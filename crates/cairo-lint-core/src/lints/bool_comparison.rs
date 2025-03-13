@@ -14,6 +14,31 @@ use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 pub struct BoolComparison;
 
+/// ## What it does
+///
+/// Checks for direct variable with boolean literal like `a == true` or `a == false`.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() {
+///     let x = true;
+///     if x == true {
+///         println!("x is true");
+///     }
+/// }
+/// ```
+///
+/// Can be rewritten as:
+///
+/// ```cairo
+/// fn main() {
+///    let x = true;
+///    if x {
+///        println!("x is true");
+///    }
+/// }
+/// ```
 impl Lint for BoolComparison {
     fn allowed_name(&self) -> &'static str {
         "bool_comparison"

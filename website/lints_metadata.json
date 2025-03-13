@@ -1,0 +1,212 @@
+[
+    {
+        "name": "bitwise_for_parity_check",
+        "docs": "## What it does\n\nChecks for `x & 1` which is unoptimized in cairo and could be replaced by `x % 1`.\n\n## Example\n\n```cairo\nfn main() {\n    let _a = 200_u32 & 1;\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/bitwise_for_parity_check.rs#L28"
+    },
+    {
+        "name": "bool_comparison",
+        "docs": "## What it does\n\nChecks for direct variable with boolean literal like `a == true` or `a == false`.\n\n## Example\n\n```cairo\nfn main() {\n    let x = true;\n    if x == true {\n        println!(\"x is true\");\n    }\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n   let x = true;\n   if x {\n       println!(\"x is true\");\n   }\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/bool_comparison.rs#L42"
+    },
+    {
+        "name": "break_unit",
+        "docs": "## What it does\n\nChecks for `break ();` statements and suggests removing the parentheses.\n\n## Example\n\n```cairo\nfn main() {\n    loop {\n        break ();\n    }\n}\n```\n\nCan be fixed by removing the parentheses:\n\n```cairo\nfn main() {\n    loop {\n        break;\n    }\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/breaks.rs#L38"
+    },
+    {
+        "name": "impossible_comparison",
+        "docs": "## What it does\n\nChecks for impossible comparisons. Those ones always return false.\n\n## Example\n\nHere is an example of impossible comparison:\n\n```cairo\nfn main() {\n    let x: u32 = 1;\n    if x > 200 && x < 100 {\n        //impossible to reach\n    }\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/double_comparison.rs#L37"
+    },
+    {
+        "name": "simplifiable_comparison",
+        "docs": "## What it does\n\nChecks for double comparisons that can be simplified.\nThose are comparisons that can be simplified to a single comparison.\n\n## Example\n\n```cairo\nfn main() -> bool {\n    let x = 5_u32;\n    let y = 10_u32;\n    if x == y || x > y {\n        true\n    } else {\n        false\n    }\n}\n```\n\nThe above code can be simplified to:\n\n```cairo\nfn main() -> bool {\n    let x = 5_u32;\n    let y = 10_u32;\n    if x >= y {\n        true\n    } else {\n        false\n    }\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/double_comparison.rs#L85"
+    },
+    {
+        "name": "redundant_comparison",
+        "docs": "## What it does\n\nChecks for double comparisons that are redundant. Those are comparisons that can be simplified to a single comparison.\n\n## Example\n\n```cairo\nfn main() -> bool {\n    let x = 5_u32;\n    let y = 10_u32;\n    if x >= y || x <= y {\n        true\n    } else {\n        false\n    }\n}\n```\n\nCould be simplified to just:\n\n```cairo\nfn main() -> bool {\n    let x = 5_u32;\n    let y = 10_u32;\n    true\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/double_comparison.rs#L136"
+    },
+    {
+        "name": "contradictory_comparison",
+        "docs": "## What it does\n\nChecks for double comparisons that are contradictory. Those are comparisons that are always false.\n\n## Example\n\n```cairo\nfn main() -> bool {\n    let x = 5_u32;\n    let y = 10_u32;\n    if x < y && x > y {\n        true\n    } else {\n        false\n    }\n}\n```\n\nCould be simplified to just:\n\n```cairo\nfn main() -> bool {\n    let x = 5_u32;\n    let y = 10_u32;\n    false\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/double_comparison.rs#L187"
+    },
+    {
+        "name": "double_parens",
+        "docs": "## What it does\n\nChecks for unnecessary double parentheses in expressions.\n\n## Example\n\n```cairo\nfn main() -> u32 {\n    ((0))\n}\n```\n\nCan be simplified to:\n\n```cairo\nfn main() -> u32 {\n    0\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/double_parens.rs#L34"
+    },
+    {
+        "name": "duplicate_underscore_args",
+        "docs": "## What it does\n\nChecks for functions that have the same argument name but prefix with `_`.\n\n## Example\n\nThis code will raise a warning because it can be difficult to differentiate between `test` and `_test`.\n\n```cairo\nfn foo(test: u32, _test: u32) {}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/duplicate_underscore_args.rs#L23"
+    },
+    {
+        "name": "enum_variant_names",
+        "docs": "## What it does\n\nDetects enumeration variants that are prefixed or suffixed by the same characters.\n\n## Example\n\n```cairo\nenum Cake {\n    BlackForestCake,\n    HummingbirdCake,\n    BattenbergCake,\n}\n```\n\nCan be simplified to:\n\n```cairo\nenum Cake {\n    BlackForest,\n    Hummingbird,\n    Battenberg,\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/enum_variant_names.rs#L36"
+    },
+    {
+        "name": "div_eq_op",
+        "docs": "## What it does\n\nChecks for division with identical operands.\n\n## Example\n\n```cairo\nfn foo(a: u256) -> u256 {\n    a / a\n}\n```\n\nCould be simplified by replacing the entire expression with 1:\n\n```cairo\nfn foo(a: u256) -> u256 {\n    1\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/eq_op.rs#L36"
+    },
+    {
+        "name": "eq_comp_op",
+        "docs": "## What it does\n\nChecks for comparison with identical operands.\n\n## Example\n\n```cairo\nfn foo(a: u256) -> bool {\n    a == a\n}\n```\n\nCould be simplified by replacing the entire expression with true:\n\n```cairo\nfn foo(a: u256) -> bool {\n    true\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/eq_op.rs#L72"
+    },
+    {
+        "name": "neq_comp_op",
+        "docs": "## What it does\n\nChecks for arithmetical comparison with identical operands.\n\n## Example\n\n```cairo\nfn foo(a: u256) -> bool {\n    let _z = a != a;\n    let _y = a > a;\n    a < a\n}\n```\n\nCould be simplified by replacing the entire expression with false:\n\n```cairo\nfn foo(a: u256) -> bool {\n    let _z = false;\n    let _y = false;\n    false\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/eq_op.rs#L111"
+    },
+    {
+        "name": "eq_diff_op",
+        "docs": "## What it does\n\nChecks for subtraction with identical operands.\n\n## Example\n\n```cairo\nfn foo(a: u256) -> u256 {\n    a - a\n}\n```\n\nCould be simplified by replacing the entire expression with zero:\n\n```cairo\nfn foo(a: u256) -> u256 {\n    0\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/eq_op.rs#L146"
+    },
+    {
+        "name": "eq_bitwise_op",
+        "docs": "## What it does\n\nChecks for bitwise operation with identical operands.\n\n## Example\n\n```cairo\nfn foo(a: u256) -> u256 {\n    a & a\n}\n```\n\nCould be simplified by replacing the entire expression with the operand:\n\n```cairo\nfn foo(a: u256) -> u256 {\n    a\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/eq_op.rs#L181"
+    },
+    {
+        "name": "eq_logical_op",
+        "docs": "## What it does\n\nChecks for logical operation with identical operands.\n\n## Example\n\n```cairo\nfn foo(a: u256) -> u256 {\n    a & a\n}\n```\n\nCould be simplified by replacing the entire expression with the operand:\n\n```cairo\nfn foo(a: u256) -> u256 {\n    a\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/eq_op.rs#L217"
+    },
+    {
+        "name": "erasing_op",
+        "docs": "## What it does\n\nChecks for operations that result in the value being erased (e.g., multiplication by 0 or 0 being divided by anything).\n\n## Example\n\n```cairo\nfn main() {\n    let x = 1;\n    let _y = 0 * x;\n    let _z = 0 / x;\n    let _c = x & 0;\n}\n```\n\nCould be simplified by replacing the entire expression with 0:\n\n```cairo\nfn main() {\n    let x = 1;\n    let _y = 0;\n    let _z = 0;\n    let _c = 0;\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/erasing_op.rs#L41"
+    },
+    {
+        "name": "collapsible_if",
+        "docs": "## What it does\n\nChecks for nested `if` statements that can be collapsed into a single `if` statement.\n\n## Example\n\n```cairo\nfn main() {\n    let x = true;\n    let y = true;\n    let z = false;\n\n    if x || z {\n        if y && z {\n            println!(\"Hello\");\n        }\n    }\n}\n```\n\nCan be collapsed to\n\n```cairo\nfn main() {\n    let x = true;\n    let y = true;\n    let z = false;\n    if (x || z) && (y && z) {\n        println!(\"Hello\");\n    }\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/ifs/collapsible_if.rs#L51"
+    },
+    {
+        "name": "collapsible_if_else",
+        "docs": "## What it does\n\nChecks for nested `if` statements inside the `else` statement\nthat can be collapsed into a single `if-else` statement.\n\n## Example\n\n```cairo\nfn main() {\n    let x = true;\n    if x {\n        println!(\"x is true\");\n    } else {\n        if !x {\n            println!(\"x is false\");\n        }\n    }\n}\n```\n\nCan be refactored to:\n\n```cairo\nfn main() {\n    let x = true;\n    if x {\n        println!(\"x is true\");\n    } else if !x {\n        println!(\"x is false\");\n    }\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/ifs/collapsible_if_else.rs#L53"
+    },
+    {
+        "name": "equatable_if_let",
+        "docs": "## What it does\n\nChecks for `if let` pattern matching that can be replaced by a simple comparison.\n\n## Example\n\n```cairo\nif let Some(2) = a {\n    // Code\n}\n```\n\nCould be replaced by\n\n```cairo\nif a == Some(2) {\n    // Code\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/ifs/equatable_if_let.rs#L36"
+    },
+    {
+        "name": "ifs_same_cond",
+        "docs": "## What it does\n\nChecks for consecutive `if` expressions with the same condition.\n\n## Example\n\n```cairo\nfn main() {\n    let a = 1;\n    let b = 1;\n    if a == b {\n        println!(\"a is equal to b\");\n    } else if a == b {\n        println!(\"a is equal to b\");\n    }\n}\n```\n\nCould be rewritten as just:\n\n```cairo\nfn main() {\n    let a = 1;\n    let b = 1;\n    if a == b {\n        println!(\"a is equal to b\");\n    }\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/ifs/ifs_same_cond.rs#L43"
+    },
+    {
+        "name": "int_ge_plus_one",
+        "docs": "## What it does\n\nCheck for unnecessary add operation in integer >= comparison.\n\n## Example\n\n```cairo\nfn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x >= y + 1 {}\n}\n```\n\nCan be simplified to:\n\n```cairo\nfn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x > y {}\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/int_op_one.rs#L39"
+    },
+    {
+        "name": "int_ge_min_one",
+        "docs": "## What it does\n\nCheck for unnecessary sub operation in integer >= comparison.\n\n## Example\n\n```cairo\nfn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x - 1 >= y {}\n}\n```\n\nCan be simplified to:\n\n```cairo\nfn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x > y {}\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/int_op_one.rs#L86"
+    },
+    {
+        "name": "int_le_plus_one",
+        "docs": "## What it does\n\nCheck for unnecessary add operation in integer <= comparison.\n\n## Example\n\n```cairo\nfn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x + 1 <= y {}\n}\n```\n\nCan be simplified to:\n\n```cairo\nfn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x < y {}\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/int_op_one.rs#L133"
+    },
+    {
+        "name": "int_le_min_one",
+        "docs": "## What it does\n\nCheck for unnecessary sub operation in integer <= comparison.\n\n## Example\n\n```cairo\nfn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x <= y - 1 {}\n}\n```\n\nCan be simplified to:\n\n```cairo\nfn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x < y {}\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/int_op_one.rs#L180"
+    },
+    {
+        "name": "loop_for_while",
+        "docs": "## What it does\n\nChecks for `loop` expressions that contain a conditional `if` statement with break inside that\ncan be simplified to a `while` loop.\n\n## Example\n\n```cairo\nfn main() {\n    let mut x: u16 = 0;\n    loop {\n        if x == 10 {\n            break;\n        }\n        x += 1;\n    }\n}\n```\n\nCan be simplified to:\n\n```cairo\nfn main() {\n    let mut x: u16 = 0;\n    while x != 10 {\n        x += 1;\n    }\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/loops/loop_for_while.rs#L48"
+    },
+    {
+        "name": "loop_match_pop_front",
+        "docs": "## What it does\n\nChecks for loops that are used to iterate over a span using `pop_front`.\n\n## Example\n\n```cairo\nlet a: Span<u32> = array![1, 2, 3].span();\nloop {\n    match a.pop_front() {\n        Option::Some(val) => {do_smth(val); },\n        Option::None => { break; }\n    }\n}\n```\n\nWhich can be rewritten as\n\n```cairo\nlet a: Span<u32> = array![1, 2, 3].span();\nfor val in a {\n    do_smth(val);\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/loops/loop_match_pop_front.rs#L52"
+    },
+    {
+        "name": "manual_err",
+        "docs": "## What it does\n\nChecks for manual implementations of `err` in match and if expressions.\n\n## Example\n\n```cairo\nfn main() {\n    let foo: Result<i32> = Result::Err('err');\n    let _foo = match foo {\n        Result::Ok(_) => Option::None,\n        Result::Err(x) => Option::Some(x),\n    };\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let foo: Result<i32> = Result::Err('err');\n    let _foo = foo.err();\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_err.rs#L40"
+    },
+    {
+        "name": "manual_expect",
+        "docs": "## What it does\n\nChecks for manual implementations of `expect`.\n\n## Example\n\n```cairo\nfn main() {\n    let foo: Option::<i32> = Option::None;\n    let _foo = match foo {\n        Option::Some(x) => x,\n        Option::None => core::panic_with_felt252('err'),\n    };\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let foo: Option::<i32> = Option::None;\n    let _foo = foo.expect('err');\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_expect.rs#L45"
+    },
+    {
+        "name": "manual_expect_err",
+        "docs": "## What it does\n\nChecks for manual implementation of `expect_err` method in match and if expressions.\n\n## Example\n\n```cairo\nfn main() {\n    let foo: Result<i32> = Result::Err('err');\n    let err = 'this is an err';\n    let _foo = match foo {\n        Result::Ok(_) => core::panic_with_felt252(err),\n        Result::Err(x) => x,\n    };\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let foo: Result<i32> = Result::Err('err');\n    let err = 'this is an err';\n    let _foo = foo.expect_err(err);\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_expect_err.rs#L53"
+    },
+    {
+        "name": "manual_is_some",
+        "docs": "## What it does\n\nChecks for manual implementations of `is_some`.\n\n## Example\n\n```cairo\nfn main() {\n    let foo: Option<i32> = Option::None;\n    let _foo = match foo {\n        Option::Some(_) => true,\n        Option::None => false,\n    };\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let foo: Option<i32> = Option::None;\n    let _foo = foo.is_some();\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_is.rs#L40"
+    },
+    {
+        "name": "manual_is_none",
+        "docs": "## What it does\n\nChecks for manual implementations of `is_none`.\n\n## Example\n\n```cairo\nfn main() {\n    let foo: Option<i32> = Option::None;\n    let _foo = match foo {\n        Option::Some(_) => false,\n        Option::None => true,\n    };\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let foo: Option<i32> = Option::None;\n    let _foo = foo.is_none();\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_is.rs#L88"
+    },
+    {
+        "name": "manual_is_ok",
+        "docs": "## What it does\n\nChecks for manual implementations of `is_ok`.\n\n## Example\n\n```cairo\nfn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    let _a = match res_val {\n        Result::Ok(_) => true,\n        Result::Err(_) => false\n    };\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    let _a = res_val.is_ok();\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_is.rs#L136"
+    },
+    {
+        "name": "manual_is_err",
+        "docs": "## What it does\n\nChecks for manual implementations of `is_err`.\n\n## Example\n\n```cairo\nfn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    let _a = match res_val {\n        Result::Ok(_) => false,\n        Result::Err(_) => true\n    };\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    let _a = res_val.is_err();\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_is.rs#L184"
+    },
+    {
+        "name": "manual_ok",
+        "docs": "## What it does\n\nChecks for manual implementation of `ok` method in match and if expressions.\n\n## Example\n\n```cairo\nfn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    let _a = match res_val {\n        Result::Ok(x) => Option::Some(x),\n        Result::Err(_) => Option::None,\n    };\n}\n```\n\nCan be replaced with:\n\n```cairo\n    let res_val: Result<i32> = Result::Err('err');\n    let _a = res_val.ok();\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_ok.rs#L40"
+    },
+    {
+        "name": "manual_ok_or",
+        "docs": "## What it does\n\nChecks for manual implementations of ok_or.\n\n## Example\n\n```cairo\nfn main() {\n    let foo: Option<i32> = Option::None;\n    let _foo = match foo {\n        Option::Some(v) => Result::Ok(v),\n        Option::None => Result::Err('this is an err'),\n    };\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let foo: Option<i32> = Option::None;\n    let _foo = foo.ok_or('this is an err');\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_ok_or.rs#L51"
+    },
+    {
+        "name": "manual_unwrap_or_default",
+        "docs": "## What it does\n\nChecks for manual unwrapping of an Option or Result.\n\n## Example\n\n```cairo\nfn main() {\n    let x: Option<u128> = Option::Some(1038);\n    if let Option::Some(v) = x {\n        v\n    } else {\n        0\n    };\n}\n```\n\nCan be simplified to:\n\n```cairo\nfn main() {\n    let x: Option<u128> = Option::Some(1038);\n    x.unwrap_or_default();\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_unwrap_or_default.rs#L47"
+    },
+    {
+        "name": "panic",
+        "docs": "## What it does\n\nChecks for panic usages.\n\n## Example\n\n```cairo\nfn main() {\n    panic!(\"panic\");\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/panic.rs#L29"
+    },
+    {
+        "name": "inefficient_while_comp",
+        "docs": "## What it does\n\nChecks if the while loop exit condition is using [`<`, `<=`, `>=`, `>`] operators.\n\n## Example\n\n```cairo\nfn main() {\n    let mut a = 1_u32;\n    while a <= 10 {\n        a += 1;\n    }\n}\n```\n\nCan be optimized to:\n\n```cairo\nfn main() {\n    let mut a = 1_u32;\n    while a != 10 {\n        a += 1;\n    }\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/performance.rs#L37"
+    },
+    {
+        "name": "redundant_op",
+        "docs": "## What it does\n\nChecks for redundant arithmetic operations like `x + 0`, `x - 0`, `x * 1`, `x / 1`\n\n## Example\n\n```cairo\nfn main() {\n    let x = 42;\n    let _y = x * 1;\n}\n```\n\nCan be simplified to\n\n```cairo\nfn main() {\n    let x = 42;\n    let _y = x;\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/redundant_op.rs#L36"
+    },
+    {
+        "name": "destruct_match",
+        "docs": "## What it does\n\nChecks for matches that do something only in 1 arm and can be rewrote as an `if let`\n\n## Example\n\n```cairo\nlet var = Option::Some(1_u32);\nmatch var {\n    Option::Some(val) => do_smth(val),\n    _ => (),\n}\n```\n\nWhich can be rewritten as\n\n```cairo\nif let Option::Some(val) = var {\n    do_smth(val),\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/single_match.rs#L41"
+    },
+    {
+        "name": "equality_match",
+        "docs": "## What it does\n\nChecks for matches that do something only in 1 arm and can be rewrote as an `if`\n\n## Example\n\n```cairo\nmatch variable {\n    Option::None => println!(\"None\"),\n    Option::Some => (),\n};\n```\n\nWhich can be probably rewritten as\n\n```cairo\nif variable.is_none() {\n    println!(\"None\");\n}\n```",
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/single_match.rs#L85"
+    }
+]

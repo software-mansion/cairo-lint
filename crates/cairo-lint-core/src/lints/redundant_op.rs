@@ -12,6 +12,27 @@ use cairo_lang_syntax::node::TypedStablePtr;
 
 pub struct RedundantOperation;
 
+/// ## What it does
+///
+/// Checks for redundant arithmetic operations like `x + 0`, `x - 0`, `x * 1`, `x / 1`
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() {
+///     let x = 42;
+///     let _y = x * 1;
+/// }
+/// ```
+///
+/// Can be simplified to
+///
+/// ```cairo
+/// fn main() {
+///     let x = 42;
+///     let _y = x;
+/// }
+/// ```
 impl Lint for RedundantOperation {
     fn allowed_name(&self) -> &'static str {
         "redundant_op"

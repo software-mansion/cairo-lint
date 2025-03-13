@@ -13,6 +13,8 @@ use crate::lints::double_parens::check_double_parens;
 use crate::lints::double_parens::DoubleParens;
 use crate::lints::duplicate_underscore_args::check_duplicate_underscore_args;
 use crate::lints::duplicate_underscore_args::DuplicateUnderscoreArgs;
+use crate::lints::enum_variant_names::check_enum_variant_names;
+use crate::lints::enum_variant_names::EnumVariantNames;
 use crate::lints::eq_op::check_eq_op;
 use crate::lints::eq_op::BitwiseEqualityOperation;
 use crate::lints::eq_op::DifferenceEqualityOperation;
@@ -113,6 +115,7 @@ pub enum CairoLintKind {
     EqualityOperation,
     Performance,
     RedundantOperation,
+    EnumVariantNames,
 }
 
 pub trait Lint: Sync + Send {
@@ -128,6 +131,11 @@ pub trait Lint: Sync + Send {
     /// By default it return false.
     fn has_fixer(&self) -> bool {
         false
+    }
+
+    /// Generates full path to the lint rule. It helps map the Lint struct name to the actual lint rule.
+    fn type_name(&self) -> &'static str {
+        std::any::type_name::<Self>()
     }
 
     /// Attempts to generate a fix for this Lint's semantic diagnostic.
@@ -295,6 +303,10 @@ impl LintContext {
                 lints: vec![Box::new(RedundantOperation)],
                 check_function: check_redundant_operation,
             },
+            LintRuleGroup {
+                lints: vec![Box::new(EnumVariantNames)],
+                check_function: check_enum_variant_names,
+            },
         ]
     }
 
@@ -375,4 +387,16 @@ pub fn get_name_for_diagnostic_message(message: &str) -> Option<&'static str> {
         .flat_map(|group| group.lints.iter())
         .find(|rule| rule.diagnostic_message() == message)
         .map(|rule| rule.allowed_name())
+}
+
+#[allow(clippy::borrowed_box)]
+/// Finds the lint by it's struct's name.
+/// By struct name we mean the last part of the path of the lint rule.
+/// For example, for `crate::lints::bool_comparison::BoolComparison` the struct name is `BoolComparison`.
+pub fn find_lint_by_struct_name(name: &str) -> Option<&Box<dyn Lint>> {
+    LINT_CONTEXT
+        .lint_groups
+        .iter()
+        .flat_map(|group| group.lints.iter())
+        .find(|rule| rule.type_name().split("::").last().unwrap() == name)
 }

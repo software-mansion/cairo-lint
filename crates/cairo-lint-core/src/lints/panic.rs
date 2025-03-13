@@ -15,6 +15,17 @@ const PANIC: &str = "core::panics::panic";
 
 pub struct PanicInCode;
 
+/// ## What it does
+///
+/// Checks for panic usages.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() {
+///     panic!("panic");
+/// }
+/// ```
 impl Lint for PanicInCode {
     fn allowed_name(&self) -> &'static str {
         "panic"

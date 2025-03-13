@@ -12,6 +12,29 @@ use crate::queries::{get_all_break_statements, get_all_function_bodies};
 
 pub struct BreakUnit;
 
+/// ## What it does
+///
+/// Checks for `break ();` statements and suggests removing the parentheses.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() {
+///     loop {
+///         break ();
+///     }
+/// }
+/// ```
+///
+/// Can be fixed by removing the parentheses:
+///
+/// ```cairo
+/// fn main() {
+///     loop {
+///         break;
+///     }
+/// }
+/// ```
 impl Lint for BreakUnit {
     fn allowed_name(&self) -> &'static str {
         "break_unit"

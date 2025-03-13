@@ -18,6 +18,12 @@ pub fn cairo_lint_plugin_suite() -> PluginSuite {
     suite
 }
 
+pub fn cairo_lint_allow_plugin_suite() -> PluginSuite {
+    let mut suite = PluginSuite::default();
+    suite.add_analyzer_plugin::<CairoLintAllow>();
+    suite
+}
+
 #[derive(Debug, Default)]
 pub struct CairoLint {
     include_compiler_generated_files: bool,
@@ -71,6 +77,25 @@ impl AnalyzerPlugin for CairoLint {
                 let allowed_name = get_name_for_diagnostic_message(&diag.message).unwrap();
                 !node_has_ascendants_with_allow_name_attr(db.upcast(), node, allowed_name)
             })
+            .collect()
+    }
+}
+
+/// Plugin with `declared_allows` matching these of [`CairoLint`] that does not emit diagnostics.
+/// Add it when `CairoLint` is not present to avoid compiler warnings on unsupported
+/// `allow` attribute arguments.
+#[derive(Debug, Default)]
+pub struct CairoLintAllow;
+
+impl AnalyzerPlugin for CairoLintAllow {
+    fn diagnostics(&self, _db: &dyn SemanticGroup, _module_id: ModuleId) -> Vec<PluginDiagnostic> {
+        Vec::new()
+    }
+
+    fn declared_allows(&self) -> Vec<String> {
+        get_unique_allowed_names()
+            .iter()
+            .map(ToString::to_string)
             .collect()
     }
 }

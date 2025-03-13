@@ -24,6 +24,30 @@ use crate::{
 
 pub struct ManualOkOr;
 
+/// ## What it does
+///
+/// Checks for manual implementations of ok_or.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() {
+///     let foo: Option<i32> = Option::None;
+///     let _foo = match foo {
+///         Option::Some(v) => Result::Ok(v),
+///         Option::None => Result::Err('this is an err'),
+///     };
+/// }
+/// ```
+///
+/// Can be rewritten as:
+///
+/// ```cairo
+/// fn main() {
+///     let foo: Option<i32> = Option::None;
+///     let _foo = foo.ok_or('this is an err');
+/// }
+/// ```
 impl Lint for ManualOkOr {
     fn allowed_name(&self) -> &'static str {
         "manual_ok_or"

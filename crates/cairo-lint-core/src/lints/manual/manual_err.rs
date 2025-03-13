@@ -13,6 +13,30 @@ use super::helpers::fix_manual;
 
 pub struct ManualErr;
 
+/// ## What it does
+///
+/// Checks for manual implementations of `err` in match and if expressions.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() {
+///     let foo: Result<i32> = Result::Err('err');
+///     let _foo = match foo {
+///         Result::Ok(_) => Option::None,
+///         Result::Err(x) => Option::Some(x),
+///     };
+/// }
+/// ```
+///
+/// Can be rewritten as:
+///
+/// ```cairo
+/// fn main() {
+///     let foo: Result<i32> = Result::Err('err');
+///     let _foo = foo.err();
+/// }
+/// ```
 impl Lint for ManualErr {
     fn allowed_name(&self) -> &'static str {
         "manual_err"

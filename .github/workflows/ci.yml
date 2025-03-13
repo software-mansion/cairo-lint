@@ -20,11 +20,13 @@ jobs:
         with:
           toolchain: nightly
           components: rustfmt
+      - uses: Swatinem/rust-cache@v2
 
       - name: Run cargo fmt
         run: cargo +nightly fmt --check
 
       - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
       - name: Run cargo clippy
         run: cargo clippy -- -D warnings
   test:
@@ -33,8 +35,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
 
       - name: Get corelib
         run: git clone https://github.com/starkware-libs/cairo
       - name: Run cargo test
-        run: CORELIB_PATH="$(pwd)/cairo/corelib/src" cargo test
+        run: CORELIB_PATH="$(pwd)/cairo/corelib/src" cargo test --profile=ci
+  check-website:
+    name: Website prettier check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./website
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18.x"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci
+      - run: npm run fmt:check

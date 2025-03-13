@@ -4,6 +4,7 @@ version.workspace = true
 edition.workspace = true
 repository.workspace = true
 license-file.workspace = true
+description = "Core library for linting Cairo language code."
 
 [dependencies]
 annotate-snippets.workspace = true
