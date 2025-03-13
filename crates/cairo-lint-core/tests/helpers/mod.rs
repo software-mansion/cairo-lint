@@ -1,14 +1,18 @@
-use std::path::PathBuf;
+use std::{fs, path::PathBuf, sync::OnceLock};
 
+use anyhow::Context;
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_defs::{db::DefsGroup, ids::ModuleId};
 use cairo_lang_diagnostics::Diagnostics;
 use cairo_lang_filesystem::{
-    db::{init_dev_corelib, FilesGroup},
+    db::{init_dev_corelib, FilesGroup, CORELIB_CRATE_NAME},
     ids::{CrateId, FileLongId},
 };
 use cairo_lang_semantic::{db::SemanticGroup, SemanticDiagnostic};
 use cairo_lang_utils::LookupIntern;
+
+use scarb::{get_scarb_metadata, SCARB_TOML};
+use tempfile::tempdir;
 
 mod scarb;
 
@@ -30,70 +34,10 @@ pub fn get_diags(crate_id: CrateId, db: &mut RootDatabase) -> Vec<Diagnostics<Se
     diagnostics
 }
 
-/// Try to find a Scarb-managed `core` package if we have Scarb toolchain.
-///
-/// The easiest way to do this is to create an empty Scarb package and run `scarb metadata` on it.
-/// The `core` package will be a component of this empty package.
-/// For minimal packages, `scarb metadata` should be pretty fast.
-fn find_scarb_managed_core(scarb: &ScarbToolchain) -> Option<UnmanagedCore> {
-    let lookup = || {
-        let workspace = tempdir()
-            .context("failed to create temporary directory")
-            .inspect_err(|e| warn!("{e:?}"))
-            .ok()?;
-
-        let scarb_toml = workspace.path().join(SCARB_TOML);
-        fs::write(
-            &scarb_toml,
-            indoc! {r#"
-                [package]
-                name = "cairols_unmanaged_core_lookup"
-                version = "1.0.0"
-            "#},
-        )
-        .context("failed to write Scarb.toml")
-        .inspect_err(|e| warn!("{e:?}"))
-        .ok()?;
-
-        let metadata = scarb
-            .silent()
-            .metadata(&scarb_toml)
-            .inspect_err(|e| warn!("{e:?}"))
-            .ok()?;
-
-        // Ensure the workspace directory is deleted after running Scarb.
-        // We are ignoring the error, leaving doing proper clean-up to the OS.
-        let _ = workspace
-            .close()
-            .context("failed to wipe temporary directory")
-            .inspect_err(|e| warn!("{e:?}"));
-
-        // Scarb is expected to generate only one compilation unit (for our stub package)
-        // that will consist of this package and the `core` crate.
-        // Therefore, we allow ourselves to liberally just look for any first usage of a package
-        // named `core` in all compilation units components we got.
-        let path = metadata
-            .compilation_units
-            .into_iter()
-            .find_map(|compilation_unit| {
-                compilation_unit
-                    .components
-                    .iter()
-                    .find(|component| component.name == CORELIB_CRATE_NAME)
-                    .map(|component| component.source_root().to_path_buf().into_std_path_buf())
-            })?;
-        let version = metadata
-            .packages
-            .into_iter()
-            .find(|package| package.name == CORELIB_CRATE_NAME)
-            .map(|package| package.version)?;
-
-        Some(UnmanagedCore { path, version })
-    };
-
-    static CACHE: OnceLock<Option<UnmanagedCore>> = OnceLock::new();
-    CACHE.get_or_init(lookup).clone()
+fn try_to_init_dev_corelib(db: &mut RootDatabase) {
+    
 }
+
 
 #[macro_export]
 macro_rules! test_lint_fixer {
