@@ -1,6 +1,6 @@
 # int_le_min_one
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/int_op_one.rs#L180)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/int_op_one.rs#L180)
 
 ## What it does
 

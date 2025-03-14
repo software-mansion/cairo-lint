@@ -5,7 +5,7 @@ use serde::Serialize;
 use serde_json::{ser::PrettyFormatter, Serializer, Value};
 use std::{env, fs, process::Command};
 
-static RUSTDOC_PATH: &str = "target/doc/cairo_lint_core.json";
+static RUSTDOC_PATH: &str = "target/doc/cairo_lint.json";
 static LINT_METADATA_OUTPUT_PATH: &str = "website/lints_metadata.json";
 static LINT_REPO_BASE_URL: &str = "https://github.com/software-mansion/cairo-lint/tree/main/";
 static LINT_DOCS_BASE_PATH: &str = "website/docs/lints/";
