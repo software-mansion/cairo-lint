@@ -688,6 +688,7 @@ dependencies = [
  "pretty_assertions",
  "scarb-metadata",
  "semver",
+ "serde",
  "tempfile",
  "test-case",
  "which",
@@ -1800,6 +1801,8 @@ dependencies = [
  "scarb-metadata",
  "scarb-ui",
  "semver",
+ "serde_json",
+ "toml",
 ]
 
 [[package]]

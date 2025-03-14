@@ -26,3 +26,5 @@ clap = { workspace = true, features = ["derive"] }
 scarb-metadata.workspace = true
 scarb-ui = "0.1.5"
 semver.workspace = true
+serde_json.workspace = true
+toml = "0.8"

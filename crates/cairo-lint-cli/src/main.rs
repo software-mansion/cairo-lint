@@ -27,6 +27,7 @@ use cairo_lint_core::fixes::{
     apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix,
 };
 use cairo_lint_core::plugin::cairo_lint_plugin_suite;
+use cairo_lint_core::{CairoLintToolMetadata, CAIRO_LINT_TOOL_NAME};
 use clap::Parser;
 use helpers::*;
 use scarb_metadata::{MetadataCommand, PackageMetadata, TargetMetadata};
@@ -111,13 +112,17 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
             let mut db = if args.test {
                 RootDatabase::builder()
                     .with_default_plugin_suite(test_plugin_suite())
-                    .with_default_plugin_suite(cairo_lint_plugin_suite())
+                    .with_default_plugin_suite(cairo_lint_plugin_suite(cairo_lint_tool_metadata(
+                        &package,
+                    )?))
                     .with_default_plugin_suite(starknet_plugin_suite())
                     .with_cfg(to_cairo_cfg(&compilation_unit.cfg))
                     .build()?
             } else {
                 RootDatabase::builder()
-                    .with_default_plugin_suite(cairo_lint_plugin_suite())
+                    .with_default_plugin_suite(cairo_lint_plugin_suite(cairo_lint_tool_metadata(
+                        &package,
+                    )?))
                     .with_default_plugin_suite(starknet_plugin_suite())
                     .with_cfg(to_cairo_cfg(&compilation_unit.cfg))
                     .build()?
@@ -265,6 +270,15 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
         }
     }
     Ok(())
+}
+
+fn cairo_lint_tool_metadata(package: &PackageMetadata) -> Result<CairoLintToolMetadata> {
+    Ok(package
+        .tool_metadata(CAIRO_LINT_TOOL_NAME)
+        .cloned()
+        .map(serde_json::from_value)
+        .transpose()?
+        .unwrap_or_default())
 }
 
 fn find_testable_targets(package: &PackageMetadata) -> Vec<&TargetMetadata> {
