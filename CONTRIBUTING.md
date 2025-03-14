@@ -46,12 +46,21 @@ After implementing a new lint or after modifying old one's documentation, it is 
 
 ### Running tests
 
-To run the tests you'll need to provide the path to the cairo corelib (at some point this should be automated but we're
-not there yet).
+To run the tests, just use:
+
+```sh
+cargo test
+```
+
+Remember to have `scarb` in your PATH, as it's used to resolve corelib used for testing. The Scarb version that should be used if testing is specified in [.tool-versions](.tool-versions) file.
+
+If you don't have an access to scarb binary, or you want to use specific version of the corelib during testing, just run:
 
 ```sh
 CORELIB_PATH="/path/to/corelib/src" cargo test
 ```
+
+and use any corelib version you want.
 
 ### Reviewing snapshot changes
 

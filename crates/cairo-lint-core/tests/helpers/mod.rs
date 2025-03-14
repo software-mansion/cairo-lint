@@ -1,23 +1,26 @@
-use std::{fs, path::PathBuf, sync::OnceLock};
+use std::path::PathBuf;
 
-use anyhow::Context;
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_defs::{db::DefsGroup, ids::ModuleId};
 use cairo_lang_diagnostics::Diagnostics;
 use cairo_lang_filesystem::{
-    db::{init_dev_corelib, FilesGroup, CORELIB_CRATE_NAME},
+    db::{init_dev_corelib, FilesGroup},
     ids::{CrateId, FileLongId},
 };
 use cairo_lang_semantic::{db::SemanticGroup, SemanticDiagnostic};
 use cairo_lang_utils::LookupIntern;
-
-use scarb::{get_scarb_metadata, SCARB_TOML};
-use tempfile::tempdir;
+use scarb::find_scarb_managed_core;
 
 mod scarb;
 
 pub fn get_diags(crate_id: CrateId, db: &mut RootDatabase) -> Vec<Diagnostics<SemanticDiagnostic>> {
-    init_dev_corelib(db, PathBuf::from(std::env::var("CORELIB_PATH").unwrap()));
+    if let Ok(path) = std::env::var("CORELIB_PATH") {
+        init_dev_corelib(db, PathBuf::from(path));
+    } else if let Some(path) = find_scarb_managed_core() {
+        init_dev_corelib(db, path);
+    } else {
+        panic!("Missing corelib path. CORELIB_PATH env or Scarb managed corelib is required.");
+    }
     let mut diagnostics = Vec::new();
     let module_file = db.module_main_file(ModuleId::CrateRoot(crate_id)).unwrap();
     if db.file_content(module_file).is_none() {
@@ -33,11 +36,6 @@ pub fn get_diags(crate_id: CrateId, db: &mut RootDatabase) -> Vec<Diagnostics<Se
     }
     diagnostics
 }
-
-fn try_to_init_dev_corelib(db: &mut RootDatabase) {
-    
-}
-
 
 #[macro_export]
 macro_rules! test_lint_fixer {

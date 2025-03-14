@@ -25,4 +25,4 @@ cairo-lint-core = { path = "../cairo-lint-core" }
 clap = { workspace = true, features = ["derive"] }
 scarb-metadata.workspace = true
 scarb-ui = "0.1.5"
-semver = "1.0.25"
+semver.workspace = true

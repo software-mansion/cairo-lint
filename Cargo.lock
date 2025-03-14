@@ -687,6 +687,7 @@ dependencies = [
  "num-bigint",
  "pretty_assertions",
  "scarb-metadata",
+ "semver",
  "tempfile",
  "test-case",
  "which",

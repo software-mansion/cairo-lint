@@ -8,20 +8,13 @@ use anyhow::{Context, Result};
 use cairo_lang_filesystem::db::CORELIB_CRATE_NAME;
 use indoc::indoc;
 use scarb_metadata::{Metadata, MetadataCommand};
-use semver::Version;
 use tempfile::tempdir;
 use which::which;
 
 pub const SCARB_TOML: &str = "Scarb.toml";
 
-struct UnmanagedCore {
-    path: PathBuf,
-    version: Version,
-}
-
 fn get_scarb_path() -> Result<PathBuf> {
     which("scarb").map_err(|_| anyhow::anyhow!("`scarb` not found in `PATH`"))
-    // .expect("running tests requires a `scarb` binary available in `PATH`")
 }
 
 /// Calls `scarb metadata` on an empty Scarb package to find the `core` package.
@@ -86,12 +79,6 @@ pub fn find_scarb_managed_core() -> Option<PathBuf> {
                     .find(|component| component.name == CORELIB_CRATE_NAME)
                     .map(|component| component.source_root().to_path_buf().into_std_path_buf())
             })?;
-
-        let version = metadata
-            .packages
-            .into_iter()
-            .find(|package| package.name == CORELIB_CRATE_NAME)
-            .map(|package| package.version)?;
 
         Some(path)
     };

@@ -49,6 +49,7 @@ log = "0.4.26"
 num-bigint = "0.4.6"
 pretty_assertions = "1.4.1"
 scarb-metadata = "1.14.0"
+semver = "1.0.25"
 serde = { version = "1", features = ["serde_derive"] }
 serde_json = { version = "1" }
 tempfile = "3"
