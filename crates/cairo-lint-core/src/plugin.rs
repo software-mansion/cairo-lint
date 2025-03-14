@@ -7,14 +7,17 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_utils::LookupIntern;
+use std::sync::Arc;
 
 use crate::context::{
-    get_all_checking_functions, get_name_for_diagnostic_message, get_unique_allowed_names,
+    get_all_checking_functions, get_lint_type_from_diagnostic_message,
+    get_name_for_diagnostic_message, get_unique_allowed_names, CairoLintKind,
 };
+use crate::CairoLintToolMetadata;
 
-pub fn cairo_lint_plugin_suite() -> PluginSuite {
+pub fn cairo_lint_plugin_suite(tool_metadata: CairoLintToolMetadata) -> PluginSuite {
     let mut suite = PluginSuite::default();
-    suite.add_analyzer_plugin::<CairoLint>();
+    suite.add_analyzer_plugin_ex(Arc::new(CairoLint::new(false, tool_metadata)));
     suite
 }
 
@@ -27,12 +30,17 @@ pub fn cairo_lint_allow_plugin_suite() -> PluginSuite {
 #[derive(Debug, Default)]
 pub struct CairoLint {
     include_compiler_generated_files: bool,
+    tool_metadata: CairoLintToolMetadata,
 }
 
 impl CairoLint {
-    pub fn new(include_compiler_generated_files: bool) -> Self {
+    pub fn new(
+        include_compiler_generated_files: bool,
+        tool_metadata: CairoLintToolMetadata,
+    ) -> Self {
         Self {
             include_compiler_generated_files,
+            tool_metadata,
         }
     }
 }
@@ -75,7 +83,9 @@ impl AnalyzerPlugin for CairoLint {
             .filter(|diag| {
                 let node = diag.stable_ptr.lookup(db.upcast());
                 let allowed_name = get_name_for_diagnostic_message(&diag.message).unwrap();
+                let lint_type = get_lint_type_from_diagnostic_message(&diag.message);
                 !node_has_ascendants_with_allow_name_attr(db.upcast(), node, allowed_name)
+                    && (self.tool_metadata.nopanic || lint_type != CairoLintKind::Panic)
             })
             .collect()
     }

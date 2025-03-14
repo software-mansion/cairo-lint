@@ -45,7 +45,9 @@ macro_rules! test_lint_fixer {
     use ::cairo_lang_utils::Upcast;
     let mut code = String::from($before);
     let mut testing_suite = ::cairo_lang_semantic::plugin::PluginSuite::default();
-    testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint_core::plugin::CairoLint::new(true)));
+    testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint_core::plugin::CairoLint::new(true, ::cairo_lint_core::CairoLintToolMetadata {
+      nopanic: true,
+    })));
     let mut db = ::cairo_lang_compiler::db::RootDatabase::builder()
       .with_default_plugin_suite(::cairo_lang_semantic::inline_macros::get_default_plugin_suite())
       .with_default_plugin_suite(::cairo_lang_test_plugin::test_plugin_suite())
@@ -101,7 +103,9 @@ macro_rules! test_lint_diagnostics {
   ($before:ident, @$expected_diagnostics:literal) => {{
     use ::cairo_lang_utils::Upcast;
     let mut testing_suite = ::cairo_lang_semantic::plugin::PluginSuite::default();
-    testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint_core::plugin::CairoLint::new(true)));
+    testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint_core::plugin::CairoLint::new(true, ::cairo_lint_core::CairoLintToolMetadata {
+      nopanic: true,
+    })));
     let mut db = ::cairo_lang_compiler::db::RootDatabase::builder()
       .with_default_plugin_suite(::cairo_lang_semantic::inline_macros::get_default_plugin_suite())
       .with_default_plugin_suite(::cairo_lang_test_plugin::test_plugin_suite())

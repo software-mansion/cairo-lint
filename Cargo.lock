@@ -685,6 +685,7 @@ dependencies = [
  "log",
  "num-bigint",
  "pretty_assertions",
+ "serde",
  "test-case",
 ]
 
@@ -1723,6 +1724,8 @@ dependencies = [
  "scarb-metadata",
  "scarb-ui",
  "semver",
+ "serde_json",
+ "toml",
 ]
 
 [[package]]

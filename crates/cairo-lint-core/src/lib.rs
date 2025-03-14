@@ -13,6 +13,15 @@ use cairo_lang_filesystem::db::FilesGroup;
 use cairo_lang_filesystem::ids::FileId;
 use cairo_lang_semantic::{diagnostic::SemanticDiagnosticKind, SemanticDiagnostic};
 use cairo_lang_utils::Upcast;
+use serde::Deserialize;
+
+pub static CAIRO_LINT_TOOL_NAME: &str = "cairo-lint";
+
+/// Describes tool metadata for the Cairo lint.
+#[derive(Deserialize, Default, Debug)]
+pub struct CairoLintToolMetadata {
+    pub nopanic: bool,
+}
 
 // TODO(wawel37): Don't make it public as we deploy Scarb with new cairo-lint cli there.
 // The context mod is set to public for the duration of cairo-lint-cli existence.
