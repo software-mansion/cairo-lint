@@ -45,7 +45,7 @@ macro_rules! test_lint_fixer {
     use ::cairo_lang_utils::Upcast;
     let mut code = String::from($before);
     let mut testing_suite = ::cairo_lang_semantic::plugin::PluginSuite::default();
-    testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint_core::plugin::CairoLint::new(true, ::cairo_lint_core::CairoLintToolMetadata {
+    testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint::plugin::CairoLint::new(true, ::cairo_lint::CairoLintToolMetadata {
       nopanic: true,
     })));
     let mut db = ::cairo_lang_compiler::db::RootDatabase::builder()
@@ -63,19 +63,19 @@ macro_rules! test_lint_fixer {
       .into_iter()
       .flat_map(|diag| diag.get_all())
       .collect();
-    let unused_imports: ::std::collections::HashMap<::cairo_lang_filesystem::ids::FileId, ::std::collections::HashMap<::cairo_lang_syntax::node::SyntaxNode, ::cairo_lint_core::fixes::ImportFix>> =
-      ::cairo_lint_core::fixes::collect_unused_imports(&db, &semantic_diags);
+    let unused_imports: ::std::collections::HashMap<::cairo_lang_filesystem::ids::FileId, ::std::collections::HashMap<::cairo_lang_syntax::node::SyntaxNode, ::cairo_lint::fixes::ImportFix>> =
+      ::cairo_lint::fixes::collect_unused_imports(&db, &semantic_diags);
     let mut fixes = if unused_imports.keys().len() > 0 {
       let current_file_id = unused_imports.keys().next().unwrap();
-      ::cairo_lint_core::fixes::apply_import_fixes(&db, unused_imports.get(&current_file_id).unwrap())
+      ::cairo_lint::fixes::apply_import_fixes(&db, unused_imports.get(&current_file_id).unwrap())
     } else {
       Vec::new()
     };
     for diag in diags.iter().flat_map(|diags| diags.get_all()) {
       if !matches!(diag.kind, ::cairo_lang_semantic::diagnostic::SemanticDiagnosticKind::UnusedImport(_)) {
-        if let Some((fix_node, fix)) = ::cairo_lint_core::fixes::fix_semantic_diagnostic(&db, &diag) {
+        if let Some((fix_node, fix)) = ::cairo_lint::fixes::fix_semantic_diagnostic(&db, &diag) {
           let span = fix_node.span(db.upcast());
-          fixes.push(::cairo_lint_core::fixes::Fix {
+          fixes.push(::cairo_lint::fixes::Fix {
             span,
             suggestion: fix,
           });
@@ -103,7 +103,7 @@ macro_rules! test_lint_diagnostics {
   ($before:ident, @$expected_diagnostics:literal) => {{
     use ::cairo_lang_utils::Upcast;
     let mut testing_suite = ::cairo_lang_semantic::plugin::PluginSuite::default();
-    testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint_core::plugin::CairoLint::new(true, ::cairo_lint_core::CairoLintToolMetadata {
+    testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint::plugin::CairoLint::new(true, ::cairo_lint::CairoLintToolMetadata {
       nopanic: true,
     })));
     let mut db = ::cairo_lang_compiler::db::RootDatabase::builder()
@@ -123,7 +123,7 @@ macro_rules! test_lint_diagnostics {
         diags
           .get_all()
           .iter()
-          .map(|diag| ::cairo_lint_core::diagnostics::format_diagnostic(diag, &db, &renderer))
+          .map(|diag| ::cairo_lint::diagnostics::format_diagnostic(diag, &db, &renderer))
           .collect::<Vec<_>>()
       })
       .collect::<String>()

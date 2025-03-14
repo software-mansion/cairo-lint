@@ -1,5 +1,5 @@
 use anyhow::Result;
-use cairo_lint_core::context::find_lint_by_struct_name;
+use cairo_lint::context::find_lint_by_struct_name;
 use clap::Parser;
 use serde::Serialize;
 use serde_json::{ser::PrettyFormatter, Serializer, Value};
@@ -118,7 +118,7 @@ fn get_docs_as_json() -> anyhow::Result<Vec<LintDoc>> {
         .arg("-Z")
         .arg("unstable-options")
         .arg("-p")
-        .arg("cairo-lint-core")
+        .arg("cairo-lint")
         .current_dir(&workspace_root)
         .output()?;
 

@@ -1,8 +1,41 @@
+[package]
+name = "cairo-lint"
+description = "Core library for linting Cairo language code."
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+license-file.workspace = true
+
+[dependencies]
+annotate-snippets.workspace = true
+anyhow.workspace = true
+cairo-lang-compiler.workspace = true
+cairo-lang-defs.workspace = true
+cairo-lang-diagnostics.workspace = true
+cairo-lang-filesystem.workspace = true
+cairo-lang-semantic.workspace = true
+cairo-lang-syntax.workspace = true
+cairo-lang-test-plugin.workspace = true
+cairo-lang-utils.workspace = true
+if_chain.workspace = true
+itertools.workspace = true
+log.workspace = true
+num-bigint.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+ctor.workspace = true
+insta.workspace = true
+pretty_assertions.workspace = true
+test-case.workspace = true
+
+[features]
+testing-colors = ["annotate-snippets/testing-colors"]
+
 [workspace]
 resolver = "2"
 members = [
   "crates/cairo-lint-cli",
-  "crates/cairo-lint-core",
   "xtask"
 ]
 

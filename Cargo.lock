@@ -665,7 +665,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "cairo-lint-core"
+name = "cairo-lint"
 version = "2.11.2"
 dependencies = [
  "annotate-snippets",
@@ -1719,7 +1719,7 @@ dependencies = [
  "cairo-lang-syntax",
  "cairo-lang-test-plugin",
  "cairo-lang-utils",
- "cairo-lint-core",
+ "cairo-lint",
  "clap",
  "scarb-metadata",
  "scarb-ui",
@@ -2400,7 +2400,7 @@ name = "xtask"
 version = "1.0.0"
 dependencies = [
  "anyhow",
- "cairo-lint-core",
+ "cairo-lint",
  "cairo-toolchain-xtasks",
  "clap",
  "serde",
