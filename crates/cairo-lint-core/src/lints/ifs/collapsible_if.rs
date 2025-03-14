@@ -2,7 +2,7 @@ use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_semantic::{Arenas, Expr, ExprIf, Statement};
+use cairo_lang_semantic::{Arenas, Condition, Expr, ExprIf, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{
     ast::{Expr as AstExpr, ExprIf as AstExprIf, OptionElseClause, Statement as AstStatement},
@@ -105,8 +105,12 @@ fn check_single_collapsible_if(
         // And this expression is an if expression
         if let Expr::If(ref inner_if_expr) = arenas.exprs[inner_expr_stmt.expr];
         then {
-            // Check if any of the ifs (outter and inner) have an else block, if it's the case don't diagnostic
+            // Check if any of the ifs (outer and inner) have an else block, if it's the case don't diagnostic
             if inner_if_expr.else_block.is_some() || if_expr.else_block.is_some() {
+                return;
+            }
+
+            if let Condition::Let(_, _) = if_expr.condition {
                 return;
             }
 
@@ -125,7 +129,7 @@ fn check_single_collapsible_if(
         let Expr::If(ref inner_if_expr) = arenas.exprs[tail] else {
             return false;
         };
-        // Check if any of the ifs (outter and inner) have an else block, if it's the case don't diagnostic
+        // Check if any of the ifs (outer and inner) have an else block, if it's the case don't diagnostic
         if_expr.else_block.is_none() && inner_if_expr.else_block.is_none()
     }) && if_block.statements.is_empty()
     {
