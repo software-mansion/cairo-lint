@@ -7,6 +7,7 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::ExprFunctionCall;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
+use itertools::Itertools;
 
 use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
@@ -49,7 +50,7 @@ pub fn check_panic_usage(
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
         let function_call_exprs = get_all_function_calls(function_body);
-        for function_call_expr in function_call_exprs.iter() {
+        for function_call_expr in function_call_exprs.iter().unique() {
             check_single_panic_usage(db, function_call_expr, diagnostics);
         }
     }
@@ -71,7 +72,7 @@ fn check_single_panic_usage(
         return;
     }
 
-    // Get the origination location of this panic as there is a `panic!` macro that gerates virtual
+    // Get the origination location of this panic as there is a `panic!` macro that generates virtual
     // files
     let initial_file_id =
         StableLocation::new(function_call_expr.stable_ptr.untyped()).file_id(db.upcast());
