@@ -1,6 +1,6 @@
 # eq_comp_op
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/eq_op.rs#L72)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/eq_op.rs#L72)
 
 ## What it does
 

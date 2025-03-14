@@ -17,9 +17,9 @@ include that information in the pull request description.
 
 ## Adding new lint rule
 
-In order to add a new rule, you must extend a [context](crates/cairo-lint-core/src/context.rs) with a new lint or whole lint group.
+In order to add a new rule, you must extend a [context](src/context.rs) with a new lint or whole lint group.
 
-Each individual lint rule should be documented. When implementing [Lint trait](crates/cairo-lint-core/src/context.rs#L118) for the Lint rule, remember to include a documentation for it which should look like this:
+Each individual lint rule should be documented. When implementing [Lint trait](src/context.rs#L118) for the Lint rule, remember to include a documentation for it which should look like this:
 
 ```rust
 /// ## What it does
@@ -62,12 +62,12 @@ cargo insta review
 ### Manual instructions
 
 Each lint should have its own tests and should be extensive. To create a new test for a lint you need to create a new file/module
-in the [test_files folder](./crates/cairo-lint-core/tests) and should be named as your lint. The file should
+in the [test_files folder](tests) and should be named as your lint. The file should
 
 As for tests, we are using [insta](https://insta.rs/) snapshot library. 
 There are 2 testing macros:
-- [test_lint_diagnostics](crates/cairo-lint-core/tests/helpers/mod.rs)
-- [test_lint_fixer](crates/cairo-lint-core/tests/helpers/mod.rs)
+- [test_lint_diagnostics](tests/helpers/mod.rs)
+- [test_lint_fixer](tests/helpers/mod.rs)
 
 Tests should use only the inline snapshots.
 

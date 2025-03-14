@@ -21,13 +21,13 @@ use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_test_plugin::test_plugin_suite;
 use cairo_lang_utils::smol_str::SmolStr;
 use cairo_lang_utils::{Upcast, UpcastMut};
-use cairo_lint_core::context::{get_lint_type_from_diagnostic_message, CairoLintKind};
-use cairo_lint_core::diagnostics::format_diagnostic;
-use cairo_lint_core::fixes::{
+use cairo_lint::context::{get_lint_type_from_diagnostic_message, CairoLintKind};
+use cairo_lint::diagnostics::format_diagnostic;
+use cairo_lint::fixes::{
     apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix,
 };
-use cairo_lint_core::plugin::cairo_lint_plugin_suite;
-use cairo_lint_core::{CairoLintToolMetadata, CAIRO_LINT_TOOL_NAME};
+use cairo_lint::plugin::cairo_lint_plugin_suite;
+use cairo_lint::{CairoLintToolMetadata, CAIRO_LINT_TOOL_NAME};
 use clap::Parser;
 use helpers::*;
 use scarb_metadata::{MetadataCommand, PackageMetadata, TargetMetadata};

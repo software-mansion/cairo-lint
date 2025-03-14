@@ -1,6 +1,6 @@
 # manual_is_err
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/manual/manual_is.rs#L184)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_is.rs#L184)
 
 ## What it does
 

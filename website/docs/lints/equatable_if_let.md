@@ -1,6 +1,6 @@
 # equatable_if_let
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/ifs/equatable_if_let.rs#L36)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/ifs/equatable_if_let.rs#L36)
 
 ## What it does
 

@@ -1,6 +1,6 @@
 # double_parens
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/crates/cairo-lint-core/src/lints/double_parens.rs#L34)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/double_parens.rs#L34)
 
 ## What it does
 

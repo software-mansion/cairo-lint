@@ -1,11 +1,11 @@
 use anyhow::Result;
-use cairo_lint_core::context::find_lint_by_struct_name;
+use cairo_lint::context::find_lint_by_struct_name;
 use clap::Parser;
 use serde::Serialize;
 use serde_json::{ser::PrettyFormatter, Serializer, Value};
 use std::{env, fs, process::Command};
 
-static RUSTDOC_PATH: &str = "target/doc/cairo_lint_core.json";
+static RUSTDOC_PATH: &str = "target/doc/cairo_lint.json";
 static LINT_METADATA_OUTPUT_PATH: &str = "website/lints_metadata.json";
 static LINT_REPO_BASE_URL: &str = "https://github.com/software-mansion/cairo-lint/tree/main/";
 static LINT_DOCS_BASE_PATH: &str = "website/docs/lints/";
@@ -118,7 +118,7 @@ fn get_docs_as_json() -> anyhow::Result<Vec<LintDoc>> {
         .arg("-Z")
         .arg("unstable-options")
         .arg("-p")
-        .arg("cairo-lint-core")
+        .arg("cairo-lint")
         .current_dir(&workspace_root)
         .output()?;
 
