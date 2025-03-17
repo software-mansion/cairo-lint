@@ -216,6 +216,19 @@ fn main() {
 }
 "#;
 
+const IF_LET_NESTED_WITHIN_IF: &str = r#"
+fn main() {
+    let x = Some(42);
+    let y = Some(2);
+
+    if x == y {
+        if let Some(z) = x {
+            println!("Hello, {}", z);
+        }
+    }
+}
+"#;
+
 #[test]
 fn collapsible_if_in_boolean_conditions_diagnostics() {
     test_lint_diagnostics!(COLLAPSIBLE_IF_IN_BOOLEAN_CONDITIONS, @r#"
@@ -575,6 +588,22 @@ fn if_with_assert_diagnostic() {
 }
 
 #[test]
+fn if_let_nested_within_if_diagnostics() {
+    test_lint_diagnostics!(IF_LET_NESTED_WITHIN_IF, @r#"
+    warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+      --> lib.cairo:6:5
+       |
+     6 | /     if x == y {
+     7 | |         if let Some(z) = x {
+     8 | |             println!("Hello, {}", z);
+     9 | |         }
+    10 | |     }
+       | |_____-
+       |
+    "#)
+}
+
+#[test]
 fn if_let_to_ignore_fixer() {
     test_lint_fixer!(IF_LET_TO_IGNORE_WITH_ASSERT, @r"
     fn main() {
@@ -628,4 +657,17 @@ fn if_with_assert_fixer() {
         }
     }
     ")
+}
+
+#[test]
+fn if_let_nested_within_if_fixer() {
+    test_lint_fixer!(IF_LET_NESTED_WITHIN_IF, @r#"
+    fn main() {
+        let x = Some(42);
+        let y = Some(2);
+        if (x == y) && (let Some(z) = x) {
+            println!("Hello, {}", z);
+        }
+    }
+    "#)
 }
