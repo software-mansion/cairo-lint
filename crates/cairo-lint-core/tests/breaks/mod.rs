@@ -70,27 +70,19 @@ fn simple_break_fixer() {
 
 #[test]
 fn simple_break_allowed_diagnostics() {
-    test_lint_diagnostics!(SIMPLE_BREAK_ALLOWED, @r"
-    warning: Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.
-     --> lib.cairo:4:8
-      |
-    4 | /        #[allow(break_unit)]
-    5 | |        break ();
-      | |________________-
-      |
-    ");
+    test_lint_diagnostics!(SIMPLE_BREAK_ALLOWED, @"");
 }
 
 #[test]
 fn simple_break_allowed_fixer() {
-    test_lint_fixer!(SIMPLE_BREAK_ALLOWED, @r#"
+    test_lint_fixer!(SIMPLE_BREAK_ALLOWED, @r"
     fn main() {
        loop {
            #[allow(break_unit)]
-           break;
+           break ();
        }
     }
-    "#);
+    ");
 }
 
 #[test]
