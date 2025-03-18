@@ -5,7 +5,6 @@ use cairo_lang_syntax::node::SyntaxNode;
 
 use std::{cmp::Reverse, collections::HashMap};
 
-pub use annotate_snippets;
 use anyhow::{anyhow, Result};
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_diagnostics::DiagnosticEntry;

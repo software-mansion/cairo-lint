@@ -231,18 +231,15 @@ fn main() {
 
 #[test]
 fn collapsible_if_in_boolean_conditions_diagnostics() {
-    test_lint_diagnostics!(COLLAPSIBLE_IF_IN_BOOLEAN_CONDITIONS, @r#"
-    warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-      --> lib.cairo:7:5
-       |
-     7 | /     if x || z {
-     8 | |         if y && z {
-     9 | |             println!("Hello");
-    10 | |         }
-    11 | |     }
-       | |_____-
-       |
-    "#);
+    test_lint_diagnostics!(COLLAPSIBLE_IF_IN_BOOLEAN_CONDITIONS, @r"
+    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+     --> lib.cairo:7:5-11:5
+          if x || z {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ");
 }
 
 #[test]
@@ -262,16 +259,13 @@ fn collapsible_if_in_boolean_conditions_fixer() {
 #[test]
 fn collapsible_if_in_boolean_conditions_with_comment_diagnostics() {
     test_lint_diagnostics!(COLLAPSIBLE_IF_IN_BOOLEAN_CONDITIONS_WITH_COMMENT, @r"
-    warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-      --> lib.cairo:7:5
-       |
-     7 | /     if x || z {
-     8 | |         if y && z {
-    ...  |
-    11 | |         }
-    12 | |     }
-       | |_____-
-       |
+    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+     --> lib.cairo:7:5-12:5
+          if x || z {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 
@@ -316,18 +310,15 @@ fn collapsible_if_in_boolean_conditions_allowed_fixer() {
 
 #[test]
 fn collapsible_if_with_combinable_conditions_diagnostics() {
-    test_lint_diagnostics!(COLLAPSIBLE_IF_WITH_COMBINABLE_CONDITIONS, @r#"
-    warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-      --> lib.cairo:6:5
-       |
-     6 | /     if x {
-     7 | |         if z {
-     8 | |             println!("No fix here");
-     9 | |         }
-    10 | |     }
-       | |_____-
-       |
-    "#);
+    test_lint_diagnostics!(COLLAPSIBLE_IF_WITH_COMBINABLE_CONDITIONS, @r"
+    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+     --> lib.cairo:6:5-10:5
+          if x {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ");
 }
 
 #[test]
@@ -345,18 +336,15 @@ fn collapsible_if_with_combinable_conditions_fixer() {
 
 #[test]
 fn collapsible_if_in_conditions_with_complex_expressions_diagnostics() {
-    test_lint_diagnostics!(COLLAPSIBLE_IF_IN_CONDITIONS_WITH_COMPLEX_EXPRESSIONS, @r#"
-    warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-      --> lib.cairo:10:5
-       |
-    10 | /     if x + y > a {
-    11 | |         if z * b < c {
-    12 | |             println!("Complex conditions");
-    13 | |         }
-    14 | |     }
-       | |_____-
-       |
-    "#);
+    test_lint_diagnostics!(COLLAPSIBLE_IF_IN_CONDITIONS_WITH_COMPLEX_EXPRESSIONS, @r"
+    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+     --> lib.cairo:10:5-14:5
+          if x + y > a {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ");
 }
 
 #[test]
@@ -378,18 +366,15 @@ fn collapsible_if_in_conditions_with_complex_expressions_fixer() {
 
 #[test]
 fn collapsible_if_with_function_calls_diagnostics() {
-    test_lint_diagnostics!(COLLAPSIBLE_IF_WITH_FUNCTION_CALLS, @r#"
-    warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-      --> lib.cairo:6:5
-       |
-     6 | /     if is_valid(true) {
-     7 | |         if is_ready(true) {
-     8 | |             println!("Function calls in conditions");
-     9 | |         }
-    10 | |     }
-       | |_____-
-       |
-    "#);
+    test_lint_diagnostics!(COLLAPSIBLE_IF_WITH_FUNCTION_CALLS, @r"
+    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+     --> lib.cairo:6:5-10:5
+          if is_valid(true) {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ");
 }
 
 #[test]
@@ -408,18 +393,15 @@ fn collapsible_if_with_function_calls_fixer() {
 
 #[test]
 fn collapsible_if_with_simple_numerical_conditions_diagnostics() {
-    test_lint_diagnostics!(COLLAPSIBLE_IF_WITH_SIMPLE_NUMERICAL_CONDITIONS, @r#"
-    warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-      --> lib.cairo:7:5
-       |
-     7 | /     if a > b {
-     8 | |         if c < b {
-     9 | |             println!("Simple numerical conditions");
-    10 | |         }
-    11 | |     }
-       | |_____-
-       |
-    "#);
+    test_lint_diagnostics!(COLLAPSIBLE_IF_WITH_SIMPLE_NUMERICAL_CONDITIONS, @r"
+    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+     --> lib.cairo:7:5-11:5
+          if a > b {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ");
 }
 
 #[test]
@@ -517,90 +499,74 @@ fn if_let_to_ignore_with_assert_diagnostic() {
 
 #[test]
 fn collapsible_ifs_inside_if_let_diagnostics() {
-    test_lint_diagnostics!(COLLAPSIBLE_IFS_INSIDE_IF_LET, @r#"
-    warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-      --> lib.cairo:10:10
-       |
-    10 | /          if a || b {
-    11 | |             if b && c {
-    12 | |                 println!("Hello");
-    13 | |             }
-    14 | |         }
-       | |_________-
-       |
-    warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-      --> lib.cairo:9:5
-       |
-     9 | /     if let Option::Some(_y) = x {
-    10 | |          if a || b {
-    ...  |
-    14 | |         }
-    15 | |     }
-       | |_____-
-       |
-    "#)
+    test_lint_diagnostics!(COLLAPSIBLE_IFS_INSIDE_IF_LET, @r"
+    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+     --> lib.cairo:10:10-14:9
+               if a || b {
+     __________^
+    | ...
+    |         }
+    |_________^
+    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+     --> lib.cairo:9:5-15:5
+          if let Option::Some(_y) = x {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ")
 }
 
 #[test]
 fn simple_if_inside_if_let_diagnostics() {
-    test_lint_diagnostics!(SIMPLE_IF_INSIDE_IF_LET, @r#"
-    warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-      --> lib.cairo:8:5
-       |
-     8 | /     if let Option::Some(_y) = x {
-     9 | |         if a || b {
-    10 | |             println!("Hello");
-    11 | |         }
-    12 | |     }
-       | |_____-
-       |
-    "#)
+    test_lint_diagnostics!(SIMPLE_IF_INSIDE_IF_LET, @r"
+    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+     --> lib.cairo:8:5-12:5
+          if let Option::Some(_y) = x {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ")
 }
 
 #[test]
 fn collapsible_if_lets_diagnostics() {
-    test_lint_diagnostics!(COLLAPSIBLE_IF_LETS, @r#"
-    warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-     --> lib.cairo:5:5
-      |
-    5 | /     if let Some(inner) = x {
-    6 | |         if let Some(value) = inner {
-    7 | |             println!("The value is: {}", value);
-    8 | |         }
-    9 | |     }
-      | |_____-
-      |
-    "#)
+    test_lint_diagnostics!(COLLAPSIBLE_IF_LETS, @r"
+    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+     --> lib.cairo:5:5-9:5
+          if let Some(inner) = x {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ")
 }
 
 #[test]
 fn if_with_assert_diagnostic() {
     test_lint_diagnostics!(IF_WITH_ASSERT, @r"
-    warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-     --> lib.cairo:7:5
-      |
-    7 | /     if x == y {
-    8 | |         assert!(z == Some(42));
-    9 | |     }
-      | |_____-
-      |
+    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+     --> lib.cairo:7:5-9:5
+          if x == y {
+     _____^
+    |         assert!(z == Some(42));
+    |     }
+    |_____^
     ")
 }
 
 #[test]
 fn if_let_nested_within_if_diagnostics() {
-    test_lint_diagnostics!(IF_LET_NESTED_WITHIN_IF, @r#"
-    warning: Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-      --> lib.cairo:6:5
-       |
-     6 | /     if x == y {
-     7 | |         if let Some(z) = x {
-     8 | |             println!("Hello, {}", z);
-     9 | |         }
-    10 | |     }
-       | |_____-
-       |
-    "#)
+    test_lint_diagnostics!(IF_LET_NESTED_WITHIN_IF, @r"
+    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+     --> lib.cairo:6:5-10:5
+          if x == y {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ")
 }
 
 #[test]

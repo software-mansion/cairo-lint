@@ -125,12 +125,10 @@ fn complex_equality_destructuring_if_let_fixer() {
 #[test]
 fn simple_value_pattern_matching_diagnostics() {
     test_lint_diagnostics!(SIMPLE_VALUE_PATTERN_MATCHING, @r"
-    warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
+    Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
      --> lib.cairo:4:5
-      |
-    4 |     if let 2 = a {}
-      |     ---------------
-      |
+        if let 2 = a {}
+        ^^^^^^^^^^^^^^^
     ");
 }
 
@@ -147,14 +145,13 @@ fn simple_value_pattern_matching_fixer() {
 #[test]
 fn simple_value_pattern_matching_with_comment_diagnostics() {
     test_lint_diagnostics!(SIMPLE_VALUE_PATTERN_MATCHING_WITH_COMMENT, @r"
-    warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
-     --> lib.cairo:4:5
-      |
-    4 | /     if let 2 = a {
-    5 | |       // Just a comment.
-    6 | |     }
-      | |_____-
-      |
+    Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
+     --> lib.cairo:4:5-6:5
+          if let 2 = a {
+     _____^
+    |       // Just a comment.
+    |     }
+    |_____^
     ");
 }
 
@@ -173,12 +170,10 @@ fn simple_value_pattern_matching_with_comment_fixer() {
 #[test]
 fn enum_unit_variant_pattern_matching_diagnostics() {
     test_lint_diagnostics!(ENUM_UNIT_VARIANT_PATTERN_MATCHING, @r"
-    warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
+    Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
      --> lib.cairo:9:5
-      |
-    9 |     if let Enum::UnitVariant = e {}
-      |     -------------------------------
-      |
+        if let Enum::UnitVariant = e {}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     ");
 }
 
@@ -218,14 +213,13 @@ fn complex_equality_destructuring_fixer() {
 #[test]
 fn matching_with_simple_structs_field_diagnostics() {
     test_lint_diagnostics!(MATCHING_WITH_SIMPLE_STRUCTS_FIELD, @r"
-    warning: Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
-     --> lib.cairo:6:5
-      |
-    6 | /     if let Option::Some(2) = x {
-    7 | |         do_thing();
-    8 | |     }
-      | |_____-
-      |
+    Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
+     --> lib.cairo:6:5-8:5
+          if let Option::Some(2) = x {
+     _____^
+    |         do_thing();
+    |     }
+    |_____^
     ");
 }
 

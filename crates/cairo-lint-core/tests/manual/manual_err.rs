@@ -63,16 +63,13 @@ fn main() {
 #[test]
 fn test_basic_err_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_ERR, @r"
-    warning: Plugin diagnostic: Manual match for `err` detected. Consider using `err()` instead
-     --> lib.cairo:5:16
-      |
-    5 |       let _foo = match foo {
-      |  ________________-
-    6 | |         Result::Ok(_) => Option::None,
-    7 | |         Result::Err(x) => Option::Some(x),
-    8 | |     };
-      | |_____-
-      |
+    Plugin diagnostic: Manual match for `err` detected. Consider using `err()` instead
+     --> lib.cairo:5:16-8:5
+          let _foo = match foo {
+     ________________^
+    | ...
+    |     };
+    |_____^
     ");
 }
 
@@ -111,17 +108,13 @@ fn test_basic_err_allowed_fixer() {
 #[test]
 fn test_basic_if_err_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_IF_ERR, @r"
-    warning: Plugin diagnostic: Manual match for `err` detected. Consider using `err()` instead
-     --> lib.cairo:5:14
-      |
-    5 |       let _a = if let Result::Err(x) = res_val {
-      |  ______________-
-    6 | |         Option::Some(x)
-    7 | |     } else {
-    8 | |         Option::None
-    9 | |     };
-      | |_____-
-      |
+    Plugin diagnostic: Manual match for `err` detected. Consider using `err()` instead
+     --> lib.cairo:5:14-9:5
+          let _a = if let Result::Err(x) = res_val {
+     ______________^
+    | ...
+    |     };
+    |_____^
     ");
 }
 

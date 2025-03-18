@@ -4,7 +4,6 @@ use std::cmp::Reverse;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use annotate_snippets::Renderer;
 use anyhow::{anyhow, Result};
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_compiler::project::update_crate_roots_from_project_config;
@@ -176,8 +175,6 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                 }
             }
 
-            let renderer = Renderer::styled();
-
             let diagnostics = diags
                 .iter()
                 .flat_map(|diags| {
@@ -195,7 +192,7 @@ fn main_inner(ui: &Ui, args: Args) -> Result<()> {
                                 true
                             }
                         })
-                        .for_each(|diag| ui.print(format_diagnostic(diag, &db, &renderer)));
+                        .for_each(|diag| ui.print(format_diagnostic(diag, &db)));
                     all_diags
                 })
                 .collect::<Vec<_>>();

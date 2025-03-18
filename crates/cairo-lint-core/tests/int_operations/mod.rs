@@ -87,12 +87,10 @@ fn main() {
 #[test]
 fn int_ge_plus_one_diagnostics() {
     test_lint_diagnostics!(INT_GE_PLUS_ONE, @r"
-    warning: Plugin diagnostic: Unnecessary add operation in integer >= comparison. Use simplified comparison.
+    Plugin diagnostic: Unnecessary add operation in integer >= comparison. Use simplified comparison.
      --> lib.cairo:5:8
-      |
-    5 |     if x >= y + 1 {}
-      |        ----------
-      |
+        if x >= y + 1 {}
+           ^^^^^^^^^^
     ");
 }
 
@@ -145,12 +143,10 @@ fn int_gt_plus_one_fixer() {
 #[test]
 fn int_ge_min_one_diagnostics() {
     test_lint_diagnostics!(INT_GE_MIN_ONE, @r"
-    warning: Plugin diagnostic: Unnecessary sub operation in integer >= comparison. Use simplified comparison.
+    Plugin diagnostic: Unnecessary sub operation in integer >= comparison. Use simplified comparison.
      --> lib.cairo:5:8
-      |
-    5 |     if x - 1 >= y {}
-      |        ----------
-      |
+        if x - 1 >= y {}
+           ^^^^^^^^^^
     ");
 }
 
@@ -185,12 +181,10 @@ fn int_gt_min_one_fixer() {
 #[test]
 fn int_le_plus_one_diagnostics() {
     test_lint_diagnostics!(INT_LE_PLUS_ONE, @r"
-    warning: Plugin diagnostic: Unnecessary add operation in integer <= comparison. Use simplified comparison.
+    Plugin diagnostic: Unnecessary add operation in integer <= comparison. Use simplified comparison.
      --> lib.cairo:5:8
-      |
-    5 |     if x + 1 <= y {}
-      |        ----------
-      |
+        if x + 1 <= y {}
+           ^^^^^^^^^^
     ");
 }
 
@@ -230,12 +224,10 @@ fn int_lt_plus_one_fixer() {
 #[test]
 fn int_le_min_one_diagnostics() {
     test_lint_diagnostics!(INT_LE_MIN_ONE, @r"
-    warning: Plugin diagnostic: Unnecessary sub operation in integer <= comparison. Use simplified comparison.
+    Plugin diagnostic: Unnecessary sub operation in integer <= comparison. Use simplified comparison.
      --> lib.cairo:5:8
-      |
-    5 |     if x <= y - 1 {}
-      |        ----------
-      |
+        if x <= y - 1 {}
+           ^^^^^^^^^^
     ");
 }
 

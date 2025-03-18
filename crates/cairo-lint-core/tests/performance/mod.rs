@@ -62,12 +62,10 @@ fn main() {
 #[test]
 fn while_loop_exit_condition_less_than_diagnostics() {
     test_lint_diagnostics!(WHILE_LOOP_EXIT_CONDITION_LESS_THAN, @r"
-    warning: Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
+    Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
      --> lib.cairo:4:11
-      |
-    4 |     while a < 10 {
-      |           ------
-      |
+        while a < 10 {
+              ^^^^^^
     ");
 }
 
@@ -86,12 +84,10 @@ fn while_loop_exit_condition_less_than_fixer() {
 #[test]
 fn while_loop_exit_condition_less_than_or_equal_diagnostics() {
     test_lint_diagnostics!(WHILE_LOOP_EXIT_CONDITION_LESS_THAN_OR_EQUAL, @r"
-    warning: Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
+    Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
      --> lib.cairo:4:11
-      |
-    4 |     while a <= 10 {
-      |           -------
-      |
+        while a <= 10 {
+              ^^^^^^^
     ");
 }
 
@@ -129,12 +125,10 @@ fn while_loop_exit_condition_less_than_or_equal_allowed_fixer() {
 #[test]
 fn while_loop_exit_condition_greater_than_diagnostics() {
     test_lint_diagnostics!(WHILE_LOOP_EXIT_CONDITION_GREATER_THAN, @r"
-    warning: Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
+    Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
      --> lib.cairo:4:11
-      |
-    4 |     while a > 0 {
-      |           -----
-      |
+        while a > 0 {
+              ^^^^^
     ");
 }
 
@@ -153,12 +147,10 @@ fn while_loop_exit_condition_greater_than_fixer() {
 #[test]
 fn while_loop_exit_condition_greater_than_or_equal_diagnostics() {
     test_lint_diagnostics!(WHILE_LOOP_EXIT_CONDITION_GREATER_THAN_OR_EQUAL, @r"
-    warning: Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
+    Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
      --> lib.cairo:4:11
-      |
-    4 |     while a >= 0 {
-      |           ------
-      |
+        while a >= 0 {
+              ^^^^^^
     ");
 }
 
@@ -177,18 +169,14 @@ fn while_loop_exit_condition_greater_than_or_equal_fixer() {
 #[test]
 fn while_loop_exit_condition_nested_diagnostics() {
     test_lint_diagnostics!(WHILE_LOOP_EXIT_CONDITION_NESTED, @r"
-    warning: Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
+    Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
      --> lib.cairo:5:11
-      |
-    5 |     while a < 10 && b < 5 {
-      |           ------
-      |
-    warning: Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
+        while a < 10 && b < 5 {
+              ^^^^^^
+    Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.
      --> lib.cairo:5:21
-      |
-    5 |     while a < 10 && b < 5 {
-      |                     -----
-      |
+        while a < 10 && b < 5 {
+                        ^^^^^
     ");
 }
 

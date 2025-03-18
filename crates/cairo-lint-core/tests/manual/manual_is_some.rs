@@ -94,16 +94,13 @@ fn main() {
 #[test]
 fn test_basic_is_some_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_IS_SOME, @r"
-    warning: Plugin diagnostic: Manual match for `is_some` detected. Consider using `is_some()` instead
-     --> lib.cairo:5:14
-      |
-    5 |     let _foo = match foo {
-      |  ______________-
-    6 | |       Option::Some(_) => true,
-    7 | |       Option::None => false,
-    8 | |   };
-      | |___-
-      |
+    Plugin diagnostic: Manual match for `is_some` detected. Consider using `is_some()` instead
+     --> lib.cairo:5:14-8:3
+        let _foo = match foo {
+     ______________^
+    | ...
+    |   };
+    |___^
     ");
 }
 
@@ -188,16 +185,13 @@ fn test_with_comment_in_none_fixer() {
 #[test]
 fn test_match_expression_is_a_function_diagnostics() {
     test_lint_diagnostics!(TEST_MATCH_EXPRESSION_IS_A_FUNCTION, @r"
-    warning: Plugin diagnostic: Manual match for `is_some` detected. Consider using `is_some()` instead
-      --> lib.cairo:8:12
-       |
-     8 |     let _a = match foo(a) {
-       |  ____________-
-     9 | |       Option::Some(_) => true,
-    10 | |       Option::None => false
-    11 | |   };
-       | |___-
-       |
+    Plugin diagnostic: Manual match for `is_some` detected. Consider using `is_some()` instead
+     --> lib.cairo:8:12-11:3
+        let _a = match foo(a) {
+     ____________^
+    | ...
+    |   };
+    |___^
     ");
 }
 
@@ -218,17 +212,13 @@ fn test_match_expression_is_a_function_fixer() {
 #[test]
 fn test_manual_if_diagnostics() {
     test_lint_diagnostics!(TEST_MANUAL_IF, @r"
-    warning: Plugin diagnostic: Manual match for `is_some` detected. Consider using `is_some()` instead
-     --> lib.cairo:5:12
-      |
-    5 |     let _a = if let Option::Some(_) = opt_val {
-      |  ____________-
-    6 | |       true
-    7 | |   } else {
-    8 | |       false
-    9 | |   };
-      | |___-
-      |
+    Plugin diagnostic: Manual match for `is_some` detected. Consider using `is_some()` instead
+     --> lib.cairo:5:12-9:3
+        let _a = if let Option::Some(_) = opt_val {
+     ____________^
+    | ...
+    |   };
+    |___^
     ");
 }
 

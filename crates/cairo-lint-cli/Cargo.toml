@@ -10,7 +10,6 @@ name = "scarb-cairo-lint"
 path = "src/main.rs"
 
 [dependencies]
-annotate-snippets.workspace = true
 anyhow.workspace = true
 cairo-lang-compiler.workspace = true
 cairo-lang-defs.workspace = true

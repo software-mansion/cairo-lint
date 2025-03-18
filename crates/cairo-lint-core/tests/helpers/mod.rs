@@ -116,14 +116,13 @@ macro_rules! test_lint_diagnostics {
       ::cairo_lang_semantic::test_utils::setup_test_crate_ex(db.upcast(), $before, Some($crate::CRATE_CONFIG), None),
       &mut db,
     );
-    let renderer = ::annotate_snippets::Renderer::plain();
     let formatted_diags = diags
       .into_iter()
       .flat_map(|diags| {
         diags
           .get_all()
           .iter()
-          .map(|diag| ::cairo_lint_core::diagnostics::format_diagnostic(diag, &db, &renderer))
+          .map(|diag| ::cairo_lint_core::diagnostics::format_diagnostic(diag, &db))
           .collect::<Vec<_>>()
       })
       .collect::<String>()

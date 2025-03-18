@@ -94,16 +94,13 @@ fn main() {
 #[test]
 fn test_basic_is_none_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_IS_NONE, @r"
-    warning: Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
-     --> lib.cairo:5:16
-      |
-    5 |       let _foo = match foo {
-      |  ________________-
-    6 | |         Option::Some(_) => false,
-    7 | |         Option::None => true,
-    8 | |     };
-      | |_____-
-      |
+    Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
+     --> lib.cairo:5:16-8:5
+          let _foo = match foo {
+     ________________^
+    | ...
+    |     };
+    |_____^
     ");
 }
 
@@ -188,16 +185,13 @@ fn test_with_comment_in_none_fixer() {
 #[test]
 fn test_match_expression_is_a_function_diagnostics() {
     test_lint_diagnostics!(TEST_MATCH_EXPRESSION_IS_A_FUNCTION, @r"
-    warning: Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
-      --> lib.cairo:8:14
-       |
-     8 |       let _a = match foo(a) {
-       |  ______________-
-     9 | |         Option::Some(_) => false,
-    10 | |         Option::None => true
-    11 | |     };
-       | |_____-
-       |
+    Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
+     --> lib.cairo:8:14-11:5
+          let _a = match foo(a) {
+     ______________^
+    | ...
+    |     };
+    |_____^
     ");
 }
 
@@ -218,17 +212,13 @@ fn test_match_expression_is_a_function_fixer() {
 #[test]
 fn test_manual_if_diagnostics() {
     test_lint_diagnostics!(TEST_MANUAL_IF, @r"
-    warning: Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
-     --> lib.cairo:5:14
-      |
-    5 |       let _a = if let Option::Some(_) = opt_val {
-      |  ______________-
-    6 | |         false
-    7 | |     } else {
-    8 | |         true
-    9 | |     };
-      | |_____-
-      |
+    Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
+     --> lib.cairo:5:14-9:5
+          let _a = if let Option::Some(_) = opt_val {
+     ______________^
+    | ...
+    |     };
+    |_____^
     ");
 }
 

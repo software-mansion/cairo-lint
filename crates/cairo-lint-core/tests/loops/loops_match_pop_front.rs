@@ -142,16 +142,13 @@ fn main() {
 #[test]
 fn simple_loop_match_pop_front_diagnostics() {
     test_lint_diagnostics!(SIMPLE_LOOP_MATCH_POP_FRONT, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
-     --> lib.cairo:4:5
-      |
-    4 | /     loop {
-    5 | |         match a.pop_front() {
-    ... |
-    8 | |         }
-    9 | |     }
-      | |_____-
-      |
+    Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
+     --> lib.cairo:4:5-9:5
+          loop {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 
@@ -170,16 +167,13 @@ fn simple_loop_match_pop_front_fixer() {
 #[test]
 fn simple_loop_match_pop_front_with_comment_diagnostics() {
     test_lint_diagnostics!(SIMPLE_LOOP_MATCH_POP_FRONT_WITH_COMMENT, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
-      --> lib.cairo:5:5
-       |
-     5 | /     loop {
-     6 | |         // This comment should be omitted.
-    ...  |
-    14 | |         }
-    15 | |     }
-       | |_____-
-       |
+    Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
+     --> lib.cairo:5:5-15:5
+          loop {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 
@@ -223,16 +217,13 @@ fn simple_loop_match_pop_front_with_let_fixer() {
 #[test]
 fn simple_loop_match_pop_front_impl_path_diagnostics() {
     test_lint_diagnostics!(SIMPLE_LOOP_MATCH_POP_FRONT_IMPL_PATH, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
-      --> lib.cairo:5:5
-       |
-     5 | /     loop {
-     6 | |         match SpanImpl::pop_front(ref a) {
-    ...  |
-     9 | |         }
-    10 | |     }
-       | |_____-
-       |
+    Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
+     --> lib.cairo:5:5-10:5
+          loop {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 
@@ -252,16 +243,13 @@ fn simple_loop_match_pop_front_impl_path_fixer() {
 #[test]
 fn simple_loop_match_pop_front_multiple_dots_diagnostics() {
     test_lint_diagnostics!(SIMPLE_LOOP_MATCH_POP_FRONT_MULTIPLE_DOTS, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
-      --> lib.cairo:10:5
-       |
-    10 | /     loop {
-    11 | |         match a.b.c.pop_front() {
-    ...  |
-    14 | |         }
-    15 | |     }
-       | |_____-
-       |
+    Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
+     --> lib.cairo:10:5-15:5
+          loop {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 
@@ -286,16 +274,13 @@ fn simple_loop_match_pop_front_multiple_dots_fixer() {
 #[test]
 fn loop_match_pop_front_with_comment_in_some_diagnostics() {
     test_lint_diagnostics!(LOOP_MATCH_POP_FRONT_WITH_COMMENT_IN_SOME, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
-      --> lib.cairo:4:5
-       |
-     4 | /     loop {
-     5 | |         match a.pop_front() {
-    ...  |
-    13 | |         }
-    14 | |     }
-       | |_____-
-       |
+    Plugin diagnostic: you seem to be trying to use `loop` for iterating over a span. Consider using `for in`
+     --> lib.cairo:4:5-14:5
+          loop {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 

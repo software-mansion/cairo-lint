@@ -58,12 +58,10 @@ fn main() {
 #[test]
 fn with_single_variable_diagnostics() {
     test_lint_diagnostics!(WITH_SINGLE_VARIABLE, @r"
-    warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
+    Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
      --> lib.cairo:3:14
-      |
-    3 |     let _a = 200_u32 & 1;
-      |              -----------
-      |
+        let _a = 200_u32 & 1;
+                 ^^^^^^^^^^^
     ");
 }
 
@@ -79,18 +77,14 @@ fn with_single_variable_fixer() {
 #[test]
 fn with_multiple_variables_diagnostics() {
     test_lint_diagnostics!(WITH_MULTIPLE_VARIABLES, @r"
-    warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
+    Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
      --> lib.cairo:5:20
-      |
-    5 |     let _result = (x & 1) + (y & 1);
-      |                    -----
-      |
-    warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
+        let _result = (x & 1) + (y & 1);
+                       ^^^^^
+    Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
      --> lib.cairo:5:30
-      |
-    5 |     let _result = (x & 1) + (y & 1);
-      |                              -----
-      |
+        let _result = (x & 1) + (y & 1);
+                                 ^^^^^
     ");
 }
 
@@ -126,12 +120,10 @@ fn with_multiple_variables_allowed_fixer() {
 #[test]
 fn in_a_loop_diagnostics() {
     test_lint_diagnostics!(IN_A_LOOP, @r"
-    warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
+    Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
      --> lib.cairo:4:17
-      |
-    4 |         let y = i & 1;
-      |                 -----
-      |
+            let y = i & 1;
+                    ^^^^^
     ");
 }
 
@@ -150,12 +142,10 @@ fn in_a_loop_fixer() {
 #[test]
 fn with_conditional_logic_diagnostics() {
     test_lint_diagnostics!(WITH_CONDITIONAL_LOGIC, @r"
-    warning: Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
+    Plugin diagnostic: You seem to be trying to use `&` for parity check. Consider using `DivRem::div_rem()` instead.
      --> lib.cairo:4:9
-      |
-    4 |     if (x & 1) == 1 {
-      |         -----
-      |
+        if (x & 1) == 1 {
+            ^^^^^
     ");
 }
 

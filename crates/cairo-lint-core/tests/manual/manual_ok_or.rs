@@ -133,16 +133,13 @@ fn main() {
 #[test]
 fn test_error_str_diagnostics() {
     test_lint_diagnostics!(TEST_ERROR_STR, @r"
-    warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
-     --> lib.cairo:5:16
-      |
-    5 |       let _foo = match foo {
-      |  ________________-
-    6 | |         Option::Some(v) => Result::Ok(v),
-    7 | |         Option::None => Result::Err('this is an err'),
-    8 | |     };
-      | |_____-
-      |
+    Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
+     --> lib.cairo:5:16-8:5
+          let _foo = match foo {
+     ________________^
+    | ...
+    |     };
+    |_____^
     ");
 }
 
@@ -181,16 +178,13 @@ fn test_error_str_allowed_fixer() {
 #[test]
 fn test_error_enum_diagnostics() {
     test_lint_diagnostics!(TEST_ERROR_ENUM, @r"
-    warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
-      --> lib.cairo:8:16
-       |
-     8 |       let _foo = match foo {
-       |  ________________-
-     9 | |         Option::Some(v) => Result::Ok(v),
-    10 | |         Option::None => Result::Err(Error::Error),
-    11 | |     };
-       | |_____-
-       |
+    Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
+     --> lib.cairo:8:16-11:5
+          let _foo = match foo {
+     ________________^
+    | ...
+    |     };
+    |_____^
     ");
 }
 
@@ -257,16 +251,13 @@ fn test_with_comment_in_some_fixer() {
 #[test]
 fn test_match_expression_not_a_variable_diagnostics() {
     test_lint_diagnostics!(TEST_MATCH_EXPRESSION_NOT_A_VARIABLE, @r"
-    warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
-      --> lib.cairo:9:43
-       |
-     9 |       let _self_result: Result<u8, Error> = match self.try_into() {
-       |  ___________________________________________-
-    10 | |         Option::Some(value) => Result::Ok(value),
-    11 | |         Option::None => Result::Err(Error::Error)
-    12 | |     };
-       | |_____-
-       |
+    Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
+     --> lib.cairo:9:43-12:5
+          let _self_result: Result<u8, Error> = match self.try_into() {
+     ___________________________________________^
+    | ...
+    |     };
+    |_____^
     ");
 }
 
@@ -288,17 +279,13 @@ fn test_match_expression_not_a_variable_fixer() {
 #[test]
 fn test_manual_if_diagnostics() {
     test_lint_diagnostics!(TEST_MANUAL_IF, @r"
-    warning: Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
-     --> lib.cairo:5:14
-      |
-    5 |       let _a = if let Option::Some(val) = opt_val {
-      |  ______________-
-    6 | |         Result::Ok(val)
-    7 | |     } else {
-    8 | |         Result::Err('err')
-    9 | |     };
-      | |_____-
-      |
+    Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
+     --> lib.cairo:5:14-9:5
+          let _a = if let Option::Some(val) = opt_val {
+     ______________^
+    | ...
+    |     };
+    |_____^
     ");
 }
 

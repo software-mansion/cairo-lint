@@ -168,17 +168,15 @@ fn main() {
 
 #[test]
 fn simple_destructuring_match_diagnostics() {
-    test_lint_diagnostics!(SIMPLE_DESTRUCTURING_MATCH, @r#"
-    warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
-     --> lib.cairo:4:5
-      |
-    4 | /     match variable {
-    5 | |         Option::Some(a) => println!("{a}"),
-    6 | |         _ => (),
-    7 | |     };
-      | |_____-
-      |
-    "#);
+    test_lint_diagnostics!(SIMPLE_DESTRUCTURING_MATCH, @r"
+    Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+     --> lib.cairo:4:5-7:5
+          match variable {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
 }
 
 #[test]
@@ -215,17 +213,15 @@ fn simple_destructuring_match_second_arm_fixer() {
 
 #[test]
 fn simple_destructuring_match_with_scope_diagnostics() {
-    test_lint_diagnostics!(SIMPLE_DESTRUCTURING_MATCH_WITH_SCOPE, @r#"
-    warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
-     --> lib.cairo:4:5
-      |
-    4 | /     match variable {
-    5 | |         Option::Some(a) => println!("{a}"),
-    6 | |         _ => {},
-    7 | |     };
-      | |_____-
-      |
-    "#);
+    test_lint_diagnostics!(SIMPLE_DESTRUCTURING_MATCH_WITH_SCOPE, @r"
+    Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+     --> lib.cairo:4:5-7:5
+          match variable {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
 }
 
 #[test]
@@ -242,17 +238,15 @@ fn simple_destructuring_match_with_scope_fixer() {
 
 #[test]
 fn simple_destructuring_match_with_unit_in_scope_diagnostics() {
-    test_lint_diagnostics!(SIMPLE_DESTRUCTURING_MATCH_WITH_UNIT_IN_SCOPE, @r#"
-    warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
-     --> lib.cairo:4:5
-      |
-    4 | /     match variable {
-    5 | |         Option::Some(a) => println!("{a}"),
-    6 | |         _ => { () },
-    7 | |     };
-      | |_____-
-      |
-    "#);
+    test_lint_diagnostics!(SIMPLE_DESTRUCTURING_MATCH_WITH_UNIT_IN_SCOPE, @r"
+    Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+     --> lib.cairo:4:5-7:5
+          match variable {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
 }
 
 #[test]
@@ -269,28 +263,22 @@ fn simple_destructuring_match_with_unit_in_scope_fixer() {
 
 #[test]
 fn nested_destructuring_match_diagnostics() {
-    test_lint_diagnostics!(NESTED_DESTRUCTURING_MATCH, @r#"
-    warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
-     --> lib.cairo:6:28
-      |
-    6 |           Option::Some(a) => match a {
-      |  ____________________________-
-    7 | |             Option::Some(b) => println!("{b}"),
-    8 | |             _ => (),
-    9 | |         },
-      | |_________-
-      |
-    warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
-      --> lib.cairo:5:5
-       |
-     5 | /     match variable {
-     6 | |         Option::Some(a) => match a {
-    ...  |
-    10 | |         _ => (),
-    11 | |     };
-       | |_____-
-       |
-    "#);
+    test_lint_diagnostics!(NESTED_DESTRUCTURING_MATCH, @r"
+    Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+     --> lib.cairo:6:28-9:9
+              Option::Some(a) => match a {
+     ____________________________^
+    | ...
+    |         },
+    |_________^
+    Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+     --> lib.cairo:5:5-11:5
+          match variable {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
 }
 
 #[test]
@@ -303,16 +291,13 @@ fn nested_destructuring_match_fixer() {
 #[test]
 fn destructuring_match_twisted_diagnostics() {
     test_lint_diagnostics!(DESTRUCTURING_MATCH_TWISTED, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
-      --> lib.cairo:5:5
-       |
-     5 | /     match variable {
-     6 | |         // This match is invalid hence no diag/fix for this one
-    ...  |
-    11 | |         _ => (),
-    12 | |     };
-       | |_____-
-       |
+    Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+     --> lib.cairo:5:5-12:5
+          match variable {
+     _____^
+    | ...
+    |     };
+    |_____^
     ");
 }
 
@@ -334,18 +319,15 @@ fn destructuring_match_twisted_fixer() {
 
 #[test]
 fn destructuring_match_twisted_differently_diagnostics() {
-    test_lint_diagnostics!(DESTRUCTURING_MATCH_TWISTED_DIFFERENTLY, @r#"
-    warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
-      --> lib.cairo:8:28
-       |
-     8 |           Option::Some(a) => match a {
-       |  ____________________________-
-     9 | |             Option::Some(b) => println!("{b}"),
-    10 | |             _ => (),
-    11 | |         },
-       | |_________-
-       |
-    "#);
+    test_lint_diagnostics!(DESTRUCTURING_MATCH_TWISTED_DIFFERENTLY, @r"
+    Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+     --> lib.cairo:8:28-11:9
+              Option::Some(a) => match a {
+     ____________________________^
+    | ...
+    |         },
+    |_________^
+    ");
 }
 
 #[test]
@@ -390,17 +372,15 @@ fn destructuring_match_second_arm_fixer() {
 
 #[test]
 fn destructuring_comprehensive_match_diagnostics() {
-    test_lint_diagnostics!(DESTRUCTURING_COMPREHENSIVE_MATCH, @r#"
-    warning: Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
-     --> lib.cairo:4:5
-      |
-    4 | /     match variable {
-    5 | |         Option::Some(a) => println!("{a}"),
-    6 | |         Option::None => (),
-    7 | |     };
-      | |_____-
-      |
-    "#);
+    test_lint_diagnostics!(DESTRUCTURING_COMPREHENSIVE_MATCH, @r"
+    Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+     --> lib.cairo:4:5-7:5
+          match variable {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
 }
 
 #[test]
@@ -479,17 +459,15 @@ fn simple_destructuring_match_with_comment_in_scope_fixer() {
 
 #[test]
 fn comprehensive_match_diagnostics() {
-    test_lint_diagnostics!(COMPREHENSIVE_MATCH, @r#"
-    warning: Plugin diagnostic: you seem to be trying to use `match` for an equality check. Consider using `if`
-     --> lib.cairo:4:5
-      |
-    4 | /     match variable {
-    5 | |         Option::None => println!("None"),
-    6 | |         Option::Some => (),
-    7 | |     };
-      | |_____-
-      |
-    "#);
+    test_lint_diagnostics!(COMPREHENSIVE_MATCH, @r"
+    Plugin diagnostic: you seem to be trying to use `match` for an equality check. Consider using `if`
+     --> lib.cairo:4:5-7:5
+          match variable {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
 }
 
 #[test]

@@ -92,16 +92,13 @@ fn main() {
 #[test]
 fn test_basic_match_expect_err_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_MATCH_EXPECT_ERR, @r"
-    warning: Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead
-     --> lib.cairo:6:16
-      |
-    6 |       let _foo = match foo {
-      |  ________________-
-    7 | |         Result::Ok(_) => core::panic_with_felt252(err),
-    8 | |         Result::Err(x) => x,
-    9 | |     };
-      | |_____-
-      |
+    Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead
+     --> lib.cairo:6:16-9:5
+          let _foo = match foo {
+     ________________^
+    | ...
+    |     };
+    |_____^
     ");
 }
 
@@ -142,17 +139,13 @@ fn test_basic_match_expect_err_allowed_fixer() {
 #[test]
 fn test_basic_if_expect_err_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_IF_EXPECT_ERR, @r"
-    warning: Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead
-     --> lib.cairo:5:14
-      |
-    5 |       let _a = if let Result::Err(err) = foo {
-      |  ______________-
-    6 | |         err
-    7 | |     } else {
-    8 | |         core::panic_with_felt252('panic')
-    9 | |     };
-      | |_____-
-      |
+    Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead
+     --> lib.cairo:5:14-9:5
+          let _a = if let Result::Err(err) = foo {
+     ______________^
+    | ...
+    |     };
+    |_____^
     ");
 }
 
@@ -213,16 +206,13 @@ fn test_if_with_other_err_fixer() {
 #[test]
 fn test_match_with_function_diagnostics() {
     test_lint_diagnostics!(TEST_MATCH_WITH_FUNCTION, @r"
-    warning: Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead
-      --> lib.cairo:7:16
-       |
-     7 |       let _foo = match foo(0) {
-       |  ________________-
-     8 | |         Result::Ok(_) => core::panic_with_felt252('error'),
-     9 | |         Result::Err(err) => err,
-    10 | |     };
-       | |_____-
-       |
+    Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead
+     --> lib.cairo:7:16-10:5
+          let _foo = match foo(0) {
+     ________________^
+    | ...
+    |     };
+    |_____^
     ");
 }
 
@@ -242,17 +232,13 @@ fn test_match_with_function_fixer() {
 #[test]
 fn test_if_with_function_diagnostics() {
     test_lint_diagnostics!(TEST_IF_WITH_FUNCTION, @r"
-    warning: Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead
-      --> lib.cairo:7:14
-       |
-     7 |       let _a = if let Result::Err(err) = foo(0) {
-       |  ______________-
-     8 | |         err
-     9 | |     } else {
-    10 | |         core::panic_with_felt252('panic')
-    11 | |     };
-       | |_____-
-       |
+    Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead
+     --> lib.cairo:7:14-11:5
+          let _a = if let Result::Err(err) = foo(0) {
+     ______________^
+    | ...
+    |     };
+    |_____^
     ");
 }
 
