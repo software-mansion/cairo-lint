@@ -13,12 +13,12 @@ use cairo_lang_filesystem::db::FilesGroup;
 use cairo_lang_filesystem::ids::FileId;
 use cairo_lang_semantic::{diagnostic::SemanticDiagnosticKind, SemanticDiagnostic};
 use cairo_lang_utils::Upcast;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub static CAIRO_LINT_TOOL_NAME: &str = "cairo-lint";
 
 /// Describes tool metadata for the Cairo lint.
-#[derive(Deserialize, Default, Debug)]
+#[derive(Serialize, Deserialize, Clone, Default, Debug)]
 pub struct CairoLintToolMetadata {
     pub nopanic: bool,
 }

@@ -29,6 +29,10 @@ scarb cairo-lint --fix
 
 - The `--test` flag to include test files.
 
+## Documentation 
+
+All information about Cairo lint is available on project's [website](https://docs.swmansion.com/cairo-lint/).
+
 ## Community
 
 As for now there is only a [telegram channel](https://t.me/cairolint) dedicated to cairo-lint.
