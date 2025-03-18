@@ -30,21 +30,21 @@ jobs:
       - name: Run cargo clippy
         run: cargo clippy -- -D warnings
   build-test:
-    name: build tests
+    name: Build tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@nextest
-      - name: nextest archive
+      - name: Run nextest archive
         run: cargo nextest archive --workspace --all-features --cargo-profile ci --archive-file 'nextest-archive.tar.zst'
       - uses: actions/upload-artifact@v4
         with:
           name: nextest-archive
           path: nextest-archive.tar.zst
   test:
-    name: test ${{ matrix.partition}}/4
+    name: Test ${{ matrix.partition}}/4
     runs-on: ubuntu-latest
     needs:
       - build-test
@@ -61,7 +61,7 @@ jobs:
           name: nextest-archive
       - name: Get corelib
         run: git clone https://github.com/starkware-libs/cairo
-      - name: nextest partition ${{ matrix.partition }}/4
+      - name: Run nextest partition ${{ matrix.partition }}/4
         run: CORELIB_PATH="$(pwd)/cairo/corelib/src" cargo nextest run --partition 'count:${{ matrix.partition }}/4' --archive-file 'nextest-archive.tar.zst'  
   check-website:
     name: Website prettier check
