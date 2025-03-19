@@ -55,14 +55,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - uses: software-mansion/setup-scarb@v1
+        with:
+          cache: false
       - uses: taiki-e/install-action@nextest
       - uses: actions/download-artifact@v4
         with:
           name: nextest-archive
-      - name: Get corelib
-        run: git clone https://github.com/starkware-libs/cairo
       - name: Run nextest partition ${{ matrix.partition }}/4
-        run: CORELIB_PATH="$(pwd)/cairo/corelib/src" cargo nextest run --partition 'count:${{ matrix.partition }}/4' --archive-file 'nextest-archive.tar.zst'  
+        run: cargo nextest run --partition 'count:${{ matrix.partition }}/4' --archive-file 'nextest-archive.tar.zst'
   check-website:
     name: Website prettier check
     runs-on: ubuntu-latest

@@ -16,14 +16,14 @@ enum Cake {
 }
 "#;
 
-const ENUM_WITH_PREFIX: &str = r#"
+const ENUM_WITH_SUFFIX: &str = r#"
 enum Wood {
     BlackForest,
     WhiteForest,
 }
 "#;
 
-const ENUM_WITH_SUFFIX: &str = r#"
+const ENUM_WITH_PREFIX: &str = r#"
 enum Wood {
     ForestBlack,
     ForestWhite,
@@ -73,6 +73,23 @@ enum Cake {
    DoubleCakeBlackForestGreen,
    DoubleCakeHummingbirdForestGreen,
    DoubleCakeBattenbergForestGreen,
+}
+"#;
+
+const ALLOW_ENUM_WITH_PREFIX_AND_SUFFIX: &str = r#"
+#[allow(enum_variant_names)]
+enum Cake {
+   DoubleBlackForest,
+   DoubleHummingbirdForest,
+   DoubleBattenbergForest,
+}
+"#;
+
+const ALLOW_ENUM_WITH_SUFFIX: &str = r#"
+#[allow(enum_variant_names)]
+enum Cake {
+    BlackForest,
+    WhiteForest,
 }
 "#;
 
@@ -151,20 +168,29 @@ fn enum_with_not_all_suffixed_name_diagnostics() {
 }
 
 #[test]
-fn enum_with_not_camel_case_suffix() {
+fn enum_with_not_camel_case_suffix_diagnostics() {
     test_lint_diagnostics!(ENUM_WITH_NOT_CAMEL_CASE_SUFFIX, @r"")
 }
 
 #[test]
-fn enum_with_not_camel_case_prefix() {
+fn enum_with_not_camel_case_prefix_diagnostics() {
     test_lint_diagnostics!(ENUM_WITH_NOT_CAMEL_CASE_PREFIX, @r"")
 }
 
 #[test]
-fn enum_test() {
+fn enum_test_diagnostics() {
     test_lint_diagnostics!(ENUM_SINGLE, @r"");
 }
 
+#[test]
+fn allow_enum_with_prefix_and_suffix_diagnostics() {
+    test_lint_diagnostics!(ALLOW_ENUM_WITH_PREFIX_AND_SUFFIX, @"");
+}
+
+#[test]
+fn allow_enum_with_suffix_diagnostics() {
+    test_lint_diagnostics!(ALLOW_ENUM_WITH_SUFFIX, @"")
+}
 #[test]
 fn enum_with_suffixed_name_fixer() {
     test_lint_fixer!(ENUM_WITH_SUFFIXED_NAME, @r"
@@ -269,4 +295,27 @@ fn enum_with_prefixes_and_suffixes_fixer() {
        Battenberg,
     }
     ");
+}
+
+#[test]
+fn allow_enum_with_prefix_and_suffix_fixer() {
+    test_lint_fixer!(ALLOW_ENUM_WITH_PREFIX_AND_SUFFIX, @r"
+    #[allow(enum_variant_names)]
+    enum Cake {
+       DoubleBlackForest,
+       DoubleHummingbirdForest,
+       DoubleBattenbergForest,
+    }
+    ")
+}
+
+#[test]
+fn allow_enum_with_suffix_fixer() {
+    test_lint_fixer!(ALLOW_ENUM_WITH_SUFFIX, @r"
+    #[allow(enum_variant_names)]
+    enum Cake {
+        BlackForest,
+        WhiteForest,
+    }
+    ")
 }

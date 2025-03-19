@@ -41,14 +41,19 @@ cairo-lang-utils = "*"
 clap = { version = "4.5.31", features = ["derive"]}
 ctor = "0.2.9"
 if_chain = "1.0.2"
+indoc = "2"
 insta = "1.41.0"
 itertools = "0.14.0"
 log = "0.4.26"
 num-bigint = "0.4.6"
 pretty_assertions = "1.4.1"
+scarb-metadata = "1.14.0"
+semver = "1.0.25"
 serde = { version = "1", features = ["serde_derive"] }
 serde_json = { version = "1" }
+tempfile = "3"
 test-case = "3.0"
+which = "7"
 
 # Here we specify real dependency specifications for Cairo crates *if* currently we want to use
 # a particular unreleased commit (which is frequent mid-development).

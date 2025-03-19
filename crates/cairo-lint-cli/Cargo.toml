@@ -22,8 +22,8 @@ cairo-lang-test-plugin.workspace = true
 cairo-lang-utils.workspace = true
 cairo-lint-core = { path = "../cairo-lint-core" }
 clap = { workspace = true, features = ["derive"] }
-scarb-metadata = "1.14.0"
+scarb-metadata.workspace = true
 scarb-ui = "0.1.5"
-semver = "1.0.25"
+semver.workspace = true
 serde_json.workspace = true
 toml = "0.8"
