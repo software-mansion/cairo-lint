@@ -16,14 +16,14 @@ enum Cake {
 }
 "#;
 
-const ENUM_WITH_PREFIX: &str = r#"
+const ENUM_WITH_SUFFIX: &str = r#"
 enum Wood {
     BlackForest,
     WhiteForest,
 }
 "#;
 
-const ENUM_WITH_SUFFIX: &str = r#"
+const ENUM_WITH_PREFIX: &str = r#"
 enum Wood {
     ForestBlack,
     ForestWhite,
@@ -76,7 +76,7 @@ enum Cake {
 }
 "#;
 
-const ALLOW_ENUM_WITH_PREFIX: &str = r#"
+const ALLOW_ENUM_WITH_PREFIX_AND_SUFFIX: &str = r#"
 #[allow(enum_variant_names)]
 enum Cake {
    DoubleBlackForest,
@@ -88,8 +88,8 @@ enum Cake {
 const ALLOW_ENUM_WITH_SUFFIX: &str = r#"
 #[allow(enum_variant_names)]
 enum Cake {
-    ForestBlack,
-    ForestWhite,
+    BlackForest,
+    WhiteForest,
 }
 "#;
 
@@ -132,8 +132,8 @@ fn enum_with_suffix_diagnostics() {
      --> lib.cairo:2:1
       |
     2 | / enum Wood {
-    3 | |     ForestBlack,
-    4 | |     ForestWhite,
+    3 | |     BlackForest,
+    4 | |     WhiteForest,
     5 | | }
       | |_-
       |
@@ -147,8 +147,8 @@ fn enum_with_prefix_diagnostics() {
      --> lib.cairo:2:1
       |
     2 | / enum Wood {
-    3 | |     BlackForest,
-    4 | |     WhiteForest,
+    3 | |     ForestBlack,
+    4 | |     ForestWhite,
     5 | | }
       | |_-
       |
@@ -196,8 +196,8 @@ fn enum_test_diagnostics() {
 }
 
 #[test]
-fn allow_enum_with_prefix_diagnostics() {
-    test_lint_diagnostics!(ALLOW_ENUM_WITH_PREFIX, @"");
+fn allow_enum_with_prefix_and_suffix_diagnostics() {
+    test_lint_diagnostics!(ALLOW_ENUM_WITH_PREFIX_AND_SUFFIX, @"");
 }
 
 #[test]
@@ -311,8 +311,8 @@ fn enum_with_prefixes_and_suffixes_fixer() {
 }
 
 #[test]
-fn allow_enum_with_prefix_fixer() {
-    test_lint_fixer!(ALLOW_ENUM_WITH_PREFIX, @r"
+fn allow_enum_with_prefix_and_suffix_fixer() {
+    test_lint_fixer!(ALLOW_ENUM_WITH_PREFIX_AND_SUFFIX, @r"
     #[allow(enum_variant_names)]
     enum Cake {
        DoubleBlackForest,
@@ -327,8 +327,8 @@ fn allow_enum_with_suffix_fixer() {
     test_lint_fixer!(ALLOW_ENUM_WITH_SUFFIX, @r"
     #[allow(enum_variant_names)]
     enum Cake {
-        ForestBlack,
-        ForestWhite,
+        BlackForest,
+        WhiteForest,
     }
     ")
 }
