@@ -4,30 +4,17 @@ A collection of lints to catch common mistakes and improve your [Cairo](https://
 
 ## Quick start
 
-cairo-lint can either be used as a library or as a standalone binary. It can either just detect or fix the detected
-problems.
+Cairo-lint is a library that can detect and fix the detected problems. 
 
-To use it with [scarb](https://github.com/software-mansion/scarb) simply install it like so:
-
-```sh
-cargo install scarb-cairo-lint --git https://github.com/software-mansion/cairo-lint
-```
-
-and then either run:
-
-```sh
-# Checks for bad patterns
-scarb cairo-lint
-```
-
-```sh
-# Checks and fixes what it can
-scarb cairo-lint --fix
-```
+It it also shipped as a CLI with Scarb. To learn more visit [scarb lint](https://docs.swmansion.com/scarb/docs/extensions/linter.html) docs.
 
 ## Features
 
 - The `--test` flag to include test files.
+
+## Documentation 
+
+All information about Cairo lint is available on project's [website](https://docs.swmansion.com/cairo-lint/).
 
 ## Community
 
