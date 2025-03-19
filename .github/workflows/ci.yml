@@ -62,8 +62,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: nextest-archive
-      - name: Get corelib
-        run: git clone https://github.com/starkware-libs/cairo
       - name: Run nextest partition ${{ matrix.partition }}/4
         run: cargo nextest run --partition 'count:${{ matrix.partition }}/4' --archive-file 'nextest-archive.tar.zst'
   check-website:
