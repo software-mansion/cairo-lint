@@ -264,16 +264,13 @@ fn main() {
 #[test]
 fn manual_unwrap_or_default_for_if_let_with_default_diagnostics() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_DEFAULT, @r"
-    warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3
-      |
-    5 | /   if let Option::Some(v) = a {
-    6 | |     v
-    7 | |    } else {
-    8 | |      Default::default()
-    9 | |   };
-      | |___-
-      |
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-9:3
+        if let Option::Some(v) = a {
+     ___^
+    | ...
+    |   };
+    |___^
     ");
 }
 
@@ -290,18 +287,15 @@ fn manual_unwrap_or_default_for_if_let_with_default_fixer() {
 
 #[test]
 fn manual_unwrap_or_default_for_if_let_with_empty_string_diagnostics() {
-    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_EMPTY_STRING, @r#"
-    warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3
-      |
-    5 | /   if let Option::Some(v) = x {
-    6 | |     v
-    7 | |    } else {
-    8 | |      ""
-    9 | |   };
-      | |___-
-      |
-    "#);
+    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_EMPTY_STRING, @r"
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-9:3
+        if let Option::Some(v) = x {
+     ___^
+    | ...
+    |   };
+    |___^
+    ");
 }
 
 #[test]
@@ -318,16 +312,13 @@ fn manual_unwrap_or_default_for_if_let_with_empty_string_fixer() {
 #[test]
 fn manual_unwrap_or_default_for_if_let_with_new_diagnostics() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_NEW, @r"
-    warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3
-      |
-    5 | /   if let Option::Some(v) = x {
-    6 | |     v
-    7 | |    } else {
-    8 | |      ArrayTrait::new()
-    9 | |   };
-      | |___-
-      |
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-9:3
+        if let Option::Some(v) = x {
+     ___^
+    | ...
+    |   };
+    |___^
     ");
 }
 
@@ -345,16 +336,13 @@ fn manual_unwrap_or_default_for_if_let_with_new_fixer() {
 #[test]
 fn manual_unwrap_or_default_for_if_let_with_zero_integer_diagnostics() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_ZERO_INTEGER, @r"
-    warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3
-      |
-    5 | /   if let Option::Some(v) = x {
-    6 | |     v
-    7 | |    } else {
-    8 | |     0
-    9 | |   };
-      | |___-
-      |
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-9:3
+        if let Option::Some(v) = x {
+     ___^
+    | ...
+    |   };
+    |___^
     ");
 }
 
@@ -372,16 +360,13 @@ fn manual_unwrap_or_default_for_if_let_with_zero_integer_fixer() {
 #[test]
 fn manual_unwrap_or_default_for_if_let_with_fixed_array_diagnostics() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_FIXED_ARRAY, @r"
-    warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3
-      |
-    5 | /   if let Option::Some(v) = a {
-    6 | |     v
-    7 | |    } else {
-    8 | |     [0; 5]
-    9 | |   };
-      | |___-
-      |
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-9:3
+        if let Option::Some(v) = a {
+     ___^
+    | ...
+    |   };
+    |___^
     ");
 }
 
@@ -398,18 +383,15 @@ fn manual_unwrap_or_default_for_if_let_with_fixed_array_fixer() {
 
 #[test]
 fn manual_unwrap_or_default_for_if_let_with_tuple_diagnostics() {
-    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_TUPLE, @r#"
-    warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3
-      |
-    5 | /   if let Option::Some(v) = a {
-    6 | |     v
-    7 | |    } else {
-    8 | |       ("", 0, false)
-    9 | |   };
-      | |___-
-      |
-    "#);
+    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_TUPLE, @r"
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-9:3
+        if let Option::Some(v) = a {
+     ___^
+    | ...
+    |   };
+    |___^
+    ");
 }
 
 #[test]
@@ -426,16 +408,13 @@ fn manual_unwrap_or_default_for_if_let_with_tuple_fixer() {
 #[test]
 fn manual_unwrap_or_default_for_if_let_with_array_diagnostics() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_ARRAY, @r"
-    warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3
-      |
-    5 | /   if let Option::Some(v) = x {
-    6 | |     v
-    7 | |    } else {
-    8 | |      array![]
-    9 | |   };
-      | |___-
-      |
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-9:3
+        if let Option::Some(v) = x {
+     ___^
+    | ...
+    |   };
+    |___^
     ");
 }
 
@@ -453,16 +432,13 @@ fn manual_unwrap_or_default_for_if_let_with_array_fixer() {
 #[test]
 fn manual_unwrap_or_default_for_if_let_with_comments_diagnostics() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_COMMENTS, @r"
-    warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-      --> lib.cairo:5:3
-       |
-     5 | /   if let Option::Some(v) = a {
-     6 | |     // testing with comments
-    ...  |
-    10 | |     Default::default()
-    11 | |   };
-       | |___-
-       |
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-11:3
+        if let Option::Some(v) = a {
+     ___^
+    | ...
+    |   };
+    |___^
     ");
 }
 
@@ -563,15 +539,13 @@ fn manual_unwrap_or_default_for_match_with_tuple_without_trigger_fixer() {
 #[test]
 fn manual_unwrap_or_default_for_match_with_zero_integer_diagnostics() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_ZERO_INTEGER, @r"
-    warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3
-      |
-    5 | /   match x {
-    6 | |     Option::Some(v) => v,
-    7 | |     Option::None => 0
-    8 | |   };
-      | |___-
-      |
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-8:3
+        match x {
+     ___^
+    | ...
+    |   };
+    |___^
     ");
 }
 
@@ -588,17 +562,15 @@ fn manual_unwrap_or_default_for_match_with_zero_integer_fixer() {
 
 #[test]
 fn manual_unwrap_or_default_for_match_with_empty_string_diagnostics() {
-    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_EMPTY_STRING, @r#"
-    warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3
-      |
-    5 | /   match x {
-    6 | |     Option::Some(v) => v,
-    7 | |     Option::None => ""
-    8 | |   };
-      | |___-
-      |
-    "#);
+    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_EMPTY_STRING, @r"
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-8:3
+        match x {
+     ___^
+    | ...
+    |   };
+    |___^
+    ");
 }
 
 #[test]
@@ -615,15 +587,13 @@ fn manual_unwrap_or_default_for_match_with_empty_string_fixer() {
 #[test]
 fn manual_unwrap_or_default_for_match_with_default_diagnostic() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_DEFAULT, @r"
-    warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3
-      |
-    5 | /   match a {
-    6 | |     Option::Some(v) => v,
-    7 | |     Option::None => Default::default()
-    8 | |   };
-      | |___-
-      |
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-8:3
+        match a {
+     ___^
+    | ...
+    |   };
+    |___^
     ");
 }
 
@@ -641,15 +611,13 @@ fn manual_unwrap_or_default_for_match_with_default_fixer() {
 #[test]
 fn manual_unwrap_or_default_for_match_with_new_diagnostic() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_NEW, @r"
-    warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3
-      |
-    5 | /   match x {
-    6 | |     Option::Some(v) => v,
-    7 | |     Option::None => ArrayTrait::new()
-    8 | |   };
-      | |___-
-      |
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-8:3
+        match x {
+     ___^
+    | ...
+    |   };
+    |___^
     ");
 }
 
@@ -667,15 +635,13 @@ fn manual_unwrap_or_default_for_match_with_new_fixer() {
 #[test]
 fn manual_unwrap_or_default_for_match_with_fixed_array_diagnostic() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_FIXED_ARRAY, @r"
-    warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3
-      |
-    5 | /   match x {
-    6 | |     Option::Some(v) => v,
-    7 | |     Option::None => [0; 5]
-    8 | |   };
-      | |___-
-      |
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-8:3
+        match x {
+     ___^
+    | ...
+    |   };
+    |___^
     ");
 }
 
@@ -692,17 +658,15 @@ fn manual_unwrap_or_default_for_match_with_fixed_array_fixer() {
 
 #[test]
 fn manual_unwrap_or_default_for_match_with_tuple_diagnostics() {
-    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_TUPLE, @r#"
-    warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3
-      |
-    5 | /   match x {
-    6 | |     Option::Some(v) => v,
-    7 | |     Option::None => ("", 0, false)
-    8 | |   };
-      | |___-
-      |
-    "#);
+    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_TUPLE, @r"
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-8:3
+        match x {
+     ___^
+    | ...
+    |   };
+    |___^
+    ");
 }
 
 #[test]
@@ -719,15 +683,13 @@ fn manual_unwrap_or_default_for_match_with_tuple_fixer() {
 #[test]
 fn manual_unwrap_or_default_for_match_with_array_diagnostics() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_ARRAY, @r"
-    warning: Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3
-      |
-    5 | /   match x {
-    6 | |     Option::Some(v) => v,
-    7 | |     Option::None => array![]
-    8 | |   };
-      | |___-
-      |
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-8:3
+        match x {
+     ___^
+    | ...
+    |   };
+    |___^
     ");
 }
 

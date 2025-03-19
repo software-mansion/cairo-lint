@@ -9,9 +9,18 @@ use cairo_lang_filesystem::{
 };
 use cairo_lang_semantic::{db::SemanticGroup, SemanticDiagnostic};
 use cairo_lang_utils::LookupIntern;
+use scarb::find_scarb_managed_core;
+
+mod scarb;
 
 pub fn get_diags(crate_id: CrateId, db: &mut RootDatabase) -> Vec<Diagnostics<SemanticDiagnostic>> {
-    init_dev_corelib(db, PathBuf::from(std::env::var("CORELIB_PATH").unwrap()));
+    if let Ok(path) = std::env::var("CORELIB_PATH") {
+        init_dev_corelib(db, PathBuf::from(path));
+    } else if let Some(path) = find_scarb_managed_core() {
+        init_dev_corelib(db, path);
+    } else {
+        panic!("Missing corelib path. CORELIB_PATH env or Scarb managed corelib is required.");
+    }
     let mut diagnostics = Vec::new();
     let module_file = db.module_main_file(ModuleId::CrateRoot(crate_id)).unwrap();
     if db.file_content(module_file).is_none() {
@@ -116,14 +125,13 @@ macro_rules! test_lint_diagnostics {
       ::cairo_lang_semantic::test_utils::setup_test_crate_ex(db.upcast(), $before, Some($crate::CRATE_CONFIG), None),
       &mut db,
     );
-    let renderer = ::annotate_snippets::Renderer::plain();
     let formatted_diags = diags
       .into_iter()
       .flat_map(|diags| {
         diags
           .get_all()
           .iter()
-          .map(|diag| ::cairo_lint::diagnostics::format_diagnostic(diag, &db, &renderer))
+          .map(|diag| ::cairo_lint::diagnostics::format_diagnostic(diag, &db))
           .collect::<Vec<_>>()
       })
       .collect::<String>()

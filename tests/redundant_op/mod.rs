@@ -28,12 +28,10 @@ fn main() {
 #[test]
 fn addition_by_zero_diagnostics() {
     test_lint_diagnostics!(ADDITION_BY_ZERO, @r"
-    warning: Plugin diagnostic: This operation doesn't change the value and can be simplified.
+    Plugin diagnostic: This operation doesn't change the value and can be simplified.
      --> lib.cairo:4:14
-      |
-    4 |     let _y = x + 0;
-      |              -----
-      |
+        let _y = x + 0;
+                 ^^^^^
     ");
 }
 #[test]
@@ -48,12 +46,10 @@ fn addition_by_zero_fixer() {
 #[test]
 fn subtraction_by_zero_diagnostics() {
     test_lint_diagnostics!(SUBTRACTION_BY_ZERO, @r"
-    warning: Plugin diagnostic: This operation doesn't change the value and can be simplified.
+    Plugin diagnostic: This operation doesn't change the value and can be simplified.
      --> lib.cairo:4:14
-      |
-    4 |     let _y = x - 0;
-      |              -----
-      |
+        let _y = x - 0;
+                 ^^^^^
     ");
 }
 #[test]
@@ -68,12 +64,10 @@ fn subtraction_by_zero_fixer() {
 #[test]
 fn multiplication_by_one_diagnostics() {
     test_lint_diagnostics!(MULTIPLICATION_BY_ONE, @r"
-    warning: Plugin diagnostic: This operation doesn't change the value and can be simplified.
+    Plugin diagnostic: This operation doesn't change the value and can be simplified.
      --> lib.cairo:4:14
-      |
-    4 |     let _y = x * 1;
-      |              -----
-      |
+        let _y = x * 1;
+                 ^^^^^
     ");
 }
 #[test]
@@ -88,12 +82,10 @@ fn multiplication_by_one_fixer() {
 #[test]
 fn division_by_one_diagnostics() {
     test_lint_diagnostics!(DIVISION_BY_ONE, @r"
-    warning: Plugin diagnostic: This operation doesn't change the value and can be simplified.
+    Plugin diagnostic: This operation doesn't change the value and can be simplified.
      --> lib.cairo:4:14
-      |
-    4 |     let _y = x / 1;
-      |              -----
-      |
+        let _y = x / 1;
+                 ^^^^^
     ");
 }
 #[test]

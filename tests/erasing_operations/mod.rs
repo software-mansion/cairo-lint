@@ -52,18 +52,14 @@ fn main() {
 #[test]
 fn multiplication_by_zero_diagnostics() {
     test_lint_diagnostics!(MULTIPLICATION_BY_ZERO, @r"
-    warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
+    Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
      --> lib.cairo:4:14
-      |
-    4 |     let _y = 0 * x;
-      |              -----
-      |
-    warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
+        let _y = 0 * x;
+                 ^^^^^
+    Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
      --> lib.cairo:5:14
-      |
-    5 |     let _z = x * 0;
-      |              -----
-      |
+        let _z = x * 0;
+                 ^^^^^
     ");
 }
 
@@ -81,12 +77,10 @@ fn multiplication_by_zero_fixer() {
 #[test]
 fn division_by_zero_diagnostics() {
     test_lint_diagnostics!(DIVISION_BY_ZERO, @r"
-    warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
+    Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
      --> lib.cairo:4:14
-      |
-    4 |     let _y = 0 / x;
-      |              -----
-      |
+        let _y = 0 / x;
+                 ^^^^^
     ");
 }
 
@@ -120,18 +114,14 @@ fn division_by_zero_allowed_fixer() {
 #[test]
 fn bitwise_and_with_zero_diagnostics() {
     test_lint_diagnostics!(BITWISE_AND_WITH_ZERO, @r"
-    warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
+    Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
      --> lib.cairo:4:14
-      |
-    4 |     let _y = x & 0;
-      |              -----
-      |
-    warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
+        let _y = x & 0;
+                 ^^^^^
+    Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
      --> lib.cairo:5:14
-      |
-    5 |     let _z = 0 & x;
-      |              -----
-      |
+        let _z = 0 & x;
+                 ^^^^^
     ");
 }
 
@@ -149,12 +139,10 @@ fn bitwise_and_with_zero_fixer() {
 #[test]
 fn multiple_operations_diagnostics() {
     test_lint_diagnostics!(MULTIPLE_OPERATIONS, @r"
-    warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
+    Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
      --> lib.cairo:6:15
-      |
-    6 |     let _f = ((x + y) * 0) & (z / 2);
-      |               -----------
-      |
+        let _f = ((x + y) * 0) & (z / 2);
+                  ^^^^^^^^^^^
     ");
 }
 
@@ -173,12 +161,10 @@ fn multiple_operations_fixer() {
 #[test]
 fn multiple_bitwise_operations_diagnostics() {
     test_lint_diagnostics!(MULTIPLE_BITWISE_OPERATIONS, @r"
-    warning: Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
+    Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.
      --> lib.cairo:6:35
-      |
-    6 |     let _result1 = (x * y + z) & (z & 0) ^ (z - y);
-      |                                   -----
-      |
+        let _result1 = (x * y + z) & (z & 0) ^ (z - y);
+                                      ^^^^^
     ");
 }
 

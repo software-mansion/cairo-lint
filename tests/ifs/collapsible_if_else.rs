@@ -97,18 +97,15 @@ fn main() {
 
 #[test]
 fn simple_else_if_with_new_line_diagnostics() {
-    test_lint_diagnostics!(SIMPLE_ELSE_IF_WITH_NEW_LINE, @r#"
-    warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-      --> lib.cairo:4:5
-       |
-     4 | /     if x {
-     5 | |         println!("x is true");
-    ...  |
-    10 | |         }
-    11 | |     }
-       | |_____-
-       |
-    "#);
+    test_lint_diagnostics!(SIMPLE_ELSE_IF_WITH_NEW_LINE, @r"
+    Plugin diagnostic: Consider using else if instead of else { if ... }
+     --> lib.cairo:4:5-11:5
+          if x {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ");
 }
 
 #[test]
@@ -152,18 +149,15 @@ fn simple_else_if_with_new_line_allowed_fixer() {
 
 #[test]
 fn simple_else_if_without_new_line_diagnostics() {
-    test_lint_diagnostics!(SIMPLE_ELSE_IF_WITHOUT_NEW_LINE, @r#"
-    warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-      --> lib.cairo:4:5
-       |
-     4 | /     if x {
-     5 | |         println!("x is true");
-    ...  |
-     9 | |         }
-    10 | |     }
-       | |_____-
-       |
-    "#);
+    test_lint_diagnostics!(SIMPLE_ELSE_IF_WITHOUT_NEW_LINE, @r"
+    Plugin diagnostic: Consider using else if instead of else { if ... }
+     --> lib.cairo:4:5-10:5
+          if x {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ");
 }
 
 #[test]
@@ -182,18 +176,15 @@ fn simple_else_if_without_new_line_fixer() {
 
 #[test]
 fn multiple_else_if_diagnostics() {
-    test_lint_diagnostics!(MULTIPLE_ELSE_IF, @r#"
-    warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-      --> lib.cairo:4:5
-       |
-     4 | /     if x {
-     5 | |         println!("x is true");
-    ...  |
-    13 | |         }
-    14 | |     }
-       | |_____-
-       |
-    "#);
+    test_lint_diagnostics!(MULTIPLE_ELSE_IF, @r"
+    Plugin diagnostic: Consider using else if instead of else { if ... }
+     --> lib.cairo:4:5-14:5
+          if x {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ");
 }
 
 #[test]
@@ -216,18 +207,15 @@ fn multiple_else_if_fixer() {
 
 #[test]
 fn else_if_with_multiple_statements_diagnostics() {
-    test_lint_diagnostics!(ELSE_IF_WITH_MULTIPLE_STATEMENTS, @r#"
-    warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-      --> lib.cairo:4:5
-       |
-     4 | /     if x {
-     5 | |         println!("x is true");
-    ...  |
-    14 | |         }
-    15 | |     }
-       | |_____-
-       |
-    "#);
+    test_lint_diagnostics!(ELSE_IF_WITH_MULTIPLE_STATEMENTS, @r"
+    Plugin diagnostic: Consider using else if instead of else { if ... }
+     --> lib.cairo:4:5-15:5
+          if x {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ");
 }
 
 #[test]
@@ -252,16 +240,13 @@ fn else_if_with_multiple_statements_fixer() {
 #[test]
 fn else_if_inside_loop_diagnostics() {
     test_lint_diagnostics!(ELSE_IF_INSIDE_LOOP, @r"
-    warning: Plugin diagnostic: Consider using else if instead of else { if ... }
-      --> lib.cairo:5:9
-       |
-     5 | /         if a == 10 {
-     6 | |             a += 1;
-    ...  |
-    13 | |             }
-    14 | |         }
-       | |_________-
-       |
+    Plugin diagnostic: Consider using else if instead of else { if ... }
+     --> lib.cairo:5:9-14:9
+              if a == 10 {
+     _________^
+    | ...
+    |         }
+    |_________^
     ");
 }
 

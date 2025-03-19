@@ -85,12 +85,10 @@ fn main() {
 #[test]
 fn comparison_with_true_diagnostics() {
     test_lint_diagnostics!(COMPARISON_WITH_TRUE, @r"
-    warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
+    Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
      --> lib.cairo:4:8
-      |
-    4 |     if x == true {
-      |        ---------
-      |
+        if x == true {
+           ^^^^^^^^^
     ");
 }
 
@@ -109,12 +107,10 @@ fn comparison_with_true_fixer() {
 #[test]
 fn comparison_with_true_on_lhs_diagnostics() {
     test_lint_diagnostics!(COMPARISON_WITH_TRUE_ON_LHS, @r"
-    warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
+    Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
      --> lib.cairo:4:8
-      |
-    4 |     if true == x {
-      |        ---------
-      |
+        if true == x {
+           ^^^^^^^^^
     ");
 }
 
@@ -133,12 +129,10 @@ fn comparison_with_true_on_lhs_fixer() {
 #[test]
 fn comparison_with_false_diagnostics() {
     test_lint_diagnostics!(COMPARISON_WITH_FALSE, @r"
-    warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
+    Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
      --> lib.cairo:4:8
-      |
-    4 |     if x == false {
-      |        ----------
-      |
+        if x == false {
+           ^^^^^^^^^^
     ");
 }
 
@@ -176,12 +170,10 @@ fn comparison_with_false_allowed_fixer() {
 #[test]
 fn comparison_with_false_on_lhs_diagnostics() {
     test_lint_diagnostics!(COMPARISON_WITH_FALSE_ON_LHS, @r"
-    warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
+    Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
      --> lib.cairo:4:8
-      |
-    4 |     if false == x {
-      |        ----------
-      |
+        if false == x {
+           ^^^^^^^^^^
     ");
 }
 
@@ -200,12 +192,10 @@ fn comparison_with_false_on_lhs_fixer() {
 #[test]
 fn negated_comparison_with_true_diagnostics() {
     test_lint_diagnostics!(NEGATED_COMPARISON_WITH_TRUE, @r"
-    warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
+    Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
      --> lib.cairo:4:8
-      |
-    4 |     if x != true {
-      |        ---------
-      |
+        if x != true {
+           ^^^^^^^^^
     ");
 }
 
@@ -224,12 +214,10 @@ fn negated_comparison_with_true_fixer() {
 #[test]
 fn negated_comparison_with_true_on_lhs_diagnostics() {
     test_lint_diagnostics!(NEGATED_COMPARISON_WITH_TRUE_ON_LHS, @r"
-    warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
+    Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
      --> lib.cairo:4:8
-      |
-    4 |     if true != x {
-      |        ---------
-      |
+        if true != x {
+           ^^^^^^^^^
     ");
 }
 
@@ -248,12 +236,10 @@ fn negated_comparison_with_true_on_lhs_fixer() {
 #[test]
 fn negated_comparison_with_false_diagnostics() {
     test_lint_diagnostics!(NEGATED_COMPARISON_WITH_FALSE, @r"
-    warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
+    Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
      --> lib.cairo:4:8
-      |
-    4 |     if x != false {
-      |        ----------
-      |
+        if x != false {
+           ^^^^^^^^^^
     ");
 }
 
@@ -272,12 +258,10 @@ fn negated_comparison_with_false_fixer() {
 #[test]
 fn negated_comparison_with_false_on_lhs_diagnostics() {
     test_lint_diagnostics!(NEGATED_COMPARISON_WITH_FALSE_ON_LHS, @r"
-    warning: Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
+    Plugin diagnostic: Unnecessary comparison with a boolean value. Use the variable directly.
      --> lib.cairo:4:8
-      |
-    4 |     if false != x {
-      |        ----------
-      |
+        if false != x {
+           ^^^^^^^^^^
     ");
 }
 

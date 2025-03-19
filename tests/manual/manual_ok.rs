@@ -64,16 +64,13 @@ fn main() {
 #[test]
 fn test_basic_ok_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_OK, @r"
-    warning: Plugin diagnostic: Manual match for `ok` detected. Consider using `ok()` instead
-     --> lib.cairo:5:14
-      |
-    5 |       let _a = match res_val {
-      |  ______________-
-    6 | |         Result::Ok(x) => Option::Some(x),
-    7 | |         Result::Err(_) => Option::None,
-    8 | |     };
-      | |_____-
-      |
+    Plugin diagnostic: Manual match for `ok` detected. Consider using `ok()` instead
+     --> lib.cairo:5:14-8:5
+          let _a = match res_val {
+     ______________^
+    | ...
+    |     };
+    |_____^
     ");
 }
 
@@ -91,17 +88,13 @@ fn test_basic_ok_fixer() {
 #[test]
 fn test_basic_if_ok_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_IF_OK, @r"
-    warning: Plugin diagnostic: Manual match for `ok` detected. Consider using `ok()` instead
-     --> lib.cairo:5:14
-      |
-    5 |       let _a = if let Result::Ok(x) = res_val {
-      |  ______________-
-    6 | |         Option::Some(x)
-    7 | |     } else {
-    8 | |         Option::None
-    9 | |     };
-      | |_____-
-      |
+    Plugin diagnostic: Manual match for `ok` detected. Consider using `ok()` instead
+     --> lib.cairo:5:14-9:5
+          let _a = if let Result::Ok(x) = res_val {
+     ______________^
+    | ...
+    |     };
+    |_____^
     ");
 }
 

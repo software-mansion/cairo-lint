@@ -214,16 +214,13 @@ fn main() -> u16 {
 #[test]
 fn simple_loop_with_break_diagnostics() {
     test_lint_diagnostics!(SIMPLE_LOOP_WITH_BREAK, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
-     --> lib.cairo:4:5
-      |
-    4 | /     loop {
-    5 | |         if x == 10 {
-    ... |
-    8 | |         x += 1;
-    9 | |     }
-      | |_____-
-      |
+    Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+     --> lib.cairo:4:5-9:5
+          loop {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 
@@ -242,16 +239,13 @@ fn simple_loop_with_break_fixer() {
 #[test]
 fn simple_loop_with_break_with_comment_diagnostics() {
     test_lint_diagnostics!(SIMPLE_LOOP_WITH_BREAK_WITH_COMMENT, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
-     --> lib.cairo:4:5
-      |
-    4 | /     loop {
-    5 | |         if x == 10 {
-    ... |
-    8 | |         x += 1;
-    9 | |     }
-      | |_____-
-      |
+    Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+     --> lib.cairo:4:5-9:5
+          loop {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 
@@ -270,16 +264,13 @@ fn simple_loop_with_break_with_comment_fixer() {
 #[test]
 fn loop_with_comparison_condition_diagnostics() {
     test_lint_diagnostics!(LOOP_WITH_COMPARISON_CONDITION, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
-     --> lib.cairo:4:5
-      |
-    4 | /     loop {
-    5 | |         if counter > 5 {
-    ... |
-    8 | |         counter += 1;
-    9 | |     }
-      | |_____-
-      |
+    Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+     --> lib.cairo:4:5-9:5
+          loop {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 
@@ -298,16 +289,13 @@ fn loop_with_comparison_condition_fixer() {
 #[test]
 fn loop_with_negative_condition_diagnostics() {
     test_lint_diagnostics!(LOOP_WITH_NEGATIVE_CONDITION, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
-     --> lib.cairo:4:5
-      |
-    4 | /     loop {
-    5 | |         if value < 0 {
-    ... |
-    8 | |         value -= 10;
-    9 | |     }
-      | |_____-
-      |
+    Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+     --> lib.cairo:4:5-9:5
+          loop {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 
@@ -326,16 +314,13 @@ fn loop_with_negative_condition_fixer() {
 #[test]
 fn loop_with_arithmetic_condition_diagnostics() {
     test_lint_diagnostics!(LOOP_WITH_ARITHMETIC_CONDITION, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
-     --> lib.cairo:4:5
-      |
-    4 | /     loop {
-    5 | |         if x * 2 >= 20 {
-    ... |
-    8 | |         x += 1;
-    9 | |     }
-      | |_____-
-      |
+    Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+     --> lib.cairo:4:5-9:5
+          loop {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 
@@ -377,16 +362,13 @@ fn loop_with_arithmetic_condition_allowed_fixer() {
 #[test]
 fn loop_with_multiple_conditions_diagnostics() {
     test_lint_diagnostics!(LOOP_WITH_MULTIPLE_CONDITIONS, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
-      --> lib.cairo:5:5
-       |
-     5 | /     loop {
-     6 | |         if a > 10 && b < 5 {
-    ...  |
-    10 | |         b += 1;
-    11 | |     }
-       | |_____-
-       |
+    Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+     --> lib.cairo:5:5-11:5
+          loop {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 
@@ -407,16 +389,13 @@ fn loop_with_multiple_conditions_fixer() {
 #[test]
 fn loop_with_arithmetic_condition_and_else_block_diagnostics() {
     test_lint_diagnostics!(LOOP_WITH_ARITHMETIC_CONDITION_AND_ELSE_BLOCK, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
-      --> lib.cairo:4:5
-       |
-     4 | /     loop {
-     5 | |         if x * 2 >= 20 {
-    ...  |
-     9 | |         }
-    10 | |     }
-       | |_____-
-       |
+    Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+     --> lib.cairo:4:5-10:5
+          loop {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 
@@ -459,16 +438,13 @@ fn loop_with_multiple_condition_inside_if_block_fixer() {
 #[test]
 fn loop_with_arithmetic_condition_and_second_increment_diagnostics() {
     test_lint_diagnostics!(LOOP_WITH_ARITHMETIC_CONDITION_AND_SECOND_INCREMENT, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
-      --> lib.cairo:5:5
-       |
-     5 | /     loop {
-     6 | |         if x * 2 >= 20 {
-    ...  |
-    14 | |         x += 1;
-    15 | |     }
-       | |_____-
-       |
+    Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+     --> lib.cairo:5:5-15:5
+          loop {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 
@@ -491,16 +467,13 @@ fn loop_with_arithmetic_condition_and_second_increment_fixer() {
 #[test]
 fn loop_with_multiple_increments_and_comparison_diagnostics() {
     test_lint_diagnostics!(LOOP_WITH_MULTIPLE_INCREMENTS_AND_COMPARISON, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
-      --> lib.cairo:5:5
-       |
-     5 | /     loop {
-     6 | |         if x > 5 || y == 0 {
-    ...  |
-    10 | |         y -= 1;
-    11 | |     }
-       | |_____-
-       |
+    Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+     --> lib.cairo:5:5-11:5
+          loop {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 
@@ -521,16 +494,13 @@ fn loop_with_multiple_increments_and_comparison_fixer() {
 #[test]
 fn loop_with_condition_depending_on_external_variable_diagnostics() {
     test_lint_diagnostics!(LOOP_WITH_CONDITION_DEPENDING_ON_EXTERNAL_VARIABLE, @r"
-    warning: Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
-      --> lib.cairo:5:5
-       |
-     5 | /     loop {
-     6 | |         if x >= limit {
-    ...  |
-     9 | |         x += 2;
-    10 | |     }
-       | |_____-
-       |
+    Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+     --> lib.cairo:5:5-10:5
+          loop {
+     _____^
+    | ...
+    |     }
+    |_____^
     ");
 }
 

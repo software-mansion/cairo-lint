@@ -115,12 +115,10 @@ fn node_has_ascendants_with_allow_name_attr(
     node: SyntaxNode,
     allowed_name: &'static str,
 ) -> bool {
-    let mut current_node = node;
-    while let Some(node) = current_node.parent() {
+    for node in node.ancestors_with_self() {
         if node.has_attr_with_arg(db, "allow", allowed_name) {
             return true;
         }
-        current_node = node;
     }
     false
 }

@@ -16,14 +16,14 @@ enum Cake {
 }
 "#;
 
-const ENUM_WITH_PREFIX: &str = r#"
+const ENUM_WITH_SUFFIX: &str = r#"
 enum Wood {
     BlackForest,
     WhiteForest,
 }
 "#;
 
-const ENUM_WITH_SUFFIX: &str = r#"
+const ENUM_WITH_PREFIX: &str = r#"
 enum Wood {
     ForestBlack,
     ForestWhite,
@@ -76,81 +76,85 @@ enum Cake {
 }
 "#;
 
+const ALLOW_ENUM_WITH_PREFIX_AND_SUFFIX: &str = r#"
+#[allow(enum_variant_names)]
+enum Cake {
+   DoubleBlackForest,
+   DoubleHummingbirdForest,
+   DoubleBattenbergForest,
+}
+"#;
+
+const ALLOW_ENUM_WITH_SUFFIX: &str = r#"
+#[allow(enum_variant_names)]
+enum Cake {
+    BlackForest,
+    WhiteForest,
+}
+"#;
+
 #[test]
 fn enum_with_suffixed_name_diagnostics() {
     test_lint_diagnostics!(ENUM_WITH_SUFFIXED_NAME, @r"
-    warning: Plugin diagnostic: All enum variants are prefixed or suffixed by the same characters.
-     --> lib.cairo:2:1
-      |
-    2 | / enum Cake {
-    3 | |    BlackForestCake,
-    4 | |    HummingbirdCake,
-    5 | |    BattenbergCake,
-    6 | | }
-      | |_-
-      |
+    Plugin diagnostic: All enum variants are prefixed or suffixed by the same characters.
+     --> lib.cairo:2:1-6:1
+      enum Cake {
+     _^
+    | ...
+    | }
+    |_^
     ");
 }
 
 #[test]
 fn enum_with_prefixed_name_diagnostics() {
     test_lint_diagnostics!(ENUM_WITH_PREFIXED_NAME, @r"
-    warning: Plugin diagnostic: All enum variants are prefixed or suffixed by the same characters.
-     --> lib.cairo:2:1
-      |
-    2 | / enum Cake {
-    3 | |    CakeBlackForest,
-    4 | |    CakeHummingbird,
-    5 | |    CakeBattenberg,
-    6 | | }
-      | |_-
-      |
+    Plugin diagnostic: All enum variants are prefixed or suffixed by the same characters.
+     --> lib.cairo:2:1-6:1
+      enum Cake {
+     _^
+    | ...
+    | }
+    |_^
     ")
 }
 
 #[test]
 fn enum_with_suffix_diagnostics() {
     test_lint_diagnostics!(ENUM_WITH_SUFFIX, @r"
-    warning: Plugin diagnostic: All enum variants are prefixed or suffixed by the same characters.
-     --> lib.cairo:2:1
-      |
-    2 | / enum Wood {
-    3 | |     ForestBlack,
-    4 | |     ForestWhite,
-    5 | | }
-      | |_-
-      |
+    Plugin diagnostic: All enum variants are prefixed or suffixed by the same characters.
+     --> lib.cairo:2:1-5:1
+      enum Wood {
+     _^
+    | ...
+    | }
+    |_^
     ")
 }
 
 #[test]
 fn enum_with_prefix_diagnostics() {
     test_lint_diagnostics!(ENUM_WITH_PREFIX, @r"
-    warning: Plugin diagnostic: All enum variants are prefixed or suffixed by the same characters.
-     --> lib.cairo:2:1
-      |
-    2 | / enum Wood {
-    3 | |     BlackForest,
-    4 | |     WhiteForest,
-    5 | | }
-      | |_-
-      |
+    Plugin diagnostic: All enum variants are prefixed or suffixed by the same characters.
+     --> lib.cairo:2:1-5:1
+      enum Wood {
+     _^
+    | ...
+    | }
+    |_^
     ")
 }
 
 #[test]
 fn enum_with_prefixes_and_suffixes_diagnostic() {
     test_lint_diagnostics!(ENUM_WITH_PREFIXES_AND_SUFFIXES, @r"
-    warning: Plugin diagnostic: All enum variants are prefixed or suffixed by the same characters.
-     --> lib.cairo:2:1
-      |
-    2 | / enum Cake {
-    3 | |    DoubleCakeBlackForestGreen,
-    4 | |    DoubleCakeHummingbirdForestGreen,
-    5 | |    DoubleCakeBattenbergForestGreen,
-    6 | | }
-      | |_-
-      |
+    Plugin diagnostic: All enum variants are prefixed or suffixed by the same characters.
+     --> lib.cairo:2:1-6:1
+      enum Cake {
+     _^
+    | ...
+    | }
+    |_^
     ")
 }
 #[test]
@@ -164,20 +168,29 @@ fn enum_with_not_all_suffixed_name_diagnostics() {
 }
 
 #[test]
-fn enum_with_not_camel_case_suffix() {
+fn enum_with_not_camel_case_suffix_diagnostics() {
     test_lint_diagnostics!(ENUM_WITH_NOT_CAMEL_CASE_SUFFIX, @r"")
 }
 
 #[test]
-fn enum_with_not_camel_case_prefix() {
+fn enum_with_not_camel_case_prefix_diagnostics() {
     test_lint_diagnostics!(ENUM_WITH_NOT_CAMEL_CASE_PREFIX, @r"")
 }
 
 #[test]
-fn enum_test() {
+fn enum_test_diagnostics() {
     test_lint_diagnostics!(ENUM_SINGLE, @r"");
 }
 
+#[test]
+fn allow_enum_with_prefix_and_suffix_diagnostics() {
+    test_lint_diagnostics!(ALLOW_ENUM_WITH_PREFIX_AND_SUFFIX, @"");
+}
+
+#[test]
+fn allow_enum_with_suffix_diagnostics() {
+    test_lint_diagnostics!(ALLOW_ENUM_WITH_SUFFIX, @"")
+}
 #[test]
 fn enum_with_suffixed_name_fixer() {
     test_lint_fixer!(ENUM_WITH_SUFFIXED_NAME, @r"
@@ -282,4 +295,27 @@ fn enum_with_prefixes_and_suffixes_fixer() {
        Battenberg,
     }
     ");
+}
+
+#[test]
+fn allow_enum_with_prefix_and_suffix_fixer() {
+    test_lint_fixer!(ALLOW_ENUM_WITH_PREFIX_AND_SUFFIX, @r"
+    #[allow(enum_variant_names)]
+    enum Cake {
+       DoubleBlackForest,
+       DoubleHummingbirdForest,
+       DoubleBattenbergForest,
+    }
+    ")
+}
+
+#[test]
+fn allow_enum_with_suffix_fixer() {
+    test_lint_fixer!(ALLOW_ENUM_WITH_SUFFIX, @r"
+    #[allow(enum_variant_names)]
+    enum Cake {
+        BlackForest,
+        WhiteForest,
+    }
+    ")
 }

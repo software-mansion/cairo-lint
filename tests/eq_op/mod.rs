@@ -58,12 +58,10 @@ fn foo(a: Array<u256>) -> bool {
 #[test]
 fn simple_eq_op_diagnostics() {
     test_lint_diagnostics!(SIMPLE_EQ_OP, @r"
-    warning: Plugin diagnostic: Comparison with identical operands, this operation always results in true and may indicate a logic error
+    Plugin diagnostic: Comparison with identical operands, this operation always results in true and may indicate a logic error
      --> lib.cairo:3:5
-      |
-    3 |     a == a
-      |     ------
-      |
+        a == a
+        ^^^^^^
     ");
 }
 
@@ -79,12 +77,10 @@ fn simple_eq_op_fixer() {
 #[test]
 fn simple_neq_op_diagnostics() {
     test_lint_diagnostics!(SIMPLE_NEQ_OP, @r"
-    warning: Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error
+    Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error
      --> lib.cairo:3:5
-      |
-    3 |     a != a
-      |     ------
-      |
+        a != a
+        ^^^^^^
     ");
 }
 
@@ -100,12 +96,10 @@ fn simple_neq_op_fixer() {
 #[test]
 fn simple_lt_op_diagnostics() {
     test_lint_diagnostics!(SIMPLE_LT_OP, @r"
-    warning: Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error
+    Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error
      --> lib.cairo:3:5
-      |
-    3 |     a < a
-      |     -----
-      |
+        a < a
+        ^^^^^
     ");
 }
 
@@ -121,12 +115,10 @@ fn simple_lt_op_fixer() {
 #[test]
 fn simple_gt_op_diagnostics() {
     test_lint_diagnostics!(SIMPLE_GT_OP, @r"
-    warning: Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error
+    Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error
      --> lib.cairo:3:5
-      |
-    3 |     a > a
-      |     -----
-      |
+        a > a
+        ^^^^^
     ");
 }
 
@@ -142,12 +134,10 @@ fn simple_gt_op_fixer() {
 #[test]
 fn simple_bitwise_op_diagnostics() {
     test_lint_diagnostics!(SIMPLE_BITWISE_OP, @r"
-    warning: Plugin diagnostic: Logical operation with identical operands, this operation always results in the same value and may indicate a logic error
+    Plugin diagnostic: Logical operation with identical operands, this operation always results in the same value and may indicate a logic error
      --> lib.cairo:3:5
-      |
-    3 |     a & a
-      |     -----
-      |
+        a & a
+        ^^^^^
     ");
 }
 
@@ -179,12 +169,10 @@ fn simple_bitwise_op_allowed_fixer() {
 #[test]
 fn simple_sub_op_diagnostics() {
     test_lint_diagnostics!(SIMPLE_SUB_OP, @r"
-    warning: Plugin diagnostic: Subtraction with identical operands, this operation always results in zero and may indicate a logic error
+    Plugin diagnostic: Subtraction with identical operands, this operation always results in zero and may indicate a logic error
      --> lib.cairo:3:5
-      |
-    3 |     a - a
-      |     -----
-      |
+        a - a
+        ^^^^^
     ");
 }
 
@@ -200,12 +188,10 @@ fn simple_sub_op_fixer() {
 #[test]
 fn simple_divide_op_diagnostics() {
     test_lint_diagnostics!(SIMPLE_DIVIDE_OP, @r"
-    warning: Plugin diagnostic: Division with identical operands, this operation always results in one (except for zero) and may indicate a logic error
+    Plugin diagnostic: Division with identical operands, this operation always results in one (except for zero) and may indicate a logic error
      --> lib.cairo:3:5
-      |
-    3 |     a / a
-      |     -----
-      |
+        a / a
+        ^^^^^
     ");
 }
 

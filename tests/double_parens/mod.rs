@@ -94,12 +94,10 @@ fn main() -> felt252 {
 #[test]
 fn simple_double_parens_diagnostics() {
     test_lint_diagnostics!(SIMPLE_DOUBLE_PARENS, @r"
-    warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
      --> lib.cairo:3:5
-      |
-    3 |     ((0))
-      |     -----
-      |
+        ((0))
+        ^^^^^
     ");
 }
 
@@ -114,15 +112,13 @@ fn simple_double_parens_fixer() {
 #[test]
 fn simple_double_parens_with_comment_diagnostics() {
     test_lint_diagnostics!(SIMPLE_DOUBLE_PARENS_WITH_COMMENT, @r"
-    warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
-     --> lib.cairo:3:5
-      |
-    3 | /     ((
-    4 | |     // Just a comment.
-    5 | |     0
-    6 | |     ))
-      | |______-
-      |
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:3:5-6:6
+          ((
+     _____^
+    | ...
+    |     ))
+    |______^
     ");
 }
 
@@ -139,12 +135,10 @@ fn simple_double_parens_with_comment_fixer() {
 #[test]
 fn unnecessary_parentheses_in_arithmetic_expression_diagnostics() {
     test_lint_diagnostics!(UNNECESSARY_PARENTHESES_IN_ARITHMETIC_EXPRESSION, @r"
-    warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
      --> lib.cairo:3:5
-      |
-    3 |     ((3 + 5))
-      |     ---------
-      |
+        ((3 + 5))
+        ^^^^^^^^^
     ");
 }
 
@@ -174,12 +168,10 @@ fn necessary_parentheses_in_arithmetic_expression_fixer() {
 #[test]
 fn tuple_double_parens_diagnostics() {
     test_lint_diagnostics!(TUPLE_DOUBLE_PARENS, @r"
-    warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
      --> lib.cairo:3:5
-      |
-    3 |     ((1, 2))
-      |     --------
-      |
+        ((1, 2))
+        ^^^^^^^^
     ");
 }
 
@@ -194,12 +186,10 @@ fn tuple_double_parens_fixer() {
 #[test]
 fn assert_expressions_diagnostics() {
     test_lint_diagnostics!(ASSERT_EXPRESSIONS, @r"
-    warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
      --> lib.cairo:3:13
-      |
-    3 |     assert!(((5)) == 4);
-      |             -----
-      |
+        assert!(((5)) == 4);
+                ^^^^^
     ");
 }
 
@@ -215,12 +205,10 @@ fn assert_expressions_fixer() {
 #[test]
 fn double_parens_with_function_call_diagnostics() {
     test_lint_diagnostics!(DOUBLE_PARENS_WITH_FUNCTION_CALL, @r"
-    warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
      --> lib.cairo:7:5
-      |
-    7 |     ((foo(10)))
-      |     -----------
-      |
+        ((foo(10)))
+        ^^^^^^^^^^^
     ");
 }
 
@@ -239,12 +227,10 @@ fn double_parens_with_function_call_fixer() {
 #[test]
 fn double_parens_with_return_diagnostics() {
     test_lint_diagnostics!(DOUBLE_PARENS_WITH_RETURN, @r"
-    warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
      --> lib.cairo:3:12
-      |
-    3 |     return ((5 + 7));
-      |            ---------
-      |
+        return ((5 + 7));
+               ^^^^^^^^^
     ");
 }
 
@@ -260,12 +246,10 @@ fn double_parens_with_return_fixer() {
 #[test]
 fn double_parens_in_let_statement_diagnostics() {
     test_lint_diagnostics!(DOUBLE_PARENS_IN_LET_STATEMENT, @r"
-    warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
      --> lib.cairo:3:14
-      |
-    3 |     let _x = ((10 * 2));
-      |              ----------
-      |
+        let _x = ((10 * 2));
+                 ^^^^^^^^^^
     ");
 }
 
@@ -297,12 +281,10 @@ fn double_parens_in_let_statement_allowed_fixer() {
 #[test]
 fn double_parens_in_struct_field_access_diagnostics() {
     test_lint_diagnostics!(DOUBLE_PARENS_IN_STRUCT_FIELD_ACCESS, @r"
-    warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
      --> lib.cairo:9:12
-      |
-    9 |     return ((my_struct.y));
-      |            ---------------
-      |
+        return ((my_struct.y));
+               ^^^^^^^^^^^^^^^
     ");
 }
 
@@ -324,24 +306,18 @@ fn double_parens_in_struct_field_access_fixer() {
 #[test]
 fn double_parens_in_match_arm_diagnostics() {
     test_lint_diagnostics!(DOUBLE_PARENS_IN_MATCH_ARM, @r"
-    warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
      --> lib.cairo:5:14
-      |
-    5 |         1 => ((10)),
-      |              ------
-      |
-    warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+            1 => ((10)),
+                 ^^^^^^
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
      --> lib.cairo:6:14
-      |
-    6 |         5 => ((20)),
-      |              ------
-      |
-    warning: Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+            5 => ((20)),
+                 ^^^^^^
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
      --> lib.cairo:7:14
-      |
-    7 |         _ => ((30)),
-      |              ------
-      |
+            _ => ((30)),
+                 ^^^^^^
     ");
 }
 
