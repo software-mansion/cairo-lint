@@ -10,6 +10,7 @@ const MULTIPLE_PANIC: &str = r#"
 fn main() {
   panic!("panic");
   panic!("panic 2");
+  panic!("panic 3");
 }
 "#;
 
@@ -64,15 +65,18 @@ fn main() {
 }
 "#;
 
+const MULTIPLE_PANIC_ALLOWED_IN_FUNCTION: &str = r#"
+#[allow(panic)]
+fn main() {
+    panic!("panic");
+    panic!("panic 2");
+    panic!("panic 3");
+}
+"#;
+
 #[test]
 fn single_panic_diagnostics() {
     test_lint_diagnostics!(SINGLE_PANIC, @r#"
-    warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
-     --> lib.cairo:3:3
-      |
-    3 |   panic!("panic");
-      |   -----
-      |
     warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
      --> lib.cairo:3:3
       |
@@ -101,21 +105,15 @@ fn multiple_panic_diagnostics() {
       |   -----
       |
     warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
-     --> lib.cairo:3:3
-      |
-    3 |   panic!("panic");
-      |   -----
-      |
-    warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
      --> lib.cairo:4:3
       |
     4 |   panic!("panic 2");
       |   -----
       |
     warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
-     --> lib.cairo:4:3
+     --> lib.cairo:5:3
       |
-    4 |   panic!("panic 2");
+    5 |   panic!("panic 3");
       |   -----
       |
     "#);
@@ -127,6 +125,7 @@ fn multiple_panic_fixer() {
     fn main() {
       panic!("panic");
       panic!("panic 2");
+      panic!("panic 3");
     }
     "#);
 }
@@ -138,18 +137,6 @@ fn multiple_panic_and_other_macros_diagnostics() {
      --> lib.cairo:3:3
       |
     3 |   panic!("panic");
-      |   -----
-      |
-    warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
-     --> lib.cairo:3:3
-      |
-    3 |   panic!("panic");
-      |   -----
-      |
-    warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
-     --> lib.cairo:4:3
-      |
-    4 |   panic!("panic 2");
       |   -----
       |
     warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
@@ -175,12 +162,6 @@ fn multiple_panic_and_other_macros_fixer() {
 #[test]
 fn empty_panic_diagnostics() {
     test_lint_diagnostics!(EMPTY_PANIC, @r#"
-    warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
-     --> lib.cairo:3:3
-      |
-    3 |   panic!("");
-      |   -----
-      |
     warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
      --> lib.cairo:3:3
       |
@@ -276,12 +257,6 @@ fn panic_inside_function_diagnostics() {
     4 |   panic!("panic Alan");
       |   -----
       |
-    warning: Plugin diagnostic: Leaving `panic` in the code is discouraged.
-     --> lib.cairo:4:3
-      |
-    4 |   panic!("panic Alan");
-      |   -----
-      |
     "#);
 }
 
@@ -297,4 +272,21 @@ fn panic_inside_function_fixer() {
       print_name();
     }
     "#);
+}
+
+#[test]
+fn multiple_panic_allowed_in_function_diagnostics() {
+    test_lint_diagnostics!(MULTIPLE_PANIC_ALLOWED_IN_FUNCTION, @"")
+}
+
+#[test]
+fn multiple_panic_allowed_in_function_fixer() {
+    test_lint_fixer!(MULTIPLE_PANIC_ALLOWED_IN_FUNCTION, @r##"
+    #[allow(panic)]
+    fn main() {
+        panic!("panic");
+        panic!("panic 2");
+        panic!("panic 3");
+    }
+    "##)
 }
