@@ -1,5 +1,7 @@
 # break_unit
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/breaks.rs#L38)
 
 ## What it does

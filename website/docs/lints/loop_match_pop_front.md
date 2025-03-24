@@ -1,5 +1,7 @@
 # loop_match_pop_front
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/loops/loop_match_pop_front.rs#L52)
 
 ## What it does

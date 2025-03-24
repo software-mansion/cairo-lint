@@ -1,5 +1,7 @@
 # manual_expect_err
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_expect_err.rs#L53)
 
 ## What it does

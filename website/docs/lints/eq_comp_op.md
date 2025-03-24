@@ -1,5 +1,7 @@
 # eq_comp_op
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/eq_op.rs#L72)
 
 ## What it does

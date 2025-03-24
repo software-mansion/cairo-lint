@@ -670,7 +670,6 @@ dependencies = [
  "num-bigint",
  "pretty_assertions",
  "scarb-metadata",
- "serde",
  "tempfile",
  "test-case",
  "which",

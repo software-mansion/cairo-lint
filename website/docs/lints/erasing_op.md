@@ -1,5 +1,7 @@
 # erasing_op
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/erasing_op.rs#L41)
 
 ## What it does

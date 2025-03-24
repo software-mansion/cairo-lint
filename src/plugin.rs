@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::ids::FileLongId;
@@ -10,15 +11,16 @@ use cairo_lang_utils::LookupIntern;
 use std::sync::Arc;
 
 use crate::context::{
-    get_all_checking_functions, get_lint_type_from_diagnostic_message,
-    get_name_for_diagnostic_message, get_unique_allowed_names, CairoLintKind,
+    get_all_checking_functions, get_name_for_diagnostic_message, get_unique_allowed_names,
+    is_lint_enabled_by_default,
 };
 use crate::CairoLintToolMetadata;
 
-pub fn cairo_lint_plugin_suite(tool_metadata: CairoLintToolMetadata) -> PluginSuite {
+pub fn cairo_lint_plugin_suite(tool_metadata: CairoLintToolMetadata) -> Result<PluginSuite> {
     let mut suite = PluginSuite::default();
+    validate_cairo_lint_metadata(&tool_metadata)?;
     suite.add_analyzer_plugin_ex(Arc::new(CairoLint::new(false, tool_metadata)));
-    suite
+    Ok(suite)
 }
 
 pub fn cairo_lint_allow_plugin_suite() -> PluginSuite {
@@ -83,9 +85,12 @@ impl AnalyzerPlugin for CairoLint {
             .filter(|diag| {
                 let node = diag.stable_ptr.lookup(db.upcast());
                 let allowed_name = get_name_for_diagnostic_message(&diag.message).unwrap();
-                let lint_type = get_lint_type_from_diagnostic_message(&diag.message);
+                let default_allowed = is_lint_enabled_by_default(&diag.message).unwrap();
                 !node_has_ascendants_with_allow_name_attr(db.upcast(), node, allowed_name)
-                    && (self.tool_metadata.nopanic || lint_type != CairoLintKind::Panic)
+                    && *self
+                        .tool_metadata
+                        .get(allowed_name)
+                        .unwrap_or(&default_allowed)
             })
             .collect()
     }
@@ -121,4 +126,16 @@ fn node_has_ascendants_with_allow_name_attr(
         }
     }
     false
+}
+
+fn validate_cairo_lint_metadata(tool_metadata: &CairoLintToolMetadata) -> Result<()> {
+    for (name, _) in tool_metadata.iter() {
+        if !get_unique_allowed_names().contains(&name.as_str()) {
+            return Err(anyhow!(
+                "The lint '{}' specified in `Scarb.toml` is not supported by the Cairo lint.",
+                name
+            ));
+        }
+    }
+    Ok(())
 }

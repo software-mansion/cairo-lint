@@ -1,5 +1,7 @@
 # duplicate_underscore_args
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/duplicate_underscore_args.rs#L23)
 
 ## What it does

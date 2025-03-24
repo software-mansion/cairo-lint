@@ -14,6 +14,7 @@ static LINT_DOCS_BASE_PATH: &str = "website/docs/lints/";
 struct LintDoc {
     name: String,
     docs: Option<String>,
+    enabled: bool,
     source_link: String,
 }
 
@@ -32,16 +33,14 @@ impl LintDoc {
             .unwrap()
             .to_string();
         let struct_start_line = value.pointer("/span/begin/0").unwrap().as_u64().unwrap();
+        let lint = find_lint_by_struct_name(&lint_struct_name).unwrap_or_else(|| {
+            panic!(
+                "Could not find the lint inside the Lint Context: {}",
+                lint_struct_name
+            )
+        });
         LintDoc {
-            name: find_lint_by_struct_name(&lint_struct_name)
-                .unwrap_or_else(|| {
-                    panic!(
-                        "Could not find the lint inside the Lint Context: {}",
-                        lint_struct_name
-                    )
-                })
-                .allowed_name()
-                .to_string(),
+            name: lint.allowed_name().to_string(),
             docs: value.get("docs").and_then(|doc| {
                 if doc.is_null() {
                     None
@@ -49,6 +48,7 @@ impl LintDoc {
                     Some(doc.as_str().unwrap().to_string())
                 }
             }),
+            enabled: lint.is_enabled(),
             source_link: format!("{}{}#L{}", LINT_REPO_BASE_URL, filename, struct_start_line),
         }
     }
@@ -93,10 +93,11 @@ pub fn main(_: Args) -> Result<()> {
     for doc in docs.iter() {
         let doc_path = format!("{}{}.md", LINT_DOCS_BASE_PATH, doc.name);
         let doc_content = doc.docs.clone().unwrap_or(String::new());
+        let enabled_text = if doc.enabled { "Enabled" } else { "Disabled" };
         fs::write(
             &doc_path,
             format!(
-                "# {}\n\n[Source Code]({})\n\n{}\n",
+                "# {}\n\nDefault: **{enabled_text}**\n\n[Source Code]({})\n\n{}\n",
                 doc.name, doc.source_link, doc_content
             ),
         )

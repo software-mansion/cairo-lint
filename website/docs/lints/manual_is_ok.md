@@ -1,5 +1,7 @@
 # manual_is_ok
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_is.rs#L136)
 
 ## What it does
