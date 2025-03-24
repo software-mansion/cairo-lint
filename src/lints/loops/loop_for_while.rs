@@ -63,8 +63,8 @@ impl Lint for LoopForWhile {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_loop_break(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_loop_break(db.upcast(), node)
     }
 }
 

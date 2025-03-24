@@ -53,8 +53,8 @@ impl Lint for IntegerGreaterEqualPlusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_int_ge_plus_one(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_int_ge_plus_one(db.upcast(), node)
     }
 }
 
@@ -100,8 +100,8 @@ impl Lint for IntegerGreaterEqualMinusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_int_ge_min_one(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_int_ge_min_one(db.upcast(), node)
     }
 }
 
@@ -147,8 +147,8 @@ impl Lint for IntegerLessEqualPlusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_int_le_plus_one(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_int_le_plus_one(db.upcast(), node)
     }
 }
 
@@ -194,8 +194,8 @@ impl Lint for IntegerLessEqualMinusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_int_le_min_one(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_int_le_min_one(db.upcast(), node)
     }
 }
 
