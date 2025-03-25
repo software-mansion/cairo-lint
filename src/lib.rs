@@ -16,6 +16,8 @@ use cairo_lang_utils::Upcast;
 pub static CAIRO_LINT_TOOL_NAME: &str = "cairo-lint";
 
 /// Describes tool metadata for the Cairo lint.
+/// IMPORTANT: This one is a public type, so watch out when modifying it,
+/// as it might break the backwards compatibility.
 pub type CairoLintToolMetadata = HashMap<String, bool>;
 
 pub mod context;
