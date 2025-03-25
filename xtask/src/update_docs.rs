@@ -95,12 +95,12 @@ pub fn main(_: Args) -> Result<()> {
     let disabled_lints_list = disabled_lints
         .map(|doc| {
             format!(
-                "- [{}]({}{}.md)\n",
+                "-   [{}]({}{}.md)\n",
                 doc.name, LINT_DOCS_RELATIVE_PATH, doc.name
             )
         })
         .collect::<String>();
-    fs::write(DEFAULT_PROFILE_OUTPUT_PATH, format!("# Default Profile \n\nBy default, all lint rules are **enabled** with the exception of:\n\n{}", disabled_lints_list)).unwrap();
+    fs::write(DEFAULT_PROFILE_OUTPUT_PATH, format!("# Default Profile\n\nBy default, all lint rules are **enabled** with the exception of:\n\n{}", disabled_lints_list)).unwrap();
 
     // Write docs content inside the markdown file inside the website docs directory.
     for doc in docs.iter() {
