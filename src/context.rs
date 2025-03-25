@@ -395,6 +395,7 @@ pub fn get_name_for_diagnostic_message(message: &str) -> Option<&'static str> {
         .map(|rule| rule.allowed_name())
 }
 
+/// Checks if the lint related to the diagnostic message is enabled by default.
 pub fn is_lint_enabled_by_default(message: &str) -> Option<bool> {
     LINT_CONTEXT
         .lint_groups

@@ -7,7 +7,9 @@ use std::{env, fs, process::Command};
 
 static RUSTDOC_PATH: &str = "target/doc/cairo_lint.json";
 static LINT_METADATA_OUTPUT_PATH: &str = "website/lints_metadata.json";
+static DEFAULT_PROFILE_OUTPUT_PATH: &str = "website/docs/default_profile.md";
 static LINT_REPO_BASE_URL: &str = "https://github.com/software-mansion/cairo-lint/tree/main/";
+static LINT_DOCS_RELATIVE_PATH: &str = "lints/";
 static LINT_DOCS_BASE_PATH: &str = "website/docs/lints/";
 
 #[derive(Debug, Serialize)]
@@ -88,6 +90,17 @@ pub fn main(_: Args) -> Result<()> {
             return Err(e.into());
         }
     };
+
+    let disabled_lints = docs.iter().filter(|doc| !doc.enabled);
+    let disabled_lints_list = disabled_lints
+        .map(|doc| {
+            format!(
+                "- [{}]({}{}.md)\n",
+                doc.name, LINT_DOCS_RELATIVE_PATH, doc.name
+            )
+        })
+        .collect::<String>();
+    fs::write(DEFAULT_PROFILE_OUTPUT_PATH, format!("# Default Profile \n\nBy default, all lint rules are **enabled** with the exception of:\n\n{}", disabled_lints_list)).unwrap();
 
     // Write docs content inside the markdown file inside the website docs directory.
     for doc in docs.iter() {

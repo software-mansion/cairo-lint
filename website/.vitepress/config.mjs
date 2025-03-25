@@ -10,7 +10,7 @@ const getSidebar = () => ({
     "/docs": [
         {
             text: "Overview",
-            items: [p("Introduction", "/docs")],
+            items: [p("Introduction", "/docs"), p("Default profile", "docs/default_profile")],
         },
         {
             text: "Lints",
