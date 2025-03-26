@@ -23,6 +23,14 @@ pub fn cairo_lint_plugin_suite(tool_metadata: CairoLintToolMetadata) -> Result<P
     Ok(suite)
 }
 
+pub fn cairo_lint_plugin_suite_without_metadata_validation(
+    tool_metadata: CairoLintToolMetadata,
+) -> Result<PluginSuite> {
+    let mut suite = PluginSuite::default();
+    suite.add_analyzer_plugin_ex(Arc::new(CairoLint::new(false, tool_metadata)));
+    Ok(suite)
+}
+
 pub fn cairo_lint_allow_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
     suite.add_analyzer_plugin::<CairoLintAllow>();
