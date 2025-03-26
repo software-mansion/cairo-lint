@@ -1,0 +1,38 @@
+{"run_id":"1742989331-378317000","line":90,"new":{"module_name":"main__manual__manual_ok","snapshot_name":"basic_if_ok_diagnostics","metadata":{"source":"tests/manual/manual_ok.rs","assertion_line":90,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_ok","metadata":{},"snapshot":"Plugin diagnostic: Manual match for `ok` detected. Consider using `ok()` instead\n --> lib.cairo:5:14-9:5\n      let _a = if let Result::Ok(x) = res_val {\n ______________^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":103,"new":{"module_name":"main__manual__manual_ok","snapshot_name":"basic_if_ok_fixer","metadata":{"source":"tests/manual/manual_ok.rs","assertion_line":103,"expression":"code"},"snapshot":"fn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    // This is just a variable.\n    let _a = if let Result::Ok(x) = res_val {\n        Option::Some(x)\n    } else {\n        Option::None\n    };\n}"},"old":{"module_name":"main__manual__manual_ok","metadata":{},"snapshot":"fn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    // This is just a variable.\n    let _a = res_val.ok();\n}"}}
+{"run_id":"1742989331-378317000","line":66,"new":{"module_name":"main__manual__manual_ok","snapshot_name":"basic_ok_diagnostics","metadata":{"source":"tests/manual/manual_ok.rs","assertion_line":66,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_ok","metadata":{},"snapshot":"Plugin diagnostic: Manual match for `ok` detected. Consider using `ok()` instead\n --> lib.cairo:5:14-8:5\n      let _a = match res_val {\n ______________^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":79,"new":{"module_name":"main__manual__manual_ok","snapshot_name":"basic_ok_fixer","metadata":{"source":"tests/manual/manual_ok.rs","assertion_line":79,"expression":"code"},"snapshot":"fn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    // This is just a variable.\n    let _a = match res_val {\n        Result::Ok(x) => Option::Some(x),\n        Result::Err(_) => Option::None,\n    };\n}"},"old":{"module_name":"main__manual__manual_ok","metadata":{},"snapshot":"fn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    // This is just a variable.\n    let _a = res_val.ok();\n}"}}
+{"run_id":"1742989331-378317000","line":157,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":163,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":136,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":142,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":114,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":90,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":120,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":66,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":103,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":157,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":79,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":163,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":136,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":142,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":114,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":120,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":90,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":66,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":103,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":79,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":157,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":163,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":136,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":142,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":114,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":120,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":90,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":66,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":103,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":79,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":157,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":163,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":136,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":142,"new":null,"old":null}

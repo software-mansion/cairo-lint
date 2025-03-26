@@ -1,0 +1,68 @@
+{"run_id":"1742989331-378317000","line":136,"new":{"module_name":"main__eq_op","snapshot_name":"simple_bitwise_op_diagnostics","metadata":{"source":"tests/eq_op/mod.rs","assertion_line":136,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"Plugin diagnostic: Logical operation with identical operands, this operation always results in the same value and may indicate a logic error\n --> lib.cairo:3:5\n    a & a\n    ^^^^^"}}
+{"run_id":"1742989331-378317000","line":146,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":117,"new":{"module_name":"main__eq_op","snapshot_name":"simple_gt_op_diagnostics","metadata":{"source":"tests/eq_op/mod.rs","assertion_line":117,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error\n --> lib.cairo:3:5\n    a > a\n    ^^^^^"}}
+{"run_id":"1742989331-378317000","line":70,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":60,"new":{"module_name":"main__eq_op","snapshot_name":"simple_eq_op_diagnostics","metadata":{"source":"tests/eq_op/mod.rs","assertion_line":60,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"Plugin diagnostic: Comparison with identical operands, this operation always results in true and may indicate a logic error\n --> lib.cairo:3:5\n    a == a\n    ^^^^^^"}}
+{"run_id":"1742989331-378317000","line":127,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":200,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":108,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":98,"new":{"module_name":"main__eq_op","snapshot_name":"simple_lt_op_diagnostics","metadata":{"source":"tests/eq_op/mod.rs","assertion_line":98,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error\n --> lib.cairo:3:5\n    a < a\n    ^^^^^"}}
+{"run_id":"1742989331-378317000","line":190,"new":{"module_name":"main__eq_op","snapshot_name":"simple_divide_op_diagnostics","metadata":{"source":"tests/eq_op/mod.rs","assertion_line":190,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"Plugin diagnostic: Division with identical operands, this operation always results in one (except for zero) and may indicate a logic error\n --> lib.cairo:3:5\n    a / a\n    ^^^^^"}}
+{"run_id":"1742989331-378317000","line":79,"new":{"module_name":"main__eq_op","snapshot_name":"simple_neq_op_diagnostics","metadata":{"source":"tests/eq_op/mod.rs","assertion_line":79,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error\n --> lib.cairo:3:5\n    a != a\n    ^^^^^^"}}
+{"run_id":"1742989331-378317000","line":171,"new":{"module_name":"main__eq_op","snapshot_name":"simple_sub_op_diagnostics","metadata":{"source":"tests/eq_op/mod.rs","assertion_line":171,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__eq_op","metadata":{},"snapshot":"Plugin diagnostic: Subtraction with identical operands, this operation always results in zero and may indicate a logic error\n --> lib.cairo:3:5\n    a - a\n    ^^^^^"}}
+{"run_id":"1742989331-378317000","line":89,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":181,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":155,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":161,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":209,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":215,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":136,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":146,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":60,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":117,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":70,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":190,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":200,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":127,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":98,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":108,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":79,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":171,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":89,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":181,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":155,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":161,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":209,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":215,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":136,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":146,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":70,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":60,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":117,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":190,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":200,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":98,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":127,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":108,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":89,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":171,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":79,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":181,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":155,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":161,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":209,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":215,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":136,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":146,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":70,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":60,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":117,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":190,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":200,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":127,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":98,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":108,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":79,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":171,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":89,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":181,"new":null,"old":null}

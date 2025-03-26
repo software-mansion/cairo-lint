@@ -1,0 +1,122 @@
+{"run_id":"1742989331-378317000","line":234,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"collapsible_if_in_boolean_conditions_diagnostics","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":234,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.\n --> lib.cairo:7:5-11:5\n      if x || z {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":261,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"collapsible_if_in_boolean_conditions_with_comment_diagnostics","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":261,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.\n --> lib.cairo:7:5-12:5\n      if x || z {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":247,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"collapsible_if_in_boolean_conditions_fixer","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":247,"expression":"code"},"snapshot":"fn main() {\n    let x = true;\n    let y = true;\n    let z = false;\n\n    if x || z {\n        if y && z {\n            println!(\"Hello\");\n        }\n    }\n}"},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"fn main() {\n    let x = true;\n    let y = true;\n    let z = false;\n    if (x || z) && (y && z) {\n        println!(\"Hello\");\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":274,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"collapsible_if_in_boolean_conditions_with_comment_fixer","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":274,"expression":"code"},"snapshot":"fn main() {\n    let x = true;\n    let y = true;\n    let z = false;\n\n    if x || z {\n        if y && z {\n            // Just a comment.\n            println!(\"Hello\");\n        }\n    }\n}"},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"fn main() {\n    let x = true;\n    let y = true;\n    let z = false;\n    if (x || z) && (y && z) {\n        // Just a comment.\n        println!(\"Hello\");\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":339,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"collapsible_if_in_conditions_with_complex_expressions_diagnostics","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":339,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.\n --> lib.cairo:10:5-14:5\n      if x + y > a {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":352,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"collapsible_if_in_conditions_with_complex_expressions_fixer","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":352,"expression":"code"},"snapshot":"fn main() {\n    let x = 3_u32;\n    let y = 4_u32;\n    let z = 5_u32;\n    let a = 5_u32;\n    let b = 2_u32;\n    let c = 10_u32;\n\n    if x + y > a {\n        if z * b < c {\n            println!(\"Complex conditions\");\n        }\n    }\n}"},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"fn main() {\n    let x = 3_u32;\n    let y = 4_u32;\n    let z = 5_u32;\n    let a = 5_u32;\n    let b = 2_u32;\n    let c = 10_u32;\n    if (x + y > a) && (z * b < c) {\n        println!(\"Complex conditions\");\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":603,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"collapsible_if_inside_if_let_fixer","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":603,"expression":"code"},"snapshot":"fn main() {\n    let x = Some(Some(42));\n\n    if let Some(inner) = x {\n        if let Some(value) = inner {\n            println!(\"The value is: {}\", value);\n        }\n    }\n}"},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"fn main() {\n    let x = Some(Some(42));\n    if (let Some(inner) = x) && (let Some(value) = inner) {\n        println!(\"The value is: {}\", value);\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":313,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"collapsible_if_with_combinable_conditions_diagnostics","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":313,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.\n --> lib.cairo:6:5-10:5\n      if x {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":535,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"collapsible_if_lets_diagnostics","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":535,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.\n --> lib.cairo:5:5-9:5\n      if let Some(inner) = x {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":326,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"collapsible_if_with_combinable_conditions_fixer","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":326,"expression":"code"},"snapshot":"fn main() {\n    let x = true;\n    let z = true;\n\n    if x {\n        if z {\n            println!(\"No fix here\");\n        }\n    }\n}"},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"fn main() {\n    let x = true;\n    let z = true;\n    if (x) && (z) {\n        println!(\"No fix here\");\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":423,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":429,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":454,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":448,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":369,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"collapsible_if_with_function_calls_diagnostics","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":369,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.\n --> lib.cairo:6:5-10:5\n      if is_valid(true) {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":382,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"collapsible_if_with_function_calls_fixer","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":382,"expression":"code"},"snapshot":"fn is_valid(_a: bool) -> bool { true } \nfn is_ready(_b: bool) -> bool { true } \n\nfn main() {\n    if is_valid(true) {\n        if is_ready(true) {\n            println!(\"Function calls in conditions\");\n        }\n    }\n}"},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"fn is_valid(_a: bool) -> bool { true } \nfn is_ready(_b: bool) -> bool { true } \n\nfn main() {\n    if (is_valid(true)) && (is_ready(true)) {\n        println!(\"Function calls in conditions\");\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":479,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":473,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":396,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"collapsible_if_with_simple_numerical_conditions_diagnostics","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":396,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.\n --> lib.cairo:7:5-11:5\n      if a > b {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":409,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"collapsible_if_with_simple_numerical_conditions_fixer","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":409,"expression":"code"},"snapshot":"fn main() {\n    let a = 10_u32;\n    let b = 20_u32;\n    let c = 5_u32;\n\n    if a > b {\n        if c < b {\n            println!(\"Simple numerical conditions\");\n        }\n    }\n}"},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"fn main() {\n    let a = 10_u32;\n    let b = 20_u32;\n    let c = 5_u32;\n    if (a > b) && (c < b) {\n        println!(\"Simple numerical conditions\");\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":502,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"collapsible_ifs_inside_if_let_diagnostics","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":502,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.\n --> lib.cairo:10:10-14:9\n           if a || b {\n __________^\n| ...\n|         }\n|_________^\nPlugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.\n --> lib.cairo:9:5-15:5\n      if let Option::Some(_y) = x {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":561,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"if_let_nested_within_if_diagnostics","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":561,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.\n --> lib.cairo:6:5-10:5\n      if x == y {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":630,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"if_let_nested_within_if_fixer","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":630,"expression":"code"},"snapshot":"fn main() {\n    let x = Some(42);\n    let y = Some(2);\n\n    if x == y {\n        if let Some(z) = x {\n            println!(\"Hello, {}\", z);\n        }\n    }\n}"},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"fn main() {\n    let x = Some(42);\n    let y = Some(2);\n    if (x == y) && (let Some(z) = x) {\n        println!(\"Hello, {}\", z);\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":574,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":497,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":615,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":548,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"if_with_assert_diagnostic","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":548,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.\n --> lib.cairo:7:5-9:5\n      if x == y {\n _____^\n|         assert!(z == Some(42));\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":588,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"simple_if_inside_if_let_fixer","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":588,"expression":"code"},"snapshot":"fn main() {\n    let x = Option::Some(true);\n\n    let a = true;\n    let b = true;\n\n    if let Option::Some(_y) = x {\n        if a || b {\n            println!(\"Hello\");\n        }\n    }\n}"},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"fn main() {\n    let x = Option::Some(true);\n\n    let a = true;\n    let b = true;\n    if (let Option::Some(_y) = x) && (a || b) {\n        println!(\"Hello\");\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":522,"new":{"module_name":"main__ifs__collapsible_if","snapshot_name":"simple_if_inside_if_let_diagnostics","metadata":{"source":"tests/ifs/collapsible_if.rs","assertion_line":522,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if","metadata":{},"snapshot":"Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.\n --> lib.cairo:8:5-12:5\n      if let Option::Some(_y) = x {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742990147-837160000","line":289,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":295,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":234,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":261,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":352,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":274,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":339,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":247,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":603,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":313,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":535,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":326,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":423,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":429,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":448,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":369,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":473,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":382,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":454,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":479,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":409,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":396,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":502,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":561,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":630,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":574,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":548,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":497,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":615,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":522,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":588,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":289,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":295,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":234,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":247,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":261,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":352,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":274,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":339,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":603,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":313,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":535,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":326,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":429,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":423,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":448,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":454,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":369,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":382,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":479,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":473,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":396,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":409,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":502,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":630,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":561,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":574,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":497,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":588,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":522,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":548,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":615,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":289,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":295,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":234,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":247,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":274,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":261,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":339,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":603,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":352,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":326,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":535,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":313,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":423,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":429,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":448,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":369,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":382,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":454,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":479,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":473,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":396,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":409,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":502,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":561,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":630,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":574,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":548,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":615,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":497,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":522,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":588,"new":null,"old":null}

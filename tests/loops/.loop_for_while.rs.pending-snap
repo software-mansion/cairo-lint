@@ -1,0 +1,118 @@
+{"run_id":"1742989331-378317000","line":391,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_arithmetic_condition_and_else_block_diagnostics","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":391,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness\n --> lib.cairo:4:5-10:5\n      loop {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":404,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_arithmetic_condition_and_else_block_fixer","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":404,"expression":"code"},"snapshot":"fn main() {\n    let mut x: u16 = 5;\n    loop {\n        if x * 2 >= 20 {\n            break;\n        } else {\n            x += 1;\n        }\n    }\n}"},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"fn main() {\n    let mut x: u16 = 5;\n    while x * 2 < 20 {\n        x += 1;\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":440,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_arithmetic_condition_and_second_increment_diagnostics","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":440,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness\n --> lib.cairo:5:5-15:5\n      loop {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":453,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_arithmetic_condition_and_second_increment_fixer","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":453,"expression":"code"},"snapshot":"fn main() {\n    let mut x: u16 = 5;\n    // This is a loop.\n    loop {\n        if x * 2 >= 20 {\n            // This is a break statement.\n            break;\n        } else {\n            // This just increments the x variable.\n            x += 1;\n        }\n        // Same as above.\n        x += 1;\n    }\n}"},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"fn main() {\n    let mut x: u16 = 5;\n    // This is a loop.\n    while x * 2 < 20 {\n        // This just increments the x variable.\n        x += 1;\n        // Same as above.\n        x += 1;\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":316,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_arithmetic_condition_diagnostics","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":316,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness\n --> lib.cairo:4:5-9:5\n      loop {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":266,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_comparison_condition_diagnostics","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":266,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness\n --> lib.cairo:4:5-9:5\n      loop {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":329,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_arithmetic_condition_fixer","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":329,"expression":"code"},"snapshot":"fn main() {\n    let mut x: u16 = 5;\n    loop {\n        if x * 2 >= 20 {\n            break;\n        }\n        x += 1;\n    }\n}"},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"fn main() {\n    let mut x: u16 = 5;\n    while x * 2 < 20 {\n        x += 1;\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":522,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":527,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":279,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_comparison_condition_fixer","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":279,"expression":"code"},"snapshot":"fn main() {\n    let mut counter: u16 = 0;\n    loop {\n        if counter > 5 {\n            break;\n        }\n        counter += 1;\n    }\n}"},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"fn main() {\n    let mut counter: u16 = 0;\n    while counter <= 5 {\n        counter += 1;\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":496,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_condition_depending_on_external_variable_diagnostics","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":496,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness\n --> lib.cairo:5:5-10:5\n      loop {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":509,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_condition_depending_on_external_variable_fixer","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":509,"expression":"code"},"snapshot":"fn main() {\n    let mut x: u16 = 0;\n    let limit: u16 = 15;\n    loop {\n        if x >= limit {\n            break;\n        }\n        x += 2;\n    }\n}"},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"fn main() {\n    let mut x: u16 = 0;\n    let limit: u16 = 15;\n    while x < limit {\n        x += 2;\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":422,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":416,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":364,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_multiple_conditions_diagnostics","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":364,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness\n --> lib.cairo:5:5-11:5\n      loop {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":377,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_multiple_conditions_fixer","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":377,"expression":"code"},"snapshot":"fn main() {\n    let mut a: u16 = 0;\n    let mut b: u16 = 0;\n    loop {\n        if a > 10 && b < 5 {\n            break;\n        }\n        a += 1;\n        b += 1;\n    }\n}"},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"fn main() {\n    let mut a: u16 = 0;\n    let mut b: u16 = 0;\n    while a <= 10 || b >= 5 {\n        a += 1;\n        b += 1;\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":469,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_multiple_increments_and_comparison_diagnostics","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":469,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness\n --> lib.cairo:5:5-11:5\n      loop {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":291,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_negative_condition_diagnostics","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":291,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness\n --> lib.cairo:4:5-9:5\n      loop {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":304,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_negative_condition_fixer","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":304,"expression":"code"},"snapshot":"fn main() {\n    let mut value: u16 = 100;\n    loop {\n        if value < 0 {\n            break;\n        }\n        value -= 10;\n    }\n}"},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"fn main() {\n    let mut value: u16 = 100;\n    while value >= 0 {\n        value -= 10;\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":482,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"loop_with_multiple_increments_and_comparison_fixer","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":482,"expression":"code"},"snapshot":"fn main() {\n    let mut x: u16 = 0;\n    let mut y: u16 = 10;\n    loop {\n        if x > 5 || y == 0 {\n            break;\n        }\n        x += 2;\n        y -= 1;\n    }\n}"},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"fn main() {\n    let mut x: u16 = 0;\n    let mut y: u16 = 10;\n    while x <= 5 && y != 0 {\n        x += 2;\n        y -= 1;\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":556,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":561,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":216,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"simple_loop_with_break_diagnostics","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":216,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness\n --> lib.cairo:4:5-9:5\n      loop {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":229,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"simple_loop_with_break_fixer","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":229,"expression":"code"},"snapshot":"fn main() {\n    let mut x: u16 = 0;\n    loop {\n        if x == 10 {\n            break;\n        }\n        x += 1;\n    }\n}"},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"fn main() {\n    let mut x: u16 = 0;\n    while x != 10 {\n        x += 1;\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":241,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"simple_loop_with_break_with_comment_diagnostics","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":241,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness\n --> lib.cairo:4:5-9:5\n      loop {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":254,"new":{"module_name":"main__loops__loop_for_while","snapshot_name":"simple_loop_with_break_with_comment_fixer","metadata":{"source":"tests/loops/loop_for_while.rs","assertion_line":254,"expression":"code"},"snapshot":"fn main() {\n    let mut x: u16 = 0;\n    loop {\n        if x == 10 {\n            break;\n        }\n        x += 1;\n    }\n}"},"old":{"module_name":"main__loops__loop_for_while","metadata":{},"snapshot":"fn main() {\n    let mut x: u16 = 0;\n    while x != 10 {\n        x += 1;\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":576,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":581,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":347,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":341,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":391,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":404,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":440,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":453,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":316,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":329,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":266,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":527,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":522,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":279,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":496,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":509,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":416,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":422,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":364,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":377,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":469,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":482,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":291,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":304,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":556,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":561,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":216,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":229,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":241,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":576,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":254,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":581,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":341,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":347,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":391,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":404,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":440,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":453,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":316,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":329,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":266,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":522,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":527,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":496,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":279,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":416,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":509,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":422,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":364,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":377,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":469,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":291,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":304,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":482,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":556,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":561,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":216,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":229,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":241,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":576,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":254,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":581,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":347,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":341,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":391,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":404,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":440,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":453,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":316,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":329,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":266,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":522,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":527,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":279,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":509,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":496,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":416,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":422,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":364,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":377,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":482,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":291,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":469,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":304,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":556,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":561,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":216,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":229,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":254,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":241,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":576,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":581,"new":null,"old":null}

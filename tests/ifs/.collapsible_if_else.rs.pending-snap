@@ -1,0 +1,48 @@
+{"run_id":"1742989331-378317000","line":242,"new":{"module_name":"main__ifs__collapsible_if_else","snapshot_name":"else_if_inside_loop_diagnostics","metadata":{"source":"tests/ifs/collapsible_if_else.rs","assertion_line":242,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if_else","metadata":{},"snapshot":"Plugin diagnostic: Consider using else if instead of else { if ... }\n --> lib.cairo:5:9-14:9\n          if a == 10 {\n _________^\n| ...\n|         }\n|_________^"}}
+{"run_id":"1742989331-378317000","line":255,"new":{"module_name":"main__ifs__collapsible_if_else","snapshot_name":"else_if_inside_loop_fixer","metadata":{"source":"tests/ifs/collapsible_if_else.rs","assertion_line":255,"expression":"code"},"snapshot":"fn main() {\n    let mut a = 1_u32;\n    loop {\n        if a == 10 {\n            a += 1;\n        } else {\n            if a == 15 {\n                break;\n            }\n            else {\n                a += 2;\n            }\n        }\n    }\n}"},"old":{"module_name":"main__ifs__collapsible_if_else","metadata":{},"snapshot":"fn main() {\n    let mut a = 1_u32;\n    loop {\n        if a == 10 {\n            a += 1;\n        } else if a == 15  {\n                break;\n            }\n             else {\n                a += 2;\n            }\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":210,"new":{"module_name":"main__ifs__collapsible_if_else","snapshot_name":"else_if_with_multiple_statements_diagnostics","metadata":{"source":"tests/ifs/collapsible_if_else.rs","assertion_line":210,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if_else","metadata":{},"snapshot":"Plugin diagnostic: Consider using else if instead of else { if ... }\n --> lib.cairo:4:5-15:5\n      if x {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":223,"new":{"module_name":"main__ifs__collapsible_if_else","snapshot_name":"else_if_with_multiple_statements_fixer","metadata":{"source":"tests/ifs/collapsible_if_else.rs","assertion_line":223,"expression":"code"},"snapshot":"fn main() {\n    let x = true;\n    if x {\n        println!(\"x is true\");\n    }\n    else {\n        if !x {\n            println!(\"x is false\");\n        }\n        else {\n            let y = 10;\n            println!(\"y is {}\", y);\n        }\n    }\n}"},"old":{"module_name":"main__ifs__collapsible_if_else","metadata":{},"snapshot":"fn main() {\n    let x = true;\n    if x {\n        println!(\"x is true\");\n    }\n    else if !x  {\n            println!(\"x is false\");\n        }\n         else {\n            let y = 10;\n            println!(\"y is {}\", y);\n        }\n}"}}
+{"run_id":"1742989331-378317000","line":179,"new":{"module_name":"main__ifs__collapsible_if_else","snapshot_name":"multiple_else_if_diagnostics","metadata":{"source":"tests/ifs/collapsible_if_else.rs","assertion_line":179,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if_else","metadata":{},"snapshot":"Plugin diagnostic: Consider using else if instead of else { if ... }\n --> lib.cairo:4:5-14:5\n      if x {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":128,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":192,"new":{"module_name":"main__ifs__collapsible_if_else","snapshot_name":"multiple_else_if_fixer","metadata":{"source":"tests/ifs/collapsible_if_else.rs","assertion_line":192,"expression":"code"},"snapshot":"fn main() {\n    let x = true;\n    if x {\n        println!(\"x is true\");\n    }\n    else {\n        if !x {\n            println!(\"x is false\");\n        }\n        else {\n            println!(\"x is neither true nor false\");\n        }\n    }\n}"},"old":{"module_name":"main__ifs__collapsible_if_else","metadata":{},"snapshot":"fn main() {\n    let x = true;\n    if x {\n        println!(\"x is true\");\n    }\n    else if !x  {\n            println!(\"x is false\");\n        }\n         else {\n            println!(\"x is neither true nor false\");\n        }\n}"}}
+{"run_id":"1742989331-378317000","line":134,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":100,"new":{"module_name":"main__ifs__collapsible_if_else","snapshot_name":"simple_else_if_with_new_line_diagnostics","metadata":{"source":"tests/ifs/collapsible_if_else.rs","assertion_line":100,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if_else","metadata":{},"snapshot":"Plugin diagnostic: Consider using else if instead of else { if ... }\n --> lib.cairo:4:5-11:5\n      if x {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":113,"new":{"module_name":"main__ifs__collapsible_if_else","snapshot_name":"simple_else_if_with_new_line_fixer","metadata":{"source":"tests/ifs/collapsible_if_else.rs","assertion_line":113,"expression":"code"},"snapshot":"fn main() {\n    let x = true;\n    if x {\n        println!(\"x is true\");\n    }\n    else {\n        if !x {\n            println!(\"x is false\");\n        }\n    }\n}"},"old":{"module_name":"main__ifs__collapsible_if_else","metadata":{},"snapshot":"fn main() {\n    let x = true;\n    if x {\n        println!(\"x is true\");\n    }\n    else if !x  {\n            println!(\"x is false\");\n        }\n }"}}
+{"run_id":"1742989331-378317000","line":165,"new":{"module_name":"main__ifs__collapsible_if_else","snapshot_name":"simple_else_if_without_new_line_fixer","metadata":{"source":"tests/ifs/collapsible_if_else.rs","assertion_line":165,"expression":"code"},"snapshot":"fn main() {\n    let x = true;\n    if x {\n        println!(\"x is true\");\n    } else {\n        if !x {\n            println!(\"x is false\");\n        }\n    }\n}"},"old":{"module_name":"main__ifs__collapsible_if_else","metadata":{},"snapshot":"fn main() {\n    let x = true;\n    if x {\n        println!(\"x is true\");\n    } else if !x  {\n            println!(\"x is false\");\n        }\n }"}}
+{"run_id":"1742989331-378317000","line":152,"new":{"module_name":"main__ifs__collapsible_if_else","snapshot_name":"simple_else_if_without_new_line_diagnostics","metadata":{"source":"tests/ifs/collapsible_if_else.rs","assertion_line":152,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__collapsible_if_else","metadata":{},"snapshot":"Plugin diagnostic: Consider using else if instead of else { if ... }\n --> lib.cairo:4:5-10:5\n      if x {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742990147-837160000","line":242,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":255,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":210,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":223,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":179,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":128,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":100,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":192,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":134,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":113,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":165,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":152,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":242,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":255,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":210,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":179,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":223,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":192,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":128,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":134,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":100,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":113,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":152,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":165,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":255,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":242,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":210,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":223,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":179,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":192,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":134,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":100,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":152,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":128,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":165,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":113,"new":null,"old":null}

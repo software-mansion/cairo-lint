@@ -1,0 +1,111 @@
+{"run_id":"1742989331-378317000","line":462,"new":{"module_name":"main__single_match","snapshot_name":"comprehensive_match_diagnostics","metadata":{"source":"tests/single_match/mod.rs","assertion_line":462,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__single_match","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `match` for an equality check. Consider using `if`\n --> lib.cairo:4:5-7:5\n      match variable {\n _____^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":475,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":375,"new":{"module_name":"main__single_match","snapshot_name":"destructuring_comprehensive_match_diagnostics","metadata":{"source":"tests/single_match/mod.rs","assertion_line":375,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__single_match","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`\n --> lib.cairo:4:5-7:5\n      match variable {\n _____^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":388,"new":{"module_name":"main__single_match","snapshot_name":"destructuring_comprehensive_match_fixer","metadata":{"source":"tests/single_match/mod.rs","assertion_line":388,"expression":"code"},"snapshot":"fn main() {\n    let variable = Option::Some(1_felt252);\n    match variable {\n        Option::Some(a) => println!(\"{a}\"),\n        Option::None => (),\n    };\n}"},"old":{"module_name":"main__single_match","metadata":{},"snapshot":"fn main() {\n    let variable = Option::Some(1_felt252);\n    if let Option::Some(a) = variable {\n        println!(\"{a}\")\n    };\n}"}}
+{"run_id":"1742989331-378317000","line":352,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":358,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":293,"new":{"module_name":"main__single_match","snapshot_name":"destructuring_match_twisted_diagnostics","metadata":{"source":"tests/single_match/mod.rs","assertion_line":293,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__single_match","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`\n --> lib.cairo:5:5-12:5\n      match variable {\n _____^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":335,"new":{"module_name":"main__single_match","snapshot_name":"destructuring_match_twisted_differently_fixer","metadata":{"source":"tests/single_match/mod.rs","assertion_line":335,"expression":"code"},"snapshot":"fn main() {\n    let variable = Option::Some(Option::Some(1_felt252));\n    // Invalid match so no diag/fix for this one\n    match variable {\n        _ => (),\n        // This one is valid\n        Option::Some(a) => match a {\n            Option::Some(b) => println!(\"{b}\"),\n            _ => (),\n        },\n    };\n}"},"old":{"module_name":"main__single_match","metadata":{},"snapshot":"fn main() {\n    let variable = Option::Some(Option::Some(1_felt252));\n    // Invalid match so no diag/fix for this one\n    match variable {\n        _ => (),\n        // This one is valid\n        Option::Some(a) => if let Option::Some(b) = a {\n    println!(\"{b}\")\n},\n    };\n}"}}
+{"run_id":"1742989331-378317000","line":322,"new":{"module_name":"main__single_match","snapshot_name":"destructuring_match_twisted_differently_diagnostics","metadata":{"source":"tests/single_match/mod.rs","assertion_line":322,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__single_match","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`\n --> lib.cairo:8:28-11:9\n          Option::Some(a) => match a {\n ____________________________^\n| ...\n|         },\n|_________^"}}
+{"run_id":"1742989331-378317000","line":306,"new":{"module_name":"main__single_match","snapshot_name":"destructuring_match_twisted_fixer","metadata":{"source":"tests/single_match/mod.rs","assertion_line":306,"expression":"code"},"snapshot":"fn main() {\n    let variable = Option::Some(Option::Some(1_felt252));\n    // This comment should be omitted.\n    match variable {\n        // This match is invalid hence no diag/fix for this one\n        Option::Some(a) => match a {\n            _ => (),\n            Option::Some(b) => println!(\"{b}\"),\n        },\n        _ => (),\n    };\n}"},"old":{"module_name":"main__single_match","metadata":{},"snapshot":"fn main() {\n    let variable = Option::Some(Option::Some(1_felt252));\n    // This match is invalid hence no diag/fix for this one\n    if let Option::Some(a) = variable {\n        match a {\n            _ => (),\n            Option::Some(b) => println!(\"{b}\"),\n        }\n    };\n}"}}
+{"run_id":"1742989331-378317000","line":266,"new":{"module_name":"main__single_match","snapshot_name":"nested_destructuring_match_diagnostics","metadata":{"source":"tests/single_match/mod.rs","assertion_line":266,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__single_match","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`\n --> lib.cairo:6:28-9:9\n          Option::Some(a) => match a {\n ____________________________^\n| ...\n|         },\n|_________^\nPlugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`\n --> lib.cairo:5:5-11:5\n      match variable {\n _____^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":286,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":400,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":406,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":171,"new":{"module_name":"main__single_match","snapshot_name":"simple_destructuring_match_diagnostics","metadata":{"source":"tests/single_match/mod.rs","assertion_line":171,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__single_match","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`\n --> lib.cairo:4:5-7:5\n      match variable {\n _____^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":184,"new":{"module_name":"main__single_match","snapshot_name":"simple_destructuring_match_fixer","metadata":{"source":"tests/single_match/mod.rs","assertion_line":184,"expression":"code"},"snapshot":"fn main() {\n    let variable = Option::Some(1_felt252);\n    match variable {\n        Option::Some(a) => println!(\"{a}\"),\n        _ => (),\n    };\n}"},"old":{"module_name":"main__single_match","metadata":{},"snapshot":"fn main() {\n    let variable = Option::Some(1_felt252);\n    if let Option::Some(a) = variable {\n        println!(\"{a}\")\n    };\n}"}}
+{"run_id":"1742989331-378317000","line":196,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":202,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":447,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":441,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":216,"new":{"module_name":"main__single_match","snapshot_name":"simple_destructuring_match_with_scope_diagnostics","metadata":{"source":"tests/single_match/mod.rs","assertion_line":216,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__single_match","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`\n --> lib.cairo:4:5-7:5\n      match variable {\n _____^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":229,"new":{"module_name":"main__single_match","snapshot_name":"simple_destructuring_match_with_scope_fixer","metadata":{"source":"tests/single_match/mod.rs","assertion_line":229,"expression":"code"},"snapshot":"fn main() {\n    let variable = Option::Some(1_felt252);\n    match variable {\n        Option::Some(a) => println!(\"{a}\"),\n        _ => {},\n    };\n}"},"old":{"module_name":"main__single_match","metadata":{},"snapshot":"fn main() {\n    let variable = Option::Some(1_felt252);\n    if let Option::Some(a) = variable {\n        println!(\"{a}\")\n    };\n}"}}
+{"run_id":"1742989331-378317000","line":419,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":425,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":241,"new":{"module_name":"main__single_match","snapshot_name":"simple_destructuring_match_with_unit_in_scope_diagnostics","metadata":{"source":"tests/single_match/mod.rs","assertion_line":241,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__single_match","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`\n --> lib.cairo:4:5-7:5\n      match variable {\n _____^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":254,"new":{"module_name":"main__single_match","snapshot_name":"simple_destructuring_match_with_unit_in_scope_fixer","metadata":{"source":"tests/single_match/mod.rs","assertion_line":254,"expression":"code"},"snapshot":"fn main() {\n    let variable = Option::Some(1_felt252);\n    match variable {\n        Option::Some(a) => println!(\"{a}\"),\n        _ => { () },\n    };\n}"},"old":{"module_name":"main__single_match","metadata":{},"snapshot":"fn main() {\n    let variable = Option::Some(1_felt252);\n    if let Option::Some(a) = variable {\n        println!(\"{a}\")\n    };\n}"}}
+{"run_id":"1742989494-730035000","line":241,"new":{"module_name":"main__single_match","snapshot_name":"simple_destructuring_match_with_unit_in_scope_diagnostics","metadata":{"source":"tests/single_match/mod.rs","assertion_line":241,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__single_match","metadata":{},"snapshot":"Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`\n --> lib.cairo:4:5-7:5\n      match variable {\n _____^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742990147-837160000","line":488,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":494,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":462,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":475,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":375,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":388,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":358,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":322,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":352,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":293,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":335,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":306,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":266,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":286,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":400,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":406,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":196,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":184,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":171,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":202,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":441,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":447,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":216,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":229,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":419,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":425,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":241,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":254,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":488,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":494,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":462,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":475,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":375,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":352,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":388,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":358,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":293,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":322,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":335,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":306,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":266,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":286,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":400,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":406,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":171,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":184,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":196,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":202,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":441,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":447,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":216,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":229,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":419,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":425,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":241,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":254,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":488,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":494,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":462,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":475,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":375,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":388,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":352,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":358,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":322,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":335,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":293,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":306,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":266,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":286,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":400,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":406,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":184,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":196,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":171,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":202,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":447,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":441,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":216,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":229,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":419,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":425,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":241,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":254,"new":null,"old":null}

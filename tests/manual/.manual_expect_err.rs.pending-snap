@@ -1,0 +1,56 @@
+{"run_id":"1742989331-378317000","line":141,"new":{"module_name":"main__manual__manual_expect_err","snapshot_name":"basic_if_expect_err_diagnostics","metadata":{"source":"tests/manual/manual_expect_err.rs","assertion_line":141,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_expect_err","metadata":{},"snapshot":"Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead\n --> lib.cairo:5:14-9:5\n      let _a = if let Result::Err(err) = foo {\n ______________^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":154,"new":{"module_name":"main__manual__manual_expect_err","snapshot_name":"basic_if_expect_err_fixer","metadata":{"source":"tests/manual/manual_expect_err.rs","assertion_line":154,"expression":"code"},"snapshot":"fn main() {\n    let foo: Result<i32> = Result::Err('err');\n    // This is just a variable.\n    let _a = if let Result::Err(err) = foo {\n        err\n    } else {\n        core::panic_with_felt252('panic')\n    };\n}"},"old":{"module_name":"main__manual__manual_expect_err","metadata":{},"snapshot":"fn main() {\n    let foo: Result<i32> = Result::Err('err');\n    // This is just a variable.\n    let _a = foo.expect_err('panic');\n}"}}
+{"run_id":"1742989331-378317000","line":119,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":125,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":107,"new":{"module_name":"main__manual__manual_expect_err","snapshot_name":"basic_match_expect_err_fixer","metadata":{"source":"tests/manual/manual_expect_err.rs","assertion_line":107,"expression":"code"},"snapshot":"fn main() {\n    let foo: Result<i32> = Result::Err('err');\n    let err = 'this is an err';\n    // This is just a variable.\n    let _foo = match foo {\n        Result::Ok(_) => core::panic_with_felt252(err),\n        Result::Err(x) => x,\n    };\n}"},"old":{"module_name":"main__manual__manual_expect_err","metadata":{},"snapshot":"fn main() {\n    let foo: Result<i32> = Result::Err('err');\n    let err = 'this is an err';\n    // This is just a variable.\n    let _foo = foo.expect_err(err);\n}"}}
+{"run_id":"1742989331-378317000","line":94,"new":{"module_name":"main__manual__manual_expect_err","snapshot_name":"basic_match_expect_err_diagnostics","metadata":{"source":"tests/manual/manual_expect_err.rs","assertion_line":94,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_expect_err","metadata":{},"snapshot":"Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead\n --> lib.cairo:6:16-9:5\n      let _foo = match foo {\n ________________^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":234,"new":{"module_name":"main__manual__manual_expect_err","snapshot_name":"if_with_function_diagnostics","metadata":{"source":"tests/manual/manual_expect_err.rs","assertion_line":234,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_expect_err","metadata":{},"snapshot":"Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead\n --> lib.cairo:7:14-11:5\n      let _a = if let Result::Err(err) = foo(0) {\n ______________^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":247,"new":{"module_name":"main__manual__manual_expect_err","snapshot_name":"if_with_function_fixer","metadata":{"source":"tests/manual/manual_expect_err.rs","assertion_line":247,"expression":"code"},"snapshot":"fn foo(x : i32) -> Result<i32, felt252> {\n    Result::Ok('i32')\n} \nfn main() {\n    // This is just a variable.\n    let _a = if let Result::Err(err) = foo(0) {\n        err\n    } else {\n        core::panic_with_felt252('panic')\n    };\n}"},"old":{"module_name":"main__manual__manual_expect_err","metadata":{},"snapshot":"fn foo(x : i32) -> Result<i32, felt252> {\n    Result::Ok('i32')\n} \nfn main() {\n    // This is just a variable.\n    let _a = foo(0).expect_err('panic');\n}"}}
+{"run_id":"1742989331-378317000","line":186,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":192,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":165,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":221,"new":{"module_name":"main__manual__manual_expect_err","snapshot_name":"match_with_function_fixer","metadata":{"source":"tests/manual/manual_expect_err.rs","assertion_line":221,"expression":"code"},"snapshot":"fn foo(x : i32) -> Result<i32, felt252> {\n    Result::Ok('i32')\n} \nfn main() {\n    // This is just a variable.\n    let _foo = match foo(0) {\n        Result::Ok(_) => core::panic_with_felt252('error'),\n        Result::Err(err) => err,\n    };\n}"},"old":{"module_name":"main__manual__manual_expect_err","metadata":{},"snapshot":"fn foo(x : i32) -> Result<i32, felt252> {\n    Result::Ok('i32')\n} \nfn main() {\n    // This is just a variable.\n    let _foo = foo(0).expect_err('error');\n}"}}
+{"run_id":"1742989331-378317000","line":208,"new":{"module_name":"main__manual__manual_expect_err","snapshot_name":"match_with_function_diagnostics","metadata":{"source":"tests/manual/manual_expect_err.rs","assertion_line":208,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_expect_err","metadata":{},"snapshot":"Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead\n --> lib.cairo:7:16-10:5\n      let _foo = match foo(0) {\n ________________^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":171,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":141,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":154,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":119,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":125,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":94,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":107,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":234,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":247,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":186,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":192,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":208,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":221,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":165,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":171,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":141,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":119,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":154,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":125,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":94,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":107,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":234,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":192,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":247,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":186,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":208,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":221,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":165,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":171,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":141,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":119,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":154,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":125,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":94,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":107,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":234,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":186,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":247,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":192,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":208,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":221,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":165,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":171,"new":null,"old":null}

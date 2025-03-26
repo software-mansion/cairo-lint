@@ -1,0 +1,48 @@
+{"run_id":"1742989331-378317000","line":116,"new":{"module_name":"main__erasing_operations","snapshot_name":"bitwise_and_with_zero_diagnostics","metadata":{"source":"tests/erasing_operations/mod.rs","assertion_line":116,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__erasing_operations","metadata":{},"snapshot":"Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.\n --> lib.cairo:4:14\n    let _y = x & 0;\n             ^^^^^\nPlugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.\n --> lib.cairo:5:14\n    let _z = 0 & x;\n             ^^^^^"}}
+{"run_id":"1742989331-378317000","line":130,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":173,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":163,"new":{"module_name":"main__erasing_operations","snapshot_name":"multiple_bitwise_operations_diagnostics","metadata":{"source":"tests/erasing_operations/mod.rs","assertion_line":163,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__erasing_operations","metadata":{},"snapshot":"Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.\n --> lib.cairo:6:35\n    let _result1 = (x * y + z) & (z & 0) ^ (z - y);\n                                  ^^^^^"}}
+{"run_id":"1742989331-378317000","line":99,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":105,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":68,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":89,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":54,"new":{"module_name":"main__erasing_operations","snapshot_name":"multiplication_by_zero_diagnostics","metadata":{"source":"tests/erasing_operations/mod.rs","assertion_line":54,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__erasing_operations","metadata":{},"snapshot":"Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.\n --> lib.cairo:4:14\n    let _y = 0 * x;\n             ^^^^^\nPlugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.\n --> lib.cairo:5:14\n    let _z = x * 0;\n             ^^^^^"}}
+{"run_id":"1742989331-378317000","line":79,"new":{"module_name":"main__erasing_operations","snapshot_name":"division_by_zero_diagnostics","metadata":{"source":"tests/erasing_operations/mod.rs","assertion_line":79,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__erasing_operations","metadata":{},"snapshot":"Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.\n --> lib.cairo:4:14\n    let _y = 0 / x;\n             ^^^^^"}}
+{"run_id":"1742989331-378317000","line":141,"new":{"module_name":"main__erasing_operations","snapshot_name":"multiple_operations_diagnostics","metadata":{"source":"tests/erasing_operations/mod.rs","assertion_line":141,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__erasing_operations","metadata":{},"snapshot":"Plugin diagnostic: This operation results in the value being erased (e.g., multiplication by 0). Consider replacing the entire expression with 0.\n --> lib.cairo:6:15\n    let _f = ((x + y) * 0) & (z / 2);\n              ^^^^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":151,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":116,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":130,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":163,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":173,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":99,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":79,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":54,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":105,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":89,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":68,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":141,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":151,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":116,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":130,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":163,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":173,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":105,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":99,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":54,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":68,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":89,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":79,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":141,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":151,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":116,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":130,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":163,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":173,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":68,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":54,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":99,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":105,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":79,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":89,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":141,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":151,"new":null,"old":null}

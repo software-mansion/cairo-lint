@@ -1,0 +1,48 @@
+{"run_id":"1742989331-378317000","line":127,"new":{"module_name":"main__performance","snapshot_name":"while_loop_exit_condition_greater_than_diagnostics","metadata":{"source":"tests/performance/mod.rs","assertion_line":127,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__performance","metadata":{},"snapshot":"Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.\n --> lib.cairo:4:11\n    while a > 0 {\n          ^^^^^"}}
+{"run_id":"1742989331-378317000","line":137,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":159,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":64,"new":{"module_name":"main__performance","snapshot_name":"while_loop_exit_condition_less_than_diagnostics","metadata":{"source":"tests/performance/mod.rs","assertion_line":64,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__performance","metadata":{},"snapshot":"Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.\n --> lib.cairo:4:11\n    while a < 10 {\n          ^^^^^^"}}
+{"run_id":"1742989331-378317000","line":149,"new":{"module_name":"main__performance","snapshot_name":"while_loop_exit_condition_greater_than_or_equal_diagnostics","metadata":{"source":"tests/performance/mod.rs","assertion_line":149,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__performance","metadata":{},"snapshot":"Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.\n --> lib.cairo:4:11\n    while a >= 0 {\n          ^^^^^^"}}
+{"run_id":"1742989331-378317000","line":74,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":108,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":96,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":114,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":86,"new":{"module_name":"main__performance","snapshot_name":"while_loop_exit_condition_less_than_or_equal_diagnostics","metadata":{"source":"tests/performance/mod.rs","assertion_line":86,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__performance","metadata":{},"snapshot":"Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.\n --> lib.cairo:4:11\n    while a <= 10 {\n          ^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":185,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":171,"new":{"module_name":"main__performance","snapshot_name":"while_loop_exit_condition_nested_diagnostics","metadata":{"source":"tests/performance/mod.rs","assertion_line":171,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__performance","metadata":{},"snapshot":"Plugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.\n --> lib.cairo:5:11\n    while a < 10 && b < 5 {\n          ^^^^^^\nPlugin diagnostic: using [`<`, `<=`, `>=`, `>`] exit conditions is inefficient. Consider switching to `!=` or using ArrayTrait::multi_pop_front.\n --> lib.cairo:5:21\n    while a < 10 && b < 5 {\n                    ^^^^^"}}
+{"run_id":"1742990147-837160000","line":127,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":137,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":149,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":159,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":64,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":74,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":108,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":96,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":114,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":86,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":171,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":185,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":127,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":137,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":149,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":64,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":159,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":74,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":114,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":108,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":86,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":96,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":171,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":185,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":127,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":137,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":149,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":159,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":64,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":74,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":108,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":114,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":86,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":96,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":171,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":185,"new":null,"old":null}

@@ -1,0 +1,48 @@
+{"run_id":"1742989331-378317000","line":44,"new":{"module_name":"main__duplicate_underscore_args","snapshot_name":"duplicate_underscore_args2_diagnostics","metadata":{"source":"tests/duplicate_underscore_args/mod.rs","assertion_line":44,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__duplicate_underscore_args","metadata":{},"snapshot":"Plugin diagnostic: duplicate arguments, having another argument having almost the same name makes code comprehension and documentation more difficult\n --> lib.cairo:2:16\nfn foo(c: u32, _c: u32) {}\n               ^^"}}
+{"run_id":"1742989331-378317000","line":54,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":36,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":30,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":78,"new":{"module_name":"main__duplicate_underscore_args","snapshot_name":"duplicate_underscore_longer_args2_diagnostics","metadata":{"source":"tests/duplicate_underscore_args/mod.rs","assertion_line":78,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__duplicate_underscore_args","metadata":{},"snapshot":"Plugin diagnostic: duplicate arguments, having another argument having almost the same name makes code comprehension and documentation more difficult\n --> lib.cairo:2:20\nfn foo(darth: u32, _darth: u32) {}\n                   ^^^^^^"}}
+{"run_id":"1742989331-378317000","line":88,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":95,"new":{"module_name":"main__duplicate_underscore_args","snapshot_name":"duplicate_underscore_longer_args3_diagnostics","metadata":{"source":"tests/duplicate_underscore_args/mod.rs","assertion_line":95,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__duplicate_underscore_args","metadata":{},"snapshot":"Plugin diagnostic: duplicate arguments, having another argument having almost the same name makes code comprehension and documentation more difficult\n --> lib.cairo:2:20\nfn foo(stark: u32, _stark: u32) {}\n                   ^^^^^^"}}
+{"run_id":"1742989331-378317000","line":105,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":112,"new":{"module_name":"main__duplicate_underscore_args","snapshot_name":"duplicate_underscore_longer_args4_diagnostics","metadata":{"source":"tests/duplicate_underscore_args/mod.rs","assertion_line":112,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__duplicate_underscore_args","metadata":{},"snapshot":"Plugin diagnostic: duplicate arguments, having another argument having almost the same name makes code comprehension and documentation more difficult\n --> lib.cairo:2:20\nfn foo(_test: u32, test: u32) {}\n                   ^^^^"}}
+{"run_id":"1742989331-378317000","line":122,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":61,"new":{"module_name":"main__duplicate_underscore_args","snapshot_name":"duplicate_underscore_longer_args_diagnostics","metadata":{"source":"tests/duplicate_underscore_args/mod.rs","assertion_line":61,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__duplicate_underscore_args","metadata":{},"snapshot":"Plugin diagnostic: duplicate arguments, having another argument having almost the same name makes code comprehension and documentation more difficult\n --> lib.cairo:2:19\nfn foo(test: u32, _test: u32) {}\n                  ^^^^^"}}
+{"run_id":"1742989331-378317000","line":71,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":44,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":54,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":30,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":36,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":78,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":88,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":95,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":105,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":61,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":122,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":112,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":71,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":54,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":44,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":36,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":30,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":78,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":88,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":95,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":122,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":105,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":61,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":112,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":71,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":44,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":54,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":30,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":36,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":78,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":88,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":95,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":105,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":112,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":61,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":71,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":122,"new":null,"old":null}

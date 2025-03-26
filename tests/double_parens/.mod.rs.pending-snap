@@ -1,0 +1,95 @@
+{"run_id":"1742989331-378317000","line":198,"new":{"module_name":"main__double_parens","snapshot_name":"assert_expressions_fixer","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":198,"expression":"code"},"snapshot":"fn main() {\n    assert!(((5)) == 4);\n}"},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"fn main() {\n    assert!(5== 4);\n}"}}
+{"run_id":"1742989331-378317000","line":273,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":188,"new":{"module_name":"main__double_parens","snapshot_name":"assert_expressions_diagnostics","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":188,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"Plugin diagnostic: unnecessary double parentheses found. Consider removing them.\n --> lib.cairo:3:13\n    assert!(((5)) == 4);\n            ^^^^^"}}
+{"run_id":"1742989331-378317000","line":248,"new":{"module_name":"main__double_parens","snapshot_name":"double_parens_in_let_statement_diagnostics","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":248,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"Plugin diagnostic: unnecessary double parentheses found. Consider removing them.\n --> lib.cairo:3:14\n    let _x = ((10 * 2));\n             ^^^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":258,"new":{"module_name":"main__double_parens","snapshot_name":"double_parens_in_let_statement_fixer","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":258,"expression":"code"},"snapshot":"fn main() {\n    let _x = ((10 * 2));\n}"},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"fn main() {\n    let _x = 10 * 2;\n}"}}
+{"run_id":"1742989331-378317000","line":308,"new":{"module_name":"main__double_parens","snapshot_name":"double_parens_in_match_arm_diagnostics","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":308,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"Plugin diagnostic: unnecessary double parentheses found. Consider removing them.\n --> lib.cairo:5:14\n        1 => ((10)),\n             ^^^^^^\nPlugin diagnostic: unnecessary double parentheses found. Consider removing them.\n --> lib.cairo:6:14\n        5 => ((20)),\n             ^^^^^^\nPlugin diagnostic: unnecessary double parentheses found. Consider removing them.\n --> lib.cairo:7:14\n        _ => ((30)),\n             ^^^^^^"}}
+{"run_id":"1742989331-378317000","line":326,"new":{"module_name":"main__double_parens","snapshot_name":"double_parens_in_match_arm_fixer","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":326,"expression":"code"},"snapshot":"fn main() -> felt252 {\n    let x = 5;\n    match x {\n        1 => ((10)),\n        5 => ((20)),\n        _ => ((30)),\n    }\n}"},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"fn main() -> felt252 {\n    let x = 5;\n    match x {\n        1 => 10,\n        5 => 20,\n        _ => 30,\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":283,"new":{"module_name":"main__double_parens","snapshot_name":"double_parens_in_struct_field_access_diagnostics","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":283,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"Plugin diagnostic: unnecessary double parentheses found. Consider removing them.\n --> lib.cairo:9:12\n    return ((my_struct.y));\n           ^^^^^^^^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":293,"new":{"module_name":"main__double_parens","snapshot_name":"double_parens_in_struct_field_access_fixer","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":293,"expression":"code"},"snapshot":"struct MyStruct {\n    x: felt252,\n    y: felt252,\n}\n\nfn main() -> felt252 {\n    let my_struct = MyStruct { x: 10, y: 20 };\n    return ((my_struct.y));\n}"},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"struct MyStruct {\n    x: felt252,\n    y: felt252,\n}\n\nfn main() -> felt252 {\n    let my_struct = MyStruct { x: 10, y: 20 };\n    return my_struct.y;\n}"}}
+{"run_id":"1742989331-378317000","line":207,"new":{"module_name":"main__double_parens","snapshot_name":"double_parens_with_function_call_diagnostics","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":207,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"Plugin diagnostic: unnecessary double parentheses found. Consider removing them.\n --> lib.cairo:7:5\n    ((foo(10)))\n    ^^^^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":155,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":217,"new":{"module_name":"main__double_parens","snapshot_name":"double_parens_with_function_call_fixer","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":217,"expression":"code"},"snapshot":"fn foo(x: felt252) -> felt252 {\n    x * 2\n}\n\nfn main() -> felt252 {\n    ((foo(10)))\n}"},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"fn foo(x: felt252) -> felt252 {\n    x * 2\n}\n\nfn main() -> felt252 {\n    foo(10)}"}}
+{"run_id":"1742989331-378317000","line":239,"new":{"module_name":"main__double_parens","snapshot_name":"double_parens_with_return_fixer","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":239,"expression":"code"},"snapshot":"fn main() -> felt252 {\n    return ((5 + 7));\n}"},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"fn main() -> felt252 {\n    return 5 + 7;\n}"}}
+{"run_id":"1742989331-378317000","line":229,"new":{"module_name":"main__double_parens","snapshot_name":"double_parens_with_return_diagnostics","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":229,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"Plugin diagnostic: unnecessary double parentheses found. Consider removing them.\n --> lib.cairo:3:12\n    return ((5 + 7));\n           ^^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":161,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":96,"new":{"module_name":"main__double_parens","snapshot_name":"simple_double_parens_diagnostics","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":96,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"Plugin diagnostic: unnecessary double parentheses found. Consider removing them.\n --> lib.cairo:3:5\n    ((0))\n    ^^^^^"}}
+{"run_id":"1742989331-378317000","line":106,"new":{"module_name":"main__double_parens","snapshot_name":"simple_double_parens_fixer","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":106,"expression":"code"},"snapshot":"fn main() -> u32 {\n    ((0))\n}"},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"fn main() -> u32 {\n    0}"}}
+{"run_id":"1742989331-378317000","line":114,"new":{"module_name":"main__double_parens","snapshot_name":"simple_double_parens_with_comment_diagnostics","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":114,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"Plugin diagnostic: unnecessary double parentheses found. Consider removing them.\n --> lib.cairo:3:5-6:6\n      ((\n _____^\n| ...\n|     ))\n|______^"}}
+{"run_id":"1742989331-378317000","line":127,"new":{"module_name":"main__double_parens","snapshot_name":"simple_double_parens_with_comment_fixer","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":127,"expression":"code"},"snapshot":"fn main() -> u32 {\n    ((\n    // Just a comment.\n    0\n    ))\n}"},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"fn main() -> u32 {\n    // Just a comment.\n    0\n}"}}
+{"run_id":"1742989331-378317000","line":170,"new":{"module_name":"main__double_parens","snapshot_name":"tuple_double_parens_diagnostics","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":170,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"Plugin diagnostic: unnecessary double parentheses found. Consider removing them.\n --> lib.cairo:3:5\n    ((1, 2))\n    ^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":180,"new":{"module_name":"main__double_parens","snapshot_name":"tuple_double_parens_fixer","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":180,"expression":"code"},"snapshot":"fn main() -> (felt252, felt252) {\n    ((1, 2))\n}"},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"fn main() -> (felt252, felt252) {\n    (1, 2)}"}}
+{"run_id":"1742989331-378317000","line":137,"new":{"module_name":"main__double_parens","snapshot_name":"unnecessary_parentheses_in_arithmetic_expression_diagnostics","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":137,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"Plugin diagnostic: unnecessary double parentheses found. Consider removing them.\n --> lib.cairo:3:5\n    ((3 + 5))\n    ^^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":147,"new":{"module_name":"main__double_parens","snapshot_name":"unnecessary_parentheses_in_arithmetic_expression_fixer","metadata":{"source":"tests/double_parens/mod.rs","assertion_line":147,"expression":"code"},"snapshot":"fn main() -> u32 {\n    ((3 + 5))\n}"},"old":{"module_name":"main__double_parens","metadata":{},"snapshot":"fn main() -> u32 {\n    3 + 5}"}}
+{"run_id":"1742990147-837160000","line":267,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":188,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":198,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":273,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":248,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":258,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":308,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":326,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":283,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":293,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":207,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":155,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":96,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":217,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":161,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":106,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":229,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":239,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":114,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":127,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":170,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":180,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":137,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":147,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":267,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":188,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":273,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":198,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":248,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":258,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":308,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":326,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":283,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":293,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":207,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":155,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":161,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":229,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":217,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":96,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":239,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":106,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":114,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":127,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":170,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":180,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":137,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":147,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":267,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":188,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":198,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":273,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":248,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":258,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":308,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":326,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":283,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":293,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":207,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":155,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":217,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":161,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":229,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":239,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":96,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":106,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":114,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":127,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":170,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":180,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":137,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":147,"new":null,"old":null}

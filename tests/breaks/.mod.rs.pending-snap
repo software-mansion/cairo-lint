@@ -1,0 +1,40 @@
+{"run_id":"1742989331-378317000","line":88,"new":{"module_name":"main__breaks","snapshot_name":"break_inside_of_if_diagnostics","metadata":{"source":"tests/breaks/mod.rs","assertion_line":88,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__breaks","metadata":{},"snapshot":"Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.\n --> lib.cairo:7:13\n            break ();\n            ^^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":98,"new":{"module_name":"main__breaks","snapshot_name":"break_inside_of_if_fixer","metadata":{"source":"tests/breaks/mod.rs","assertion_line":98,"expression":"code"},"snapshot":"fn main() {\n    let mut a = 1_u32;\n    #[allow(loop_for_while)]\n    loop {\n        if a == 10 {\n            break ();\n        }\n        a += 1;\n    }\n}"},"old":{"module_name":"main__breaks","metadata":{},"snapshot":"fn main() {\n    let mut a = 1_u32;\n    #[allow(loop_for_while)]\n    loop {\n        if a == 10 {\n            break;\n        }\n        a += 1;\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":114,"new":{"module_name":"main__breaks","snapshot_name":"break_inside_of_if_with_comment_diagnostics","metadata":{"source":"tests/breaks/mod.rs","assertion_line":114,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__breaks","metadata":{},"snapshot":"Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.\n --> lib.cairo:8:13\n            break ();\n            ^^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":71,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":76,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":124,"new":{"module_name":"main__breaks","snapshot_name":"break_inside_of_if_with_comment_fixer","metadata":{"source":"tests/breaks/mod.rs","assertion_line":124,"expression":"code"},"snapshot":"fn main() {\n    let mut a = 1_u32;\n    #[allow(loop_for_while)]\n    loop {\n        if a == 10 {\n            // this is a break\n            break ();\n            // this was a break\n        }\n        a += 1;\n    }\n}"},"old":{"module_name":"main__breaks","metadata":{},"snapshot":"fn main() {\n    let mut a = 1_u32;\n    #[allow(loop_for_while)]\n    loop {\n        if a == 10 {\n            // this is a break\n            break;\n            // this was a break\n        }\n        a += 1;\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":50,"new":{"module_name":"main__breaks","snapshot_name":"simple_break_diagnostics","metadata":{"source":"tests/breaks/mod.rs","assertion_line":50,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__breaks","metadata":{},"snapshot":"Plugin diagnostic: unnecessary double parentheses found after break. Consider removing them.\n --> lib.cairo:4:8\n       break ();\n       ^^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":60,"new":{"module_name":"main__breaks","snapshot_name":"simple_break_fixer","metadata":{"source":"tests/breaks/mod.rs","assertion_line":60,"expression":"code"},"snapshot":"fn main() {\n   loop {\n       break ();\n   }\n}"},"old":{"module_name":"main__breaks","metadata":{},"snapshot":"fn main() {\n   loop {\n       break;\n   }\n}"}}
+{"run_id":"1742990147-837160000","line":88,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":114,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":98,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":76,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":71,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":50,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":60,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":124,"new":null,"old":null}
+{"run_id":"1742991263-616342000","line":88,"new":null,"old":null}
+{"run_id":"1742991263-616342000","line":98,"new":null,"old":null}
+{"run_id":"1742991263-616342000","line":114,"new":null,"old":null}
+{"run_id":"1742991263-616342000","line":71,"new":null,"old":null}
+{"run_id":"1742991263-616342000","line":76,"new":null,"old":null}
+{"run_id":"1742991263-616342000","line":124,"new":null,"old":null}
+{"run_id":"1742991263-616342000","line":50,"new":null,"old":null}
+{"run_id":"1742991263-616342000","line":60,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":88,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":114,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":98,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":71,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":76,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":124,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":50,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":60,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":88,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":114,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":98,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":71,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":76,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":50,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":60,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":124,"new":null,"old":null}

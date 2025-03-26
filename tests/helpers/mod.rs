@@ -8,7 +8,8 @@ use cairo_lang_filesystem::{
     ids::{CrateId, CrateLongId, Directory, FileKind, FileLongId, VirtualFile},
 };
 use cairo_lang_semantic::{db::SemanticGroup, SemanticDiagnostic};
-use cairo_lang_utils::{ordered_hash_map::OrderedHashMap, LookupIntern};
+use cairo_lang_syntax::node::TypedStablePtr;
+use cairo_lang_utils::{ordered_hash_map::OrderedHashMap, LookupIntern, Upcast};
 use scarb::find_scarb_managed_core;
 
 mod scarb;
@@ -32,7 +33,16 @@ pub fn get_diags(crate_id: CrateId, db: &mut RootDatabase) -> Vec<Diagnostics<Se
     }
 
     for module_id in &*db.crate_modules(crate_id) {
-        diagnostics.push(db.module_semantic_diagnostics(*module_id).unwrap());
+        match module_id {
+            ModuleId::CrateRoot(_) => {
+                diagnostics.push(db.module_semantic_diagnostics(*module_id).unwrap())
+            }
+            ModuleId::Submodule(submodule_id) => {
+                if submodule_id.stable_ptr(db).untyped().file_id(db) == module_file {
+                    diagnostics.push(db.module_semantic_diagnostics(*module_id).unwrap())
+                }
+            }
+        }
     }
     diagnostics
 }

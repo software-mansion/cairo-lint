@@ -1,0 +1,95 @@
+{"run_id":"1742989331-378317000","line":405,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"combined_conditions_with_different_if_diagnostics","metadata":{"source":"tests/ifs/ifs_same_cond.rs","assertion_line":405,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:7:5-13:5\n      if x == z {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":481,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":437,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"if_with_functions_diagnostics","metadata":{"source":"tests/ifs/ifs_same_cond.rs","assertion_line":437,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:8:4-12:5\n     if foo() {\n ____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":468,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"greater_lesser_comparison_diagnostics","metadata":{"source":"tests/ifs/ifs_same_cond.rs","assertion_line":468,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:5:5-9:5\n      if a > 3 {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":233,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_boolean_diagnostics","metadata":{"source":"tests/ifs/ifs_same_cond.rs","assertion_line":233,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:5:5-9:5\n      if condition {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":450,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":246,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":188,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":175,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_else_diagnostics","metadata":{"source":"tests/ifs/ifs_same_cond.rs","assertion_line":175,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:5:5-9:5\n      if a == b {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":203,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_else_with_comment_diagnostics","metadata":{"source":"tests/ifs/ifs_same_cond.rs","assertion_line":203,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:5:5-11:5\n      if a == b {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":216,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":274,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":261,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_felt252_diagnostics","metadata":{"source":"tests/ifs/ifs_same_cond.rs","assertion_line":261,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:6:5-10:5\n      if str1 == str2 {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":324,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_multiple_if_else_diagnostics","metadata":{"source":"tests/ifs/ifs_same_cond.rs","assertion_line":324,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:12:12-17:5\n      } else if str1 == str2 {\n ____________^\n| ...\n|     } \n|_____^\nPlugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:10:12-17:5\n      } else if str1 == str2 {\n ____________^\n| ...\n|     } \n|_____^\nPlugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:8:12-17:5\n      } else if str1 == str2 {\n ____________^\n| ...\n|     } \n|_____^\nPlugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:6:5-17:5\n      if str1 == str2 {\n _____^\n| ...\n|     } \n|_____^"}}
+{"run_id":"1742989331-378317000","line":358,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":290,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_condition_with_struct_diagnostics","metadata":{"source":"tests/ifs/ifs_same_cond.rs","assertion_line":290,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:11:5-15:5\n      if p1.x == p2.x && p1.y == p2.y {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":303,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":496,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_conditions_with_literals_and_vars_diagnostics","metadata":{"source":"tests/ifs/ifs_same_cond.rs","assertion_line":496,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:5:5-9:5\n      if a == 3 {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":509,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":524,"new":{"module_name":"main__ifs__ifs_same_cond","snapshot_name":"same_conditions_with_literals_diagnostics","metadata":{"source":"tests/ifs/ifs_same_cond.rs","assertion_line":524,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__ifs_same_cond","metadata":{},"snapshot":"Plugin diagnostic: Consecutive `if` with the same condition found.\n --> lib.cairo:4:5-8:5\n      if 2 == 3 {\n _____^\n| ...\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":537,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":381,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":387,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":468,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":418,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":405,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":481,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":437,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":450,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":233,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":246,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":188,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":175,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":203,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":261,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":216,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":274,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":324,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":358,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":290,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":303,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":496,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":524,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":509,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":537,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":387,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":381,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":405,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":418,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":468,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":437,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":481,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":450,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":246,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":233,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":188,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":175,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":203,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":274,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":216,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":261,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":324,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":358,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":290,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":496,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":303,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":509,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":524,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":537,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":381,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":387,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":481,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":405,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":468,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":418,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":437,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":450,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":233,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":246,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":175,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":188,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":203,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":274,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":261,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":216,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":324,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":358,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":303,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":290,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":496,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":509,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":524,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":537,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":381,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":387,"new":null,"old":null}

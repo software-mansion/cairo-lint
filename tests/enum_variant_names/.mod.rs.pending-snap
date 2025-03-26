@@ -1,0 +1,83 @@
+{"run_id":"1742989331-378317000","line":137,"new":{"module_name":"main__enum_variant_names","snapshot_name":"enum_with_prefix_diagnostics","metadata":{"source":"tests/enum_variant_names/mod.rs","assertion_line":137,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__enum_variant_names","metadata":{},"snapshot":"Plugin diagnostic: All enum variants are prefixed or suffixed by the same characters.\n --> lib.cairo:2:1-5:1\n  enum Wood {\n _^\n| ...\n| }\n|_^"}}
+{"run_id":"1742989331-378317000","line":260,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":111,"new":{"module_name":"main__enum_variant_names","snapshot_name":"enum_with_prefixed_name_diagnostics","metadata":{"source":"tests/enum_variant_names/mod.rs","assertion_line":111,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__enum_variant_names","metadata":{},"snapshot":"Plugin diagnostic: All enum variants are prefixed or suffixed by the same characters.\n --> lib.cairo:2:1-6:1\n  enum Cake {\n _^\n| ...\n| }\n|_^"}}
+{"run_id":"1742989331-378317000","line":218,"new":{"module_name":"main__enum_variant_names","snapshot_name":"enum_with_prefix_fixer","metadata":{"source":"tests/enum_variant_names/mod.rs","assertion_line":218,"expression":"code"},"snapshot":"enum Wood {\n    ForestBlack,\n    ForestWhite,\n}"},"old":{"module_name":"main__enum_variant_names","metadata":{},"snapshot":"enum Wood {\n    Black,\n    White,\n}"}}
+{"run_id":"1742989331-378317000","line":207,"new":{"module_name":"main__enum_variant_names","snapshot_name":"enum_with_prefixed_name_fixer","metadata":{"source":"tests/enum_variant_names/mod.rs","assertion_line":207,"expression":"code"},"snapshot":"enum Cake {\n   CakeBlackForest,\n   CakeHummingbird,\n   CakeBattenberg,\n}"},"old":{"module_name":"main__enum_variant_names","metadata":{},"snapshot":"enum Cake {\n   BlackForest,\n   Hummingbird,\n   Battenberg,\n}"}}
+{"run_id":"1742989331-378317000","line":150,"new":{"module_name":"main__enum_variant_names","snapshot_name":"enum_with_prefixes_and_suffixes_diagnostic","metadata":{"source":"tests/enum_variant_names/mod.rs","assertion_line":150,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__enum_variant_names","metadata":{},"snapshot":"Plugin diagnostic: All enum variants are prefixed or suffixed by the same characters.\n --> lib.cairo:2:1-6:1\n  enum Cake {\n _^\n| ...\n| }\n|_^"}}
+{"run_id":"1742989331-378317000","line":291,"new":{"module_name":"main__enum_variant_names","snapshot_name":"enum_with_prefixes_and_suffixes_fixer","metadata":{"source":"tests/enum_variant_names/mod.rs","assertion_line":291,"expression":"code"},"snapshot":"enum Cake {\n   DoubleCakeBlackForestGreen,\n   DoubleCakeHummingbirdForestGreen,\n   DoubleCakeBattenbergForestGreen,\n}"},"old":{"module_name":"main__enum_variant_names","metadata":{},"snapshot":"enum Cake {\n   Black,\n   Hummingbird,\n   Battenberg,\n}"}}
+{"run_id":"1742989331-378317000","line":124,"new":{"module_name":"main__enum_variant_names","snapshot_name":"enum_with_suffix_diagnostics","metadata":{"source":"tests/enum_variant_names/mod.rs","assertion_line":124,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__enum_variant_names","metadata":{},"snapshot":"Plugin diagnostic: All enum variants are prefixed or suffixed by the same characters.\n --> lib.cairo:2:1-5:1\n  enum Wood {\n _^\n| ...\n| }\n|_^"}}
+{"run_id":"1742989331-378317000","line":228,"new":{"module_name":"main__enum_variant_names","snapshot_name":"enum_with_suffix_fixer","metadata":{"source":"tests/enum_variant_names/mod.rs","assertion_line":228,"expression":"code"},"snapshot":"enum Wood {\n    BlackForest,\n    WhiteForest,\n}"},"old":{"module_name":"main__enum_variant_names","metadata":{},"snapshot":"enum Wood {\n    Black,\n    White,\n}"}}
+{"run_id":"1742989331-378317000","line":98,"new":{"module_name":"main__enum_variant_names","snapshot_name":"enum_with_suffixed_name_diagnostics","metadata":{"source":"tests/enum_variant_names/mod.rs","assertion_line":98,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__enum_variant_names","metadata":{},"snapshot":"Plugin diagnostic: All enum variants are prefixed or suffixed by the same characters.\n --> lib.cairo:2:1-6:1\n  enum Cake {\n _^\n| ...\n| }\n|_^"}}
+{"run_id":"1742989331-378317000","line":196,"new":{"module_name":"main__enum_variant_names","snapshot_name":"enum_with_suffixed_name_fixer","metadata":{"source":"tests/enum_variant_names/mod.rs","assertion_line":196,"expression":"code"},"snapshot":"enum Cake {\n   BlackForestCake,\n   HummingbirdCake,\n   BattenbergCake,\n}"},"old":{"module_name":"main__enum_variant_names","metadata":{},"snapshot":"enum Cake {\n   BlackForest,\n   Hummingbird,\n   Battenberg,\n}"}}
+{"run_id":"1742990147-837160000","line":187,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":302,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":192,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":314,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":271,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":182,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":238,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":162,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":249,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":167,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":177,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":280,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":172,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":218,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":260,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":137,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":111,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":207,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":150,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":124,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":291,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":228,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":98,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":196,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":187,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":302,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":192,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":314,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":271,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":182,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":249,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":238,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":162,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":167,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":280,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":177,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":172,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":260,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":137,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":218,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":111,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":124,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":207,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":150,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":291,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":228,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":98,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":196,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":187,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":302,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":192,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":314,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":271,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":182,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":238,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":162,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":249,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":167,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":177,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":280,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":172,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":260,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":137,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":218,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":111,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":207,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":124,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":291,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":98,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":150,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":228,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":196,"new":null,"old":null}

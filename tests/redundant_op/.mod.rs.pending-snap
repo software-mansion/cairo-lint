@@ -1,0 +1,32 @@
+{"run_id":"1742989331-378317000","line":30,"new":{"module_name":"main__redundant_op","snapshot_name":"addition_by_zero_diagnostics","metadata":{"source":"tests/redundant_op/mod.rs","assertion_line":30,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__redundant_op","metadata":{},"snapshot":"Plugin diagnostic: This operation doesn't change the value and can be simplified.\n --> lib.cairo:4:14\n    let _y = x + 0;\n             ^^^^^"}}
+{"run_id":"1742989331-378317000","line":39,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":84,"new":{"module_name":"main__redundant_op","snapshot_name":"division_by_one_diagnostics","metadata":{"source":"tests/redundant_op/mod.rs","assertion_line":84,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__redundant_op","metadata":{},"snapshot":"Plugin diagnostic: This operation doesn't change the value and can be simplified.\n --> lib.cairo:4:14\n    let _y = x / 1;\n             ^^^^^"}}
+{"run_id":"1742989331-378317000","line":93,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":66,"new":{"module_name":"main__redundant_op","snapshot_name":"multiplication_by_one_diagnostics","metadata":{"source":"tests/redundant_op/mod.rs","assertion_line":66,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__redundant_op","metadata":{},"snapshot":"Plugin diagnostic: This operation doesn't change the value and can be simplified.\n --> lib.cairo:4:14\n    let _y = x * 1;\n             ^^^^^"}}
+{"run_id":"1742989331-378317000","line":75,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":57,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":48,"new":{"module_name":"main__redundant_op","snapshot_name":"subtraction_by_zero_diagnostics","metadata":{"source":"tests/redundant_op/mod.rs","assertion_line":48,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__redundant_op","metadata":{},"snapshot":"Plugin diagnostic: This operation doesn't change the value and can be simplified.\n --> lib.cairo:4:14\n    let _y = x - 0;\n             ^^^^^"}}
+{"run_id":"1742990147-837160000","line":30,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":39,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":75,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":66,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":84,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":93,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":48,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":57,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":30,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":39,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":84,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":93,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":66,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":75,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":48,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":57,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":30,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":39,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":84,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":93,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":66,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":75,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":57,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":48,"new":null,"old":null}

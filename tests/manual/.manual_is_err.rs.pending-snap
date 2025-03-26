@@ -1,0 +1,40 @@
+{"run_id":"1742989331-378317000","line":83,"new":{"module_name":"main__manual__manual_is_err","snapshot_name":"basic_is_err_fixer","metadata":{"source":"tests/manual/manual_is_err.rs","assertion_line":83,"expression":"code"},"snapshot":"fn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    // This is just a variable.\n    let _a = match res_val {\n        Result::Ok(_) => false,\n        Result::Err(_) => true\n    };\n}"},"old":{"module_name":"main__manual__manual_is_err","metadata":{},"snapshot":"fn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    // This is just a variable.\n    let _a = res_val.is_err();\n}"}}
+{"run_id":"1742989331-378317000","line":70,"new":{"module_name":"main__manual__manual_is_err","snapshot_name":"basic_is_err_diagnostics","metadata":{"source":"tests/manual/manual_is_err.rs","assertion_line":70,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_is_err","metadata":{},"snapshot":"Plugin diagnostic: Manual match for `is_err` detected. Consider using `is_err()` instead\n --> lib.cairo:5:14-8:5\n      let _a = match res_val {\n ______________^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":120,"new":{"module_name":"main__manual__manual_is_err","snapshot_name":"manual_if_diagnostics","metadata":{"source":"tests/manual/manual_is_err.rs","assertion_line":120,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_is_err","metadata":{},"snapshot":"Plugin diagnostic: Manual match for `is_err` detected. Consider using `is_err()` instead\n --> lib.cairo:5:14-9:5\n      let _a = if let Result::Ok(_) = res_val {\n ______________^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":170,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":176,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":144,"new":{"module_name":"main__manual__manual_is_err","snapshot_name":"manual_if_expression_is_a_function_diagnostics","metadata":{"source":"tests/manual/manual_is_err.rs","assertion_line":144,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_is_err","metadata":{},"snapshot":"Plugin diagnostic: Manual match for `is_err` detected. Consider using `is_err()` instead\n --> lib.cairo:7:14-11:5\n      let _a = if let Result::Ok(_) = foo(0) {\n ______________^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":133,"new":{"module_name":"main__manual__manual_is_err","snapshot_name":"manual_if_fixer","metadata":{"source":"tests/manual/manual_is_err.rs","assertion_line":133,"expression":"code"},"snapshot":"fn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    // This is just a variable.\n    let _a = if let Result::Ok(_) = res_val {\n        false\n    } else {\n        true\n    };\n}"},"old":{"module_name":"main__manual__manual_is_err","metadata":{},"snapshot":"fn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    // This is just a variable.\n    let _a = res_val.is_err();\n}"}}
+{"run_id":"1742989331-378317000","line":157,"new":{"module_name":"main__manual__manual_is_err","snapshot_name":"manual_if_expression_is_a_function_fixer","metadata":{"source":"tests/manual/manual_is_err.rs","assertion_line":157,"expression":"code"},"snapshot":"fn foo(a: i32) -> Result<i32,felt252> {\n    Result::Err('err')\n}\nfn main() {\n    // This is just a variable.\n    let _a = if let Result::Ok(_) = foo(0) {\n        false\n    } else {\n        true\n    };\n}"},"old":{"module_name":"main__manual__manual_is_err","metadata":{},"snapshot":"fn foo(a: i32) -> Result<i32,felt252> {\n    Result::Err('err')\n}\nfn main() {\n    // This is just a variable.\n    let _a = foo(0).is_err();\n}"}}
+{"run_id":"1742989331-378317000","line":107,"new":{"module_name":"main__manual__manual_is_err","snapshot_name":"match_expression_is_a_function_fixer","metadata":{"source":"tests/manual/manual_is_err.rs","assertion_line":107,"expression":"code"},"snapshot":"fn foo(a: i32) -> Result<i32,felt252> {\n    Result::Err('err')\n}\nfn main() {\n    // This is just a variable.\n    let _a = match foo(0) {\n        Result::Ok(_) => false,\n        Result::Err(_) => true\n    };\n}"},"old":{"module_name":"main__manual__manual_is_err","metadata":{},"snapshot":"fn foo(a: i32) -> Result<i32,felt252> {\n    Result::Err('err')\n}\nfn main() {\n    // This is just a variable.\n    let _a = foo(0).is_err();\n}"}}
+{"run_id":"1742989331-378317000","line":94,"new":{"module_name":"main__manual__manual_is_err","snapshot_name":"match_expression_is_a_function_diagnostics","metadata":{"source":"tests/manual/manual_is_err.rs","assertion_line":94,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_is_err","metadata":{},"snapshot":"Plugin diagnostic: Manual match for `is_err` detected. Consider using `is_err()` instead\n --> lib.cairo:7:14-10:5\n      let _a = match foo(0) {\n ______________^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742990147-837160000","line":70,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":83,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":120,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":170,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":144,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":176,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":157,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":133,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":94,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":107,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":70,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":120,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":83,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":176,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":170,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":157,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":144,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":133,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":94,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":107,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":70,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":83,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":120,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":144,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":170,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":176,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":133,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":157,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":94,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":107,"new":null,"old":null}

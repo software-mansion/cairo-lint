@@ -31,16 +31,13 @@ fn main() {
 "#;
 
 const CLONE_NON_COPY_STRUCT: &str = r#"
-#[derive(Clone, Drop)]
-struct Point {
-    x: u32,
-    y: u32,
-}
+#[derive(Clone, Drop, Debug)]
+struct Point {};
 
 fn main() {
-    let p1 = Point { x: 10, y: 20 };
+    let p1 = Point { };
     let p2 = p1.clone();
-    println!("{}, {}", p1.x, p2.y);
+    println!("{:?}", p2);
 }
 "#;
 

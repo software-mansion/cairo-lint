@@ -1,0 +1,80 @@
+{"run_id":"1742989331-378317000","line":180,"new":{"module_name":"main__manual__manual_ok_or","snapshot_name":"error_enum_diagnostics","metadata":{"source":"tests/manual/manual_ok_or.rs","assertion_line":180,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_ok_or","metadata":{},"snapshot":"Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead\n --> lib.cairo:8:16-11:5\n      let _foo = match foo {\n ________________^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":193,"new":{"module_name":"main__manual__manual_ok_or","snapshot_name":"error_enum_fixer","metadata":{"source":"tests/manual/manual_ok_or.rs","assertion_line":193,"expression":"code"},"snapshot":"mod Error {\n    pub const Error: felt252 = 'this is an err';\n}\nfn main() {\n    let foo: Option<i32> = Option::None;\n    // This is just a variable.\n    let _foo = match foo {\n        Option::Some(v) => Result::Ok(v),\n        Option::None => Result::Err(Error::Error),\n    };\n}"},"old":{"module_name":"main__manual__manual_ok_or","metadata":{},"snapshot":"mod Error {\n    pub const Error: felt252 = 'this is an err';\n}\nfn main() {\n    let foo: Option<i32> = Option::None;\n    // This is just a variable.\n    let _foo = foo.ok_or(Error::Error);\n}"}}
+{"run_id":"1742989331-378317000","line":159,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":165,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":135,"new":{"module_name":"main__manual__manual_ok_or","snapshot_name":"error_str_diagnostics","metadata":{"source":"tests/manual/manual_ok_or.rs","assertion_line":135,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_ok_or","metadata":{},"snapshot":"Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead\n --> lib.cairo:5:16-8:5\n      let _foo = match foo {\n ________________^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":148,"new":{"module_name":"main__manual__manual_ok_or","snapshot_name":"error_str_fixer","metadata":{"source":"tests/manual/manual_ok_or.rs","assertion_line":148,"expression":"code"},"snapshot":"fn main() {\n    let foo: Option<i32> = Option::None;\n    // This is just a variable.\n    let _foo = match foo {\n        Option::Some(v) => Result::Ok(v),\n        Option::None => Result::Err('this is an err'),\n    };\n}"},"old":{"module_name":"main__manual__manual_ok_or","metadata":{},"snapshot":"fn main() {\n    let foo: Option<i32> = Option::None;\n    // This is just a variable.\n    let _foo = foo.ok_or('this is an err');\n}"}}
+{"run_id":"1742989331-378317000","line":348,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":354,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":281,"new":{"module_name":"main__manual__manual_ok_or","snapshot_name":"manual_if_diagnostics","metadata":{"source":"tests/manual/manual_ok_or.rs","assertion_line":281,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_ok_or","metadata":{},"snapshot":"Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead\n --> lib.cairo:5:14-9:5\n      let _a = if let Option::Some(val) = opt_val {\n ______________^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":294,"new":{"module_name":"main__manual__manual_ok_or","snapshot_name":"manual_if_fixer","metadata":{"source":"tests/manual/manual_ok_or.rs","assertion_line":294,"expression":"code"},"snapshot":"fn main() {\n    let opt_val: Option<i32> = Option::None;\n    // This is just a variable.\n    let _a = if let Option::Some(val) = opt_val {\n        Result::Ok(val)\n    } else {\n        Result::Err('err')\n    };\n}"},"old":{"module_name":"main__manual__manual_ok_or","metadata":{},"snapshot":"fn main() {\n    let opt_val: Option<i32> = Option::None;\n    // This is just a variable.\n    let _a = opt_val.ok_or('err');\n}"}}
+{"run_id":"1742989331-378317000","line":305,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":311,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":253,"new":{"module_name":"main__manual__manual_ok_or","snapshot_name":"match_expression_not_a_variable_diagnostics","metadata":{"source":"tests/manual/manual_ok_or.rs","assertion_line":253,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__manual__manual_ok_or","metadata":{},"snapshot":"Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead\n --> lib.cairo:9:43-12:5\n      let _self_result: Result<u8, Error> = match self.try_into() {\n ___________________________________________^\n| ...\n|     };\n|_____^"}}
+{"run_id":"1742989331-378317000","line":266,"new":{"module_name":"main__manual__manual_ok_or","snapshot_name":"match_expression_not_a_variable_fixer","metadata":{"source":"tests/manual/manual_ok_or.rs","assertion_line":266,"expression":"code"},"snapshot":"#[derive(Copy, Drop)]\nenum Error {\n    Error,\n}\nfn main() {\n    let self: u256 = 0; \n    // This is just a variable.\n    let _self_result: Result<u8, Error> = match self.try_into() {\n        Option::Some(value) => Result::Ok(value),\n        Option::None => Result::Err(Error::Error)\n    };\n}"},"old":{"module_name":"main__manual__manual_ok_or","metadata":{},"snapshot":"#[derive(Copy, Drop)]\nenum Error {\n    Error,\n}\nfn main() {\n    let self: u256 = 0; \n    // This is just a variable.\n    let _self_result: Result<u8, Error> = self.try_into().ok_or(Error::Error);\n}"}}
+{"run_id":"1742989331-378317000","line":327,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":333,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":207,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":213,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":230,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":236,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":180,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":193,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":165,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":159,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":148,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":135,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":348,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":354,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":281,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":294,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":305,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":311,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":253,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":327,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":266,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":207,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":230,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":333,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":213,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":236,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":180,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":193,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":165,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":159,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":148,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":135,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":348,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":354,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":281,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":294,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":305,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":311,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":253,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":327,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":266,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":333,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":207,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":213,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":230,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":236,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":180,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":193,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":159,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":165,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":135,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":348,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":148,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":354,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":294,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":281,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":311,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":305,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":253,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":327,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":266,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":333,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":213,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":207,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":230,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":236,"new":null,"old":null}

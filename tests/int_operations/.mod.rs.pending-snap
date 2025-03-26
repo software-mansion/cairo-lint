@@ -1,0 +1,76 @@
+{"run_id":"1742989331-378317000","line":145,"new":{"module_name":"main__int_operations","snapshot_name":"int_ge_min_one_diagnostics","metadata":{"source":"tests/int_operations/mod.rs","assertion_line":145,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__int_operations","metadata":{},"snapshot":"Plugin diagnostic: Unnecessary sub operation in integer >= comparison. Use simplified comparison.\n --> lib.cairo:5:8\n    if x - 1 >= y {}\n       ^^^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":155,"new":{"module_name":"main__int_operations","snapshot_name":"int_ge_min_one_fixer","metadata":{"source":"tests/int_operations/mod.rs","assertion_line":155,"expression":"code"},"snapshot":"fn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x - 1 >= y {}\n}"},"old":{"module_name":"main__int_operations","metadata":{},"snapshot":"fn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x > y {}\n}"}}
+{"run_id":"1742989331-378317000","line":89,"new":{"module_name":"main__int_operations","snapshot_name":"int_ge_plus_one_diagnostics","metadata":{"source":"tests/int_operations/mod.rs","assertion_line":89,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__int_operations","metadata":{},"snapshot":"Plugin diagnostic: Unnecessary add operation in integer >= comparison. Use simplified comparison.\n --> lib.cairo:5:8\n    if x >= y + 1 {}\n       ^^^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":99,"new":{"module_name":"main__int_operations","snapshot_name":"int_ge_plus_one_fixer","metadata":{"source":"tests/int_operations/mod.rs","assertion_line":99,"expression":"code"},"snapshot":"fn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x >= y + 1 {}\n}"},"old":{"module_name":"main__int_operations","metadata":{},"snapshot":"fn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x > y {}\n}"}}
+{"run_id":"1742989331-378317000","line":166,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":172,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":110,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":116,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":134,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":128,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":226,"new":{"module_name":"main__int_operations","snapshot_name":"int_le_min_one_diagnostics","metadata":{"source":"tests/int_operations/mod.rs","assertion_line":226,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__int_operations","metadata":{},"snapshot":"Plugin diagnostic: Unnecessary sub operation in integer <= comparison. Use simplified comparison.\n --> lib.cairo:5:8\n    if x <= y - 1 {}\n       ^^^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":236,"new":{"module_name":"main__int_operations","snapshot_name":"int_le_min_one_fixer","metadata":{"source":"tests/int_operations/mod.rs","assertion_line":236,"expression":"code"},"snapshot":"fn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x <= y - 1 {}\n}"},"old":{"module_name":"main__int_operations","metadata":{},"snapshot":"fn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x < y {}\n}"}}
+{"run_id":"1742989331-378317000","line":183,"new":{"module_name":"main__int_operations","snapshot_name":"int_le_plus_one_diagnostics","metadata":{"source":"tests/int_operations/mod.rs","assertion_line":183,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__int_operations","metadata":{},"snapshot":"Plugin diagnostic: Unnecessary add operation in integer <= comparison. Use simplified comparison.\n --> lib.cairo:5:8\n    if x + 1 <= y {}\n       ^^^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":198,"new":{"module_name":"main__int_operations","snapshot_name":"int_le_plus_one_fixer","metadata":{"source":"tests/int_operations/mod.rs","assertion_line":198,"expression":"code"},"snapshot":"fn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x + 1 <= y {}\n}"},"old":{"module_name":"main__int_operations","metadata":{},"snapshot":"fn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x < y {}\n}"}}
+{"run_id":"1742989331-378317000","line":193,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":247,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":253,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":209,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":215,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":155,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":89,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":145,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":99,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":166,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":172,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":110,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":116,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":128,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":134,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":226,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":236,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":183,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":198,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":193,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":247,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":253,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":209,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":215,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":145,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":155,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":89,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":99,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":166,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":172,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":116,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":110,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":128,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":226,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":134,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":236,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":183,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":198,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":193,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":253,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":247,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":209,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":215,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":145,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":155,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":89,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":166,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":99,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":172,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":110,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":116,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":128,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":226,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":134,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":236,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":183,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":198,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":193,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":247,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":253,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":209,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":215,"new":null,"old":null}

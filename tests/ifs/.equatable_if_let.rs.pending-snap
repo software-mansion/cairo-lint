@@ -1,0 +1,62 @@
+{"run_id":"1742989331-378317000","line":182,"new":{"module_name":"main__ifs__equatable_if_let","snapshot_name":"enum_unit_variant_pattern_matching_fixer","metadata":{"source":"tests/ifs/equatable_if_let.rs","assertion_line":182,"expression":"code"},"snapshot":"enum Enum {\n    UnitVariant\n} \n\nfn main() {\n    let e = Enum::UnitVariant;\n\n    if let Enum::UnitVariant = e {}\n}"},"old":{"module_name":"main__ifs__equatable_if_let","metadata":{},"snapshot":"enum Enum {\n    UnitVariant\n} \n\nfn main() {\n    let e = Enum::UnitVariant;\n\n    if e == Enum::UnitVariant {}\n}"}}
+{"run_id":"1742989331-378317000","line":172,"new":{"module_name":"main__ifs__equatable_if_let","snapshot_name":"enum_unit_variant_pattern_matching_diagnostics","metadata":{"source":"tests/ifs/equatable_if_let.rs","assertion_line":172,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__equatable_if_let","metadata":{},"snapshot":"Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead\n --> lib.cairo:9:5\n    if let Enum::UnitVariant = e {}\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":105,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":242,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":111,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":248,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":215,"new":{"module_name":"main__ifs__equatable_if_let","snapshot_name":"matching_with_simple_structs_field_diagnostics","metadata":{"source":"tests/ifs/equatable_if_let.rs","assertion_line":215,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__equatable_if_let","metadata":{},"snapshot":"Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead\n --> lib.cairo:6:5-8:5\n      if let Option::Some(2) = x {\n _____^\n|         do_thing();\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":228,"new":{"module_name":"main__ifs__equatable_if_let","snapshot_name":"matching_with_simple_structs_field_fixer","metadata":{"source":"tests/ifs/equatable_if_let.rs","assertion_line":228,"expression":"code"},"snapshot":"fn do_thing() {}\n\nfn main() {\n    let x = Option::Some(2);\n    if let Option::Some(2) = x {\n        do_thing();\n    }\n}"},"old":{"module_name":"main__ifs__equatable_if_let","metadata":{},"snapshot":"fn do_thing() {}\n\nfn main() {\n    let x = Option::Some(2);\n    if x == Option::Some(2) {\n        do_thing();\n    }\n}"}}
+{"run_id":"1742989331-378317000","line":93,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":87,"new":null,"old":null}
+{"run_id":"1742989331-378317000","line":127,"new":{"module_name":"main__ifs__equatable_if_let","snapshot_name":"simple_value_pattern_matching_diagnostics","metadata":{"source":"tests/ifs/equatable_if_let.rs","assertion_line":127,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__equatable_if_let","metadata":{},"snapshot":"Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead\n --> lib.cairo:4:5\n    if let 2 = a {}\n    ^^^^^^^^^^^^^^^"}}
+{"run_id":"1742989331-378317000","line":147,"new":{"module_name":"main__ifs__equatable_if_let","snapshot_name":"simple_value_pattern_matching_with_comment_diagnostics","metadata":{"source":"tests/ifs/equatable_if_let.rs","assertion_line":147,"expression":"formatted_diags"},"snapshot":""},"old":{"module_name":"main__ifs__equatable_if_let","metadata":{},"snapshot":"Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead\n --> lib.cairo:4:5-6:5\n      if let 2 = a {\n _____^\n|       // Just a comment.\n|     }\n|_____^"}}
+{"run_id":"1742989331-378317000","line":137,"new":{"module_name":"main__ifs__equatable_if_let","snapshot_name":"simple_value_pattern_matching_fixer","metadata":{"source":"tests/ifs/equatable_if_let.rs","assertion_line":137,"expression":"code"},"snapshot":"fn main() {\n    let a = 2;\n    if let 2 = a {}\n}"},"old":{"module_name":"main__ifs__equatable_if_let","metadata":{},"snapshot":"fn main() {\n    let a = 2;\n    if a == 2 {}\n}"}}
+{"run_id":"1742989331-378317000","line":160,"new":{"module_name":"main__ifs__equatable_if_let","snapshot_name":"simple_value_pattern_matching_with_comment_fixer","metadata":{"source":"tests/ifs/equatable_if_let.rs","assertion_line":160,"expression":"code"},"snapshot":"fn main() {\n    let a = 2;\n    if let 2 = a {\n      // Just a comment.\n    }\n}"},"old":{"module_name":"main__ifs__equatable_if_let","metadata":{},"snapshot":"fn main() {\n    let a = 2;\n    if a == 2 {\n      // Just a comment.\n    }\n}"}}
+{"run_id":"1742990147-837160000","line":197,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":203,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":172,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":182,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":111,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":105,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":248,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":215,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":242,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":228,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":87,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":93,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":137,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":127,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":147,"new":null,"old":null}
+{"run_id":"1742990147-837160000","line":160,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":197,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":203,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":172,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":182,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":242,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":111,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":248,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":105,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":215,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":228,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":87,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":127,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":93,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":137,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":147,"new":null,"old":null}
+{"run_id":"1742991286-385304000","line":160,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":197,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":203,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":172,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":182,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":105,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":111,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":242,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":248,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":215,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":228,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":87,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":93,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":127,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":137,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":147,"new":null,"old":null}
+{"run_id":"1742991864-108600000","line":160,"new":null,"old":null}
