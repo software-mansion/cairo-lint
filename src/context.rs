@@ -4,6 +4,7 @@ use crate::lints::bool_comparison::check_bool_comparison;
 use crate::lints::bool_comparison::BoolComparison;
 use crate::lints::breaks::check_break;
 use crate::lints::breaks::BreakUnit;
+use crate::lints::clone_on_copy::{check_clone_on_copy, CloneOnCopy};
 use crate::lints::double_comparison::check_double_comparison;
 use crate::lints::double_comparison::ContradictoryComparison;
 use crate::lints::double_comparison::ImpossibleComparison;
@@ -116,6 +117,7 @@ pub enum CairoLintKind {
     Performance,
     RedundantOperation,
     EnumVariantNames,
+    CloneOnCopy,
 }
 
 pub trait Lint: Sync + Send {
@@ -306,6 +308,10 @@ impl LintContext {
             LintRuleGroup {
                 lints: vec![Box::new(EnumVariantNames)],
                 check_function: check_enum_variant_names,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(CloneOnCopy)],
+                check_function: check_clone_on_copy,
             },
         ]
     }

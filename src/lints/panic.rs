@@ -50,8 +50,8 @@ pub fn check_panic_usage(
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
         let function_call_exprs = get_all_function_calls(function_body);
-        for function_call_expr in function_call_exprs.iter().unique() {
-            check_single_panic_usage(db, function_call_expr, diagnostics);
+        for function_call_expr in function_call_exprs.unique() {
+            check_single_panic_usage(db, &function_call_expr, diagnostics);
         }
     }
 }

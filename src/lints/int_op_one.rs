@@ -208,8 +208,8 @@ pub fn check_int_op_one(
     for function_body in function_bodies.iter() {
         let function_call_exprs = get_all_function_calls(function_body);
         let arenas = &function_body.arenas;
-        for function_call_expr in function_call_exprs.iter() {
-            check_single_int_op_one(db, function_call_expr, arenas, diagnostics);
+        for function_call_expr in function_call_exprs {
+            check_single_int_op_one(db, &function_call_expr, arenas, diagnostics);
         }
     }
 }
