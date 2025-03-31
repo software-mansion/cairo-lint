@@ -2,7 +2,7 @@ use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_semantic::{Arenas, Condition, Expr, ExprIf, Statement};
+use cairo_lang_semantic::{Arenas, Expr, ExprIf, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{
     ast::{Expr as AstExpr, ExprIf as AstExprIf, OptionElseClause, Statement as AstStatement},
@@ -12,7 +12,7 @@ use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
 use crate::helper::indent_snippet;
-use crate::queries::{get_all_function_bodies, get_all_if_expressions};
+use crate::queries::{get_all_function_bodies, get_all_if_expressions, is_assert_macro_call};
 
 pub struct CollapsibleIf;
 
@@ -86,7 +86,7 @@ pub fn check_collapsible_if(
 }
 
 fn check_single_collapsible_if(
-    _db: &dyn SemanticGroup,
+    db: &dyn SemanticGroup,
     if_expr: &ExprIf,
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
@@ -105,12 +105,14 @@ fn check_single_collapsible_if(
         // And this expression is an if expression
         if let Expr::If(ref inner_if_expr) = arenas.exprs[inner_expr_stmt.expr];
         then {
-            // Check if any of the ifs (outer and inner) have an else block, if it's the case don't diagnostic
-            if inner_if_expr.else_block.is_some() || if_expr.else_block.is_some() {
-                return;
+            // We check whether the if inner `if` statement comes from an assert macro call.
+            // If it does, we don't warn about collapsible ifs.
+            if is_assert_macro_call(db, arenas, inner_if_expr) {
+              return;
             }
 
-            if let Condition::Let(_, _) = if_expr.condition {
+            // Check if any of the ifs (outer and inner) have an else block, if it's the case don't diagnostic
+            if inner_if_expr.else_block.is_some() || if_expr.else_block.is_some() {
                 return;
             }
 
