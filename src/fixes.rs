@@ -20,7 +20,6 @@ use cairo_lang_filesystem::ids::FileId;
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
-use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::Upcast;
@@ -152,7 +151,7 @@ fn process_unused_import(
     let unused_node = id.stable_ptr(db).lookup(db.upcast()).as_syntax_node();
     let mut current_node = unused_node.clone();
 
-    while let Some(parent) = current_node.parent() {
+    while let Some(parent) = current_node.parent(db) {
         match parent.kind(db) {
             SyntaxKind::UsePathMulti => {
                 fixes
@@ -260,7 +259,7 @@ fn all_descendants_removed(
 /// A vector of Fix objects for removing the entire import.
 fn remove_entire_import(db: &RootDatabase, node: &SyntaxNode) -> Vec<Fix> {
     let mut current_node = node.clone();
-    while let Some(parent) = current_node.parent() {
+    while let Some(parent) = current_node.parent(db) {
         // Go up until we find a UsePathList on the path - then, we can remove the current node from that
         // list.
         if parent.kind(db) == SyntaxKind::UsePathList {
@@ -268,7 +267,7 @@ fn remove_entire_import(db: &RootDatabase, node: &SyntaxNode) -> Vec<Fix> {
             // 1. Get the text of the current node, which becomes "to remove"
             // 2. Rewrite the UsePathList with the current node text removed.
             let items_to_remove = vec![current_node.get_text_without_trivia(db)];
-            if let Some(grandparent) = parent.parent() {
+            if let Some(grandparent) = parent.parent(db) {
                 return handle_multi_import(db, &grandparent, &items_to_remove);
             }
         }
@@ -301,7 +300,7 @@ fn remove_specific_items(
     items_to_remove: &[String],
 ) -> Vec<Fix> {
     let use_path_list = find_use_path_list(db, node);
-    let children = db.get_children(use_path_list.clone());
+    let children = use_path_list.get_children(db);
     let children: Vec<SyntaxNode> = children
         .iter()
         .filter(|child| {

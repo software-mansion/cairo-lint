@@ -128,7 +128,7 @@ fn node_has_ascendants_with_allow_name_attr(
     node: SyntaxNode,
     allowed_name: &'static str,
 ) -> bool {
-    for node in node.ancestors_with_self() {
+    for node in node.ancestors_with_self(db) {
         if node.has_attr_with_arg(db, "allow", allowed_name) {
             return true;
         }

@@ -80,7 +80,7 @@ fn check_single_double_parens(
 
     if is_double_parens {
         diagnostics.push(PluginDiagnostic {
-            stable_ptr: parens_expr.stable_ptr().untyped(),
+            stable_ptr: parens_expr.stable_ptr(db.upcast()).untyped(),
             message: DoubleParens.diagnostic_message().to_string(),
             severity: Severity::Warning,
         });

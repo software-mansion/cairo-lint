@@ -93,7 +93,7 @@ fn check_single_panic_usage(
     // If the panic comes from a real file (macros generate code in new virtual files)
     if initial_file_id == file_id {
         diagnostics.push(PluginDiagnostic {
-            stable_ptr: init_node.stable_ptr(),
+            stable_ptr: init_node.stable_ptr(db.upcast()),
             message: PanicInCode.diagnostic_message().to_owned(),
             severity: Severity::Warning,
         });
@@ -106,7 +106,7 @@ fn check_single_panic_usage(
             then {
                 let syntax_node = file_node.lookup_position(db.upcast(), text_position.start);
                 diagnostics.push(PluginDiagnostic {
-                    stable_ptr: syntax_node.stable_ptr(),
+                    stable_ptr: syntax_node.stable_ptr(db.upcast()),
                     message: PanicInCode.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                 });
