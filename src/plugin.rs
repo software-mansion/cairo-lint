@@ -53,6 +53,14 @@ impl CairoLint {
             tool_metadata,
         }
     }
+
+    pub fn include_compiler_generated_files(&self) -> bool {
+        self.include_compiler_generated_files
+    }
+
+    pub fn tool_metadata(&self) -> &CairoLintToolMetadata {
+        &self.tool_metadata
+    }
 }
 
 impl AnalyzerPlugin for CairoLint {
