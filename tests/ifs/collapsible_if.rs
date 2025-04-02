@@ -208,7 +208,7 @@ const IF_WITH_ASSERT: &str = r#"
 fn main() {
     let x = Some(42);
     let y = Some(2);
-    let z = Some(10)
+    let z = Some(10);
 
     if x == y {
         assert!(z == Some(42));
@@ -545,15 +545,7 @@ fn collapsible_if_lets_diagnostics() {
 
 #[test]
 fn if_with_assert_diagnostic() {
-    test_lint_diagnostics!(IF_WITH_ASSERT, @r"
-    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
-     --> lib.cairo:7:5-9:5
-          if x == y {
-     _____^
-    |         assert!(z == Some(42));
-    |     }
-    |_____^
-    ")
+    test_lint_diagnostics!(IF_WITH_ASSERT, @"")
 }
 
 #[test]
@@ -616,7 +608,7 @@ fn if_with_assert_fixer() {
     fn main() {
         let x = Some(42);
         let y = Some(2);
-        let z = Some(10)
+        let z = Some(10);
 
         if x == y {
             assert!(z == Some(42));

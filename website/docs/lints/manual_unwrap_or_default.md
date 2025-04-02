@@ -1,5 +1,7 @@
 # manual_unwrap_or_default
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_unwrap_or_default.rs#L47)
 
 ## What it does

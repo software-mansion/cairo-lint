@@ -9,6 +9,7 @@ use cairo_lang_filesystem::{
 };
 use cairo_lang_semantic::{db::SemanticGroup, SemanticDiagnostic};
 use cairo_lang_utils::{ordered_hash_map::OrderedHashMap, LookupIntern};
+use cairo_lint::{context::get_unique_allowed_names, CairoLintToolMetadata};
 use scarb::find_scarb_managed_core;
 
 mod scarb;
@@ -37,6 +38,14 @@ pub fn get_diags(crate_id: CrateId, db: &mut RootDatabase) -> Vec<Diagnostics<Se
     diagnostics
 }
 
+pub fn get_cairo_lint_tool_metadata_with_all_lints_enabled() -> CairoLintToolMetadata {
+    let names = get_unique_allowed_names();
+    names
+        .into_iter()
+        .map(|name| (name.to_string(), true))
+        .collect()
+}
+
 #[macro_export]
 macro_rules! test_lint_fixer {
   ($before:literal, @$expected_fix:literal) => {{
@@ -54,9 +63,7 @@ macro_rules! test_lint_fixer {
     use ::cairo_lang_utils::Upcast;
     let mut code = String::from($before);
     let mut testing_suite = ::cairo_lang_semantic::plugin::PluginSuite::default();
-    testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint::plugin::CairoLint::new(true, ::cairo_lint::CairoLintToolMetadata {
-      nopanic: true,
-    })));
+    testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint::plugin::CairoLint::new(true, $crate::helpers::get_cairo_lint_tool_metadata_with_all_lints_enabled())));
     let mut db = ::cairo_lang_compiler::db::RootDatabase::builder()
       .with_default_plugin_suite(::cairo_lang_semantic::inline_macros::get_default_plugin_suite())
       .with_default_plugin_suite(::cairo_lang_test_plugin::test_plugin_suite())
@@ -111,9 +118,7 @@ macro_rules! test_lint_diagnostics {
   }};
   ($before:ident, @$expected_diagnostics:literal) => {{
     let mut testing_suite = ::cairo_lang_semantic::plugin::PluginSuite::default();
-    testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint::plugin::CairoLint::new(true, ::cairo_lint::CairoLintToolMetadata {
-      nopanic: true,
-    })));
+    testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint::plugin::CairoLint::new(true, $crate::helpers::get_cairo_lint_tool_metadata_with_all_lints_enabled())));
     let mut db = ::cairo_lang_compiler::db::RootDatabase::builder()
       .with_default_plugin_suite(::cairo_lang_semantic::inline_macros::get_default_plugin_suite())
       .with_default_plugin_suite(::cairo_lang_test_plugin::test_plugin_suite())

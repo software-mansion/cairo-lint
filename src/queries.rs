@@ -3,13 +3,14 @@ use std::sync::Arc;
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleItemId};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
-    Expr, ExprFunctionCall, ExprIf, ExprLogicalOperator, ExprLoop, ExprMatch, ExprWhile,
-    FunctionBody, Statement, StatementBreak,
+    Arenas, Expr, ExprFunctionCall, ExprIf, ExprLogicalOperator, ExprLoop, ExprMatch, ExprWhile,
+    FunctionBody, Pattern, Statement, StatementBreak,
 };
 use cairo_lang_syntax::node::ast::Expr as AstExpr;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::TypedStablePtr;
 use cairo_lang_syntax::node::TypedSyntaxNode;
+use if_chain::if_chain;
 
 pub fn get_all_checkable_functions(
     db: &dyn SemanticGroup,
@@ -172,4 +173,21 @@ pub fn get_all_break_statements(function_body: &Arc<FunctionBody>) -> Vec<Statem
             }
         })
         .collect()
+}
+
+/// This function checks if the given `if` expression is an assert macro call.
+/// It's kind of a hack, but unfortunately compiler expands the `assert!()` macro before any other user macros,
+/// so we have to work around it.
+pub fn is_assert_macro_call(db: &dyn SemanticGroup, arenas: &Arenas, expr: &ExprIf) -> bool {
+    if_chain! {
+        if let Expr::Block(ref if_block_expr) = arenas.exprs[expr.if_block];
+        if let Statement::Let(ref if_block_let_stmt) = arenas.statements[if_block_expr.statements[0]];
+        if let Pattern::Variable(ref if_block_let_stmt_pattern) = arenas.patterns[if_block_let_stmt.pattern];
+        if if_block_let_stmt_pattern.name == "__formatter_for_assert_macro__";
+        if if_block_let_stmt_pattern.var.ty.short_name(db) == "core::fmt::Formatter";
+        then {
+          return true;
+        }
+    }
+    false
 }

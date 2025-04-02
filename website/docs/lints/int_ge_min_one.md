@@ -1,5 +1,7 @@
 # int_ge_min_one
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/int_op_one.rs#L86)
 
 ## What it does

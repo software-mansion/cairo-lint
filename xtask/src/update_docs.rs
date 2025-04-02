@@ -7,13 +7,16 @@ use std::{env, fs, process::Command};
 
 static RUSTDOC_PATH: &str = "target/doc/cairo_lint.json";
 static LINT_METADATA_OUTPUT_PATH: &str = "website/lints_metadata.json";
+static DEFAULT_PROFILE_OUTPUT_PATH: &str = "website/docs/default_profile.md";
 static LINT_REPO_BASE_URL: &str = "https://github.com/software-mansion/cairo-lint/tree/main/";
+static LINT_DOCS_RELATIVE_PATH: &str = "lints/";
 static LINT_DOCS_BASE_PATH: &str = "website/docs/lints/";
 
 #[derive(Debug, Serialize)]
 struct LintDoc {
     name: String,
     docs: Option<String>,
+    enabled: bool,
     source_link: String,
 }
 
@@ -32,16 +35,14 @@ impl LintDoc {
             .unwrap()
             .to_string();
         let struct_start_line = value.pointer("/span/begin/0").unwrap().as_u64().unwrap();
+        let lint = find_lint_by_struct_name(&lint_struct_name).unwrap_or_else(|| {
+            panic!(
+                "Could not find the lint inside the Lint Context: {}",
+                lint_struct_name
+            )
+        });
         LintDoc {
-            name: find_lint_by_struct_name(&lint_struct_name)
-                .unwrap_or_else(|| {
-                    panic!(
-                        "Could not find the lint inside the Lint Context: {}",
-                        lint_struct_name
-                    )
-                })
-                .allowed_name()
-                .to_string(),
+            name: lint.allowed_name().to_string(),
             docs: value.get("docs").and_then(|doc| {
                 if doc.is_null() {
                     None
@@ -49,6 +50,7 @@ impl LintDoc {
                     Some(doc.as_str().unwrap().to_string())
                 }
             }),
+            enabled: lint.is_enabled(),
             source_link: format!("{}{}#L{}", LINT_REPO_BASE_URL, filename, struct_start_line),
         }
     }
@@ -89,14 +91,26 @@ pub fn main(_: Args) -> Result<()> {
         }
     };
 
+    let disabled_lints = docs.iter().filter(|doc| !doc.enabled);
+    let disabled_lints_list = disabled_lints
+        .map(|doc| {
+            format!(
+                "-   [{}]({}{}.md)\n",
+                doc.name, LINT_DOCS_RELATIVE_PATH, doc.name
+            )
+        })
+        .collect::<String>();
+    fs::write(DEFAULT_PROFILE_OUTPUT_PATH, format!("# Default Profile\n\nBy default, all lint rules are **enabled** with the exception of:\n\n{}", disabled_lints_list)).unwrap();
+
     // Write docs content inside the markdown file inside the website docs directory.
     for doc in docs.iter() {
         let doc_path = format!("{}{}.md", LINT_DOCS_BASE_PATH, doc.name);
         let doc_content = doc.docs.clone().unwrap_or(String::new());
+        let enabled_text = if doc.enabled { "Enabled" } else { "Disabled" };
         fs::write(
             &doc_path,
             format!(
-                "# {}\n\n[Source Code]({})\n\n{}\n",
+                "# {}\n\nDefault: **{enabled_text}**\n\n[Source Code]({})\n\n{}\n",
                 doc.name, doc.source_link, doc_content
             ),
         )

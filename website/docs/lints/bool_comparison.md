@@ -1,5 +1,7 @@
 # bool_comparison
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/bool_comparison.rs#L42)
 
 ## What it does

@@ -1,5 +1,7 @@
 # simplifiable_comparison
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/double_comparison.rs#L85)
 
 ## What it does

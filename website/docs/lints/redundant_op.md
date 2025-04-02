@@ -1,5 +1,7 @@
 # redundant_op
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/redundant_op.rs#L36)
 
 ## What it does

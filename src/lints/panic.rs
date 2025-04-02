@@ -39,6 +39,10 @@ impl Lint for PanicInCode {
     fn kind(&self) -> CairoLintKind {
         CairoLintKind::Panic
     }
+
+    fn is_enabled(&self) -> bool {
+        false
+    }
 }
 
 /// Checks for panic usage.

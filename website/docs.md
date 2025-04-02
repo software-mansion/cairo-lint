@@ -41,3 +41,15 @@ scarb lint --fix
 
 You can also specify `--test` to perform analysis of your project's tests as well (i.e. all the Cairo code under `#[cfg(test)]` attributes).
 To learn more about available arguments, just run `scarb lint --help`.
+
+## Configuration
+
+By default, most of the lints are enabled and checked, but some of them are disabled as they are much more pedantic. You can check whether a certain lint is enabled by default in the documentation. To adjust this configuration, you can manually set those values in your `Scarb.toml` as follows:
+
+```toml
+[tool.cairo-lint]
+panic = true
+bool_comparison = false
+```
+
+This example config will enable a `panic` checking lint (which is disabled by default), and disable a `bool_comparison` lint (which is enabled by default).

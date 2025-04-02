@@ -1,5 +1,7 @@
 # collapsible_if_else
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/ifs/collapsible_if_else.rs#L53)
 
 ## What it does

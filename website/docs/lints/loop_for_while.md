@@ -1,5 +1,7 @@
 # loop_for_while
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/loops/loop_for_while.rs#L48)
 
 ## What it does

@@ -129,6 +129,12 @@ pub trait Lint: Sync + Send {
     /// The kind of the lint rule. Some lint rules might have the same kind.
     fn kind(&self) -> CairoLintKind;
 
+    /// Checks if the lint rule is enabled.
+    /// By default all of the rules are enabled.
+    fn is_enabled(&self) -> bool {
+        true
+    }
+
     /// Checks if the instance has a fixer.
     /// By default it return false.
     fn has_fixer(&self) -> bool {
@@ -393,6 +399,16 @@ pub fn get_name_for_diagnostic_message(message: &str) -> Option<&'static str> {
         .flat_map(|group| group.lints.iter())
         .find(|rule| rule.diagnostic_message() == message)
         .map(|rule| rule.allowed_name())
+}
+
+/// Checks if the lint related to the diagnostic message is enabled by default.
+pub fn is_lint_enabled_by_default(message: &str) -> Option<bool> {
+    LINT_CONTEXT
+        .lint_groups
+        .iter()
+        .flat_map(|group| group.lints.iter())
+        .find(|rule| rule.diagnostic_message() == message)
+        .map(|rule| rule.is_enabled())
 }
 
 #[allow(clippy::borrowed_box)]

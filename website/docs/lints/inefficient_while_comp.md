@@ -1,5 +1,7 @@
 # inefficient_while_comp
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/performance.rs#L37)
 
 ## What it does

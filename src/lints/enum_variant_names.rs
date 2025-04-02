@@ -46,6 +46,10 @@ impl Lint for EnumVariantNames {
         CairoLintKind::EnumVariantNames
     }
 
+    fn is_enabled(&self) -> bool {
+        false
+    }
+
     fn has_fixer(&self) -> bool {
         true
     }

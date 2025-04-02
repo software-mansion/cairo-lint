@@ -1,5 +1,7 @@
 # double_parens
 
+Default: **Enabled**
+
 [Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/double_parens.rs#L34)
 
 ## What it does
