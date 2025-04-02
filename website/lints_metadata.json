@@ -18,6 +18,12 @@
         "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/breaks.rs#L38"
     },
     {
+        "name": "clone_on_copy",
+        "docs": "## What it does\n\nChecks for usage of .clone() on a Copy type.\n\n## Example\n\n```cairo\n    let a: felt252 = 'Hello';\n    let b = a.clone()\n```",
+        "enabled": true,
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/clone_on_copy.rs#L25"
+    },
+    {
         "name": "impossible_comparison",
         "docs": "## What it does\n\nChecks for impossible comparisons. Those ones always return false.\n\n## Example\n\nHere is an example of impossible comparison:\n\n```cairo\nfn main() {\n    let x: u32 = 1;\n    if x > 200 && x < 100 {\n        //impossible to reach\n    }\n}\n```",
         "enabled": true,
