@@ -1,10 +1,11 @@
-use crate::{test_lint_diagnostics, test_lint_fixer};
+use crate::test_lint_diagnostics;
 
 const CLONE_NUMERIC_TYPE: &str = r#"
 fn main() {
     let a: u32 = 42;
-    let b = a.clone();
-    println!("{}", b);
+    let b = @@@@a;
+    let c = b.clone();
+    println!("{}", c);
 }
 "#;
 
@@ -32,15 +33,11 @@ fn main() {
 
 const CLONE_NON_COPY_STRUCT: &str = r#"
 #[derive(Clone, Drop)]
-struct Point {
-    x: u32,
-    y: u32,
-}
+struct Point {};
 
 fn main() {
-    let p1 = Point { x: 10, y: 20 };
-    let p2 = p1.clone();
-    println!("{}, {}", p1.x, p2.y);
+    let p1 = Point {};
+    let _p2 = p1.clone();
 }
 "#;
 
@@ -60,7 +57,7 @@ fn main() {
 }
 "#;
 
-const CLONE_IN_IMPL: &str = r#"
+const CLONE_IN_IMPL_AND: &str = r#"
 #[derive(Copy, Drop)]
 struct Point {
     x: u32,
@@ -68,20 +65,27 @@ struct Point {
 }
 
 trait TMovable {
-    fn move(self: @Point, dx: u32, dy: u32) -> Point;
+    fn move_self(self: @Point, dx: @@u32, dy: u32) -> Point {
+        let new_point = self.clone();
+        new_point
+    }
+
+    fn move(self: @Point, dx: @@u32, dy: u32) -> Point;
 }
 
 impl Movable of TMovable {
-    fn move(self: @Point, dx: u32, dy: u32) -> Point {
+    fn move(self: @Point, dx: @@u32, dy: u32) -> Point {
         let new_point = self.clone();
-        Point { x: new_point.x + dx, y: new_point.y + dy }
+        let _dx_clone = dx.clone();
+        Point { x: new_point.x + **dx, y: new_point.y + dy }
     }
 }
 
 fn main() {
     let p1 = Point { x: 10, y: 20 };
-    let p2 = p1.move(5, 5);
-    println!("{}, {}", p1.x, p2.y);
+    let p2 = p1.move(@@5, 5);
+    let p3 = p2.move_self(@@10, 10);
+    println!("{}, {}, {}", p1.x, p2.y, p3.x);
 }
 "#;
 
@@ -116,29 +120,37 @@ fn main() {
 }
 "#;
 
-const ALLOW_CLONE_IN_IMPL: &str = r#"
+const ALLOW_CLONE_IN_IMPL_AND_TRAIT: &str = r#"
 #[derive(Copy, Drop)]
 struct Point {
     x: u32,
     y: u32,
 }
 
+#[allow(clone_on_copy)]
 trait TMovable {
-    fn move(self: @Point, dx: u32, dy: u32) -> Point;
+    fn move_self(self: @Point, dx: @@u32, dy: u32) -> Point {
+        let new_point = self.clone();
+        new_point
+    }
+
+    fn move(self: @Point, dx: @@u32, dy: u32) -> Point;
 }
 
 #[allow(clone_on_copy)]
 impl Movable of TMovable {
-    fn move(self: @Point, dx: u32, dy: u32) -> Point {
+    fn move(self: @Point, dx: @@u32, dy: u32) -> Point {
         let new_point = self.clone();
-        Point { x: new_point.x + dx, y: new_point.y + dy }
+        let _dx_clone = dx.clone();
+        Point { x: new_point.x + **dx, y: new_point.y + dy }
     }
 }
 
 fn main() {
     let p1 = Point { x: 10, y: 20 };
-    let p2 = p1.move(5, 5);
-    println!("{}, {}", p1.x, p2.y);
+    let p2 = p1.move(@@5, 5);
+    let p3 = p2.move_self(@@10, 10);
+    println!("{}, {}, {}", p1.x, p2.y, p3.x);
 }
 "#;
 
@@ -151,25 +163,24 @@ fn main() {
 }
 "#;
 
+const CLONE_ON_BLOCK: &str = r#"
+fn main() {
+    let arr_clone = {
+        let arr: [u32; 3] = [1, 2, 3];
+        arr
+    }.clone();
+    println!("{:?}", arr_clone);
+}
+"#;
+
 #[test]
 fn clone_numeric_type_diagnostic() {
     test_lint_diagnostics!(CLONE_NUMERIC_TYPE, @r"
     Plugin diagnostic: using `clone` on type which implements Copy trait
-     --> lib.cairo:4:13
-        let b = a.clone();
+     --> lib.cairo:5:13
+        let c = b.clone();
                 ^^^^^^^^^
     ")
-}
-
-#[test]
-fn clone_numeric_type_fixer() {
-    test_lint_fixer!(CLONE_NUMERIC_TYPE, @r#"
-    fn main() {
-        let a: u32 = 42;
-        let b = a;
-        println!("{}", b);
-    }
-    "#)
 }
 
 #[test]
@@ -183,16 +194,6 @@ fn clone_felt252_diagnostic() {
 }
 
 #[test]
-fn clone_felt252_fixer() {
-    test_lint_fixer!(CLONE_FELT252, @r#"
-    fn main() {
-        let a: felt252 = 'hello'
-        let b = a;
-        println!("{}", b);
-    }
-    "#);
-}
-#[test]
 fn clone_struct_diagnostic() {
     test_lint_diagnostics!(CLONE_STRUCT, @r"
     Plugin diagnostic: using `clone` on type which implements Copy trait
@@ -203,43 +204,9 @@ fn clone_struct_diagnostic() {
 }
 
 #[test]
-fn clone_struct_fixer() {
-    test_lint_fixer!(CLONE_STRUCT, @r##"
-    #[derive(Copy, Drop)]
-    struct Point {
-        x: u32,
-        y: u32,
-    }
-
-    fn main() {
-        let p1 = Point { x: 10, y: 20 };
-        let p2 = p1;
-        println!("{}, {}", p1.x, p2.y);
-    }
-    "##);
-}
-
-#[test]
 fn clone_non_copy_struct_diagnostic() {
     test_lint_diagnostics!(CLONE_NON_COPY_STRUCT, @r"
     ");
-}
-
-#[test]
-fn clone_non_copy_struct_fixer() {
-    test_lint_fixer!(CLONE_NON_COPY_STRUCT, @r##"
-    #[derive(Clone, Drop)]
-    struct Point {
-        x: u32,
-        y: u32,
-    }
-
-    fn main() {
-        let p1 = Point { x: 10, y: 20 };
-        let p2 = p1.clone();
-        println!("{}, {}", p1.x, p2.y);
-    }
-    "##);
 }
 
 #[test]
@@ -253,16 +220,6 @@ fn clone_tuple_diagnostic() {
 }
 
 #[test]
-fn clone_tuple_fixer() {
-    test_lint_fixer!(CLONE_TUPLE, @r#"
-    fn main() {
-        let t: (u32, felt252) = (42, 'hello');
-        let t_clone = t;
-        println!("{:?}", t_clone);
-    }
-    "#);
-}
-#[test]
 fn clone_array_diagnostic() {
     test_lint_diagnostics!(CLONE_ARRAY, @r"
     Plugin diagnostic: using `clone` on type which implements Copy trait
@@ -273,52 +230,17 @@ fn clone_array_diagnostic() {
 }
 
 #[test]
-fn clone_array_fixer() {
-    test_lint_fixer!(CLONE_ARRAY, @r#"
-    fn main() {
-        let arr: [u32; 3] = [1, 2, 3];
-        let arr_clone = arr;
-        println!("{:?}", arr_clone);
-    }
-    "#);
-}
-
-#[test]
 fn clone_in_impl_diagnostic() {
-    test_lint_diagnostics!(CLONE_IN_IMPL, @r"
+    test_lint_diagnostics!(CLONE_IN_IMPL_AND, @r"
     Plugin diagnostic: using `clone` on type which implements Copy trait
-     --> lib.cairo:14:25
+     --> lib.cairo:19:25
             let new_point = self.clone();
                             ^^^^^^^^^^^^
+    Plugin diagnostic: using `clone` on type which implements Copy trait
+     --> lib.cairo:20:25
+            let _dx_clone = dx.clone();
+                            ^^^^^^^^^^
     ")
-}
-
-#[test]
-fn clone_in_impl_fixer() {
-    test_lint_fixer!(CLONE_IN_IMPL, @r##"
-    #[derive(Copy, Drop)]
-    struct Point {
-        x: u32,
-        y: u32,
-    }
-
-    trait TMovable {
-        fn move(self: @Point, dx: u32, dy: u32) -> Point;
-    }
-
-    impl Movable of TMovable {
-        fn move(self: @Point, dx: u32, dy: u32) -> Point {
-            let new_point = *self;
-            Point { x: new_point.x + dx, y: new_point.y + dy }
-        }
-    }
-
-    fn main() {
-        let p1 = Point { x: 10, y: 20 };
-        let p2 = p1.move(5, 5);
-        println!("{}, {}", p1.x, p2.y);
-    }
-    "##);
 }
 
 #[test]
@@ -332,21 +254,8 @@ fn clone_on_function_diagnostic() {
 }
 
 #[test]
-fn clone_on_function_fixer() {
-    test_lint_fixer!(CLONE_ON_FUNCTION, @r#"
-    fn some_function() -> u32 {
-        42
-    }
-
-    fn main() {
-        let b = some_function();
-        println!("{}", b);
-    }
-    "#)
-}
-#[test]
 fn allow_clone_in_impl_diagnostic() {
-    test_lint_diagnostics!(ALLOW_CLONE_IN_IMPL, @r"")
+    test_lint_diagnostics!(ALLOW_CLONE_IN_IMPL_AND_TRAIT, @r"")
 }
 
 #[test]
@@ -355,29 +264,24 @@ fn allow_clone_array_diagnostics() {
 }
 
 #[test]
-fn allow_clone_in_impl_fixer() {
-    test_lint_diagnostics!(ALLOW_CLONE_IN_IMPL, @r"")
+fn clone_on_block_diagnostic() {
+    test_lint_diagnostics!(CLONE_ON_BLOCK, @r"
+    Plugin diagnostic: using `clone` on type which implements Copy trait
+     --> lib.cairo:3:21-6:13
+          let arr_clone = {
+     _____________________^
+    | ...
+    |     }.clone();
+    |_____________^
+    ")
 }
 
 #[test]
-fn clone_with_snapshot() {
-    test_lint_fixer!(CLONE_WITH_SNAPSHOT, @r##"
-    #[derive(Copy, Drop)]
-    struct Point {
-        x: u32,
-        y: u32,
-    }
-
-    fn duplicate(point: @Point) -> Point {
-        let cloned_point = *point;
-        cloned_point
-    }
-
-    fn main() {
-        let p1 = Point { x: 10, y: 20 };
-        let p2 = duplicate(@p1);
-
-        println!("Original: ({}, {}), Cloned: ({}, {})", p1.x, p1.y, p2.x, p2.y);
-    }
-    "##)
+fn clone_with_snapshot_diagnostic() {
+    test_lint_diagnostics!(CLONE_WITH_SNAPSHOT, @r"
+    Plugin diagnostic: using `clone` on type which implements Copy trait
+     --> lib.cairo:9:24
+        let cloned_point = point.clone();
+                           ^^^^^^^^^^^^^
+    ")
 }

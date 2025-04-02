@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleItemId};
-use cairo_lang_filesystem::ids::FileId;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
     Expr, ExprFunctionCall, ExprIf, ExprLogicalOperator, ExprLoop, ExprMatch, ExprWhile,
@@ -11,7 +10,6 @@ use cairo_lang_syntax::node::ast::Expr as AstExpr;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::TypedStablePtr;
 use cairo_lang_syntax::node::TypedSyntaxNode;
-use cairo_lang_utils::Upcast;
 
 pub fn get_all_checkable_functions(
     db: &dyn SemanticGroup,
@@ -98,9 +96,9 @@ pub fn get_all_loop_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprLo
         .collect()
 }
 
-pub fn get_all_function_calls<'a>(
-    function_body: &'a Arc<FunctionBody>,
-) -> impl Iterator<Item = ExprFunctionCall> + 'a {
+pub fn get_all_function_calls(
+    function_body: &Arc<FunctionBody>,
+) -> impl Iterator<Item = ExprFunctionCall> + '_ {
     function_body
         .arenas
         .exprs
@@ -112,19 +110,6 @@ pub fn get_all_function_calls<'a>(
                 None
             }
         })
-}
-
-pub fn get_all_real_function_calls<'a>(
-    db: &'a dyn SemanticGroup,
-    function_body: &'a Arc<FunctionBody>,
-    file_id: &'a FileId,
-) -> impl Iterator<Item = ExprFunctionCall> + 'a {
-    get_all_function_calls(function_body).filter(|expr_function_call| {
-        // println!("Sth {:?}", *file_id);
-        // println!("{:?}", expr_function_call.stable_ptr.untyped().file_id(db.upcast()));
-
-        expr_function_call.stable_ptr.untyped().file_id(db.upcast()) == *file_id
-    })
 }
 
 pub fn get_all_logical_operator_expressions(

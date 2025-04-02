@@ -110,7 +110,6 @@ macro_rules! test_lint_diagnostics {
     test_lint_diagnostics!(expected_value, @$expected_diagnostics)
   }};
   ($before:ident, @$expected_diagnostics:literal) => {{
-    use ::cairo_lang_utils::Upcast;
     let mut testing_suite = ::cairo_lang_semantic::plugin::PluginSuite::default();
     testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint::plugin::CairoLint::new(true, ::cairo_lint::CairoLintToolMetadata {
       nopanic: true,
@@ -184,7 +183,7 @@ pub fn setup_test_crate_ex(db: &mut dyn SemanticGroup, content: &str) -> CrateId
         cache_file: None,
     }
     .intern(db);
-
+    // TODO: (wawel37) make it in proper way
     db.set_crate_configs(Arc::new(OrderedHashMap::from([(crate_id, crate_config)])));
 
     crate_id
