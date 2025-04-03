@@ -1,6 +1,6 @@
 use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
-use cairo_lang_defs::ids::{LanguageElementId, ModuleItemId};
+use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
@@ -14,7 +14,7 @@ pub struct CloneOnCopy;
 
 /// ## What it does
 ///
-/// Checks for usage of .clone() on a Copy type.
+/// Checks for usage of `.clone()` on a `Copy` type.
 ///
 /// ## Example
 ///
@@ -28,7 +28,7 @@ impl Lint for CloneOnCopy {
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        "using `clone` on type which implements Copy trait"
+        "using `clone` on type which implements `Copy` trait"
     }
 
     fn kind(&self) -> CairoLintKind {
@@ -41,10 +41,6 @@ pub fn check_clone_on_copy(
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    let Ok(_) = item.module_file_id(db.upcast()).file_id(db.upcast()) else {
-        return;
-    };
-
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
         let function_call_exprs = get_all_function_calls(function_body);

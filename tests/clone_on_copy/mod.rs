@@ -33,11 +33,15 @@ fn main() {
 
 const CLONE_NON_COPY_STRUCT: &str = r#"
 #[derive(Clone, Drop)]
-struct Point {};
+struct Point {
+    x: u32,
+    y: u32,
+}
 
 fn main() {
-    let p1 = Point {};
-    let _p2 = p1.clone();
+    let p1 = Point { x: 10, y: 20 };
+    let p2 = p1.clone();
+    println!("{}, {}", p1.x, p2.y);
 }
 "#;
 
@@ -173,10 +177,18 @@ fn main() {
 }
 "#;
 
+const CLONE_FROM_PATH: &str = r#"
+fn main() {
+    let a: u32 = 42;
+    let b = Clone::clone(@a);
+    println!("{}", b);
+}
+"#;
+
 #[test]
 fn clone_numeric_type_diagnostic() {
     test_lint_diagnostics!(CLONE_NUMERIC_TYPE, @r"
-    Plugin diagnostic: using `clone` on type which implements Copy trait
+    Plugin diagnostic: using `clone` on type which implements `Copy` trait
      --> lib.cairo:5:13
         let c = b.clone();
                 ^^^^^^^^^
@@ -186,7 +198,7 @@ fn clone_numeric_type_diagnostic() {
 #[test]
 fn clone_felt252_diagnostic() {
     test_lint_diagnostics!(CLONE_FELT252, @r"
-    Plugin diagnostic: using `clone` on type which implements Copy trait
+    Plugin diagnostic: using `clone` on type which implements `Copy` trait
      --> lib.cairo:4:13
         let b = a.clone();
                 ^^^^^^^^^
@@ -196,7 +208,7 @@ fn clone_felt252_diagnostic() {
 #[test]
 fn clone_struct_diagnostic() {
     test_lint_diagnostics!(CLONE_STRUCT, @r"
-    Plugin diagnostic: using `clone` on type which implements Copy trait
+    Plugin diagnostic: using `clone` on type which implements `Copy` trait
      --> lib.cairo:10:14
         let p2 = p1.clone();
                  ^^^^^^^^^^
@@ -212,7 +224,7 @@ fn clone_non_copy_struct_diagnostic() {
 #[test]
 fn clone_tuple_diagnostic() {
     test_lint_diagnostics!(CLONE_TUPLE, @r"
-    Plugin diagnostic: using `clone` on type which implements Copy trait
+    Plugin diagnostic: using `clone` on type which implements `Copy` trait
      --> lib.cairo:4:19
         let t_clone = t.clone();
                       ^^^^^^^^^
@@ -222,7 +234,7 @@ fn clone_tuple_diagnostic() {
 #[test]
 fn clone_array_diagnostic() {
     test_lint_diagnostics!(CLONE_ARRAY, @r"
-    Plugin diagnostic: using `clone` on type which implements Copy trait
+    Plugin diagnostic: using `clone` on type which implements `Copy` trait
      --> lib.cairo:4:21
         let arr_clone = arr.clone();
                         ^^^^^^^^^^^
@@ -232,11 +244,11 @@ fn clone_array_diagnostic() {
 #[test]
 fn clone_in_impl_diagnostic() {
     test_lint_diagnostics!(CLONE_IN_IMPL_AND, @r"
-    Plugin diagnostic: using `clone` on type which implements Copy trait
+    Plugin diagnostic: using `clone` on type which implements `Copy` trait
      --> lib.cairo:19:25
             let new_point = self.clone();
                             ^^^^^^^^^^^^
-    Plugin diagnostic: using `clone` on type which implements Copy trait
+    Plugin diagnostic: using `clone` on type which implements `Copy` trait
      --> lib.cairo:20:25
             let _dx_clone = dx.clone();
                             ^^^^^^^^^^
@@ -246,7 +258,7 @@ fn clone_in_impl_diagnostic() {
 #[test]
 fn clone_on_function_diagnostic() {
     test_lint_diagnostics!(CLONE_ON_FUNCTION, @r"
-    Plugin diagnostic: using `clone` on type which implements Copy trait
+    Plugin diagnostic: using `clone` on type which implements `Copy` trait
      --> lib.cairo:7:13
         let b = some_function().clone();
                 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -266,7 +278,7 @@ fn allow_clone_array_diagnostics() {
 #[test]
 fn clone_on_block_diagnostic() {
     test_lint_diagnostics!(CLONE_ON_BLOCK, @r"
-    Plugin diagnostic: using `clone` on type which implements Copy trait
+    Plugin diagnostic: using `clone` on type which implements `Copy` trait
      --> lib.cairo:3:21-6:13
           let arr_clone = {
      _____________________^
@@ -279,9 +291,19 @@ fn clone_on_block_diagnostic() {
 #[test]
 fn clone_with_snapshot_diagnostic() {
     test_lint_diagnostics!(CLONE_WITH_SNAPSHOT, @r"
-    Plugin diagnostic: using `clone` on type which implements Copy trait
+    Plugin diagnostic: using `clone` on type which implements `Copy` trait
      --> lib.cairo:9:24
         let cloned_point = point.clone();
                            ^^^^^^^^^^^^^
+    ")
+}
+
+#[test]
+fn clone_from_path_diagnostic() {
+    test_lint_diagnostics!(CLONE_FROM_PATH, @r"
+    Plugin diagnostic: using `clone` on type which implements `Copy` trait
+     --> lib.cairo:4:13
+        let b = Clone::clone(@a);
+                ^^^^^^^^^^^^^^^^
     ")
 }

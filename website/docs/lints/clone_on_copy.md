@@ -6,7 +6,7 @@ Default: **Enabled**
 
 ## What it does
 
-Checks for usage of .clone() on a Copy type.
+Checks for usage of `.clone()` on a `Copy` type.
 
 ## Example
 
