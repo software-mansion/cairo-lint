@@ -1,19 +1,15 @@
-use std::{collections::BTreeMap, path::PathBuf, sync::Arc};
+use std::path::PathBuf;
 
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_defs::{db::DefsGroup, ids::ModuleId};
-use cairo_lang_filesystem::db::CrateSettings;
 use cairo_lang_filesystem::{
-    db::{init_dev_corelib, CrateConfiguration, Edition, ExperimentalFeaturesConfig, FilesGroup},
-    ids::{CrateId, CrateLongId, Directory, FileKind, FileLongId, VirtualFile},
+    db::{init_dev_corelib, FilesGroup},
+    ids::{CrateId, FileLongId},
 };
 use cairo_lang_semantic::{db::SemanticGroup, SemanticDiagnostic};
-use cairo_lang_utils::Intern;
-use cairo_lang_utils::{ordered_hash_map::OrderedHashMap, LookupIntern};
+use cairo_lang_utils::LookupIntern;
 use cairo_lint::{context::get_unique_allowed_names, CairoLintToolMetadata};
 use scarb::find_scarb_managed_core;
-
-use crate::CRATE_CONFIG;
 
 mod scarb;
 
@@ -81,7 +77,7 @@ macro_rules! test_lint_fixer {
       .build()
       .unwrap();
     let diags = $crate::helpers::get_diags(
-      crate::helpers::setup_test_crate_ex(&mut db, $before),
+      ::cairo_lang_semantic::test_utils::setup_test_crate_ex(&db, $before, Some($crate::CRATE_CONFIG), None),
       &mut db,
     );
     let semantic_diags: Vec<_> = diags.clone();
@@ -132,7 +128,7 @@ macro_rules! test_lint_diagnostics {
       .build()
       .unwrap();
     let diags = $crate::helpers::get_diags(
-      crate::helpers::setup_test_crate_ex(&mut db, $before),
+      ::cairo_lang_semantic::test_utils::setup_test_crate_ex(&db, $before, Some($crate::CRATE_CONFIG), None),
       &mut db,
     );
     let formatted_diags = diags
@@ -143,48 +139,4 @@ macro_rules! test_lint_diagnostics {
       .to_string();
       ::insta::assert_snapshot!(formatted_diags, @$expected_diagnostics);
   }};
-}
-
-pub fn setup_test_crate_ex(db: &mut dyn SemanticGroup, content: &str) -> CrateId {
-    let file_id = FileLongId::Virtual(VirtualFile {
-        parent: None,
-        name: "lib.cairo".into(),
-        content: content.into(),
-        code_mappings: [].into(),
-        kind: FileKind::Module,
-    })
-    .intern(db);
-
-    let settings = CrateSettings {
-        name: None,
-        edition: Edition::latest(),
-        version: None,
-        dependencies: Default::default(),
-        experimental_features: ExperimentalFeaturesConfig {
-            negative_impls: true,
-            associated_item_constraints: true,
-            coupons: true,
-        },
-        cfg_set: Default::default(),
-    };
-    let crate_config = CrateConfiguration {
-        root: Directory::Virtual {
-            files: BTreeMap::from([("lib.cairo".into(), file_id)]),
-            dirs: Default::default(),
-        },
-        settings,
-        cache_file: None,
-    };
-
-    let crate_id = CrateLongId::Virtual {
-        name: "test".into(),
-        file_id,
-        settings: CRATE_CONFIG.to_string(),
-        cache_file: None,
-    }
-    .intern(db);
-    // TODO: (wawel37) make it in proper way
-    db.set_crate_configs(Arc::new(OrderedHashMap::from([(crate_id, crate_config)])));
-
-    crate_id
 }
