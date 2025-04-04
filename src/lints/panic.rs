@@ -68,8 +68,7 @@ fn check_single_panic_usage(
     let init_node = function_call_expr
         .stable_ptr
         .lookup(db.upcast())
-        .as_syntax_node()
-        .clone();
+        .as_syntax_node();
 
     // If the function is not the panic function from the corelib return
     if function_call_expr.function.full_path(db) != PANIC {

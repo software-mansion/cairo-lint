@@ -285,14 +285,14 @@ pub fn check_is_default(db: &dyn SemanticGroup, expr: &Expr, arenas: &Arenas) ->
 pub fn fix_manual(func_name: &str, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
     match node.kind(db) {
         SyntaxKind::ExprMatch => {
-            let expr_match = ExprMatch::from_syntax_node(db, node.clone());
+            let expr_match = ExprMatch::from_syntax_node(db, node);
 
             let option_var_name = expr_match.expr(db).as_syntax_node().get_text(db);
 
             format!("{}.{func_name}()", option_var_name.trim_end())
         }
         SyntaxKind::ExprIf => {
-            let expr_if = AstExprIf::from_syntax_node(db, node.clone());
+            let expr_if = AstExprIf::from_syntax_node(db, node);
 
             let var_name = if let AstCondition::Let(condition_let) = expr_if.condition(db) {
                 condition_let.expr(db).as_syntax_node().get_text(db)

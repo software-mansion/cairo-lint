@@ -149,20 +149,20 @@ fn process_unused_import(
     fixes: &mut HashMap<SyntaxNode, ImportFix>,
 ) {
     let unused_node = id.stable_ptr(db).lookup(db.upcast()).as_syntax_node();
-    let mut current_node = unused_node.clone();
+    let mut current_node = unused_node;
 
     while let Some(parent) = current_node.parent(db) {
         match parent.kind(db) {
             SyntaxKind::UsePathMulti => {
                 fixes
-                    .entry(parent.clone())
-                    .or_insert_with(|| ImportFix::new(parent.clone()))
+                    .entry(parent)
+                    .or_insert_with(|| ImportFix::new(parent))
                     .items_to_remove
                     .push(unused_node.get_text_without_trivia(db));
                 break;
             }
             SyntaxKind::ItemUse => {
-                fixes.insert(parent.clone(), ImportFix::new(parent.clone()));
+                fixes.insert(parent, ImportFix::new(parent));
                 break;
             }
             _ => current_node = parent,
@@ -258,7 +258,7 @@ fn all_descendants_removed(
 ///
 /// A vector of Fix objects for removing the entire import.
 fn remove_entire_import(db: &RootDatabase, node: &SyntaxNode) -> Vec<Fix> {
-    let mut current_node = node.clone();
+    let mut current_node = *node;
     while let Some(parent) = current_node.parent(db) {
         // Go up until we find a UsePathList on the path - then, we can remove the current node from that
         // list.
@@ -340,5 +340,5 @@ fn remove_specific_items(
 fn find_use_path_list(db: &RootDatabase, node: &SyntaxNode) -> SyntaxNode {
     node.descendants(db)
         .find(|descendant| descendant.kind(db) == SyntaxKind::UsePathList)
-        .unwrap_or_else(|| node.clone())
+        .unwrap_or(*node)
 }

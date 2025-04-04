@@ -106,14 +106,14 @@ fn check_single_double_parens(
 /// Input: `((x + y))`
 /// Output: `x + y`
 pub fn fix_double_parens(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    let mut expr = Expr::from_syntax_node(db, node.clone());
+    let mut expr = Expr::from_syntax_node(db, node);
 
     while let Expr::Parenthesized(inner_expr) = expr {
         expr = inner_expr.expr(db);
     }
 
     Some((
-        node.clone(),
+        node,
         indent_snippet(
             &expr.as_syntax_node().get_text(db),
             node.get_text(db)

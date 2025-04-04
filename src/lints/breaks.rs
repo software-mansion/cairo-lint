@@ -93,7 +93,7 @@ fn check_single_break(
 /// Rewrites `break ();` as `break;` given the node text contains it.
 pub fn fix_break_unit(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
     Some((
-        node.clone(),
+        node,
         node.get_text(db).replace("break ();", "break;").to_string(),
     ))
 }

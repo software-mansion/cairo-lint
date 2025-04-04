@@ -474,7 +474,7 @@ pub fn fix_double_comparison(
     db: &dyn SyntaxGroup,
     node: SyntaxNode,
 ) -> Option<(SyntaxNode, String)> {
-    let expr = AstExpr::from_syntax_node(db, node.clone());
+    let expr = AstExpr::from_syntax_node(db, node);
 
     if let AstExpr::Binary(binary_op) = expr {
         let lhs = binary_op.lhs(db);

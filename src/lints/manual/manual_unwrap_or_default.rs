@@ -103,7 +103,7 @@ pub fn fix_manual_unwrap_or_default(
     node: SyntaxNode,
 ) -> Option<(SyntaxNode, String)> {
     // Check if the node is a general expression
-    let expr = Expr::from_syntax_node(db, node.clone());
+    let expr = Expr::from_syntax_node(db, node);
 
     let matched_expr = match expr {
         // Handle the case where the expression is a match expression
@@ -135,7 +135,6 @@ pub fn fix_manual_unwrap_or_default(
     let mut loop_span = node.span(db);
     loop_span.end = node.span_start_without_trivia(db);
     let trivia = node
-        .clone()
         .get_text_of_span(db, loop_span)
         .trim()
         .to_string();

@@ -194,7 +194,7 @@ fn check_if_contains_break_with_no_return_value(expr: &ExprId, arenas: &Arenas) 
 /// }
 /// ```
 pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    let loop_expr = AstExprLoop::from_syntax_node(db, node.clone());
+    let loop_expr = AstExprLoop::from_syntax_node(db, node);
     let indent = node
         .get_text(db)
         .chars()
@@ -206,7 +206,6 @@ pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxN
     let mut loop_span = node.span(db);
     loop_span.end = node.span_start_without_trivia(db);
     let trivia = node
-        .clone()
         .get_text_of_span(db, loop_span)
         .trim()
         .to_string();
