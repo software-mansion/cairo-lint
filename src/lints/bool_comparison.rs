@@ -56,8 +56,8 @@ impl Lint for BoolComparison {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_bool_comparison(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_bool_comparison(db.upcast(), node)
     }
 }
 
@@ -71,8 +71,8 @@ pub fn check_bool_comparison(
     for function_body in function_bodies.iter() {
         let function_call_exprs = get_all_function_calls(function_body);
         let arenas = &function_body.arenas;
-        for function_call_expr in function_call_exprs.iter() {
-            check_single_bool_comparison(db, function_call_expr, arenas, diagnostics);
+        for function_call_expr in function_call_exprs {
+            check_single_bool_comparison(db, &function_call_expr, arenas, diagnostics);
         }
     }
 }

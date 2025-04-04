@@ -99,8 +99,8 @@ impl Lint for SimplifiableComparison {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_double_comparison(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_double_comparison(db.upcast(), node)
     }
 }
 
@@ -150,8 +150,8 @@ impl Lint for RedundantComparison {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_double_comparison(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_double_comparison(db.upcast(), node)
     }
 }
 
@@ -201,8 +201,8 @@ impl Lint for ContradictoryComparison {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_double_comparison(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_double_comparison(db.upcast(), node)
     }
 }
 

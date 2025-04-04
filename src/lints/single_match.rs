@@ -55,8 +55,8 @@ impl Lint for DestructMatch {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_destruct_match(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_destruct_match(db.upcast(), node)
     }
 }
 

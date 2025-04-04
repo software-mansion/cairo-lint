@@ -61,8 +61,8 @@ impl Lint for ManualUnwrapOrDefault {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_manual_unwrap_or_default(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_manual_unwrap_or_default(db.upcast(), node)
     }
 }
 

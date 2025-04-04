@@ -54,8 +54,8 @@ impl Lint for EnumVariantNames {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_enum_variant_names(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_enum_variant_names(db.upcast(), node)
     }
 }
 

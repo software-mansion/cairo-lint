@@ -50,8 +50,8 @@ impl Lint for EquatableIfLet {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_equatable_if_let(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_equatable_if_let(db.upcast(), node)
     }
 }
 

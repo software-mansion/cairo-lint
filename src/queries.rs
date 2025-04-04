@@ -97,7 +97,9 @@ pub fn get_all_loop_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprLo
         .collect()
 }
 
-pub fn get_all_function_calls(function_body: &Arc<FunctionBody>) -> Vec<ExprFunctionCall> {
+pub fn get_all_function_calls(
+    function_body: &Arc<FunctionBody>,
+) -> impl Iterator<Item = ExprFunctionCall> + '_ {
     function_body
         .arenas
         .exprs
@@ -109,7 +111,6 @@ pub fn get_all_function_calls(function_body: &Arc<FunctionBody>) -> Vec<ExprFunc
                 None
             }
         })
-        .collect()
 }
 
 pub fn get_all_logical_operator_expressions(

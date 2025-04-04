@@ -238,8 +238,8 @@ pub fn check_eq_op(
     for function_body in function_bodies.iter() {
         let function_call_exprs = get_all_function_calls(function_body);
         let arenas = &function_body.arenas;
-        for function_call_expr in function_call_exprs.iter() {
-            check_single_eq_op(db, function_call_expr, arenas, diagnostics);
+        for function_call_expr in function_call_exprs {
+            check_single_eq_op(db, &function_call_expr, arenas, diagnostics);
         }
     }
 }
