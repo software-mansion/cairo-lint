@@ -134,10 +134,7 @@ pub fn fix_manual_unwrap_or_default(
 
     let mut loop_span = node.span(db);
     loop_span.end = node.span_start_without_trivia(db);
-    let trivia = node
-        .get_text_of_span(db, loop_span)
-        .trim()
-        .to_string();
+    let trivia = node.get_text_of_span(db, loop_span).trim().to_string();
     let trivia = if trivia.is_empty() {
         trivia
     } else {

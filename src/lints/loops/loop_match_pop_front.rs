@@ -292,10 +292,7 @@ pub fn fix_loop_match_pop_front(
         .chars()
         .take_while(|c| c.is_whitespace())
         .collect::<String>();
-    let trivia = node
-        .get_text_of_span(db, loop_span)
-        .trim()
-        .to_string();
+    let trivia = node.get_text_of_span(db, loop_span).trim().to_string();
     let trivia = if trivia.is_empty() {
         trivia
     } else {
