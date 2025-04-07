@@ -74,6 +74,24 @@ fn main() {
 }
 "#;
 
+const PANIC_IN_TRAIT_FUNCTION: &str = r#"
+#[derive(Drop)]
+struct MyStruct {} 
+
+trait TExample {
+    fn risky_function(self: @MyStruct) {
+        panic!("This is a panic in a trait function");
+    }
+}
+
+impl Example of TExample {}
+
+fn main() {
+    let instance = MyStruct {}
+    instance.risky_function();
+}
+"#;
+
 #[test]
 fn single_panic_diagnostics() {
     test_lint_diagnostics!(SINGLE_PANIC, @r#"
@@ -271,4 +289,14 @@ fn multiple_panic_allowed_in_function_fixer() {
         panic!("panic 3");
     }
     "##)
+}
+
+#[test]
+fn panic_in_trait_function_diagnostics() {
+    test_lint_diagnostics!(PANIC_IN_TRAIT_FUNCTION, @r#"
+    Plugin diagnostic: Leaving `panic` in the code is discouraged.
+     --> lib.cairo:7:9
+            panic!("This is a panic in a trait function");
+            ^^^^^
+    "#);
 }

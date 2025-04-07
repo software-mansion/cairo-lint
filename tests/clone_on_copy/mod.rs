@@ -61,7 +61,7 @@ fn main() {
 }
 "#;
 
-const CLONE_IN_IMPL_AND: &str = r#"
+const CLONE_IN_IMPL_AND_TRAIT: &str = r#"
 #[derive(Copy, Drop)]
 struct Point {
     x: u32,
@@ -70,8 +70,8 @@ struct Point {
 
 trait TMovable {
     fn move_self(self: @Point, dx: @@u32, dy: u32) -> Point {
-        let new_point = self.clone();
-        new_point
+        let new_point_in_trait = self.clone();
+        new_point_in_trait
     }
 
     fn move(self: @Point, dx: @@u32, dy: u32) -> Point;
@@ -243,7 +243,11 @@ fn clone_array_diagnostic() {
 
 #[test]
 fn clone_in_impl_diagnostic() {
-    test_lint_diagnostics!(CLONE_IN_IMPL_AND, @r"
+    test_lint_diagnostics!(CLONE_IN_IMPL_AND_TRAIT, @r"
+    Plugin diagnostic: using `clone` on type which implements `Copy` trait
+     --> lib.cairo:10:34
+            let new_point_in_trait = self.clone();
+                                     ^^^^^^^^^^^^
     Plugin diagnostic: using `clone` on type which implements `Copy` trait
      --> lib.cairo:19:25
             let new_point = self.clone();

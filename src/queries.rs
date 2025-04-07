@@ -26,6 +26,14 @@ pub fn get_all_checkable_functions(
                 .map(|(_, fn_id)| FunctionWithBodyId::Impl(*fn_id))
                 .collect()
         }),
+        ModuleItemId::Trait(trait_id) => {
+            db.trait_functions(*trait_id).map_or(vec![], |functions| {
+                functions
+                    .iter()
+                    .map(|(_, trait_fn_id)| FunctionWithBodyId::Trait(*trait_fn_id))
+                    .collect()
+            })
+        }
         _ => vec![],
     }
 }

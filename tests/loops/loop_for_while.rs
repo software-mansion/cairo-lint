@@ -211,6 +211,32 @@ fn main() -> u16 {
 }
 "#;
 
+const LOOP_IN_TRAIT: &str = r#"
+struct MyStruct {
+    x: u16,
+    y: u32,
+}
+
+trait TExample {
+    fn loop_add(ref self: MyStruct) {
+        loop {
+            if self.x == 10 || self.y == 5 {
+                break;
+            }
+            self.x += 1;
+            self.y -= 1;
+        }
+    }
+}
+
+impl Example of TExample {}
+
+fn main() {
+    let mut instance = MyStruct { x: 0, y: 15 };
+    instance.loop_add();
+}
+"#;
+
 #[test]
 fn simple_loop_with_break_diagnostics() {
     test_lint_diagnostics!(SIMPLE_LOOP_WITH_BREAK, @r"
@@ -589,4 +615,43 @@ fn simple_loop_with_break_with_return_value_fixer() {
         }
     }
     ");
+}
+
+#[test]
+fn loop_in_trait_diagnostics() {
+    test_lint_diagnostics!(LOOP_IN_TRAIT, @r"
+    Plugin diagnostic: you seem to be trying to use `loop`. Consider replacing this `loop` with a `while` loop for clarity and conciseness
+     --> lib.cairo:9:9-15:9
+              loop {
+     _________^
+    | ...
+    |         }
+    |_________^
+    ")
+}
+
+#[test]
+fn loop_in_trait_fixer() {
+    test_lint_fixer!(LOOP_IN_TRAIT, @r"
+    struct MyStruct {
+        x: u16,
+        y: u32,
+    }
+
+    trait TExample {
+        fn loop_add(ref self: MyStruct) {
+            while self.x != 10 && self.y != 5 {
+                self.x += 1;
+                self.y -= 1;
+            }
+        }
+    }
+
+    impl Example of TExample {}
+
+    fn main() {
+        let mut instance = MyStruct { x: 0, y: 15 };
+        instance.loop_add();
+    }
+    ")
 }
