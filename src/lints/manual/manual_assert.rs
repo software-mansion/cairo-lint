@@ -1,11 +1,8 @@
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::{db::SemanticGroup, Arenas, Expr, ExprId, ExprIf, Statement};
+use cairo_lang_semantic::{db::SemanticGroup, Arenas, Expr, ExprIf, Statement};
 use cairo_lang_syntax::node::{
-    ast::{
-        Expr as AstExpr, ExprIf as AstExprIf, Statement as AstStatement,
-        StatementExpr as AstStatementExpr,
-    },
+    ast::{Expr as AstExpr, ExprIf as AstExprIf, Statement as AstStatement},
     db::SyntaxGroup,
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
@@ -13,7 +10,7 @@ use if_chain::if_chain;
 
 use crate::{
     context::{CairoLintKind, Lint},
-    helper::{PANIC_PATH, PANIC_WITH_BYTE_ARRAY_PATH},
+    helper::is_panic_expr,
     queries::{get_all_function_bodies, get_all_if_expressions},
 };
 
@@ -131,34 +128,6 @@ fn check_single_manual_assert(
             });
         }
     }
-}
-
-fn check_if_panic_block(db: &dyn SemanticGroup, arenas: &Arenas, expr_id: ExprId) -> bool {
-    if_chain! {
-        if let Expr::Block(ref panic_block) = arenas.exprs[expr_id];
-        if let Some(panic_block_tail) = panic_block.tail;
-        if let Expr::FunctionCall(ref expr_func_call) = arenas.exprs[panic_block_tail];
-        if expr_func_call.function.full_path(db) == PANIC_WITH_BYTE_ARRAY_PATH;
-        then {
-            return true;
-        }
-    }
-    false
-}
-
-fn check_if_inline_panic(db: &dyn SemanticGroup, arenas: &Arenas, expr_id: ExprId) -> bool {
-    if_chain! {
-        if let Expr::FunctionCall(ref expr_func_call) = arenas.exprs[expr_id];
-        if expr_func_call.function.full_path(db) == PANIC_PATH;
-        then {
-            return true;
-        }
-    }
-    false
-}
-
-fn is_panic_expr(db: &dyn SemanticGroup, arenas: &Arenas, expr_id: ExprId) -> bool {
-    check_if_inline_panic(db, arenas, expr_id) || check_if_panic_block(db, arenas, expr_id)
 }
 
 pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
