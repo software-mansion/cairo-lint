@@ -99,8 +99,8 @@ impl Lint for SimplifiableComparison {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_double_comparison(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_double_comparison(db.upcast(), node)
     }
 }
 
@@ -150,8 +150,8 @@ impl Lint for RedundantComparison {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_double_comparison(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_double_comparison(db.upcast(), node)
     }
 }
 
@@ -201,8 +201,8 @@ impl Lint for ContradictoryComparison {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_double_comparison(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_double_comparison(db.upcast(), node)
     }
 }
 
@@ -474,7 +474,7 @@ pub fn fix_double_comparison(
     db: &dyn SyntaxGroup,
     node: SyntaxNode,
 ) -> Option<(SyntaxNode, String)> {
-    let expr = AstExpr::from_syntax_node(db, node.clone());
+    let expr = AstExpr::from_syntax_node(db, node);
 
     if let AstExpr::Binary(binary_op) = expr {
         let lhs = binary_op.lhs(db);

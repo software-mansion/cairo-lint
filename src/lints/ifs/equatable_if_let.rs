@@ -50,8 +50,8 @@ impl Lint for EquatableIfLet {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_equatable_if_let(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_equatable_if_let(db.upcast(), node)
     }
 }
 
@@ -117,7 +117,7 @@ pub fn fix_equatable_if_let(
     db: &dyn SyntaxGroup,
     node: SyntaxNode,
 ) -> Option<(SyntaxNode, String)> {
-    let expr = AstExprIf::from_syntax_node(db, node.clone());
+    let expr = AstExprIf::from_syntax_node(db, node);
     let condition = expr.condition(db);
 
     let fixed_condition = match condition {

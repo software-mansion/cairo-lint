@@ -18,6 +18,12 @@
         "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/breaks.rs#L38"
     },
     {
+        "name": "clone_on_copy",
+        "docs": "## What it does\n\nChecks for usage of `.clone()` on a `Copy` type.\n\n## Example\n\n```cairo\n    let a: felt252 = 'Hello';\n    let b = a.clone()\n```",
+        "enabled": true,
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/clone_on_copy.rs#L25"
+    },
+    {
         "name": "impossible_comparison",
         "docs": "## What it does\n\nChecks for impossible comparisons. Those ones always return false.\n\n## Example\n\nHere is an example of impossible comparison:\n\n```cairo\nfn main() {\n    let x: u32 = 1;\n    if x > 200 && x < 100 {\n        //impossible to reach\n    }\n}\n```",
         "enabled": true,
@@ -162,6 +168,12 @@
         "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/loops/loop_match_pop_front.rs#L52"
     },
     {
+        "name": "manual_assert",
+        "docs": "## What it does\n\nChecks for manual implementations of `assert` macro in an if expressions.\n\n## Example\n\n```cairo\nfn main() {\n    let a = 5;\n    if a == 5 {\n        panic!(\"a shouldn't be equal to 5\");\n    }\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let a = 5;\n    assert!(a != 5, \"a shouldn't be equal to 5\");\n}\n```",
+        "enabled": true,
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_assert.rs#L38"
+    },
+    {
         "name": "manual_err",
         "docs": "## What it does\n\nChecks for manual implementations of `err` in match and if expressions.\n\n## Example\n\n```cairo\nfn main() {\n    let foo: Result<i32> = Result::Err('err');\n    let _foo = match foo {\n        Result::Ok(_) => Option::None,\n        Result::Err(x) => Option::Some(x),\n    };\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let foo: Result<i32> = Result::Err('err');\n    let _foo = foo.err();\n}\n```",
         "enabled": true,
@@ -225,7 +237,7 @@
         "name": "panic",
         "docs": "## What it does\n\nChecks for panic usages.\n\n## Example\n\n```cairo\nfn main() {\n    panic!(\"panic\");\n}\n```",
         "enabled": false,
-        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/panic.rs#L30"
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/panic.rs#L29"
     },
     {
         "name": "inefficient_while_comp",

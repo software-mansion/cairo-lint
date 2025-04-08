@@ -59,8 +59,8 @@ impl Lint for ManualExpect {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_manual_expect(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_manual_expect(db.upcast(), node)
     }
 }
 
@@ -115,7 +115,7 @@ pub fn check_manual_expect(
 pub fn fix_manual_expect(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
     let fix = match node.kind(db) {
         SyntaxKind::ExprMatch => {
-            let expr_match = ExprMatch::from_syntax_node(db, node.clone());
+            let expr_match = ExprMatch::from_syntax_node(db, node);
 
             let (option_var_name, none_arm_err) =
                 expr_match_get_var_name_and_err(expr_match, db, 1);
@@ -123,7 +123,7 @@ pub fn fix_manual_expect(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synt
             format!("{}.expect({none_arm_err})", option_var_name.trim_end())
         }
         SyntaxKind::ExprIf => {
-            let expr_if = ExprIf::from_syntax_node(db, node.clone());
+            let expr_if = ExprIf::from_syntax_node(db, node);
 
             let (option_var_name, err) = expr_if_get_var_name_and_err(expr_if, db);
 

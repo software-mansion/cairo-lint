@@ -12,6 +12,29 @@ use crate::{
 
 pub struct ManualAssert;
 
+/// ## What it does
+///
+/// Checks for manual implementations of `assert` macro in an if expressions.
+///
+/// ## Example
+///
+/// ```cairo
+/// fn main() {
+///     let a = 5;
+///     if a == 5 {
+///         panic!("a shouldn't be equal to 5");
+///     }
+/// }
+/// ```
+///
+/// Can be rewritten as:
+///
+/// ```cairo
+/// fn main() {
+///     let a = 5;
+///     assert!(a != 5, "a shouldn't be equal to 5");
+/// }
+/// ```
 impl Lint for ManualAssert {
     fn allowed_name(&self) -> &'static str {
         "manual_assert"
@@ -52,7 +75,7 @@ fn check_single_manual_assert(
     };
 
     // If there's an else block we ignore it.
-    if let Some(_) = if_expr.else_block {
+    if if_expr.else_block.is_some() {
         return;
     };
 
@@ -74,7 +97,7 @@ fn check_single_manual_assert(
 
     // With tail.
     if_chain! {
-        if if_block.statements.len() == 0;
+        if if_block.statements.is_empty();
         if let Some(expr_id) = if_block.tail;
         if let Expr::FunctionCall(ref expr_func_call) = arenas.exprs[expr_id];
         if expr_func_call.function.full_path(db) == PANIC_PATH;

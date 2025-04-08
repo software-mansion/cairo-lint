@@ -53,6 +53,14 @@ impl CairoLint {
             tool_metadata,
         }
     }
+
+    pub fn include_compiler_generated_files(&self) -> bool {
+        self.include_compiler_generated_files
+    }
+
+    pub fn tool_metadata(&self) -> &CairoLintToolMetadata {
+        &self.tool_metadata
+    }
 }
 
 impl AnalyzerPlugin for CairoLint {
@@ -128,7 +136,7 @@ fn node_has_ascendants_with_allow_name_attr(
     node: SyntaxNode,
     allowed_name: &'static str,
 ) -> bool {
-    for node in node.ancestors_with_self() {
+    for node in node.ancestors_with_self(db) {
         if node.has_attr_with_arg(db, "allow", allowed_name) {
             return true;
         }

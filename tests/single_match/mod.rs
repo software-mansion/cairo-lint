@@ -166,6 +166,29 @@ fn main() {
 }
 "#;
 
+const DESTRUCTING_MATCH_IN_TRAIT: &str = r#"
+#[derive(Drop)]
+struct MyStruct {
+    variable: Option::<felt252>,
+}
+
+trait TExample {
+    fn match_struct(self: @MyStruct) {
+        match *self.variable {
+            Option::Some(a) => println!("{a}"),
+            _ => { () },
+        };  
+    }
+}
+
+impl Example of TExample {}
+
+fn main() {
+    let instance = MyStruct { variable: Option::Some(1_felt252) };
+    instance.match_struct();
+}
+"#;
+
 #[test]
 fn simple_destructuring_match_diagnostics() {
     test_lint_diagnostics!(SIMPLE_DESTRUCTURING_MATCH, @r"
@@ -501,4 +524,42 @@ fn comprehensive_match_allowed_fixer() {
         };
     }
     "#);
+}
+
+#[test]
+fn destructing_match_in_trait_diagnostics() {
+    test_lint_diagnostics!(DESTRUCTING_MATCH_IN_TRAIT, @r"
+    Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+     --> lib.cairo:9:9-12:9
+              match *self.variable {
+     _________^
+    | ...
+    |         };  
+    |_________^
+    ");
+}
+
+#[test]
+fn destructing_match_in_trait_fixer() {
+    test_lint_fixer!(DESTRUCTING_MATCH_IN_TRAIT, @r##"
+    #[derive(Drop)]
+    struct MyStruct {
+        variable: Option::<felt252>,
+    }
+
+    trait TExample {
+        fn match_struct(self: @MyStruct) {
+            if let Option::Some(a) = *self.variable {
+                println!("{a}")
+            };  
+        }
+    }
+
+    impl Example of TExample {}
+
+    fn main() {
+        let instance = MyStruct { variable: Option::Some(1_felt252) };
+        instance.match_struct();
+    }
+    "##);
 }

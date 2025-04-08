@@ -55,8 +55,8 @@ impl Lint for DestructMatch {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_destruct_match(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_destruct_match(db.upcast(), node)
     }
 }
 
@@ -256,7 +256,7 @@ pub fn is_expr_unit(expr: AstExpr, db: &dyn SyntaxGroup) -> bool {
 ///
 /// Panics if the diagnostic is incorrect (i.e., the match doesn't have the expected structure).
 pub fn fix_destruct_match(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    let match_expr = AstExprMatch::from_syntax_node(db, node.clone());
+    let match_expr = AstExprMatch::from_syntax_node(db, node);
     let arms = match_expr.arms(db).elements(db);
     let first_arm = &arms[0];
     let second_arm = &arms[1];
@@ -284,7 +284,7 @@ pub fn fix_destruct_match(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Syn
         .chars()
         .take_while(|c| c.is_whitespace())
         .collect::<String>();
-    let trivia = pattern.clone().get_text_of_span(db, pattern_span);
+    let trivia = pattern.get_text_of_span(db, pattern_span);
     Some((
         node,
         indent_snippet(

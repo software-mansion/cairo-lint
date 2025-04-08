@@ -2,7 +2,7 @@
 
 Default: **Disabled**
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/panic.rs#L30)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/panic.rs#L29)
 
 ## What it does
 

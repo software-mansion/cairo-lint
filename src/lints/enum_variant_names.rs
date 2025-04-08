@@ -54,8 +54,8 @@ impl Lint for EnumVariantNames {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_enum_variant_names(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_enum_variant_names(db.upcast(), node)
     }
 }
 
@@ -84,7 +84,7 @@ pub fn check_enum_variant_names(
 }
 
 fn fix_enum_variant_names(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    let enum_item = AstEnumItem::from_syntax_node(db, node.clone());
+    let enum_item = AstEnumItem::from_syntax_node(db, node);
 
     let source = enum_item.as_syntax_node().get_text(db);
     let variants = enum_item.variants(db).elements(db);

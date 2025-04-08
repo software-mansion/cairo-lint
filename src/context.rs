@@ -4,6 +4,7 @@ use crate::lints::bool_comparison::check_bool_comparison;
 use crate::lints::bool_comparison::BoolComparison;
 use crate::lints::breaks::check_break;
 use crate::lints::breaks::BreakUnit;
+use crate::lints::clone_on_copy::{check_clone_on_copy, CloneOnCopy};
 use crate::lints::double_comparison::check_double_comparison;
 use crate::lints::double_comparison::ContradictoryComparison;
 use crate::lints::double_comparison::ImpossibleComparison;
@@ -71,7 +72,7 @@ use crate::lints::single_match::DestructMatch;
 use crate::lints::single_match::EqualityMatch;
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_syntax::node::{db::SyntaxGroup, SyntaxNode};
+use cairo_lang_syntax::node::SyntaxNode;
 use itertools::Itertools;
 use std::collections::HashMap;
 use std::sync::LazyLock;
@@ -119,6 +120,7 @@ pub enum CairoLintKind {
     Performance,
     RedundantOperation,
     EnumVariantNames,
+    CloneOnCopy,
 }
 
 pub trait Lint: Sync + Send {
@@ -160,7 +162,7 @@ pub trait Lint: Sync + Send {
     ///
     /// By default there is no fixing procedure for a Lint.
     #[expect(unused_variables)]
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
         unreachable!("fix() has been called for a lint which has_fixer() returned false")
     }
 }
@@ -317,6 +319,10 @@ impl LintContext {
                 check_function: check_enum_variant_names,
             },
             LintRuleGroup {
+                lints: vec![Box::new(CloneOnCopy)],
+                check_function: check_clone_on_copy,
+            },
+            LintRuleGroup {
                 lints: vec![Box::new(ManualAssert)],
                 check_function: check_manual_assert,
             },
@@ -362,7 +368,7 @@ pub fn get_lint_type_from_diagnostic_message(message: &str) -> CairoLintKind {
 /// Get the fixing function based on the diagnostic message.
 /// For some of the rules there is no fixing function, so it returns `None`.
 pub fn get_fix_for_diagnostic_message(
-    db: &dyn SyntaxGroup,
+    db: &dyn SemanticGroup,
     node: SyntaxNode,
     message: &str,
 ) -> Option<(SyntaxNode, String)> {

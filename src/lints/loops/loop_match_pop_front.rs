@@ -66,8 +66,8 @@ impl Lint for LoopMatchPopFront {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_loop_match_pop_front(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_loop_match_pop_front(db.upcast(), node)
     }
 }
 
@@ -258,7 +258,7 @@ pub fn fix_loop_match_pop_front(
     db: &dyn SyntaxGroup,
     node: SyntaxNode,
 ) -> Option<(SyntaxNode, String)> {
-    let expr_loop = AstExprLoop::from_syntax_node(db, node.clone());
+    let expr_loop = AstExprLoop::from_syntax_node(db, node);
     let body = expr_loop.body(db);
     let AstStatement::Expr(expr) = &body.statements(db).elements(db)[0] else {
         panic!(
@@ -292,11 +292,7 @@ pub fn fix_loop_match_pop_front(
         .chars()
         .take_while(|c| c.is_whitespace())
         .collect::<String>();
-    let trivia = node
-        .clone()
-        .get_text_of_span(db, loop_span)
-        .trim()
-        .to_string();
+    let trivia = node.get_text_of_span(db, loop_span).trim().to_string();
     let trivia = if trivia.is_empty() {
         trivia
     } else {

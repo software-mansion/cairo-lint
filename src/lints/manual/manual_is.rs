@@ -54,8 +54,8 @@ impl Lint for ManualIsSome {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_manual_is_some(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_manual_is_some(db.upcast(), node)
     }
 }
 
@@ -102,8 +102,8 @@ impl Lint for ManualIsNone {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_manual_is_none(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_manual_is_none(db.upcast(), node)
     }
 }
 
@@ -150,8 +150,8 @@ impl Lint for ManualIsOk {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_manual_is_ok(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_manual_is_ok(db.upcast(), node)
     }
 }
 
@@ -198,8 +198,8 @@ impl Lint for ManualIsErr {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_manual_is_err(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_manual_is_err(db.upcast(), node)
     }
 }
 
@@ -278,20 +278,20 @@ pub fn check_manual_is(
 
 /// Rewrites a manual implementation of is_some
 pub fn fix_manual_is_some(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    Some((node.clone(), fix_manual("is_some", db, node)))
+    Some((node, fix_manual("is_some", db, node)))
 }
 
 // Rewrites a manual implementation of is_none
 pub fn fix_manual_is_none(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    Some((node.clone(), fix_manual("is_none", db, node)))
+    Some((node, fix_manual("is_none", db, node)))
 }
 
 /// Rewrites a manual implementation of is_ok
 pub fn fix_manual_is_ok(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    Some((node.clone(), fix_manual("is_ok", db, node)))
+    Some((node, fix_manual("is_ok", db, node)))
 }
 
 /// Rewrites a manual implementation of is_err
 pub fn fix_manual_is_err(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    Some((node.clone(), fix_manual("is_err", db, node)))
+    Some((node, fix_manual("is_err", db, node)))
 }

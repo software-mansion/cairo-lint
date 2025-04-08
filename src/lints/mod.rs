@@ -5,6 +5,7 @@ use cairo_lang_semantic::FunctionId;
 pub mod bitwise_for_parity_check;
 pub mod bool_comparison;
 pub mod breaks;
+pub mod clone_on_copy;
 pub mod double_comparison;
 pub mod double_parens;
 pub mod duplicate_underscore_args;

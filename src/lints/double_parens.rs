@@ -48,8 +48,8 @@ impl Lint for DoubleParens {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_double_parens(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_double_parens(db.upcast(), node)
     }
 }
 
@@ -80,7 +80,7 @@ fn check_single_double_parens(
 
     if is_double_parens {
         diagnostics.push(PluginDiagnostic {
-            stable_ptr: parens_expr.stable_ptr().untyped(),
+            stable_ptr: parens_expr.stable_ptr(db.upcast()).untyped(),
             message: DoubleParens.diagnostic_message().to_string(),
             severity: Severity::Warning,
         });
@@ -106,14 +106,14 @@ fn check_single_double_parens(
 /// Input: `((x + y))`
 /// Output: `x + y`
 pub fn fix_double_parens(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    let mut expr = Expr::from_syntax_node(db, node.clone());
+    let mut expr = Expr::from_syntax_node(db, node);
 
     while let Expr::Parenthesized(inner_expr) = expr {
         expr = inner_expr.expr(db);
     }
 
     Some((
-        node.clone(),
+        node,
         indent_snippet(
             &expr.as_syntax_node().get_text(db),
             node.get_text(db)

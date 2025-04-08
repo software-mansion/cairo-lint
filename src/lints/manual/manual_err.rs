@@ -54,8 +54,8 @@ impl Lint for ManualErr {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_manual_err(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_manual_err(db.upcast(), node)
     }
 }
 
@@ -92,5 +92,5 @@ pub fn check_manual_err(
 
 /// Rewrites a manual implementation of err
 pub fn fix_manual_err(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    Some((node.clone(), fix_manual("err", db, node)))
+    Some((node, fix_manual("err", db, node)))
 }

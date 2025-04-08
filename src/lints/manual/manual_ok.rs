@@ -54,8 +54,8 @@ impl Lint for ManualOk {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_manual_ok(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_manual_ok(db.upcast(), node)
     }
 }
 
@@ -92,5 +92,5 @@ pub fn check_manual_ok(
 
 /// Rewrites a manual implementation of ok
 pub fn fix_manual_ok(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    Some((node.clone(), fix_manual("ok", db, node)))
+    Some((node, fix_manual("ok", db, node)))
 }

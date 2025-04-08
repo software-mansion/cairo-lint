@@ -38,6 +38,27 @@ fn main() {
 }
 "#;
 
+const TEST_BASIC_MANUAL_ASSERT_WITH_OTHER_EXPRS: &str = r#"
+fn main() -> felt252 {
+    let a = 5;
+    if a == 5 {
+        return a;
+        panic!("a shouldn't be equal to 5");
+    }
+    a
+}
+"#;
+
+const TEST_BASIC_MANUAL_ASSERT_WITH_OTHER_EXPRS_AND_TAIL: &str = r#"
+fn main() {
+    let mut a = 5;
+    if a == 5 {
+        a = 6;
+        panic!("a shouldn't be equal to 5")
+    }
+}
+"#;
+
 #[test]
 fn test_basic_manual_assert_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_MANUAL_ASSERT, @r#"
@@ -85,6 +106,26 @@ fn test_basic_manual_assert_with_tail_diagnostics() {
 #[test]
 fn test_basic_manual_assert_with_tail_allowed_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_MANUAL_ASSERT_WITH_TAIL_ALLOWED, @r#"
+    Plugin diagnostic: Leaving `panic` in the code is discouraged.
+     --> lib.cairo:6:9
+            panic!("a shouldn't be equal to 5")
+            ^^^^^
+    "#);
+}
+
+#[test]
+fn test_basic_manual_assert_with_other_exprs_diagnostics() {
+    test_lint_diagnostics!(TEST_BASIC_MANUAL_ASSERT_WITH_OTHER_EXPRS, @r#"
+    Plugin diagnostic: Leaving `panic` in the code is discouraged.
+     --> lib.cairo:6:9
+            panic!("a shouldn't be equal to 5");
+            ^^^^^
+    "#);
+}
+
+#[test]
+fn test_basic_manual_assert_with_other_exprs_and_tail_diagnostics() {
+    test_lint_diagnostics!(TEST_BASIC_MANUAL_ASSERT_WITH_OTHER_EXPRS_AND_TAIL, @r#"
     Plugin diagnostic: Leaving `panic` in the code is discouraged.
      --> lib.cairo:6:9
             panic!("a shouldn't be equal to 5")

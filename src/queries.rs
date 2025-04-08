@@ -26,6 +26,14 @@ pub fn get_all_checkable_functions(
                 .map(|(_, fn_id)| FunctionWithBodyId::Impl(*fn_id))
                 .collect()
         }),
+        ModuleItemId::Trait(trait_id) => {
+            db.trait_functions(*trait_id).map_or(vec![], |functions| {
+                functions
+                    .iter()
+                    .map(|(_, trait_fn_id)| FunctionWithBodyId::Trait(*trait_fn_id))
+                    .collect()
+            })
+        }
         _ => vec![],
     }
 }
@@ -97,7 +105,9 @@ pub fn get_all_loop_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprLo
         .collect()
 }
 
-pub fn get_all_function_calls(function_body: &Arc<FunctionBody>) -> Vec<ExprFunctionCall> {
+pub fn get_all_function_calls(
+    function_body: &Arc<FunctionBody>,
+) -> impl Iterator<Item = ExprFunctionCall> + '_ {
     function_body
         .arenas
         .exprs
@@ -109,7 +119,6 @@ pub fn get_all_function_calls(function_body: &Arc<FunctionBody>) -> Vec<ExprFunc
                 None
             }
         })
-        .collect()
 }
 
 pub fn get_all_logical_operator_expressions(

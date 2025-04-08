@@ -229,6 +229,31 @@ fn main() {
 }
 "#;
 
+const COLLAPSIBLE_IF_IN_TRAIT: &str = r#"
+#[derive(Drop)]
+struct MyStruct {
+    x: bool,
+    y: bool,
+}
+
+trait TExample {
+    fn check_conditions(self: @MyStruct, z: bool) {
+        if *self.x {
+            if *self.y && z {
+                println!("Trait default function with collapsible if");
+            }
+        }
+    }
+}
+
+impl Example of TExample {}
+
+fn main() {
+    let instance = MyStruct { x: true, y: true };
+    instance.check_conditions(true);
+}
+"#;
+
 #[test]
 fn collapsible_if_in_boolean_conditions_diagnostics() {
     test_lint_diagnostics!(COLLAPSIBLE_IF_IN_BOOLEAN_CONDITIONS, @r"
@@ -562,6 +587,19 @@ fn if_let_nested_within_if_diagnostics() {
 }
 
 #[test]
+fn collapsible_if_in_trait_diagnostics() {
+    test_lint_diagnostics!(COLLAPSIBLE_IF_IN_TRAIT, @r"
+    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+     --> lib.cairo:10:9-14:9
+              if *self.x {
+     _________^
+    | ...
+    |         }
+    |_________^
+    ");
+}
+
+#[test]
 fn if_let_to_ignore_fixer() {
     test_lint_fixer!(IF_LET_TO_IGNORE_WITH_ASSERT, @r"
     fn main() {
@@ -628,4 +666,30 @@ fn if_let_nested_within_if_fixer() {
         }
     }
     "#)
+}
+
+#[test]
+fn collapsible_if_in_trait_fixer() {
+    test_lint_fixer!(COLLAPSIBLE_IF_IN_TRAIT, @r##"
+    #[derive(Drop)]
+    struct MyStruct {
+        x: bool,
+        y: bool,
+    }
+
+    trait TExample {
+        fn check_conditions(self: @MyStruct, z: bool) {
+            if (*self.x) && (*self.y && z) {
+                println!("Trait default function with collapsible if");
+            }
+        }
+    }
+
+    impl Example of TExample {}
+
+    fn main() {
+        let instance = MyStruct { x: true, y: true };
+        instance.check_conditions(true);
+    }
+    "##);
 }

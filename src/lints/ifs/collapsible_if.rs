@@ -65,8 +65,8 @@ impl Lint for CollapsibleIf {
         true
     }
 
-    fn fix(&self, db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-        fix_collapsible_if(db, node)
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_collapsible_if(db.upcast(), node)
     }
 }
 
@@ -159,7 +159,7 @@ fn check_single_collapsible_if(
 /// `if` is found. If no collapsible `if` is detected, the original text of the node is
 /// returned.
 pub fn fix_collapsible_if(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    let expr_if = AstExprIf::from_syntax_node(db, node.clone());
+    let expr_if = AstExprIf::from_syntax_node(db, node);
     let outer_condition = expr_if.condition(db).as_syntax_node().get_text(db);
     let if_block = expr_if.if_block(db);
 
