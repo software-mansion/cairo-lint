@@ -11,13 +11,16 @@
 //!
 //! These helper functions can be reused in various parts of the Cairo Lint codebase to maintain
 //! consistency and modularity when working with blocks and conditions.
-use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCallArg};
+use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCallArg, ExprId};
 use cairo_lang_syntax::node::ast::{BlockOrIf, ElseClause, ExprBlock, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::TypedSyntaxNode;
+use if_chain::if_chain;
 use num_bigint::BigInt;
 
 pub const PANIC_PATH: &str = "core::panics::panic";
+pub const PANIC_WITH_BYTE_ARRAY_PATH: &str = "core::panics::panic_with_byte_array";
 
 /// Processes a block of code, formatting its content and ignoring any break statements.
 ///
@@ -258,4 +261,32 @@ pub fn is_one(arg: &ExprFunctionCallArg, arenas: &Arenas) -> bool {
         ExprFunctionCallArg::Value(expr)
             if matches!(&arenas.exprs[*expr], Expr::Literal(val) if val.value == BigInt::from(1))
     )
+}
+
+fn check_if_panic_block(db: &dyn SemanticGroup, arenas: &Arenas, expr_id: ExprId) -> bool {
+    if_chain! {
+        if let Expr::Block(ref panic_block) = arenas.exprs[expr_id];
+        if let Some(panic_block_tail) = panic_block.tail;
+        if let Expr::FunctionCall(ref expr_func_call) = arenas.exprs[panic_block_tail];
+        if expr_func_call.function.full_path(db) == PANIC_WITH_BYTE_ARRAY_PATH;
+        then {
+            return true;
+        }
+    }
+    false
+}
+
+fn check_if_inline_panic(db: &dyn SemanticGroup, arenas: &Arenas, expr_id: ExprId) -> bool {
+    if_chain! {
+        if let Expr::FunctionCall(ref expr_func_call) = arenas.exprs[expr_id];
+        if expr_func_call.function.full_path(db) == PANIC_PATH;
+        then {
+            return true;
+        }
+    }
+    false
+}
+
+pub fn is_panic_expr(db: &dyn SemanticGroup, arenas: &Arenas, expr_id: ExprId) -> bool {
+    check_if_inline_panic(db, arenas, expr_id) || check_if_panic_block(db, arenas, expr_id)
 }

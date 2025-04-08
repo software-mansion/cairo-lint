@@ -6,7 +6,7 @@ use if_chain::if_chain;
 
 use crate::{
     context::{CairoLintKind, Lint},
-    helper::PANIC_PATH,
+    helper::is_panic_expr,
     queries::{get_all_function_bodies, get_all_if_expressions},
 };
 
@@ -83,8 +83,7 @@ fn check_single_manual_assert(
     if_chain! {
         if if_block.statements.len() == 1;
         if let Statement::Expr(ref inner_expr_stmt) = arenas.statements[if_block.statements[0]];
-        if let Expr::FunctionCall(ref expr_func_call) = arenas.exprs[inner_expr_stmt.expr];
-        if expr_func_call.function.full_path(db) == PANIC_PATH;
+        if is_panic_expr(db, arenas, inner_expr_stmt.expr);
         then {
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: if_expr.stable_ptr.untyped(),
@@ -99,8 +98,7 @@ fn check_single_manual_assert(
     if_chain! {
         if if_block.statements.is_empty();
         if let Some(expr_id) = if_block.tail;
-        if let Expr::FunctionCall(ref expr_func_call) = arenas.exprs[expr_id];
-        if expr_func_call.function.full_path(db) == PANIC_PATH;
+        if is_panic_expr(db, arenas, expr_id);
         then {
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: if_expr.stable_ptr.untyped(),
