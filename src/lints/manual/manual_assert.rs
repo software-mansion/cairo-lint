@@ -1,12 +1,19 @@
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::{db::SemanticGroup, Arenas, Expr, ExprIf, Statement};
-use cairo_lang_syntax::node::TypedStablePtr;
+use cairo_lang_semantic::{db::SemanticGroup, Arenas, Expr, ExprId, ExprIf, Statement};
+use cairo_lang_syntax::node::{
+    ast::{
+        Expr as AstExpr, ExprIf as AstExprIf, Statement as AstStatement,
+        StatementExpr as AstStatementExpr,
+    },
+    db::SyntaxGroup,
+    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
+};
 use if_chain::if_chain;
 
 use crate::{
     context::{CairoLintKind, Lint},
-    helper::PANIC_PATH,
+    helper::{PANIC_PATH, PANIC_WITH_BYTE_ARRAY_PATH},
     queries::{get_all_function_bodies, get_all_if_expressions},
 };
 
@@ -47,6 +54,14 @@ impl Lint for ManualAssert {
     fn kind(&self) -> crate::context::CairoLintKind {
         CairoLintKind::ManualAssert
     }
+
+    fn has_fixer(&self) -> bool {
+        true
+    }
+
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_manual_assert(db.upcast(), node)
+    }
 }
 
 pub fn check_manual_assert(
@@ -79,12 +94,20 @@ fn check_single_manual_assert(
         return;
     };
 
+    if_chain! {
+        if if_block.statements.len() == 1;
+        if let Statement::Expr(ref inner_expr_stmt) = arenas.statements[if_block.statements[0]];
+        if is_panic_expr(db, arenas, inner_expr_stmt.expr);
+        then {
+            println!("inner_expr_stmt: {:?}", inner_expr_stmt);
+        }
+    }
+
     // Without tail.
     if_chain! {
         if if_block.statements.len() == 1;
         if let Statement::Expr(ref inner_expr_stmt) = arenas.statements[if_block.statements[0]];
-        if let Expr::FunctionCall(ref expr_func_call) = arenas.exprs[inner_expr_stmt.expr];
-        if expr_func_call.function.full_path(db) == PANIC_PATH;
+        if is_panic_expr(db, arenas, inner_expr_stmt.expr);
         then {
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: if_expr.stable_ptr.untyped(),
@@ -99,8 +122,7 @@ fn check_single_manual_assert(
     if_chain! {
         if if_block.statements.is_empty();
         if let Some(expr_id) = if_block.tail;
-        if let Expr::FunctionCall(ref expr_func_call) = arenas.exprs[expr_id];
-        if expr_func_call.function.full_path(db) == PANIC_PATH;
+        if is_panic_expr(db, arenas, expr_id);
         then {
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: if_expr.stable_ptr.untyped(),
@@ -109,4 +131,61 @@ fn check_single_manual_assert(
             });
         }
     }
+}
+
+fn check_if_panic_block(db: &dyn SemanticGroup, arenas: &Arenas, expr_id: ExprId) -> bool {
+    if_chain! {
+        if let Expr::Block(ref panic_block) = arenas.exprs[expr_id];
+        if let Some(panic_block_tail) = panic_block.tail;
+        if let Expr::FunctionCall(ref expr_func_call) = arenas.exprs[panic_block_tail];
+        if expr_func_call.function.full_path(db) == PANIC_WITH_BYTE_ARRAY_PATH;
+        then {
+            return true;
+        }
+    }
+    false
+}
+
+fn check_if_inline_panic(db: &dyn SemanticGroup, arenas: &Arenas, expr_id: ExprId) -> bool {
+    if_chain! {
+        if let Expr::FunctionCall(ref expr_func_call) = arenas.exprs[expr_id];
+        if expr_func_call.function.full_path(db) == PANIC_PATH;
+        then {
+            return true;
+        }
+    }
+    false
+}
+
+fn is_panic_expr(db: &dyn SemanticGroup, arenas: &Arenas, expr_id: ExprId) -> bool {
+    check_if_inline_panic(db, arenas, expr_id) || check_if_panic_block(db, arenas, expr_id)
+}
+
+pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    let if_expr = AstExprIf::from_syntax_node(db, node);
+    let if_block = if_expr.if_block(db);
+
+    let statements = if_block.statements(db).elements(db);
+    let statement = statements.first();
+    println!("statement: {:?}", statement);
+
+    let panic: Option<u32> = if let Some(statement) = statement {
+        if let AstStatement::Expr(ref expr) = statement {
+            if let AstExpr::InlineMacro(ref inline_macro) = expr.expr(db) {
+                println!("inline_macro: {:?}", inline_macro);
+                println!(
+                    "arguments: {:?}",
+                    inline_macro.arguments(db).as_syntax_node().get_text(db)
+                );
+                return None;
+            }
+            None
+        } else {
+            return None;
+        }
+    } else {
+        return None;
+    };
+
+    None
 }

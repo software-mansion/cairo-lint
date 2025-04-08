@@ -1,4 +1,4 @@
-use crate::test_lint_diagnostics;
+use crate::{test_lint_diagnostics, test_lint_fixer};
 
 const TEST_BASIC_MANUAL_ASSERT: &str = r#"
 fn main() {
@@ -73,6 +73,18 @@ fn test_basic_manual_assert_diagnostics() {
     |         panic!("a shouldn't be equal to 5");
     |     }
     |_____^
+    "#);
+}
+
+#[test]
+fn test_basic_manual_assert_fixer() {
+    test_lint_fixer!(TEST_BASIC_MANUAL_ASSERT, @r#"
+    fn main() {
+        let a = 5;
+        if a == 5 {
+            panic!("a shouldn't be equal to 5");
+        }
+    }
     "#);
 }
 
