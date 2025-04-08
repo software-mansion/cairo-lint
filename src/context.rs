@@ -41,6 +41,8 @@ use crate::lints::loops::loop_for_while::check_loop_for_while;
 use crate::lints::loops::loop_for_while::LoopForWhile;
 use crate::lints::loops::loop_match_pop_front::check_loop_match_pop_front;
 use crate::lints::loops::loop_match_pop_front::LoopMatchPopFront;
+use crate::lints::manual::manual_assert::check_manual_assert;
+use crate::lints::manual::manual_assert::ManualAssert;
 use crate::lints::manual::manual_err::check_manual_err;
 use crate::lints::manual::manual_err::ManualErr;
 use crate::lints::manual::manual_expect::check_manual_expect;
@@ -105,6 +107,7 @@ pub enum CairoLintKind {
     ManualIsOk,
     ManualIsErr,
     ManualExpect,
+    ManualAssert,
     DuplicateIfCondition,
     ManualExpectErr,
     IntGePlusOne,
@@ -312,6 +315,10 @@ impl LintContext {
             LintRuleGroup {
                 lints: vec![Box::new(EnumVariantNames)],
                 check_function: check_enum_variant_names,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(ManualAssert)],
+                check_function: check_manual_assert,
             },
         ]
     }

@@ -1,4 +1,5 @@
 pub mod helpers;
+pub mod manual_assert;
 pub mod manual_err;
 pub mod manual_expect;
 pub mod manual_expect_err;

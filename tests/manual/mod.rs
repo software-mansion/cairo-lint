@@ -1,3 +1,4 @@
+mod manual_assert;
 mod manual_err;
 mod manual_expect;
 mod manual_expect_err;

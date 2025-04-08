@@ -17,6 +17,8 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 use num_bigint::BigInt;
 
+pub const PANIC_PATH: &str = "core::panics::panic";
+
 /// Processes a block of code, formatting its content and ignoring any break statements.
 ///
 /// # Arguments
