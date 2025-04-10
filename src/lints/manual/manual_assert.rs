@@ -2,8 +2,9 @@ use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::{db::SemanticGroup, Arenas, Expr, ExprIf, Statement};
 use cairo_lang_syntax::node::{
-    ast::{Expr as AstExpr, ExprIf as AstExprIf, Statement as AstStatement},
+    ast::{Condition, Expr as AstExpr, ExprIf as AstExprIf, Statement as AstStatement},
     db::SyntaxGroup,
+    helpers::WrappedArgListHelper,
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
 use if_chain::if_chain;
@@ -91,14 +92,14 @@ fn check_single_manual_assert(
         return;
     };
 
-    if_chain! {
-        if if_block.statements.len() == 1;
-        if let Statement::Expr(ref inner_expr_stmt) = arenas.statements[if_block.statements[0]];
-        if is_panic_expr(db, arenas, inner_expr_stmt.expr);
-        then {
-            println!("inner_expr_stmt: {:?}", inner_expr_stmt);
-        }
-    }
+    // if_chain! {
+    //     if if_block.statements.len() == 1;
+    //     if let Statement::Expr(ref inner_expr_stmt) = arenas.statements[if_block.statements[0]];
+    //     if is_panic_expr(db, arenas, inner_expr_stmt.expr);
+    //     then {
+    //         println!("inner_expr_stmt: {:?}", inner_expr_stmt);
+    //     }
+    // }
 
     // Without tail.
     if_chain! {
@@ -132,29 +133,44 @@ fn check_single_manual_assert(
 
 pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
     let if_expr = AstExprIf::from_syntax_node(db, node);
-    let if_block = if_expr.if_block(db);
+    let panic_args = get_panic_args_from_diagnosed_node(db, node);
+    let condition = if_expr.condition(db);
 
-    let statements = if_block.statements(db).elements(db);
-    let statement = statements.first();
-    println!("statement: {:?}", statement);
-
-    let panic: Option<u32> = if let Some(statement) = statement {
-        if let AstStatement::Expr(ref expr) = statement {
-            if let AstExpr::InlineMacro(ref inline_macro) = expr.expr(db) {
-                println!("inline_macro: {:?}", inline_macro);
-                println!(
-                    "arguments: {:?}",
-                    inline_macro.arguments(db).as_syntax_node().get_text(db)
-                );
-                return None;
-            }
-            None
-        } else {
-            return None;
-        }
-    } else {
+    // TODO (wawel37): Handle `if let` case as the `matches!` macro will be implemented inside the corelib.
+    let Condition::Expr(condition_expr) = condition else {
         return None;
     };
 
+    // println!("condition: {}", condition.as_syntax_node().get_text(db));
     None
+}
+
+fn get_panic_args_from_diagnosed_node(
+    db: &dyn SyntaxGroup,
+    node: SyntaxNode,
+) -> impl Iterator<Item = SyntaxNode> {
+    let if_expr = AstExprIf::from_syntax_node(db, node);
+    let if_block = if_expr.if_block(db);
+
+    let statements = if_block.statements(db).elements(db);
+    let statement = statements
+        .first()
+        .expect("Expected at least one statement in the if block");
+    let expr = match statement {
+        AstStatement::Expr(expr) => expr,
+        _ => panic!("Expected the statement to be an expression"),
+    };
+
+    let inline_macro = match expr.expr(db) {
+        AstExpr::InlineMacro(inline_macro) => inline_macro,
+        _ => panic!("Expected the expression to be an inline macro"),
+    };
+
+    inline_macro
+        .arguments(db)
+        .arg_list(db)
+        .expect("Expected arguments in the inline macro")
+        .elements(db)
+        .into_iter()
+        .map(|arg| arg.as_syntax_node())
 }

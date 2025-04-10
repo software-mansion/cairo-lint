@@ -1,12 +1,19 @@
 use crate::{test_lint_diagnostics, test_lint_fixer};
 
 const TEST_BASIC_MANUAL_ASSERT: &str = r#"
+enum Abc {
+    A: u32,
+    B: u32,
+    C: u32
+}
+
 fn main() {
-    let a = 5;
-    if a == 5 {
+    let a = Abc::A(1);
+    if let Abc::A(x) = a {
         panic!("a shouldn't be equal to 5");
     }
 }
+
 "#;
 
 const TEST_BASIC_MANUAL_ASSERT_ALLOWED: &str = r#"
@@ -96,6 +103,15 @@ fn main() {
 }
 "#;
 
+const ABC: &str = r#"
+fn main() {
+    let a = 5;
+    if a == 5 {
+        panic!("a shouldn't be equal to {} {}", a, a);
+    }
+}
+"#;
+
 #[test]
 fn test_basic_manual_assert_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_MANUAL_ASSERT, @r#"
@@ -116,9 +132,15 @@ fn test_basic_manual_assert_diagnostics() {
 #[test]
 fn test_basic_manual_assert_fixer() {
     test_lint_fixer!(TEST_BASIC_MANUAL_ASSERT, @r#"
+        enum Abc {
+        A: u32,
+        B: u32,
+        C: u32
+    }
+
     fn main() {
-        let a = 5;
-        if a == 5 {
+        let a = Abc::A(1);
+        if let Abc::A(x) = a {
             panic!("a shouldn't be equal to 5");
         }
     }
@@ -216,4 +238,16 @@ fn test_manual_assert_with_multiple_panic_args_and_tail_diagnostics() {
 #[test]
 fn test_manual_assert_with_multiple_panic_args_and_tail_allowed_diagnostics() {
     test_lint_diagnostics!(TEST_MANUAL_ASSERT_WITH_MULTIPLE_PANIC_ARGS_AND_TAIL_ALLOWED, @r#""#);
+}
+
+#[test]
+fn test_fixer() {
+    test_lint_fixer!(ABC, @r#"
+    fn main() {
+        let a = 5;
+        if a == 5 {
+            panic!("a shouldn't be equal to {} {}", a, a);
+        }
+    }
+    "#);
 }
