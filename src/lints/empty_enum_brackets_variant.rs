@@ -56,7 +56,9 @@ pub fn check_empty_enum_brackets_variant(
     };
 
     for variant in variants.values() {
-        let semantic_variant = db.variant_semantic(*enum_id, *variant).unwrap();
+        let Ok(semantic_variant) = db.variant_semantic(*enum_id, *variant) else {
+            return;
+        };
 
         // Check if the variant is of unit type `()`
         if semantic_variant.ty.is_unit(db) {
