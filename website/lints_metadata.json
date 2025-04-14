@@ -169,7 +169,7 @@
     },
     {
         "name": "manual_assert",
-        "docs": "## What it does\n\nChecks for manual implementations of `assert` macro in an if expressions.\n\n## Example\n\n```cairo\nfn main() {\n    let a = 5;\n    if a == 5 {\n        panic!(\"a shouldn't be equal to 5\");\n    }\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let a = 5;\n    assert!(a != 5, \"a shouldn't be equal to 5\");\n}\n```",
+        "docs": "## What it does\n\nChecks for manual implementations of `assert` macro in `if` expressions.\n\n## Example\n\n```cairo\nfn main() {\n    let a = 5;\n    if a == 5 {\n        panic!(\"a shouldn't be equal to 5\");\n    }\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let a = 5;\n    assert!(a != 5, \"a shouldn't be equal to 5\");\n}\n```",
         "enabled": true,
         "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_assert.rs#L38"
     },
