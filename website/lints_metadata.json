@@ -60,6 +60,12 @@
         "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/duplicate_underscore_args.rs#L23"
     },
     {
+        "name": "empty_enum_brackets_variant",
+        "docs": "## What it does\n\nFinds enum variants that are declared with empty brackets.\n\n## Example\n\n```cairo\n enum MyEnum {\n    Data: u8,\n    Empty: ()       // redundant parentheses\n }\n```\n\nCan be simplified to:\n\n```cairo\n enum MyEnum {\n    Data(u8),\n    Empty,\n }\n```",
+        "enabled": true,
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/empty_enum_brackets_variant.rs#L35"
+    },
+    {
         "name": "enum_variant_names",
         "docs": "## What it does\n\nDetects enumeration variants that are prefixed or suffixed by the same characters.\n\n## Example\n\n```cairo\nenum Cake {\n    BlackForestCake,\n    HummingbirdCake,\n    BattenbergCake,\n}\n```\n\nCan be simplified to:\n\n```cairo\nenum Cake {\n    BlackForest,\n    Hummingbird,\n    Battenberg,\n}\n```",
         "enabled": false,
@@ -169,7 +175,7 @@
     },
     {
         "name": "manual_assert",
-        "docs": "## What it does\n\nChecks for manual implementations of `assert` macro in an if expressions.\n\n## Example\n\n```cairo\nfn main() {\n    let a = 5;\n    if a == 5 {\n        panic!(\"a shouldn't be equal to 5\");\n    }\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let a = 5;\n    assert!(a != 5, \"a shouldn't be equal to 5\");\n}\n```",
+        "docs": "## What it does\n\nChecks for manual implementations of `assert` macro in `if` expressions.\n\n## Example\n\n```cairo\nfn main() {\n    let a = 5;\n    if a == 5 {\n        panic!(\"a shouldn't be equal to 5\");\n    }\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let a = 5;\n    assert!(a != 5, \"a shouldn't be equal to 5\");\n}\n```",
         "enabled": true,
         "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_assert.rs#L38"
     },

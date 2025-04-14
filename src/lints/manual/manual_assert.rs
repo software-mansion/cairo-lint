@@ -1,13 +1,18 @@
+use crate::helper::indent_snippet;
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::{db::SemanticGroup, Arenas, Expr, ExprIf, Statement};
+use cairo_lang_semantic::{db::SemanticGroup, Arenas, Expr, ExprBlock, ExprIf, Statement};
 use cairo_lang_syntax::node::{
-    ast::{Condition, Expr as AstExpr, ExprIf as AstExprIf, Statement as AstStatement},
+    ast::{
+        BlockOrIf, Condition, Expr as AstExpr, ExprBlock as AstExprBlock, ExprIf as AstExprIf,
+        OptionElseClause, Statement as AstStatement,
+    },
     db::SyntaxGroup,
     helpers::WrappedArgListHelper,
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
 use if_chain::if_chain;
+use itertools::Itertools;
 
 use crate::{
     context::{CairoLintKind, Lint},
@@ -19,7 +24,7 @@ pub struct ManualAssert;
 
 /// ## What it does
 ///
-/// Checks for manual implementations of `assert` macro in an if expressions.
+/// Checks for manual implementations of `assert` macro in `if` expressions.
 ///
 /// ## Example
 ///
@@ -87,24 +92,28 @@ fn check_single_manual_assert(
         return;
     };
 
-    // If there's an else block we ignore it.
-    if if_expr.else_block.is_some() {
-        return;
-    };
+    check_single_condition_block(db, if_block, if_expr, arenas, diagnostics);
 
-    // if_chain! {
-    //     if if_block.statements.len() == 1;
-    //     if let Statement::Expr(ref inner_expr_stmt) = arenas.statements[if_block.statements[0]];
-    //     if is_panic_expr(db, arenas, inner_expr_stmt.expr);
-    //     then {
-    //         println!("inner_expr_stmt: {:?}", inner_expr_stmt);
-    //     }
-    // }
+    if_chain! {
+      if let Some(else_block) = if_expr.else_block;
+      if let Expr::Block(ref else_block) = arenas.exprs[else_block];
+      then {
+        check_single_condition_block(db, else_block, if_expr, arenas, diagnostics);
+      }
+    }
+}
 
+fn check_single_condition_block(
+    db: &dyn SemanticGroup,
+    condition_block_expr: &ExprBlock,
+    if_expr: &ExprIf,
+    arenas: &Arenas,
+    diagnostics: &mut Vec<PluginDiagnostic>,
+) {
     // Without tail.
     if_chain! {
-        if if_block.statements.len() == 1;
-        if let Statement::Expr(ref inner_expr_stmt) = arenas.statements[if_block.statements[0]];
+        if !condition_block_expr.statements.is_empty();
+        if let Statement::Expr(ref inner_expr_stmt) = arenas.statements[condition_block_expr.statements[0]];
         if is_panic_expr(db, arenas, inner_expr_stmt.expr);
         then {
             diagnostics.push(PluginDiagnostic {
@@ -118,8 +127,8 @@ fn check_single_manual_assert(
 
     // With tail.
     if_chain! {
-        if if_block.statements.is_empty();
-        if let Some(expr_id) = if_block.tail;
+        if condition_block_expr.statements.is_empty();
+        if let Some(expr_id) = condition_block_expr.tail;
         if is_panic_expr(db, arenas, expr_id);
         then {
             diagnostics.push(PluginDiagnostic {
@@ -133,29 +142,93 @@ fn check_single_manual_assert(
 
 pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
     let if_expr = AstExprIf::from_syntax_node(db, node);
-    let panic_args = get_panic_args_from_diagnosed_node(db, node);
-    let condition = if_expr.condition(db);
 
     // TODO (wawel37): Handle `if let` case as the `matches!` macro will be implemented inside the corelib.
-    let Condition::Expr(condition_expr) = condition else {
+    let Condition::Expr(condition_expr) = if_expr.condition(db) else {
         return None;
     };
 
-    // println!("condition: {}", condition.as_syntax_node().get_text(db));
+    let condition = condition_expr.expr(db).as_syntax_node().get_text(db);
+    let (if_block_panic_args, else_block_panic_args) = get_panic_args_from_diagnosed_node(db, node);
+    let contrary_condition = format!("!({})", condition.trim());
+    let indent = if_expr
+        .if_kw(db)
+        .as_syntax_node()
+        .get_text(db)
+        .chars()
+        .take_while(|c| c.is_whitespace())
+        .count();
+
+    match (if_block_panic_args, else_block_panic_args) {
+        (Some(panic_args), None) => {
+            let assert_call = format!(
+                "assert!({}, {})\n",
+                contrary_condition,
+                panic_args
+                    .map(|arg| arg.get_text(db).trim().to_string())
+                    .join(", ")
+            );
+            return Some((node, indent_snippet(&assert_call, indent / 4)));
+        }
+        (None, Some(panic_args)) => {
+            let assert_call = format!(
+                "assert!({}, {})\n",
+                condition.trim(),
+                panic_args
+                    .map(|arg| arg.get_text(db).trim().to_string())
+                    .join(", ")
+            );
+            return Some((node, indent_snippet(&assert_call, indent / 4)));
+        }
+        (None, None) => {
+            panic!("Expected at least one panic argument in the if or else block");
+        }
+        (Some(_), Some(_)) => {
+            return None;
+        }
+    }
+    println!("condition_expr: {:?}", condition_expr.expr(db));
+
+    println!("condition: {:?}", contrary_condition);
     None
 }
 
+// Function that returns a tuple where:
+// - The first element is an iterator over the panic arguments from the `if` block.
+// - The second element is an iterator over the panic arguments from the `else` block.
 fn get_panic_args_from_diagnosed_node(
     db: &dyn SyntaxGroup,
     node: SyntaxNode,
-) -> impl Iterator<Item = SyntaxNode> {
+) -> (
+    Option<impl Iterator<Item = SyntaxNode>>,
+    Option<impl Iterator<Item = SyntaxNode>>,
+) {
     let if_expr = AstExprIf::from_syntax_node(db, node);
     let if_block = if_expr.if_block(db);
+    let else_block_option = if_expr.else_clause(db);
 
-    let statements = if_block.statements(db).elements(db);
+    if_chain! {
+      if let OptionElseClause::ElseClause(else_clause) = else_block_option;
+      if let BlockOrIf::Block(else_block) = else_clause.else_block_or_if(db);
+      then {
+          let if_block_panic_args = get_panic_args_from_block(db, if_block);
+          let else_block_panic_args = get_panic_args_from_block(db, else_block);
+          return (if_block_panic_args, else_block_panic_args)
+      }
+    }
+    (get_panic_args_from_block(db, if_block), None)
+}
+
+fn get_panic_args_from_block(
+    db: &dyn SyntaxGroup,
+    block: AstExprBlock,
+) -> Option<impl Iterator<Item = SyntaxNode>> {
+    let statements = block.statements(db).elements(db);
+    println!("statements: {:?}", statements.first());
     let statement = statements
         .first()
         .expect("Expected at least one statement in the if block");
+
     let expr = match statement {
         AstStatement::Expr(expr) => expr,
         _ => panic!("Expected the statement to be an expression"),
@@ -166,11 +239,17 @@ fn get_panic_args_from_diagnosed_node(
         _ => panic!("Expected the expression to be an inline macro"),
     };
 
-    inline_macro
-        .arguments(db)
-        .arg_list(db)
-        .expect("Expected arguments in the inline macro")
-        .elements(db)
-        .into_iter()
-        .map(|arg| arg.as_syntax_node())
+    if inline_macro.path(db).as_syntax_node().get_text(db).trim() != "panic" {
+        return None;
+    }
+
+    Some(
+        inline_macro
+            .arguments(db)
+            .arg_list(db)
+            .expect("Expected arguments in the inline macro")
+            .elements(db)
+            .into_iter()
+            .map(|arg| arg.as_syntax_node()),
+    )
 }

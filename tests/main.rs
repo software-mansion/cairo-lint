@@ -5,6 +5,7 @@ mod clone_on_copy;
 mod double_comparison;
 mod double_parens;
 mod duplicate_underscore_args;
+mod empty_enum_brackets_variant;
 mod enum_variant_names;
 mod eq_op;
 mod erasing_operations;

@@ -6,7 +6,7 @@ Default: **Enabled**
 
 ## What it does
 
-Checks for manual implementations of `assert` macro in an if expressions.
+Checks for manual implementations of `assert` macro in `if` expressions.
 
 ## Example
 

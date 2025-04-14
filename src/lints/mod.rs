@@ -9,6 +9,7 @@ pub mod clone_on_copy;
 pub mod double_comparison;
 pub mod double_parens;
 pub mod duplicate_underscore_args;
+pub mod empty_enum_brackets_variant;
 pub mod enum_variant_names;
 pub mod eq_op;
 pub mod erasing_op;
