@@ -14,6 +14,8 @@ use crate::lints::double_parens::check_double_parens;
 use crate::lints::double_parens::DoubleParens;
 use crate::lints::duplicate_underscore_args::check_duplicate_underscore_args;
 use crate::lints::duplicate_underscore_args::DuplicateUnderscoreArgs;
+use crate::lints::empty_enum_brackets_variant::check_empty_enum_brackets_variant;
+use crate::lints::empty_enum_brackets_variant::EmptyEnumBracketsVariant;
 use crate::lints::enum_variant_names::check_enum_variant_names;
 use crate::lints::enum_variant_names::EnumVariantNames;
 use crate::lints::eq_op::check_eq_op;
@@ -121,6 +123,7 @@ pub enum CairoLintKind {
     RedundantOperation,
     EnumVariantNames,
     CloneOnCopy,
+    EnumEmptyVariantBrackets,
 }
 
 pub trait Lint: Sync + Send {
@@ -321,6 +324,10 @@ impl LintContext {
             LintRuleGroup {
                 lints: vec![Box::new(CloneOnCopy)],
                 check_function: check_clone_on_copy,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(EmptyEnumBracketsVariant)],
+                check_function: check_empty_enum_brackets_variant,
             },
             LintRuleGroup {
                 lints: vec![Box::new(ManualAssert)],
