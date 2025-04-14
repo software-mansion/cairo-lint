@@ -1,7 +1,11 @@
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_syntax::node::{ast::OptionTypeClause, TypedStablePtr};
+use cairo_lang_syntax::node::{
+    ast::{self, OptionTypeClause},
+    db::SyntaxGroup,
+    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
+};
 
 use crate::context::{CairoLintKind, Lint};
 
@@ -40,6 +44,14 @@ impl Lint for EmptyEnumBracketsVariant {
     fn kind(&self) -> CairoLintKind {
         CairoLintKind::EnumEmptyVariantBrackets
     }
+
+    fn has_fixer(&self) -> bool {
+        true
+    }
+
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_empty_enum_brackets_variant(db.upcast(), node)
+    }
 }
 
 pub fn check_empty_enum_brackets_variant(
@@ -74,4 +86,22 @@ pub fn check_empty_enum_brackets_variant(
             }
         }
     }
+}
+
+fn fix_empty_enum_brackets_variant(
+    db: &dyn SyntaxGroup,
+    node: SyntaxNode,
+) -> Option<(SyntaxNode, String)> {
+    let ast_variant = ast::Variant::from_syntax_node(db, node);
+
+    // Extract a clean type definition, to remove
+    let type_clause = ast_variant
+        .type_clause(db)
+        .as_syntax_node()
+        .get_text_without_trivia(db);
+
+    let variant_text = node.get_text(db);
+    let fixed = variant_text.replace(&type_clause, "");
+
+    Some((node, fixed))
 }
