@@ -1,6 +1,6 @@
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::{db::SemanticGroup, Arenas, Expr, ExprBlock, ExprId, ExprIf, Statement};
+use cairo_lang_semantic::{db::SemanticGroup, Arenas, Expr, ExprBlock, ExprIf, Statement};
 use cairo_lang_syntax::node::TypedStablePtr;
 use if_chain::if_chain;
 
@@ -94,7 +94,7 @@ fn check_single_condition_block(
 ) {
     // Without tail.
     if_chain! {
-        if condition_block_expr.statements.len() > 0;
+        if !condition_block_expr.statements.is_empty();
         if let Statement::Expr(ref inner_expr_stmt) = arenas.statements[condition_block_expr.statements[0]];
         if is_panic_expr(db, arenas, inner_expr_stmt.expr);
         then {
