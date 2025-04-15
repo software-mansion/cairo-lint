@@ -19,6 +19,7 @@ pub mod loops;
 pub mod manual;
 pub mod panic;
 pub mod performance;
+pub mod redundant_brackets_in_enum_call;
 pub mod redundant_op;
 pub mod single_match;
 
