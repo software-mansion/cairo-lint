@@ -63,7 +63,7 @@
         "name": "empty_enum_brackets_variant",
         "docs": "## What it does\n\nFinds enum variants that are declared with empty brackets.\n\n## Example\n\n```cairo\n enum MyEnum {\n    Data: u8,\n    Empty: ()       // redundant parentheses\n }\n```\n\nCan be simplified to:\n\n```cairo\n enum MyEnum {\n    Data(u8),\n    Empty,\n }\n```",
         "enabled": true,
-        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/empty_enum_brackets_variant.rs#L31"
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/empty_enum_brackets_variant.rs#L35"
     },
     {
         "name": "enum_variant_names",
