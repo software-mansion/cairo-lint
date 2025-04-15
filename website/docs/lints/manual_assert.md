@@ -2,7 +2,7 @@
 
 Default: **Enabled**
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_assert.rs#L38)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_assert.rs#L48)
 
 ## What it does
 
