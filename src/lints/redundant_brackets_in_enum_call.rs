@@ -66,8 +66,8 @@ pub fn check_redundant_bracket_in_enum_call(
 
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
-        for (_, expr) in function_body.arenas.exprs.clone() {
-            if is_redundant_enum_bracket_call(&expr, db, file_id) {
+        for (_, expr) in &function_body.arenas.exprs {
+            if is_redundant_enum_bracket_call(expr, db, file_id) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: expr.stable_ptr().untyped(),
                     message: RedundantBracketsInEnumCall.diagnostic_message().to_string(),
