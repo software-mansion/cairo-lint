@@ -21,6 +21,8 @@ use num_bigint::BigInt;
 
 pub const PANIC_PATH: &str = "core::panics::panic";
 pub const PANIC_WITH_BYTE_ARRAY_PATH: &str = "core::panics::panic_with_byte_array";
+pub const ASSERT_FORMATTER_NAME: &str = "__formatter_for_assert_macro__";
+pub const ASSERT_PATH: &str = "core::fmt::Formatter";
 
 /// Processes a block of code, formatting its content and ignoring any break statements.
 ///
