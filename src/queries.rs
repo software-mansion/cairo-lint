@@ -12,6 +12,8 @@ use cairo_lang_syntax::node::TypedStablePtr;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 use if_chain::if_chain;
 
+use crate::helper::{ASSERT_FORMATTER_NAME, ASSERT_PATH};
+
 pub fn get_all_checkable_functions(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -191,8 +193,8 @@ pub fn is_assert_macro_call(db: &dyn SemanticGroup, arenas: &Arenas, expr: &Expr
         if let Expr::Block(ref if_block_expr) = arenas.exprs[expr.if_block];
         if let Statement::Let(ref if_block_let_stmt) = arenas.statements[if_block_expr.statements[0]];
         if let Pattern::Variable(ref if_block_let_stmt_pattern) = arenas.patterns[if_block_let_stmt.pattern];
-        if if_block_let_stmt_pattern.name == "__formatter_for_assert_macro__";
-        if if_block_let_stmt_pattern.var.ty.short_name(db) == "core::fmt::Formatter";
+        if if_block_let_stmt_pattern.name == ASSERT_FORMATTER_NAME;
+        if if_block_let_stmt_pattern.var.ty.short_name(db) == ASSERT_PATH;
         then {
           return true;
         }

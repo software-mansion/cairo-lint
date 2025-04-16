@@ -4,13 +4,13 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_filesystem::db::get_originating_location;
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_semantic::ExprFunctionCall;
+use cairo_lang_semantic::{ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 use itertools::Itertools;
 
 use crate::context::{CairoLintKind, Lint};
-use crate::helper::PANIC_PATH;
+use crate::helper::{ASSERT_FORMATTER_NAME, PANIC_PATH, PANIC_WITH_BYTE_ARRAY_PATH};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 pub struct PanicInCode;
@@ -69,8 +69,20 @@ fn check_single_panic_usage(
         .lookup(db.upcast())
         .as_syntax_node();
 
-    // If the function is not the panic function from the corelib return
-    if function_call_expr.function.full_path(db) != PANIC_PATH {
+    // If the function is the panic function from the corelib.
+    let is_panic = function_call_expr.function.full_path(db) == PANIC_PATH
+        || function_call_expr.function.full_path(db) == PANIC_WITH_BYTE_ARRAY_PATH;
+
+    // We check if the panic comes from the `assert!` macro.
+    let is_assert_panic = function_call_expr.function.full_path(db) == PANIC_WITH_BYTE_ARRAY_PATH
+        && function_call_expr
+            .stable_ptr
+            .lookup(db.upcast())
+            .as_syntax_node()
+            .get_text(db.upcast())
+            .contains(ASSERT_FORMATTER_NAME);
+
+    if !is_panic || is_assert_panic {
         return;
     }
 
