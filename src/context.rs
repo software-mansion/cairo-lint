@@ -35,8 +35,6 @@ use crate::lints::ifs::equatable_if_let::check_equatable_if_let;
 use crate::lints::ifs::equatable_if_let::EquatableIfLet;
 use crate::lints::ifs::ifs_same_cond::check_duplicate_if_condition;
 use crate::lints::ifs::ifs_same_cond::DuplicateIfCondition;
-use crate::lints::inefficient_while_comp::check_inefficient_while_comp;
-use crate::lints::inefficient_while_comp::InefficientWhileComparison;
 use crate::lints::int_op_one::check_int_op_one;
 use crate::lints::int_op_one::IntegerGreaterEqualMinusOne;
 use crate::lints::int_op_one::IntegerGreaterEqualPlusOne;
@@ -67,6 +65,8 @@ use crate::lints::manual::manual_unwrap_or_default::check_manual_unwrap_or_defau
 use crate::lints::manual::manual_unwrap_or_default::ManualUnwrapOrDefault;
 use crate::lints::panic::check_panic_usage;
 use crate::lints::panic::PanicInCode;
+use crate::lints::performance::inefficient_while_comp::check_inefficient_while_comp;
+use crate::lints::performance::inefficient_while_comp::InefficientWhileComparison;
 use crate::lints::redundant_op::check_redundant_operation;
 use crate::lints::redundant_op::RedundantOperation;
 use crate::lints::single_match::check_single_matches;

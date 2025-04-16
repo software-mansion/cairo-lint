@@ -138,12 +138,6 @@
         "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/ifs/ifs_same_cond.rs#L43"
     },
     {
-        "name": "inefficient_while_comp",
-        "docs": "## What it does\n\nChecks if the while loop exit condition is using [`<`, `<=`, `>=`, `>`] operators.\n\n## Example\n\n```cairo\nfn main() {\n    let mut a = 1_u32;\n    while a <= 10 {\n        a += 1;\n    }\n}\n```\n\nCan be optimized to:\n\n```cairo\nfn main() {\n    let mut a = 1_u32;\n    while a != 10 {\n        a += 1;\n    }\n}\n```",
-        "enabled": false,
-        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/inefficient_while_comp.rs#L37"
-    },
-    {
         "name": "int_ge_plus_one",
         "docs": "## What it does\n\nCheck for unnecessary add operation in integer >= comparison.\n\n## Example\n\n```cairo\nfn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x >= y + 1 {}\n}\n```\n\nCan be simplified to:\n\n```cairo\nfn main() {\n    let x: u32 = 1;\n    let y: u32 = 1;\n    if x > y {}\n}\n```",
         "enabled": true,
@@ -250,6 +244,12 @@
         "docs": "## What it does\n\nChecks for panic usages.\n\n## Example\n\n```cairo\nfn main() {\n    panic!(\"panic\");\n}\n```",
         "enabled": false,
         "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/panic.rs#L29"
+    },
+    {
+        "name": "inefficient_while_comp",
+        "docs": "## What it does\n\nChecks if the while loop exit condition is using [`<`, `<=`, `>=`, `>`] operators.\n\n## Example\n\n```cairo\nfn main() {\n    let mut a = 1_u32;\n    while a <= 10 {\n        a += 1;\n    }\n}\n```\n\nCan be optimized to:\n\n```cairo\nfn main() {\n    let mut a = 1_u32;\n    while a != 10 {\n        a += 1;\n    }\n}\n```",
+        "enabled": false,
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/performance/inefficient_while_comp.rs#L37"
     },
     {
         "name": "redundant_op",
