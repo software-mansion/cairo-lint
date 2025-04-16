@@ -67,7 +67,7 @@ use crate::lints::panic::check_panic_usage;
 use crate::lints::panic::PanicInCode;
 use crate::lints::performance::check_inefficient_while_comp;
 use crate::lints::performance::InefficientWhileComparison;
-use crate::lints::redundant_brackets_in_enum_call::check_redundant_bracket_in_enum_call;
+use crate::lints::redundant_brackets_in_enum_call::check_redundant_brackets_in_enum_call;
 use crate::lints::redundant_brackets_in_enum_call::RedundantBracketsInEnumCall;
 use crate::lints::redundant_op::check_redundant_operation;
 use crate::lints::redundant_op::RedundantOperation;
@@ -337,7 +337,7 @@ impl LintContext {
             },
             LintRuleGroup {
                 lints: vec![Box::new(RedundantBracketsInEnumCall)],
-                check_function: check_redundant_bracket_in_enum_call,
+                check_function: check_redundant_brackets_in_enum_call,
             },
         ]
     }

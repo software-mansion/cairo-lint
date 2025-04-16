@@ -57,7 +57,7 @@ impl Lint for RedundantBracketsInEnumCall {
     }
 }
 
-pub fn check_redundant_bracket_in_enum_call(
+pub fn check_redundant_brackets_in_enum_call(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
@@ -67,7 +67,7 @@ pub fn check_redundant_bracket_in_enum_call(
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
         for (_, expr) in &function_body.arenas.exprs {
-            if is_redundant_enum_bracket_call(expr, db, file_id) {
+            if is_redundant_enum_brackets_call(expr, db, file_id) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: expr.stable_ptr().untyped(),
                     message: RedundantBracketsInEnumCall.diagnostic_message().to_string(),
@@ -78,8 +78,9 @@ pub fn check_redundant_bracket_in_enum_call(
     }
 }
 
-fn is_redundant_enum_bracket_call(expr: &Expr, db: &dyn SemanticGroup, file_id: FileId) -> bool {
+fn is_redundant_enum_brackets_call(expr: &Expr, db: &dyn SemanticGroup, file_id: FileId) -> bool {
     if_chain! {
+        // TODO: (#284)
         // Only consider expressions from the same file to ensure they originate from the user-written code.
         if file_id == expr.stable_ptr().untyped().file_id(db.upcast());
 
