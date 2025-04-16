@@ -9,7 +9,7 @@ use cairo_lang_defs::{
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_filesystem::ids::FileId;
 use cairo_lang_semantic::{db::SemanticGroup, Expr};
-use cairo_lang_syntax::node::{ast, TypedStablePtr};
+use cairo_lang_syntax::node::{ast, db::SyntaxGroup, SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
 pub struct RedundantBracketsInEnumCall;
@@ -55,6 +55,14 @@ impl Lint for RedundantBracketsInEnumCall {
     fn kind(&self) -> CairoLintKind {
         CairoLintKind::EnumEmptyVariantBrackets
     }
+
+    fn has_fixer(&self) -> bool {
+        true
+    }
+
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_redundant_brackets_in_enum_call(db.upcast(), node)
+    }
 }
 
 pub fn check_redundant_brackets_in_enum_call(
@@ -99,4 +107,26 @@ fn is_redundant_enum_brackets_call(expr: &Expr, db: &dyn SemanticGroup, file_id:
     }
 
     false
+}
+
+fn fix_redundant_brackets_in_enum_call(
+    db: &dyn SyntaxGroup,
+    node: SyntaxNode,
+) -> Option<(SyntaxNode, String)> {
+    let ast_expr = ast::Expr::from_syntax_node(db, node);
+
+    let ast::Expr::FunctionCall(call_expr) = &ast_expr else {
+        return None;
+    };
+
+    // Retrieve parentheses, that can be removed
+    let arguments = call_expr.arguments(db).as_syntax_node().get_text(db);
+
+    let fixed_expr = ast_expr
+        .as_syntax_node()
+        .get_text(db)
+        .strip_suffix(&arguments)?
+        .to_string();
+
+    Some((node, fixed_expr))
 }
