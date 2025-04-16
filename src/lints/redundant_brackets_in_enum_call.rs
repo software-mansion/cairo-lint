@@ -72,6 +72,7 @@ pub fn check_redundant_brackets_in_enum_call(
                     stable_ptr: expr.stable_ptr().untyped(),
                     message: RedundantBracketsInEnumCall.diagnostic_message().to_string(),
                     severity: Severity::Warning,
+                    relative_span: None
                 });
             }
         }

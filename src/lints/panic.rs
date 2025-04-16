@@ -94,6 +94,7 @@ fn check_single_panic_usage(
             stable_ptr: init_node.stable_ptr(db.upcast()),
             message: PanicInCode.diagnostic_message().to_owned(),
             severity: Severity::Warning,
+            relative_span: None
         });
     } else {
         // If the originating location is a different file get the syntax node that generated the
@@ -107,6 +108,7 @@ fn check_single_panic_usage(
                     stable_ptr: syntax_node.stable_ptr(db.upcast()),
                     message: PanicInCode.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
+                    relative_span: None
                 });
             }
         }

@@ -55,6 +55,7 @@ pub fn check_duplicate_underscore_args(
                     stable_ptr: param.stable_ptr.0,
                     message: DuplicateUnderscoreArgs.diagnostic_message().to_string(),
                     severity: Severity::Warning,
+                    relative_span: None
                 });
             }
         }

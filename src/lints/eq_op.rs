@@ -310,6 +310,7 @@ fn check_single_eq_op(
                 stable_ptr: expr_func.stable_ptr.untyped(),
                 message: message.to_owned(),
                 severity: Severity::Warning,
+                relative_span: None
             });
         }
     }

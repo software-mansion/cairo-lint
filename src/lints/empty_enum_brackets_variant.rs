@@ -82,6 +82,7 @@ pub fn check_empty_enum_brackets_variant(
                     stable_ptr: variant.stable_ptr(db.upcast()).untyped(),
                     message: EmptyEnumBracketsVariant.diagnostic_message().to_string(),
                     severity: Severity::Warning,
+                    relative_span: None
                 });
             }
         }
