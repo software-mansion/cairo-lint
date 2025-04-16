@@ -47,6 +47,10 @@ impl Lint for InefficientWhileComparison {
     fn kind(&self) -> CairoLintKind {
         CairoLintKind::Performance
     }
+
+    fn is_enabled(&self) -> bool {
+        false
+    }
 }
 
 // Match all types implementing PartialOrd

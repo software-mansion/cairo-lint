@@ -14,11 +14,11 @@ pub mod enum_variant_names;
 pub mod eq_op;
 pub mod erasing_op;
 pub mod ifs;
+pub mod inefficient_while_comp;
 pub mod int_op_one;
 pub mod loops;
 pub mod manual;
 pub mod panic;
-pub mod performance;
 pub mod redundant_op;
 pub mod single_match;
 
