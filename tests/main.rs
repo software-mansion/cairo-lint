@@ -16,6 +16,7 @@ mod loops;
 mod manual;
 mod panic;
 mod performance;
+mod redundant_brackets_in_enum_call;
 mod redundant_op;
 mod single_match;
 mod unused_imports;

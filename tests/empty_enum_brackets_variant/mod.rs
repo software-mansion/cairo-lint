@@ -8,12 +8,6 @@ enum MyEnum {
     Empty2: (        ),         // Different comment
     Empty3
 }
-  
-fn main() {
-    let _a = MyEnum::Empty1(   ( ) );
-    let _b = MyEnum::Empty2((  ));
-    let _c = MyEnum::Empty3;
-}
 "#;
 
 const CORRECT_VARIANT: &str = r#"
@@ -22,33 +16,13 @@ enum MyEnum {
     Data: u8,
     Empty,
 }
-  
-fn main() {
-    let _a = MyEnum::Empty; 
-}
 "#;
 
-const MISMATCHED_BRACKET_VARIANT: &str = r#"
+const LAST_EMPTY_VARIANT_WITH_COMMENT: &str = r#"
 #[derive(Drop)]
 enum MyEnum {
     Data: u8,
     Empty: () // Comment
-}
-  
-fn main() {
-    let _a = MyEnum::Empty;
-}
-"#;
-
-const EXTRA_BRACKETS_VARIANT: &str = r#"
-#[derive(Drop)]
-enum MyEnum {
-    Data: u8,
-    Empty
-}
-  
-fn main() {
-    let _a = MyEnum::Empty(()); 
 }
 "#;
 
@@ -61,12 +35,6 @@ enum MyEnum {
     Empty2: (),
     Empty3
 }
-  
-fn main() {
-    let _a = MyEnum::Empty1(());
-    let _b = MyEnum::Empty2(());
-    let _c = MyEnum::Empty3;
-}
 "#;
 
 const TUPLE_VARIANT: &str = r#"
@@ -74,10 +42,6 @@ const TUPLE_VARIANT: &str = r#"
 enum MyEnum {
     Data: u8,
     Tuple: (u8, u8),
-}
-  
-fn main() {
-    let _a = MyEnum::Tuple((1, 2));
 }
 "#;
 
@@ -87,10 +51,6 @@ type Unit = ();
 enum MyEnum {
     Data: u8,
     Empty: Unit,
-}
-  
-fn main() {
-    let _a = MyEnum::Empty(());
 }
 "#;
 
@@ -114,8 +74,8 @@ fn correct_variant_diagnostics() {
 }
 
 #[test]
-fn mismatched_bracket_variant_diagnostics() {
-    test_lint_diagnostics!(MISMATCHED_BRACKET_VARIANT, @r"
+fn last_empty_variant_with_comment_diagnostics() {
+    test_lint_diagnostics!(LAST_EMPTY_VARIANT_WITH_COMMENT, @r"
     Plugin diagnostic: redundant parentheses in enum variant definition
      --> lib.cairo:5:5
         Empty: () // Comment
@@ -124,13 +84,8 @@ fn mismatched_bracket_variant_diagnostics() {
 }
 
 #[test]
-fn extra_brackets_variant_diagnostics() {
-    test_lint_diagnostics!(EXTRA_BRACKETS_VARIANT, @"");
-}
-
-#[test]
 fn allow_multiple_empty_variants_diagnostics() {
-    test_lint_diagnostics!(ALLOW_MULTIPLE_EMPTY_VARIANTS, @r"");
+    test_lint_diagnostics!(ALLOW_MULTIPLE_EMPTY_VARIANTS, @"");
 }
 
 #[test]
@@ -158,26 +113,16 @@ fn multiple_empty_variants_fixer() {
         Empty2,         // Different comment
         Empty3
     }
-      
-    fn main() {
-        let _a = MyEnum::Empty1(   ( ) );
-        let _b = MyEnum::Empty2((  ));
-        let _c = MyEnum::Empty3;
-    }
     ");
 }
 
 #[test]
-fn mismatched_bracket_variant_fixer() {
-    test_lint_fixer!(MISMATCHED_BRACKET_VARIANT, @r"
+fn last_empty_variant_with_comment_fixer() {
+    test_lint_fixer!(LAST_EMPTY_VARIANT_WITH_COMMENT, @r"
     #[derive(Drop)]
     enum MyEnum {
         Data: u8,
         Empty // Comment
-    }
-      
-    fn main() {
-        let _a = MyEnum::Empty;
     }
     ");
 }
@@ -190,25 +135,6 @@ fn user_defined_unit_variant_fixer() {
     enum MyEnum {
         Data: u8,
         Empty,
-    }
-      
-    fn main() {
-        let _a = MyEnum::Empty(());
-    }
-    ");
-}
-
-#[test]
-fn extra_brackets_variant_fixer() {
-    test_lint_fixer!(EXTRA_BRACKETS_VARIANT, @r"
-    #[derive(Drop)]
-    enum MyEnum {
-        Data: u8,
-        Empty
-    }
-      
-    fn main() {
-        let _a = MyEnum::Empty(()); 
     }
     ");
 }
@@ -223,12 +149,6 @@ fn allow_multiple_empty_variants_fixer() {
         Empty1: (),
         Empty2: (),
         Empty3
-    }
-      
-    fn main() {
-        let _a = MyEnum::Empty1(());
-        let _b = MyEnum::Empty2(());
-        let _c = MyEnum::Empty3;
     }
     ");
 }
