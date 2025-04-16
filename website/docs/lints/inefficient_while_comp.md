@@ -1,8 +1,8 @@
 # inefficient_while_comp
 
-Default: **Enabled**
+Default: **Disabled**
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/performance.rs#L37)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/performance/inefficient_while_comp.rs#L37)
 
 ## What it does
 

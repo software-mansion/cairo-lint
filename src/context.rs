@@ -65,8 +65,8 @@ use crate::lints::manual::manual_unwrap_or_default::check_manual_unwrap_or_defau
 use crate::lints::manual::manual_unwrap_or_default::ManualUnwrapOrDefault;
 use crate::lints::panic::check_panic_usage;
 use crate::lints::panic::PanicInCode;
-use crate::lints::performance::check_inefficient_while_comp;
-use crate::lints::performance::InefficientWhileComparison;
+use crate::lints::performance::inefficient_while_comp::check_inefficient_while_comp;
+use crate::lints::performance::inefficient_while_comp::InefficientWhileComparison;
 use crate::lints::redundant_brackets_in_enum_call::check_redundant_brackets_in_enum_call;
 use crate::lints::redundant_brackets_in_enum_call::RedundantBracketsInEnumCall;
 use crate::lints::redundant_op::check_redundant_operation;

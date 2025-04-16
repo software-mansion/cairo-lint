@@ -248,8 +248,8 @@
     {
         "name": "inefficient_while_comp",
         "docs": "## What it does\n\nChecks if the while loop exit condition is using [`<`, `<=`, `>=`, `>`] operators.\n\n## Example\n\n```cairo\nfn main() {\n    let mut a = 1_u32;\n    while a <= 10 {\n        a += 1;\n    }\n}\n```\n\nCan be optimized to:\n\n```cairo\nfn main() {\n    let mut a = 1_u32;\n    while a != 10 {\n        a += 1;\n    }\n}\n```",
-        "enabled": true,
-        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/performance.rs#L37"
+        "enabled": false,
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/performance/inefficient_while_comp.rs#L37"
     },
     {
         "name": "redundant_brackets_in_enum_call",
