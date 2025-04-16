@@ -62,7 +62,7 @@ fn check_clone_usage(
             stable_ptr: expr.stable_ptr.untyped(),
             message: CloneOnCopy.diagnostic_message().to_string(),
             severity: Severity::Warning,
-            relative_span: None
+            relative_span: None,
         });
     }
 }

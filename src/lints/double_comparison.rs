@@ -262,7 +262,7 @@ fn check_single_double_comparison(
             message: ImpossibleComparison.diagnostic_message().to_string(),
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Error,
-            relative_span: None
+            relative_span: None,
         })
     }
 
@@ -337,7 +337,7 @@ fn check_single_double_comparison(
             message: SimplifiableComparison.diagnostic_message().to_string(),
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Warning,
-            relative_span: None
+            relative_span: None,
         });
     } else if is_redundant_double_comparison(
         &lhs_fn_trait_name,
@@ -348,7 +348,7 @@ fn check_single_double_comparison(
             message: RedundantComparison.diagnostic_message().to_string(),
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Warning,
-            relative_span: None
+            relative_span: None,
         });
     } else if is_contradictory_double_comparison(
         &lhs_fn_trait_name,
@@ -359,7 +359,7 @@ fn check_single_double_comparison(
             message: ContradictoryComparison.diagnostic_message().to_string(),
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Error,
-            relative_span: None
+            relative_span: None,
         });
     }
 }

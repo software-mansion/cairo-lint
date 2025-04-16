@@ -86,7 +86,7 @@ fn check_single_erasing_operation(
             stable_ptr: expr_func.stable_ptr.untyped(),
             message: ErasingOperation.diagnostic_message().to_string(),
             severity: Severity::Warning,
-            relative_span: None
+            relative_span: None,
         });
     }
 }
