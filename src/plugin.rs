@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
-use cairo_lang_filesystem::ids::FileLongId;
+use cairo_lang_filesystem::ids::{FileId, FileLongId};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_syntax::node::db::SyntaxGroup;
@@ -72,42 +72,50 @@ impl AnalyzerPlugin for CairoLint {
     }
 
     fn diagnostics(&self, db: &dyn SemanticGroup, module_id: ModuleId) -> Vec<PluginDiagnostic> {
-        let mut diags = Vec::new();
+        let mut diags: Vec<(PluginDiagnostic, FileId)> = Vec::new();
         let Ok(items) = db.module_items(module_id) else {
-            return diags;
+            return Vec::default();
         };
         for item in &*items {
+            let module_file = db.module_main_file(module_id).unwrap();
+            let item_file = item.stable_location(db).file_id(db).lookup_intern(db);
+
             // Skip compiler generated files. By default it checks whether the item is inside the virtual or external file.
             if !self.include_compiler_generated_files
-                && matches!(
-                    item.stable_location(db.upcast())
-                        .file_id(db.upcast())
-                        .lookup_intern(db),
-                    FileLongId::Virtual(_) | FileLongId::External(_)
-                )
+                && (matches!(item_file, FileLongId::Virtual(_) | FileLongId::External(_)))
             {
                 continue;
             }
 
             let checking_functions = get_all_checking_functions();
+            let mut item_diagnostics = Vec::new();
 
             for checking_function in checking_functions {
-                checking_function(db, item, &mut diags);
+                checking_function(db, item, &mut item_diagnostics);
             }
+
+            diags.extend(item_diagnostics.into_iter().map(|diag| (diag, module_file)));
         }
 
         diags
             .into_iter()
             .filter(|diag| {
-                let node = diag.stable_ptr.lookup(db.upcast());
-                let allowed_name = get_name_for_diagnostic_message(&diag.message).unwrap();
-                let default_allowed = is_lint_enabled_by_default(&diag.message).unwrap();
+                let diagnostic = &diag.0;
+                let diagnostic_origin_module_file = &diag.1;
+                let is_compiler_plugin_generated_file =
+                    &diagnostic.stable_ptr.file_id(db) != diagnostic_origin_module_file;
+                let node = diagnostic.stable_ptr.lookup(db.upcast());
+                let allowed_name = get_name_for_diagnostic_message(&diagnostic.message).unwrap();
+                let default_allowed = is_lint_enabled_by_default(&diagnostic.message).unwrap();
+                let is_rule_allowed_globally = *self
+                    .tool_metadata
+                    .get(allowed_name)
+                    .unwrap_or(&default_allowed);
                 !node_has_ascendants_with_allow_name_attr(db.upcast(), node, allowed_name)
-                    && *self
-                        .tool_metadata
-                        .get(allowed_name)
-                        .unwrap_or(&default_allowed)
+                    && is_rule_allowed_globally
+                    && (self.include_compiler_generated_files || !is_compiler_plugin_generated_file)
             })
+            .map(|diag| diag.0)
             .collect()
     }
 }
