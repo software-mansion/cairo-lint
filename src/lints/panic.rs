@@ -10,7 +10,7 @@ use if_chain::if_chain;
 use itertools::Itertools;
 
 use crate::context::{CairoLintKind, Lint};
-use crate::helper::PANIC_PATH;
+use crate::helper::{ASSERT_FORMATTER_NAME, PANIC_PATH, PANIC_WITH_BYTE_ARRAY_PATH};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 pub struct PanicInCode;
@@ -69,8 +69,20 @@ fn check_single_panic_usage(
         .lookup(db.upcast())
         .as_syntax_node();
 
-    // If the function is not the panic function from the corelib return
-    if function_call_expr.function.full_path(db) != PANIC_PATH {
+    // If the function is the panic function from the corelib.
+    let is_panic = function_call_expr.function.full_path(db) == PANIC_PATH
+        || function_call_expr.function.full_path(db) == PANIC_WITH_BYTE_ARRAY_PATH;
+
+    // We check if the panic comes from the `assert!` macro.
+    let is_assert_panic = function_call_expr.function.full_path(db) == PANIC_WITH_BYTE_ARRAY_PATH
+        && function_call_expr
+            .stable_ptr
+            .lookup(db.upcast())
+            .as_syntax_node()
+            .get_text(db.upcast())
+            .contains(ASSERT_FORMATTER_NAME);
+
+    if !is_panic || is_assert_panic {
         return;
     }
 
@@ -94,6 +106,7 @@ fn check_single_panic_usage(
             stable_ptr: init_node.stable_ptr(db.upcast()),
             message: PanicInCode.diagnostic_message().to_owned(),
             severity: Severity::Warning,
+            relative_span: None,
         });
     } else {
         // If the originating location is a different file get the syntax node that generated the
@@ -107,6 +120,7 @@ fn check_single_panic_usage(
                     stable_ptr: syntax_node.stable_ptr(db.upcast()),
                     message: PanicInCode.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
+                    relative_span: None
                 });
             }
         }

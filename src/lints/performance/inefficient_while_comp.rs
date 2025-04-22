@@ -47,6 +47,10 @@ impl Lint for InefficientWhileComparison {
     fn kind(&self) -> CairoLintKind {
         CairoLintKind::Performance
     }
+
+    fn is_enabled(&self) -> bool {
+        false
+    }
 }
 
 // Match all types implementing PartialOrd
@@ -100,6 +104,7 @@ fn check_expression(
                     stable_ptr: func_call.stable_ptr.into(),
                     message: InefficientWhileComparison.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
+                    relative_span: None,
                 });
             }
         }

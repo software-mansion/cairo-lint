@@ -240,6 +240,7 @@ fn check_single_int_op_one(
             stable_ptr: function_call_expr.stable_ptr.untyped(),
             message: IntegerGreaterEqualPlusOne.diagnostic_message().to_string(),
             severity: Severity::Warning,
+            relative_span: None,
         })
     }
 
@@ -252,6 +253,7 @@ fn check_single_int_op_one(
             stable_ptr: function_call_expr.stable_ptr.untyped(),
             message: IntegerGreaterEqualMinusOne.diagnostic_message().to_string(),
             severity: Severity::Warning,
+            relative_span: None,
         })
     }
 
@@ -264,6 +266,7 @@ fn check_single_int_op_one(
             stable_ptr: function_call_expr.stable_ptr.untyped(),
             message: IntegerLessEqualPlusOne.diagnostic_message().to_string(),
             severity: Severity::Warning,
+            relative_span: None,
         })
     }
 
@@ -276,6 +279,7 @@ fn check_single_int_op_one(
             stable_ptr: function_call_expr.stable_ptr.untyped(),
             message: IntegerLessEqualMinusOne.diagnostic_message().to_string(),
             severity: Severity::Warning,
+            relative_span: None,
         })
     }
 }

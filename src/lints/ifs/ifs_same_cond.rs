@@ -122,6 +122,7 @@ fn check_single_duplicate_if_condition(
                     stable_ptr: if_expr.stable_ptr.untyped(),
                     message: DuplicateIfCondition.diagnostic_message().to_string(),
                     severity: Severity::Warning,
+                    relative_span: None,
                 });
                 break;
             }

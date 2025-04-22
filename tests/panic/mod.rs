@@ -92,6 +92,13 @@ fn main() {
 }
 "#;
 
+const PANIC_WITH_ARGS: &str = r#"
+fn main() {
+    let a = 5;
+    panic!("a shouldn't be equal to {}", a);
+}
+"#;
+
 #[test]
 fn single_panic_diagnostics() {
     test_lint_diagnostics!(SINGLE_PANIC, @r#"
@@ -298,5 +305,25 @@ fn panic_in_trait_function_diagnostics() {
      --> lib.cairo:7:9
             panic!("This is a panic in a trait function");
             ^^^^^
+    "#);
+}
+
+#[test]
+fn panic_with_args_diagnostics() {
+    test_lint_diagnostics!(PANIC_WITH_ARGS, @r#"
+    Plugin diagnostic: Leaving `panic` in the code is discouraged.
+     --> lib.cairo:4:5
+        panic!("a shouldn't be equal to {}", a);
+        ^^^^^
+    "#);
+}
+
+#[test]
+fn panic_with_args_fixer() {
+    test_lint_fixer!(PANIC_WITH_ARGS, @r#"
+    fn main() {
+        let a = 5;
+        panic!("a shouldn't be equal to {}", a);
+    }
     "#);
 }

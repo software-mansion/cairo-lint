@@ -120,6 +120,7 @@ fn check_single_condition_block(
                 stable_ptr: if_expr.stable_ptr.untyped(),
                 message: ManualAssert.diagnostic_message().to_string(),
                 severity: Severity::Warning,
+                relative_span: None
             });
             return;
         }
@@ -135,6 +136,7 @@ fn check_single_condition_block(
                 stable_ptr: if_expr.stable_ptr.untyped(),
                 message: ManualAssert.diagnostic_message().to_string(),
                 severity: Severity::Warning,
+                relative_span: None
             });
         }
     }
