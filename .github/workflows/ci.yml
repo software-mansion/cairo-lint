@@ -55,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - uses: software-mansion/setup-scarb@main
+      - uses: software-mansion/setup-scarb@v1
         with:
           cache: false
       - uses: taiki-e/install-action@nextest
