@@ -164,6 +164,45 @@ fn main() {
 }
 "#;
 
+const TEST_MANUAL_ASSERT_WITH_PANIC_IN_IF_BLOCK: &str = r#"
+fn main() {
+    let a: u32 = 5;
+    if a == 5 {
+        panic!("a shouldn't be 5");
+    } else if a > 5 {
+        println!("a is greater than 5");
+    } else {
+        println!("a is less than 5");
+    }
+}
+"#;
+
+const TEST_MANUAL_ASSERT_WITH_PANIC_IN_ELSE_IF_BLOCK: &str = r#"
+fn main() {
+    let a: u32 = 5;
+    if a == 5 {
+        println!("a is equal to 5");
+    } else if a > 5 {
+        panic!("a shouldn't be greater than 5");
+    } else {
+        println!("a is less than 5");
+    }
+}
+"#;
+
+const TEST_MANUAL_ASSERT_WITH_PANIC_IN_ELSE_BLOCK: &str = r#"
+fn main() {
+    let a: u32 = 5;
+    if a == 5 {
+        println!("a is equal to 5");
+    } else if a > 5 {
+        println!("a is greater than 5");
+    } else {
+        panic!("a shouldn't be less than 5");
+    }
+}
+"#;
+
 #[test]
 fn test_basic_manual_assert_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_MANUAL_ASSERT, @r#"
@@ -575,4 +614,100 @@ fn test_manual_assert_within_else_block_statements_fixer() {
         println!("a3 is {}", a);
     }
   "#);
+}
+
+#[test]
+fn test_manual_assert_with_panic_in_if_block_diagnostics() {
+    test_lint_diagnostics!(TEST_MANUAL_ASSERT_WITH_PANIC_IN_IF_BLOCK, @r#"
+    Plugin diagnostic: Leaving `panic` in the code is discouraged.
+     --> lib.cairo:5:9
+            panic!("a shouldn't be 5");
+            ^^^^^
+    Plugin diagnostic: Manual assert detected. Consider using assert!() macro instead.
+     --> lib.cairo:4:5-10:5
+          if a == 5 {
+     _____^
+    | ...
+    |     }
+    |_____^
+    "#);
+}
+
+#[test]
+fn test_manual_assert_with_panic_in_if_block_fixer() {
+    test_lint_fixer!(TEST_MANUAL_ASSERT_WITH_PANIC_IN_IF_BLOCK, @r#"
+    fn main() {
+        let a: u32 = 5;
+        assert!(!(a == 5), "a shouldn't be 5");
+        if a > 5 {
+            println!("a is greater than 5");
+        } else {
+            println!("a is less than 5");
+        }
+    }
+    "#);
+}
+
+#[test]
+fn test_manual_assert_with_panic_in_else_if_block_diagnostics() {
+    test_lint_diagnostics!(TEST_MANUAL_ASSERT_WITH_PANIC_IN_ELSE_IF_BLOCK, @r#"
+    Plugin diagnostic: Leaving `panic` in the code is discouraged.
+     --> lib.cairo:7:9
+            panic!("a shouldn't be greater than 5");
+            ^^^^^
+    Plugin diagnostic: Manual assert detected. Consider using assert!() macro instead.
+     --> lib.cairo:6:12-10:5
+          } else if a > 5 {
+     ____________^
+    | ...
+    |     }
+    |_____^
+    "#);
+}
+
+#[test]
+fn test_manual_assert_with_panic_in_else_if_block_fixer() {
+    test_lint_fixer!(TEST_MANUAL_ASSERT_WITH_PANIC_IN_ELSE_IF_BLOCK, @r#"
+    fn main() {
+        let a: u32 = 5;
+        if a == 5 {
+            println!("a is equal to 5");
+        } else {
+            assert!(!(a > 5), "a shouldn't be greater than 5");
+            println!("a is less than 5");
+        }
+    }
+    "#);
+}
+
+#[test]
+fn test_manual_assert_with_panic_in_else_block_diagnostics() {
+    test_lint_diagnostics!(TEST_MANUAL_ASSERT_WITH_PANIC_IN_ELSE_BLOCK, @r#"
+    Plugin diagnostic: Leaving `panic` in the code is discouraged.
+     --> lib.cairo:9:9
+            panic!("a shouldn't be less than 5");
+            ^^^^^
+    Plugin diagnostic: Manual assert detected. Consider using assert!() macro instead.
+     --> lib.cairo:6:12-10:5
+          } else if a > 5 {
+     ____________^
+    | ...
+    |     }
+    |_____^
+    "#);
+}
+
+#[test]
+fn test_manual_assert_with_panic_in_else_block_fixer() {
+    test_lint_fixer!(TEST_MANUAL_ASSERT_WITH_PANIC_IN_ELSE_BLOCK, @r#"
+    fn main() {
+        let a: u32 = 5;
+        if a == 5 {
+            println!("a is equal to 5");
+        } else {
+            assert!(a > 5, "a shouldn't be less than 5");
+            println!("a is greater than 5");
+        }
+    }
+    "#);
 }

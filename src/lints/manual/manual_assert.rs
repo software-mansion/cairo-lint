@@ -4,13 +4,15 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::{db::SemanticGroup, Arenas, Expr, ExprBlock, ExprIf, Statement};
 use cairo_lang_syntax::node::{
     ast::{
-        BlockOrIf, Condition, Expr as AstExpr, ExprBlock as AstExprBlock, ExprIf as AstExprIf,
-        OptionElseClause, Statement as AstStatement,
+        BlockOrIf, Condition, ElseClause, Expr as AstExpr, ExprBlock as AstExprBlock,
+        ExprIf as AstExprIf, OptionElseClause, Statement as AstStatement,
     },
     db::SyntaxGroup,
     helpers::WrappedArgListHelper,
+    kind::SyntaxKind,
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
+use cairo_lang_utils::LookupIntern;
 use if_chain::if_chain;
 use itertools::Itertools;
 
@@ -145,6 +147,27 @@ fn check_single_condition_block(
 pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
     let if_expr = AstExprIf::from_syntax_node(db, node);
     let else_block_option = if_expr.else_clause(db);
+    let is_else_if = is_else_if_expr(db, node);
+    let prefix = if is_else_if { "{\n" } else { "" };
+    let suffix = if is_else_if { "}\n" } else { "" };
+
+    let indent = if is_else_if {
+        // Extracting parent `if` node indentation.
+        node.parent(db)
+            .expect("Expected parent `else if` node")
+            .parent(db)
+            .expect("Expected parent `if` node")
+            .get_text(db)
+            .chars()
+            .take_while(|c| c.is_whitespace())
+            .count()
+            + 4
+    } else {
+        node.get_text(db)
+            .chars()
+            .take_while(|c| c.is_whitespace())
+            .count()
+    };
 
     // TODO (wawel37): Handle `if let` case as the `matches!` macro will be implemented inside the corelib.
     let Condition::Expr(condition_expr) = if_expr.condition(db) else {
@@ -154,13 +177,6 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synt
     let condition = condition_expr.expr(db).as_syntax_node().get_text(db);
     let (if_block_panic_args, else_block_panic_args) = get_panic_args_from_diagnosed_node(db, node);
     let contrary_condition = format!("!({})", condition.trim());
-    let indent = if_expr
-        .if_kw(db)
-        .as_syntax_node()
-        .get_text(db)
-        .chars()
-        .take_while(|c| c.is_whitespace())
-        .count();
 
     match (if_block_panic_args, else_block_panic_args) {
         (Some(panic_args), None) => {
@@ -171,15 +187,48 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synt
                     .map(|arg| arg.get_text(db).trim().to_string())
                     .join(", ")
             );
-            if_chain! {
-                if let OptionElseClause::ElseClause(else_clause) = else_block_option;
-                if let BlockOrIf::Block(else_block) = else_clause.else_block_or_if(db);
-                then {
-                  let else_statements = else_block.statements(db).as_syntax_node().get_text(db);
-                  return Some((node, indent_snippet(&format!("{} {}", assert_call, else_statements), indent / 4)));
+            if let OptionElseClause::ElseClause(else_clause) = else_block_option {
+                // Else is just a block (not `else if`).
+                if let BlockOrIf::Block(else_block) = else_clause.else_block_or_if(db) {
+                    let else_statements = else_block.statements(db).as_syntax_node().get_text(db);
+                    return Some((
+                        node,
+                        format!(
+                            "{prefix}{}",
+                            indent_snippet(
+                                &format!("{} {}{suffix}", assert_call, else_statements),
+                                indent / 4,
+                            )
+                        ),
+                    ));
+                }
+
+                // Else is an `else if` expression.
+                if let BlockOrIf::If(else_if) = else_clause.else_block_or_if(db) {
+                    return Some((
+                        node,
+                        format!(
+                            "{prefix}{}",
+                            indent_snippet(
+                                &format!(
+                                    "{} {}{suffix}",
+                                    assert_call,
+                                    else_if.as_syntax_node().get_text(db)
+                                ),
+                                indent / 4,
+                            )
+                        ),
+                    ));
                 }
             }
-            Some((node, indent_snippet(&assert_call, indent / 4)))
+            // If there is no else block, just return the assert call.
+            Some((
+                node,
+                format!(
+                    "{prefix}{}",
+                    indent_snippet(&format!("{prefix}{}{suffix}", assert_call), indent / 4)
+                ),
+            ))
         }
         (None, Some(panic_args)) => {
             let assert_call = format!(
@@ -196,7 +245,13 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synt
                 .get_text(db);
             Some((
                 node,
-                indent_snippet(&format!("{} {}", assert_call, if_statements), indent / 4),
+                format!(
+                    "{prefix}{}",
+                    indent_snippet(
+                        &format!("{} {}{suffix}", assert_call, if_statements),
+                        indent / 4,
+                    )
+                ),
             ))
         }
         (None, None) => {
@@ -264,4 +319,18 @@ fn get_panic_args_from_block(
             .into_iter()
             .map(|arg| arg.as_syntax_node()),
     )
+}
+
+// Checks if the given node is an `else if` expression.
+fn is_else_if_expr(db: &dyn SyntaxGroup, node: SyntaxNode) -> bool {
+    if_chain! {
+        if let Some(parent) = node.parent(db);
+        if parent.kind(db) == SyntaxKind::ElseClause;
+        if let BlockOrIf::If(child_if) = ElseClause::from_syntax_node(db, parent).else_block_or_if(db);
+        if child_if.as_syntax_node().lookup_intern(db) == node.lookup_intern(db);
+        then {
+            return true;
+        }
+    }
+    false
 }
