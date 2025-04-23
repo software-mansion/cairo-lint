@@ -116,10 +116,10 @@ fn fix_redundant_brackets_in_enum_call(
     let ast_expr = ast::Expr::from_syntax_node(db, node);
 
     let ast::Expr::FunctionCall(call_expr) = &ast_expr else {
-        return None;
+        panic!("Expr should be a FunctionCall");
     };
 
-    // Retrieve parentheses, that can be removed
+    // Retrieve parentheses that can be removed
     let arguments = call_expr.arguments(db).as_syntax_node().get_text(db);
 
     let fixed_expr = ast_expr

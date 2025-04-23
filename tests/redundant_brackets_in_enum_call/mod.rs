@@ -68,30 +68,6 @@ fn redundant_bracket_call_diagnostics() {
 }
 
 #[test]
-fn multiple_empty_variants_diagnostics() {
-    test_lint_diagnostics!(MULTIPLE_REDUNDANT_BRACKETS, @r"
-    Plugin diagnostic: redundant parentheses in enum call
-     --> lib.cairo:11:14
-        let _a = MyEnum::Empty1(   ( ) ); // Comment
-                 ^^^^^^^^^^^^^^^^^^^^^^^
-    Plugin diagnostic: redundant parentheses in enum call
-     --> lib.cairo:12:14
-        let _b = MyEnum::Empty2((  ));
-                 ^^^^^^^^^^^^^^^^^^^^
-    ");
-}
-
-#[test]
-fn allow_multiple_empty_variants_diagnostics() {
-    test_lint_diagnostics!(ALLOW_MULTIPLE_REDUNDANT_BRACKETS, @r"");
-}
-
-#[test]
-fn tuple_variant_diagnostics() {
-    test_lint_diagnostics!(TUPLE_VARIANT, @r"");
-}
-
-#[test]
 fn redundant_bracket_call_fixer() {
     test_lint_fixer!(REDUNDANT_BRACKET_CALL, @r"
     #[derive(Drop)]
@@ -103,6 +79,20 @@ fn redundant_bracket_call_fixer() {
     fn main() {
         let _a = MyEnum::Empty; 
     }
+    ");
+}
+
+#[test]
+fn multiple_empty_variants_diagnostics() {
+    test_lint_diagnostics!(MULTIPLE_REDUNDANT_BRACKETS, @r"
+    Plugin diagnostic: redundant parentheses in enum call
+     --> lib.cairo:11:14
+        let _a = MyEnum::Empty1(   ( ) ); // Comment
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+    Plugin diagnostic: redundant parentheses in enum call
+     --> lib.cairo:12:14
+        let _b = MyEnum::Empty2((  ));
+                 ^^^^^^^^^^^^^^^^^^^^
     ");
 }
 
@@ -126,6 +116,16 @@ fn multiple_empty_variants_fixer() {
 }
 
 #[test]
+fn allow_multiple_empty_variants_diagnostics() {
+    test_lint_diagnostics!(ALLOW_MULTIPLE_REDUNDANT_BRACKETS, @r"");
+}
+
+#[test]
 fn allow_multiple_empty_variants_fixer() {
     test_lint_diagnostics!(ALLOW_MULTIPLE_REDUNDANT_BRACKETS, @r"");
+}
+
+#[test]
+fn tuple_variant_diagnostics() {
+    test_lint_diagnostics!(TUPLE_VARIANT, @r"");
 }
