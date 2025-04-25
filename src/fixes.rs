@@ -12,7 +12,6 @@
 
 use std::collections::HashMap;
 
-use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_defs::ids::UseId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::DiagnosticEntry;
@@ -22,10 +21,12 @@ use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
-use cairo_lang_utils::Upcast;
 use log::debug;
 
 use crate::context::get_fix_for_diagnostic_message;
+use cairo_lang_defs::db::DefsGroup;
+use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_syntax::node::db::SyntaxGroup;
 
 /// Represents a fix for a diagnostic, containing the span of code to be replaced
 /// and the suggested replacement.
@@ -42,7 +43,7 @@ pub struct Fix {
 ///
 /// # Arguments
 ///
-/// * `db` - A reference to the RootDatabase
+/// * `db` - A reference to the `dyn SemanticGroup`
 /// * `diag` - A reference to the SemanticDiagnostic to be fixed
 ///
 /// # Returns
@@ -51,7 +52,7 @@ pub struct Fix {
 /// replaced, and the `String` is the suggested replacement. Returns `None` if no fix
 /// is available for the given diagnostic.
 pub fn fix_semantic_diagnostic(
-    db: &RootDatabase,
+    db: &dyn SemanticGroup,
     diag: &SemanticDiagnostic,
 ) -> Option<(SyntaxNode, String)> {
     match diag.kind {
@@ -73,7 +74,7 @@ pub fn fix_semantic_diagnostic(
 ///
 /// # Arguments
 ///
-/// * `db` - A reference to the RootDatabase
+/// * `db` - A reference to the `dyn SemanticGroup`
 /// * `diag` - A reference to the SemanticDiagnostic
 /// * `plugin_diag` - A reference to the PluginDiagnostic
 ///
@@ -82,11 +83,11 @@ pub fn fix_semantic_diagnostic(
 /// An `Option<(SyntaxNode, String)>` containing the node to be replaced and the
 /// suggested replacement.
 fn fix_plugin_diagnostic(
-    db: &RootDatabase,
+    db: &dyn SemanticGroup,
     plugin_diag: &PluginDiagnostic,
 ) -> Option<(SyntaxNode, String)> {
-    let node = plugin_diag.stable_ptr.lookup(db.upcast());
-    get_fix_for_diagnostic_message(db.upcast(), node, &plugin_diag.message)
+    let node = plugin_diag.stable_ptr.lookup(db);
+    get_fix_for_diagnostic_message(db, node, &plugin_diag.message)
 }
 
 /// Represents a fix for unused imports in a specific syntax node.
@@ -119,14 +120,14 @@ impl ImportFix {
 ///
 /// A HashMap where keys are FileIds and values are HashMaps of SyntaxNodes to ImportFixes.
 pub fn collect_unused_imports(
-    db: &RootDatabase,
+    db: &(dyn SemanticGroup + 'static),
     diags: &Vec<SemanticDiagnostic>,
 ) -> HashMap<FileId, HashMap<SyntaxNode, ImportFix>> {
     let mut file_fixes = HashMap::new();
 
     for diag in diags {
         if let SemanticDiagnosticKind::UnusedImport(id) = &diag.kind {
-            let file_id = diag.location(db.upcast()).file_id;
+            let file_id = diag.location(db).file_id;
 
             let local_fixes = file_fixes.entry(file_id).or_insert_with(HashMap::new);
             process_unused_import(db, id, local_fixes);
@@ -144,11 +145,11 @@ pub fn collect_unused_imports(
 /// * `id` - The UseId of the unused import.
 /// * `fixes` - A mutable reference to the HashMap of fixes.
 fn process_unused_import(
-    db: &RootDatabase,
+    db: &dyn DefsGroup,
     id: &UseId,
     fixes: &mut HashMap<SyntaxNode, ImportFix>,
 ) {
-    let unused_node = id.stable_ptr(db).lookup(db.upcast()).as_syntax_node();
+    let unused_node = id.stable_ptr(db).lookup(db).as_syntax_node();
     let mut current_node = unused_node;
 
     while let Some(parent) = current_node.parent(db) {
@@ -180,7 +181,10 @@ fn process_unused_import(
 /// # Returns
 ///
 /// A vector of Fix objects representing the applied fixes.
-pub fn apply_import_fixes(db: &RootDatabase, fixes: &HashMap<SyntaxNode, ImportFix>) -> Vec<Fix> {
+pub fn apply_import_fixes(
+    db: &dyn SyntaxGroup,
+    fixes: &HashMap<SyntaxNode, ImportFix>,
+) -> Vec<Fix> {
     fixes
         .iter()
         .flat_map(|(_, import_fix)| {
@@ -212,7 +216,7 @@ pub fn apply_import_fixes(db: &RootDatabase, fixes: &HashMap<SyntaxNode, ImportF
 ///
 /// A vector of Fix objects for the multi-import case.
 fn handle_multi_import(
-    db: &RootDatabase,
+    db: &dyn SyntaxGroup,
     node: &SyntaxNode,
     items_to_remove: &[String],
 ) -> Vec<Fix> {
@@ -235,7 +239,7 @@ fn handle_multi_import(
 ///
 /// A boolean indicating whether all descendants should be removed.
 fn all_descendants_removed(
-    db: &RootDatabase,
+    db: &dyn SyntaxGroup,
     node: &SyntaxNode,
     items_to_remove: &[String],
 ) -> bool {
@@ -257,7 +261,7 @@ fn all_descendants_removed(
 /// # Returns
 ///
 /// A vector of Fix objects for removing the entire import.
-fn remove_entire_import(db: &RootDatabase, node: &SyntaxNode) -> Vec<Fix> {
+fn remove_entire_import(db: &dyn SyntaxGroup, node: &SyntaxNode) -> Vec<Fix> {
     let mut current_node = *node;
     while let Some(parent) = current_node.parent(db) {
         // Go up until we find a UsePathList on the path - then, we can remove the current node from that
@@ -295,7 +299,7 @@ fn remove_entire_import(db: &RootDatabase, node: &SyntaxNode) -> Vec<Fix> {
 ///
 /// A vector of Fix objects for removing specific items from the import.
 fn remove_specific_items(
-    db: &RootDatabase,
+    db: &dyn SyntaxGroup,
     node: &SyntaxNode,
     items_to_remove: &[String],
 ) -> Vec<Fix> {
@@ -337,7 +341,7 @@ fn remove_specific_items(
 /// # Returns
 ///
 /// The UsePathList syntax node, or the original node if not found.
-fn find_use_path_list(db: &RootDatabase, node: &SyntaxNode) -> SyntaxNode {
+fn find_use_path_list(db: &dyn SyntaxGroup, node: &SyntaxNode) -> SyntaxNode {
     node.descendants(db)
         .find(|descendant| descendant.kind(db) == SyntaxKind::UsePathList)
         .unwrap_or(*node)

@@ -6,12 +6,12 @@ use cairo_lang_syntax::node::SyntaxNode;
 use std::{cmp::Reverse, collections::HashMap};
 
 use anyhow::{anyhow, Result};
-use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_diagnostics::DiagnosticEntry;
 use cairo_lang_filesystem::db::FilesGroup;
 use cairo_lang_filesystem::ids::FileId;
-use cairo_lang_semantic::{diagnostic::SemanticDiagnosticKind, SemanticDiagnostic};
-use cairo_lang_utils::Upcast;
+use cairo_lang_semantic::{
+    db::SemanticGroup, diagnostic::SemanticDiagnosticKind, SemanticDiagnostic,
+};
 
 pub static CAIRO_LINT_TOOL_NAME: &str = "cairo-lint";
 
@@ -33,7 +33,7 @@ use context::{get_lint_type_from_diagnostic_message, CairoLintKind};
 /// Gets the fixes for a set of a compiler diagnostics (that uses Cairo lint analyzer plugin).
 /// # Arguments
 ///
-/// * `db` - The reference to the RootDatabase that the diagnostics were based upon.
+/// * `db` - The reference to the `dyn SemanticGroup` that the diagnostics were based upon.
 /// * `diagnostics` - The list of compiler diagnostics. Make sure that the diagnostics from the Cairo lint analyzer plugin are also included.
 ///
 /// # Returns
@@ -42,7 +42,7 @@ use context::{get_lint_type_from_diagnostic_message, CairoLintKind};
 /// * keys are FileIds (that points to a file that the fixes might be applied to)
 /// * values are vectors of proposed Fixes.
 pub fn get_fixes(
-    db: &RootDatabase,
+    db: &(dyn SemanticGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
 ) -> HashMap<FileId, Vec<Fix>> {
     // Handling unused imports separately as we need to run pre-analysis on the diagnostics.
@@ -62,12 +62,12 @@ pub fn get_fixes(
 
     for diag in diags_without_imports {
         if let Some((fix_node, fix)) = fix_semantic_diagnostic(db, diag) {
-            let location = diag.location(db.upcast());
+            let location = diag.location(db);
             fixes
                 .entry(location.file_id)
                 .or_insert_with(Vec::new)
                 .push(Fix {
-                    span: fix_node.span(db.upcast()),
+                    span: fix_node.span(db),
                     suggestion: fix,
                 });
         }
@@ -81,7 +81,7 @@ pub fn get_fixes(
 ///
 /// * `file_id` - The FileId of the file that the fixes should be applied to.
 /// * `fixes` - The list of fixes that should be applied to the file.
-pub fn apply_file_fixes(file_id: FileId, fixes: Vec<Fix>, db: &RootDatabase) -> Result<()> {
+pub fn apply_file_fixes(file_id: FileId, fixes: Vec<Fix>, db: &dyn FilesGroup) -> Result<()> {
     let mut fixes = fixes;
     fixes.sort_by_key(|fix| Reverse(fix.span.start));
     let mut fixable_diagnostics = Vec::with_capacity(fixes.len());
@@ -105,7 +105,7 @@ pub fn apply_file_fixes(file_id: FileId, fixes: Vec<Fix>, db: &RootDatabase) -> 
     files.insert(
         file_id,
         db.file_content(file_id)
-            .ok_or(anyhow!("{} not found", file_id.file_name(db.upcast())))?
+            .ok_or(anyhow!("{} not found", file_id.file_name(db)))?
             .to_string(),
     );
     // Fix the files
@@ -116,7 +116,7 @@ pub fn apply_file_fixes(file_id: FileId, fixes: Vec<Fix>, db: &RootDatabase) -> 
             .and_modify(|file| file.replace_range(fix.span.to_str_range(), &fix.suggestion));
     }
     // Dump them in place
-    std::fs::write(file_id.full_path(db.upcast()), files.get(&file_id).unwrap())?;
+    std::fs::write(file_id.full_path(db), files.get(&file_id).unwrap())?;
     Ok(())
 }
 

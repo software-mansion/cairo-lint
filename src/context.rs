@@ -157,7 +157,7 @@ pub trait Lint: Sync + Send {
     /// Attempts to generate a fix for this Lint's semantic diagnostic.
     /// # Arguments
     ///
-    /// * `db` - A reference to the RootDatabase
+    /// * `db` - A reference to the `dyn SemanticGroup`
     /// * `diag` - A reference to the SemanticDiagnostic to be fixed
     ///
     /// # Returns
