@@ -9,7 +9,6 @@ use cairo_lang_syntax::node::{
     },
     db::SyntaxGroup,
     helpers::WrappedArgListHelper,
-    kind::SyntaxKind,
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
 use cairo_lang_utils::LookupIntern;
@@ -324,9 +323,8 @@ fn get_panic_args_from_block(
 // Checks if the given node is an `else if` expression.
 fn is_else_if_expr(db: &dyn SyntaxGroup, node: SyntaxNode) -> bool {
     if_chain! {
-        if let Some(parent) = node.parent(db);
-        if parent.kind(db) == SyntaxKind::ElseClause;
-        if let BlockOrIf::If(child_if) = ElseClause::from_syntax_node(db, parent).else_block_or_if(db);
+        if let Some(else_clause) = node.parent_of_type::<ElseClause>(db);
+        if let BlockOrIf::If(child_if) = else_clause.else_block_or_if(db);
         if child_if.as_syntax_node().lookup_intern(db) == node.lookup_intern(db);
         then {
             return true;
