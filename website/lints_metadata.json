@@ -21,7 +21,7 @@
         "name": "clone_on_copy",
         "docs": "## What it does\n\nChecks for usage of `.clone()` on a `Copy` type.\n\n## Example\n\n```cairo\n    let a: felt252 = 'Hello';\n    let b = a.clone()\n```",
         "enabled": true,
-        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/clone_on_copy.rs#L25"
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/clone_on_copy.rs#L33"
     },
     {
         "name": "impossible_comparison",
