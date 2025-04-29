@@ -25,7 +25,7 @@ jobs:
 
   notify_failed:
     runs-on: ubuntu-latest
-    if: always() && needs.test-with-nightly-cairo.result == 'failure' && github.event_name == 'schedule'
+    if: always() && needs.test-with-nightly-cairo.result == 'failure'
     needs: test-with-nightly-cairo
     steps:
       - name: Notify the team about workflow failure
