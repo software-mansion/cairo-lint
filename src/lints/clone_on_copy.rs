@@ -135,32 +135,7 @@ fn get_expr_semantic(
         .as_syntax_node()
         .ancestors_with_self(db.upcast())
         .find_map(|ancestor| {
-            let function_id = if let Some(trait_func) =
-                ast::TraitItemFunction::cast(db.upcast(), ancestor)
-            {
-                FunctionWithBodyId::Trait(
-                    TraitFunctionLongId(module_file_id, trait_func.stable_ptr(db.upcast()))
-                        .intern(db),
-                )
-            } else if let Some(func_with_body) = ast::FunctionWithBody::cast(db.upcast(), ancestor)
-            {
-                if ancestor
-                    .ancestor_of_kind(db.upcast(), SyntaxKind::ItemImpl)
-                    .is_some()
-                {
-                    FunctionWithBodyId::Impl(
-                        ImplFunctionLongId(module_file_id, func_with_body.stable_ptr(db.upcast()))
-                            .intern(db),
-                    )
-                } else {
-                    FunctionWithBodyId::Free(
-                        FreeFunctionLongId(module_file_id, func_with_body.stable_ptr(db.upcast()))
-                            .intern(db),
-                    )
-                }
-            } else {
-                return None;
-            };
+            let function_id = get_function_with_body_id(db, module_file_id, ancestor)?;
 
             db.lookup_expr_by_ptr(function_id, expr_ptr)
                 .or_else(|_| {
@@ -173,4 +148,32 @@ fn get_expr_semantic(
                 .ok()
                 .map(|id| db.expr_semantic(function_id, id))
         })
+}
+
+fn get_function_with_body_id(
+    db: &dyn SemanticGroup,
+    module_file_id: ModuleFileId,
+    ancestor: SyntaxNode,
+) -> Option<FunctionWithBodyId> {
+    if let Some(trait_func) = ast::TraitItemFunction::cast(db.upcast(), ancestor) {
+        let ptr = trait_func.stable_ptr(db.upcast());
+        Some(FunctionWithBodyId::Trait(
+            TraitFunctionLongId(module_file_id, ptr).intern(db),
+        ))
+    } else if let Some(func_with_body) = ast::FunctionWithBody::cast(db.upcast(), ancestor) {
+        let ptr = func_with_body.stable_ptr(db.upcast());
+
+        let function_with_body_id = if ancestor
+            .ancestor_of_kind(db.upcast(), SyntaxKind::ItemImpl)
+            .is_some()
+        {
+            FunctionWithBodyId::Impl(ImplFunctionLongId(module_file_id, ptr).intern(db))
+        } else {
+            FunctionWithBodyId::Free(FreeFunctionLongId(module_file_id, ptr).intern(db))
+        };
+
+        Some(function_with_body_id)
+    } else {
+        None
+    }
 }
