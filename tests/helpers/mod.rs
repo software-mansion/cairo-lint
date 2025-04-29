@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_defs::{db::DefsGroup, ids::ModuleId};
 use cairo_lang_filesystem::{
@@ -10,8 +8,10 @@ use cairo_lang_semantic::{db::SemanticGroup, SemanticDiagnostic};
 use cairo_lang_utils::LookupIntern;
 use cairo_lint::{context::get_unique_allowed_names, CairoLintToolMetadata};
 use scarb::find_scarb_managed_core;
+use std::path::PathBuf;
 
 mod scarb;
+pub mod setup;
 
 pub fn get_diags(crate_id: CrateId, db: &mut RootDatabase) -> Vec<SemanticDiagnostic> {
     if let Ok(path) = std::env::var("CORELIB_PATH") {
@@ -77,7 +77,7 @@ macro_rules! test_lint_fixer {
       .build()
       .unwrap();
     let diags = $crate::helpers::get_diags(
-      ::cairo_lang_semantic::test_utils::setup_test_crate_ex(&db, $before, Some($crate::CRATE_CONFIG), None),
+      crate::helpers::setup::setup_test_crate_ex(&mut db, $before),
       &mut db,
     );
     let semantic_diags: Vec<_> = diags.clone();
@@ -128,7 +128,7 @@ macro_rules! test_lint_diagnostics {
       .build()
       .unwrap();
     let diags = $crate::helpers::get_diags(
-      ::cairo_lang_semantic::test_utils::setup_test_crate_ex(&db, $before, Some($crate::CRATE_CONFIG), None),
+      crate::helpers::setup::setup_test_crate_ex(&mut db, $before),
       &mut db,
     );
     let formatted_diags = diags
