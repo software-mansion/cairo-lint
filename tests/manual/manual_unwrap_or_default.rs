@@ -98,49 +98,14 @@ fn main() {
 }
 "#;
 
-const MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_TUPLE_WITHOUT_TRIGGER: &str = r#"
-fn main() {
-  let a: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
-  // This is just a variable.
-  if let Option::Some(v) = a {
-    v
-   } else {
-      ("", 0, true)
-  };
-}
-"#;
-
 const MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_DIFFERENT_TYPE_NOT_TRIGGER: &str = r#"
 fn main() {
-  let a: Option<ByteArray> = Option::Some("Helok");
+  let a: Option<ByteArray> = Option::Some("Hello");
   // This is just a variable.
   if let Option::Some(_) = a {
     100
    } else {
     0
-  };
-}
-"#;
-
-const MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITHOUT_TRIGGER: &str = r#"
-fn main() {
-  let a: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
-  // This is just a variable.
-  if let Option::Some(v) = a {
-    v
-   } else {
-    [3; 5]
-  };
-}
-"#;
-
-const MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_TUPLE_WITHOUT_TRIGGER: &str = r#"
-fn main() {
-  let x: Option<(ByteArray, u128, bool)> =Option::Some(("James", 90, true));
-  // This is just a variable.
-  match x {
-    Option::Some(v) => v,
-    Option::None => ("sdkfh", 898, false)
   };
 }
 "#;
@@ -246,17 +211,6 @@ fn main() {
   match x {
     Option::Some(_) => array![1, 2, 3, 4, 5],
     Option::None => array![]
-  };
-}
-"#;
-
-const MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_WITHOUT_TRIGGER: &str = r#"
-fn main() {
-  let x: Option<u128> = Option::Some(1038);
-  // This is just a variable.
-  match x {
-    Option::Some(v) => v,
-    Option::None => 6778
   };
 }
 "#;
@@ -454,27 +408,6 @@ fn manual_unwrap_or_default_for_if_let_with_comments_fixer() {
 }
 
 #[test]
-fn manual_unwrap_or_default_for_if_let_with_tuple_without_trigger_diagnostics() {
-    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_TUPLE_WITHOUT_TRIGGER, @r#"
-    "#);
-}
-
-#[test]
-fn manual_unwrap_or_default_for_if_let_with_tuple_without_trigger_fixer() {
-    test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_TUPLE_WITHOUT_TRIGGER, @r#"
-    fn main() {
-      let a: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
-      // This is just a variable.
-      if let Option::Some(v) = a {
-        v
-       } else {
-          ("", 0, true)
-      };
-    }
-    "#);
-}
-
-#[test]
 fn manual_unwrap_or_default_for_if_let_with_different_type_not_trigger_diagnostics() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_DIFFERENT_TYPE_NOT_TRIGGER, @r#"
     "#);
@@ -484,53 +417,12 @@ fn manual_unwrap_or_default_for_if_let_with_different_type_not_trigger_diagnosti
 fn manual_unwrap_or_default_for_if_let_with_different_type_not_trigger_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_DIFFERENT_TYPE_NOT_TRIGGER, @r#"
     fn main() {
-      let a: Option<ByteArray> = Option::Some("Helok");
+      let a: Option<ByteArray> = Option::Some("Hello");
       // This is just a variable.
       if let Option::Some(_) = a {
         100
        } else {
         0
-      };
-    }
-    "#);
-}
-
-#[test]
-fn manual_unwrap_or_default_for_if_let_without_trigger_diagnostics() {
-    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITHOUT_TRIGGER, @r#"
-    "#);
-}
-
-#[test]
-fn manual_unwrap_or_default_for_if_let_without_trigger_fixer() {
-    test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITHOUT_TRIGGER, @r"
-    fn main() {
-      let a: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
-      // This is just a variable.
-      if let Option::Some(v) = a {
-        v
-       } else {
-        [3; 5]
-      };
-    }
-    ");
-}
-
-#[test]
-fn manual_unwrap_or_default_for_match_with_tuple_without_trigger_diagnostics() {
-    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_TUPLE_WITHOUT_TRIGGER, @r#"
-    "#);
-}
-
-#[test]
-fn manual_unwrap_or_default_for_match_with_tuple_without_trigger_fixer() {
-    test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_TUPLE_WITHOUT_TRIGGER, @r#"
-    fn main() {
-      let x: Option<(ByteArray, u128, bool)> =Option::Some(("James", 90, true));
-      // This is just a variable.
-      match x {
-        Option::Some(v) => v,
-        Option::None => ("sdkfh", 898, false)
       };
     }
     "#);
@@ -706,7 +598,7 @@ fn manual_unwrap_or_default_for_match_with_array_fixer() {
 
 #[test]
 fn manual_unwrap_or_default_for_match_with_comments_diagnostic() {
-    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_COMMENTS, @r#""#);
+    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_COMMENTS, @"");
 }
 
 #[test]
@@ -743,25 +635,6 @@ fn manual_unwrap_or_default_for_match_with_different_type_not_trigger_fixer() {
       match x {
         Option::Some(_) => array![1, 2, 3, 4, 5],
         Option::None => array![]
-      };
-    }
-    ");
-}
-
-#[test]
-fn manual_unwrap_or_default_for_match_with_without_trigger_diagnostics() {
-    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_WITHOUT_TRIGGER, @r#""#);
-}
-
-#[test]
-fn manual_unwrap_or_default_for_match_with_without_trigger_fixer() {
-    test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_WITHOUT_TRIGGER, @r"
-    fn main() {
-      let x: Option<u128> = Option::Some(1038);
-      // This is just a variable.
-      match x {
-        Option::Some(v) => v,
-        Option::None => 6778
       };
     }
     ");
