@@ -2,7 +2,7 @@
 
 Default: **Enabled**
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/clone_on_copy.rs#L25)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/clone_on_copy.rs#L33)
 
 ## What it does
 
