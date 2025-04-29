@@ -80,6 +80,7 @@ macro_rules! test_lint_fixer {
       crate::helpers::setup::setup_test_crate_ex(&mut db, $before),
       &mut db,
     );
+    breaking stuff hehe ;p
     let semantic_diags: Vec<_> = diags.clone();
     let unused_imports: ::std::collections::HashMap<::cairo_lang_filesystem::ids::FileId, ::std::collections::HashMap<::cairo_lang_syntax::node::SyntaxNode, ::cairo_lint::fixes::ImportFix>> =
       ::cairo_lint::fixes::collect_unused_imports(&db, &semantic_diags);
