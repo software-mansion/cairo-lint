@@ -54,8 +54,8 @@ tempfile = "3"
 which = "7"
 
 [dev-dependencies]
-ctor = "0.2.9"
-insta = "1.41.0"
+ctor = "0.4.2"
+insta = "1.43.1"
 pretty_assertions = "1.4.1"
 test-case = "3.0"
 
