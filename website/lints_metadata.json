@@ -234,6 +234,12 @@
         "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_ok_or.rs#L51"
     },
     {
+        "name": "manual_unwrap_or",
+        "docs": "## What it does\n\nFinds patterns that reimplement `Option::unwrap_or` or `Result::unwrap_or`.\n\n## Example\n\n```cairo\nlet foo: Option<i32> = None;\nmatch foo {\n    Some(v) => v,\n    None => 1,\n};\n```\n\nCan be simplified to:\n\n```cairo\nlet foo: Option<i32> = None;\nfoo.unwrap_or(1);\n```",
+        "enabled": true,
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_unwrap_or.rs#L38"
+    },
+    {
         "name": "manual_unwrap_or_default",
         "docs": "## What it does\n\nChecks for manual unwrapping of an Option or Result.\n\n## Example\n\n```cairo\nfn main() {\n    let x: Option<u128> = Option::Some(1038);\n    if let Option::Some(v) = x {\n        v\n    } else {\n        0\n    };\n}\n```\n\nCan be simplified to:\n\n```cairo\nfn main() {\n    let x: Option<u128> = Option::Some(1038);\n    x.unwrap_or_default();\n}\n```",
         "enabled": true,

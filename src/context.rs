@@ -61,6 +61,8 @@ use crate::lints::manual::manual_ok::check_manual_ok;
 use crate::lints::manual::manual_ok::ManualOk;
 use crate::lints::manual::manual_ok_or::check_manual_ok_or;
 use crate::lints::manual::manual_ok_or::ManualOkOr;
+use crate::lints::manual::manual_unwrap_or::check_manual_unwrap_or;
+use crate::lints::manual::manual_unwrap_or::ManualUnwrapOr;
 use crate::lints::manual::manual_unwrap_or_default::check_manual_unwrap_or_default;
 use crate::lints::manual::manual_unwrap_or_default::ManualUnwrapOrDefault;
 use crate::lints::panic::check_panic_usage;
@@ -128,6 +130,7 @@ pub enum CairoLintKind {
     EnumVariantNames,
     CloneOnCopy,
     EnumEmptyVariantBrackets,
+    ManualUnwrapOr,
     UnitReturnType,
 }
 
@@ -341,6 +344,10 @@ impl LintContext {
             LintRuleGroup {
                 lints: vec![Box::new(RedundantBracketsInEnumCall)],
                 check_function: check_redundant_brackets_in_enum_call,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(ManualUnwrapOr)],
+                check_function: check_manual_unwrap_or,
             },
             LintRuleGroup {
                 lints: vec![Box::new(UnitReturnType)],
