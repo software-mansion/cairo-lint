@@ -177,7 +177,7 @@
         "name": "manual_assert",
         "docs": "## What it does\n\nChecks for manual implementations of `assert` macro in `if` expressions.\n\n## Example\n\n```cairo\nfn main() {\n    let a = 5;\n    if a == 5 {\n        panic!(\"a shouldn't be equal to 5\");\n    }\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let a = 5;\n    assert!(a != 5, \"a shouldn't be equal to 5\");\n}\n```",
         "enabled": true,
-        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_assert.rs#L48"
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_assert.rs#L49"
     },
     {
         "name": "manual_err",
@@ -234,6 +234,12 @@
         "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_ok_or.rs#L51"
     },
     {
+        "name": "manual_unwrap_or",
+        "docs": "## What it does\n\nFinds patterns that reimplement `Option::unwrap_or` or `Result::unwrap_or`.\n\n## Example\n\n```cairo\nlet foo: Option<i32> = None;\nmatch foo {\n    Some(v) => v,\n    None => 1,\n};\n```\n\nCan be simplified to:\n\n```cairo\nlet foo: Option<i32> = None;\nfoo.unwrap_or(1);\n```",
+        "enabled": true,
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_unwrap_or.rs#L38"
+    },
+    {
         "name": "manual_unwrap_or_default",
         "docs": "## What it does\n\nChecks for manual unwrapping of an Option or Result.\n\n## Example\n\n```cairo\nfn main() {\n    let x: Option<u128> = Option::Some(1038);\n    if let Option::Some(v) = x {\n        v\n    } else {\n        0\n    };\n}\n```\n\nCan be simplified to:\n\n```cairo\nfn main() {\n    let x: Option<u128> = Option::Some(1038);\n    x.unwrap_or_default();\n}\n```",
         "enabled": true,
@@ -255,7 +261,7 @@
         "name": "redundant_brackets_in_enum_call",
         "docs": "## What it does\n\nDetects calls to enum variant constructors with redundant parentheses\n\n## Example\n\n```cairo\nenum MyEnum {\n    Data: u8,\n    Empty,\n}\n\nfn main() {\n    let a = MyEnum::Empty(()); // redundant parentheses\n}\n```\n\nCan be simplified to:\n\n```cairo\nenum MyEnum {\n    Data: u8,\n    Empty,\n}\n\nfn main() {\n    let a = MyEnum::Empty;\n}\n```",
         "enabled": true,
-        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/redundant_brackets_in_enum_call.rs#L46"
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/redundant_brackets_in_enum_call.rs#L42"
     },
     {
         "name": "redundant_op",

@@ -6,6 +6,7 @@ pub mod manual_expect_err;
 pub mod manual_is;
 pub mod manual_ok;
 pub mod manual_ok_or;
+pub mod manual_unwrap_or;
 pub mod manual_unwrap_or_default;
 
 use std::fmt::Debug;
@@ -14,9 +15,10 @@ use cairo_lang_defs::ids::TopLevelLanguageElementId;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprId, ExprIf, ExprMatch, MatchArm, Pattern};
 use helpers::{
-    check_is_default, if_expr_condition_and_block_match_enum_pattern,
-    if_expr_pattern_matches_tail_var, is_destructured_variable_used_and_expected_variant,
-    is_expected_function, pattern_check_enum_arg,
+    check_is_default, func_call_or_block_returns_never,
+    if_expr_condition_and_block_match_enum_pattern, if_expr_pattern_matches_tail_var,
+    is_destructured_variable_used_and_expected_variant, is_expected_function,
+    match_arm_returns_extracted_var, match_with_single_statement_or_empty, pattern_check_enum_arg,
 };
 use if_chain::if_chain;
 
@@ -37,6 +39,7 @@ pub enum ManualLint {
     ManualOk,
     ManualErr,
     ManualExpectErr,
+    ManualUnwrapOr,
 }
 
 /// Checks for all the manual lint written as `match`.
@@ -79,8 +82,8 @@ pub fn check_manual(
             // Checks if we are in the option case or result.
             let enum_name = enum_pattern.variant.id.full_path(db.upcast());
             match enum_name.as_str() {
-                NONE => check_syntax_none_arm(&second_arm.expression, db, arenas, manual_lint),
-                ERR => check_syntax_err_arm(second_arm, db, arenas, manual_lint),
+                NONE => check_syntax_none_arm(expr_match, db, arenas, manual_lint),
+                ERR => check_syntax_err_arm(expr_match, db, arenas, manual_lint),
                 _ => return false,
             }
         }
@@ -123,6 +126,8 @@ fn check_syntax_some_arm(
                 arenas,
             )
         }
+        ManualLint::ManualUnwrapOr => match_arm_returns_extracted_var(arm, arenas),
+
         _ => false,
     }
 }
@@ -183,23 +188,26 @@ fn check_syntax_ok_arm(
                 false
             }
         }
+        ManualLint::ManualUnwrapOr => match_arm_returns_extracted_var(arm, arenas),
         _ => false,
     }
 }
 
 /// Checks `Option::None` arm
 fn check_syntax_none_arm(
-    arm_expression: &ExprId,
+    expr_match: &ExprMatch,
     db: &dyn SemanticGroup,
     arenas: &Arenas,
     manual_lint: ManualLint,
 ) -> bool {
+    let arm = &expr_match.arms[1];
+
     match manual_lint {
-        ManualLint::ManualOkOr => is_expected_variant(arm_expression, arenas, db, ERR),
-        ManualLint::ManualIsSome => is_expected_variant(arm_expression, arenas, db, FALSE),
-        ManualLint::ManualIsNone => is_expected_variant(arm_expression, arenas, db, TRUE),
+        ManualLint::ManualOkOr => is_expected_variant(&arm.expression, arenas, db, ERR),
+        ManualLint::ManualIsSome => is_expected_variant(&arm.expression, arenas, db, FALSE),
+        ManualLint::ManualIsNone => is_expected_variant(&arm.expression, arenas, db, TRUE),
         ManualLint::ManualOptExpect => {
-            if let Expr::FunctionCall(func_call) = &arenas.exprs[*arm_expression] {
+            if let Expr::FunctionCall(func_call) = &arenas.exprs[arm.expression] {
                 let func_name = func_call.function.full_path(db);
                 func_name == PANIC_WITH_FELT252
             } else {
@@ -207,7 +215,14 @@ fn check_syntax_none_arm(
             }
         }
         ManualLint::ManualUnwrapOrDefault => {
-            check_is_default(db, &arenas.exprs[*arm_expression], arenas)
+            check_is_default(db, &arenas.exprs[arm.expression], arenas)
+        }
+        ManualLint::ManualUnwrapOr => {
+            let expr = &arenas.exprs[arm.expression];
+
+            match_with_single_statement_or_empty(expr_match, db, 1)
+                && !func_call_or_block_returns_never(expr, db, arenas)
+                && !check_is_default(db, expr, arenas)
         }
         _ => false,
     }
@@ -215,11 +230,13 @@ fn check_syntax_none_arm(
 
 /// Checks `Result::Err` arm
 fn check_syntax_err_arm(
-    arm: &MatchArm,
+    expr_match: &ExprMatch,
     db: &dyn SemanticGroup,
     arenas: &Arenas,
     manual_lint: ManualLint,
 ) -> bool {
+    let arm = &expr_match.arms[1];
+
     match manual_lint {
         ManualLint::ManualIsOk => is_expected_variant(&arm.expression, arenas, db, FALSE),
         ManualLint::ManualIsErr => is_expected_variant(&arm.expression, arenas, db, TRUE),
@@ -248,6 +265,14 @@ fn check_syntax_err_arm(
                 &return_err_var.var,
                 arenas,
             )
+        }
+
+        ManualLint::ManualUnwrapOr => {
+            let expr = &arenas.exprs[arm.expression];
+
+            match_with_single_statement_or_empty(expr_match, db, 1)
+                && !func_call_or_block_returns_never(expr, db, arenas)
+                && !check_is_default(db, expr, arenas)
         }
         _ => false,
     }
@@ -307,17 +332,18 @@ fn check_syntax_opt_if(
     if !if_block.statements.is_empty() {
         return false;
     };
-    let Some(tail_expr) = if_block.tail else {
+    let Some(tail_expr_id) = if_block.tail else {
         return false;
     };
     match manual_lint {
         ManualLint::ManualOkOr => {
             if_expr_condition_and_block_match_enum_pattern(expr, db, arenas, OK)
         }
-        ManualLint::ManualIsSome => is_expected_variant(&tail_expr, arenas, db, TRUE),
-        ManualLint::ManualIsNone => is_expected_variant(&tail_expr, arenas, db, FALSE),
+        ManualLint::ManualIsSome => is_expected_variant(&tail_expr_id, arenas, db, TRUE),
+        ManualLint::ManualIsNone => is_expected_variant(&tail_expr_id, arenas, db, FALSE),
         ManualLint::ManualOptExpect => if_expr_pattern_matches_tail_var(expr, arenas),
         ManualLint::ManualUnwrapOrDefault => if_expr_pattern_matches_tail_var(expr, arenas),
+        ManualLint::ManualUnwrapOr => if_expr_pattern_matches_tail_var(expr, arenas),
         _ => false,
     }
 }
@@ -334,16 +360,17 @@ fn check_syntax_res_if(
     if !if_block.statements.is_empty() {
         return false;
     };
-    let Some(tail_expr) = if_block.tail else {
+    let Some(tail_expr_id) = if_block.tail else {
         return false;
     };
     match manual_lint {
-        ManualLint::ManualIsOk => is_expected_variant(&tail_expr, arenas, db, TRUE),
-        ManualLint::ManualIsErr => is_expected_variant(&tail_expr, arenas, db, FALSE),
+        ManualLint::ManualIsOk => is_expected_variant(&tail_expr_id, arenas, db, TRUE),
+        ManualLint::ManualIsErr => is_expected_variant(&tail_expr_id, arenas, db, FALSE),
         ManualLint::ManualOk => {
             if_expr_condition_and_block_match_enum_pattern(expr, db, arenas, SOME)
         }
         ManualLint::ManualResExpect => if_expr_pattern_matches_tail_var(expr, arenas),
+        ManualLint::ManualUnwrapOr => if_expr_pattern_matches_tail_var(expr, arenas),
         _ => false,
     }
 }
@@ -385,12 +412,17 @@ fn check_syntax_opt_else(
         return false;
     };
     let tail_expr = &arenas.exprs[tail_expr_id];
+
     match manual_lint {
         ManualLint::ManualOkOr => is_expected_variant(&tail_expr_id, arenas, db, ERR),
         ManualLint::ManualIsSome => is_expected_variant(&tail_expr_id, arenas, db, FALSE),
         ManualLint::ManualIsNone => is_expected_variant(&tail_expr_id, arenas, db, TRUE),
         ManualLint::ManualOptExpect => is_expected_function(tail_expr, db, PANIC_WITH_FELT252),
         ManualLint::ManualUnwrapOrDefault => check_is_default(db, tail_expr, arenas),
+        ManualLint::ManualUnwrapOr => {
+            !check_is_default(db, tail_expr, arenas)
+                && !func_call_or_block_returns_never(tail_expr, db, arenas)
+        }
         _ => false,
     }
 }
@@ -413,15 +445,22 @@ fn check_syntax_res_else(
     if !expr_block.statements.is_empty() {
         return false;
     };
-    let Some(tail_expr) = expr_block.tail else {
+    let Some(tail_expr_id) = expr_block.tail else {
         return false;
     };
+
+    let tail_expr = &arenas.exprs[tail_expr_id];
+
     match manual_lint {
-        ManualLint::ManualIsOk => is_expected_variant(&tail_expr, arenas, db, FALSE),
-        ManualLint::ManualIsErr => is_expected_variant(&tail_expr, arenas, db, TRUE),
-        ManualLint::ManualOk => is_expected_variant(&tail_expr, arenas, db, NONE),
+        ManualLint::ManualIsOk => is_expected_variant(&tail_expr_id, arenas, db, FALSE),
+        ManualLint::ManualIsErr => is_expected_variant(&tail_expr_id, arenas, db, TRUE),
+        ManualLint::ManualOk => is_expected_variant(&tail_expr_id, arenas, db, NONE),
         ManualLint::ManualResExpect => {
-            is_expected_function(&arenas.exprs[tail_expr], db, PANIC_WITH_FELT252)
+            is_expected_function(&arenas.exprs[tail_expr_id], db, PANIC_WITH_FELT252)
+        }
+        ManualLint::ManualUnwrapOr => {
+            !check_is_default(db, tail_expr, arenas)
+                && !func_call_or_block_returns_never(tail_expr, db, arenas)
         }
         _ => false,
     }
@@ -445,13 +484,13 @@ fn check_syntax_err_else(
     if !expr_block.statements.is_empty() {
         return false;
     };
-    let Some(tail_expr) = expr_block.tail else {
+    let Some(tail_expr_id) = expr_block.tail else {
         return false;
     };
     match manual_lint {
-        ManualLint::ManualErr => is_expected_variant(&tail_expr, arenas, db, NONE),
+        ManualLint::ManualErr => is_expected_variant(&tail_expr_id, arenas, db, NONE),
         ManualLint::ManualExpectErr => {
-            is_expected_function(&arenas.exprs[tail_expr], db, PANIC_WITH_FELT252)
+            is_expected_function(&arenas.exprs[tail_expr_id], db, PANIC_WITH_FELT252)
         }
         _ => false,
     }

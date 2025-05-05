@@ -2,7 +2,7 @@
 
 Default: **Enabled**
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/redundant_brackets_in_enum_call.rs#L46)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/redundant_brackets_in_enum_call.rs#L42)
 
 ## What it does
 
