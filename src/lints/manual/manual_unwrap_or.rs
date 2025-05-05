@@ -41,7 +41,7 @@ impl Lint for ManualUnwrapOr {
     }
 
     fn diagnostic_message(&self) -> &'static str {
-        "Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`"
+        "Manual `unwrap_or` detected. Consider using `unwrap_or()` instead."
     }
 
     fn kind(&self) -> CairoLintKind {

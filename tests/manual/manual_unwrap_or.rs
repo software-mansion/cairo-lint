@@ -278,6 +278,32 @@ fn main() {
 }
 "#;
 
+const MATCH_WITH_RESULT_OK_COMMENT: &str = r#"
+fn main() {
+    let a: Result<[u64; 2], felt252> = Result::Ok([10, 20]);
+    match a {
+        Result::Ok(v) => {
+            // this is ok arm
+            v
+        },
+        Result::Err(_) => [1, 2]
+    };
+}
+"#;
+
+const IF_LET_WITH_OPTION_SOME_COMMENT: &str = r#"
+fn main() {
+    let a: Option<u128> = Option::Some(42);
+
+    if let Option::Some(v) = a {
+        // some comment
+        v
+    } else {
+        777
+    };
+}
+"#;
+
 const MATCH_WITH_MORE_STATEMENTS_OPTION: &str = r#"
 fn main() {
     let a: Option<[u64; 2]> = Option::Some([10, 20]);
@@ -362,7 +388,7 @@ fn main() {
 #[test]
 fn if_let_with_constant_option_diagnostics() {
     test_lint_diagnostics!(IF_LET_WITH_CONSTANT_OPTION, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:5:5-9:5
           if let Option::Some(v) = a {
      _____^
@@ -375,7 +401,7 @@ fn if_let_with_constant_option_diagnostics() {
 #[test]
 fn if_let_with_string_literal_option_diagnostics() {
     test_lint_diagnostics!(IF_LET_WITH_STRING_LITERAL_OPTION, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:5:5-9:5
           if let Option::Some(v) = a {
      _____^
@@ -388,7 +414,7 @@ fn if_let_with_string_literal_option_diagnostics() {
 #[test]
 fn if_let_with_tuple_option_diagnostics() {
     test_lint_diagnostics!(IF_LET_WITH_TUPLE_OPTION, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:4:3-8:3
         if let Option::Some(v) = a {
      ___^
@@ -401,7 +427,7 @@ fn if_let_with_tuple_option_diagnostics() {
 #[test]
 fn if_let_with_array_literal_option_diagnostics() {
     test_lint_diagnostics!(IF_LET_WITH_ARRAY_LITERAL_OPTION, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:5:3-9:3
         if let Option::Some(v) = a {
      ___^
@@ -414,7 +440,7 @@ fn if_let_with_array_literal_option_diagnostics() {
 #[test]
 fn if_let_with_array_macro_option_diagnostics() {
     test_lint_diagnostics!(IF_LET_WITH_ARRAY_MACRO_OPTION, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:5:5-9:5
           if let Option::Some(v) = x {
      _____^
@@ -427,7 +453,7 @@ fn if_let_with_array_macro_option_diagnostics() {
 #[test]
 fn match_with_constant_option_diagnostics() {
     test_lint_diagnostics!(MATCH_WITH_CONSTANT_OPTION, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:4:5-9:5
           match a {
      _____^
@@ -440,7 +466,7 @@ fn match_with_constant_option_diagnostics() {
 #[test]
 fn match_with_string_literal_option_diagnostics() {
     test_lint_diagnostics!(MATCH_WITH_STRING_LITERAL_OPTION, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:4:5-7:5
           match s {
      _____^
@@ -453,7 +479,7 @@ fn match_with_string_literal_option_diagnostics() {
 #[test]
 fn match_with_array_macro_option_diagnostics() {
     test_lint_diagnostics!(MATCH_WITH_ARRAY_MACRO_OPTION, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:4:5-7:5
           match arr {
      _____^
@@ -466,7 +492,7 @@ fn match_with_array_macro_option_diagnostics() {
 #[test]
 fn match_with_tuple_option_diagnostics() {
     test_lint_diagnostics!(MATCH_WITH_TUPLE_OPTION, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:5:3-8:3
         match x {
      ___^
@@ -479,7 +505,7 @@ fn match_with_tuple_option_diagnostics() {
 #[test]
 fn if_let_with_constant_result_diagnostics() {
     test_lint_diagnostics!(IF_LET_WITH_CONSTANT_RESULT, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:5:5-9:5
           if let Result::Ok(v) = a {
      _____^
@@ -492,7 +518,7 @@ fn if_let_with_constant_result_diagnostics() {
 #[test]
 fn if_let_with_string_literal_result_diagnostics() {
     test_lint_diagnostics!(IF_LET_WITH_STRING_LITERAL_RESULT, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:5:5-9:5
           if let Result::Ok(v) = a {
      _____^
@@ -505,7 +531,7 @@ fn if_let_with_string_literal_result_diagnostics() {
 #[test]
 fn match_with_constant_result_diagnostics() {
     test_lint_diagnostics!(MATCH_WITH_CONSTANT_RESULT, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:4:5-9:5
           match a {
      _____^
@@ -518,7 +544,7 @@ fn match_with_constant_result_diagnostics() {
 #[test]
 fn match_with_string_literal_result_diagnostics() {
     test_lint_diagnostics!(MATCH_WITH_STRING_LITERAL_RESULT, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:4:5-7:5
           match s {
      _____^
@@ -531,7 +557,7 @@ fn match_with_string_literal_result_diagnostics() {
 #[test]
 fn if_let_with_array_literal_result_diagnostics() {
     test_lint_diagnostics!(IF_LET_WITH_ARRAY_LITERAL_RESULT, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:4:5-8:5
           if let Result::Ok(v) = a {
      _____^
@@ -544,7 +570,7 @@ fn if_let_with_array_literal_result_diagnostics() {
 #[test]
 fn if_let_with_tuple_result_diagnostics() {
     test_lint_diagnostics!(IF_LET_WITH_TUPLE_RESULT, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:4:5-8:5
           if let Result::Ok(v) = a {
      _____^
@@ -557,7 +583,7 @@ fn if_let_with_tuple_result_diagnostics() {
 #[test]
 fn match_with_fixed_array_result_diagnostics() {
     test_lint_diagnostics!(MATCH_WITH_FIXED_ARRAY_RESULT, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:4:5-7:5
           match arr {
      _____^
@@ -570,7 +596,7 @@ fn match_with_fixed_array_result_diagnostics() {
 #[test]
 fn match_with_array_macro_result_diagnostics() {
     test_lint_diagnostics!(MATCH_WITH_ARRAY_MACRO_RESULT, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:4:5-9:5
           match arr {
      _____^
@@ -583,7 +609,7 @@ fn match_with_array_macro_result_diagnostics() {
 #[test]
 fn match_with_nested_fallback_result_diagnostics() {
     test_lint_diagnostics!(MATCH_WITH_NESTED_IF_RESULT, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:4:5-13:5
           match a {
      _____^
@@ -596,7 +622,7 @@ fn match_with_nested_fallback_result_diagnostics() {
 #[test]
 fn if_let_with_match_in_else_option_diagnostics() {
     test_lint_diagnostics!(IF_LET_WITH_MATCH_IN_ELSE_OPTION, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:4:5-11:5
           if let Option::Some(v) = x {
      _____^
@@ -609,7 +635,7 @@ fn if_let_with_match_in_else_option_diagnostics() {
 #[test]
 fn match_with_result_with_comment_diagnostics() {
     test_lint_diagnostics!(MATCH_WITH_RESULT_WITH_COMMENT, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:4:5-12:5
           match a {
      _____^
@@ -620,9 +646,9 @@ fn match_with_result_with_comment_diagnostics() {
 }
 
 #[test]
-fn match_with_comment_diagnostics() {
+fn match_with_option_with_comment_diagnostics() {
     test_lint_diagnostics!(MATCH_WITH_OPTION_WITH_COMMENT, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:5:5-13:5
           match a {
      _____^
@@ -633,9 +659,9 @@ fn match_with_comment_diagnostics() {
 }
 
 #[test]
-fn if_let_with_results_with_comment() {
+fn if_let_with_results_with_comment_diagnostics() {
     test_lint_diagnostics!(IF_LET_WITH_RESULT_WITH_COMMENT, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:4:5-9:5
           if let Result::Ok(v) = x {
      _____^
@@ -646,9 +672,35 @@ fn if_let_with_results_with_comment() {
 }
 
 #[test]
-fn if_let_with_comment_diagnostics() {
+fn if_let_with_comment_option_diagnostics() {
     test_lint_diagnostics!(IF_LET_WITH_COMMENT_OPTION, @r"
-    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.`
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
+     --> lib.cairo:5:5-10:5
+          if let Option::Some(v) = a {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn match_with_result_ok_comment_diagnostics() {
+    test_lint_diagnostics!(MATCH_WITH_RESULT_OK_COMMENT, @r"
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
+     --> lib.cairo:4:5-10:5
+          match a {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn if_let_with_option_some_comment_diagnostics() {
+    test_lint_diagnostics!(IF_LET_WITH_OPTION_SOME_COMMENT, @r"
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
      --> lib.cairo:5:5-10:5
           if let Option::Some(v) = a {
      _____^

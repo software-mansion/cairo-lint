@@ -15,10 +15,10 @@ use cairo_lang_defs::ids::TopLevelLanguageElementId;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprId, ExprIf, ExprMatch, MatchArm, Pattern};
 use helpers::{
-    check_is_default, if_expr_condition_and_block_match_enum_pattern,
-    if_expr_pattern_matches_tail_var, is_destructured_variable_used_and_expected_variant,
-    is_expected_function, is_match_arm_single_or_empty, is_never_type,
-    match_arm_returns_extracted_var, pattern_check_enum_arg,
+    check_is_default, func_call_or_block_returns_never,
+    if_expr_condition_and_block_match_enum_pattern, if_expr_pattern_matches_tail_var,
+    is_destructured_variable_used_and_expected_variant, is_expected_function,
+    match_arm_returns_extracted_var, match_with_single_statement_or_empty, pattern_check_enum_arg,
 };
 use if_chain::if_chain;
 
@@ -220,8 +220,8 @@ fn check_syntax_none_arm(
         ManualLint::ManualUnwrapOr => {
             let expr = &arenas.exprs[arm.expression];
 
-            is_match_arm_single_or_empty(expr_match, db, 1)
-                && !is_never_type(expr, db, arenas)
+            match_with_single_statement_or_empty(expr_match, db, 1)
+                && !func_call_or_block_returns_never(expr, db, arenas)
                 && !check_is_default(db, expr, arenas)
         }
         _ => false,
@@ -270,8 +270,8 @@ fn check_syntax_err_arm(
         ManualLint::ManualUnwrapOr => {
             let expr = &arenas.exprs[arm.expression];
 
-            is_match_arm_single_or_empty(expr_match, db, 1)
-                && !is_never_type(expr, db, arenas)
+            match_with_single_statement_or_empty(expr_match, db, 1)
+                && !func_call_or_block_returns_never(expr, db, arenas)
                 && !check_is_default(db, expr, arenas)
         }
         _ => false,
@@ -420,7 +420,8 @@ fn check_syntax_opt_else(
         ManualLint::ManualOptExpect => is_expected_function(tail_expr, db, PANIC_WITH_FELT252),
         ManualLint::ManualUnwrapOrDefault => check_is_default(db, tail_expr, arenas),
         ManualLint::ManualUnwrapOr => {
-            !check_is_default(db, tail_expr, arenas) && !is_never_type(tail_expr, db, arenas)
+            !check_is_default(db, tail_expr, arenas)
+                && !func_call_or_block_returns_never(tail_expr, db, arenas)
         }
         _ => false,
     }
@@ -458,7 +459,8 @@ fn check_syntax_res_else(
             is_expected_function(&arenas.exprs[tail_expr_id], db, PANIC_WITH_FELT252)
         }
         ManualLint::ManualUnwrapOr => {
-            !check_is_default(db, tail_expr, arenas) && !is_never_type(tail_expr, db, arenas)
+            !check_is_default(db, tail_expr, arenas)
+                && !func_call_or_block_returns_never(tail_expr, db, arenas)
         }
         _ => false,
     }

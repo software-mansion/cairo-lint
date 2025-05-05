@@ -598,7 +598,7 @@ fn manual_unwrap_or_default_for_match_with_array_fixer() {
 
 #[test]
 fn manual_unwrap_or_default_for_match_with_comments_diagnostic() {
-    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_COMMENTS, @"");
+    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_COMMENTS, @r"");
 }
 
 #[test]

@@ -365,8 +365,13 @@ pub fn expr_if_get_var_name_and_err(expr_if: AstExprIf, db: &dyn SyntaxGroup) ->
     (option_var_name, err)
 }
 
-/// Checks if the expr is a function call of NEVER type
-pub fn is_never_type(expr: &Expr, db: &dyn SemanticGroup, arenas: &Arenas) -> bool {
+/// Returns true if the expression is a function call (or a block whose tail is a function call)
+/// and the function's return type is the NEVER type.
+pub fn func_call_or_block_returns_never(
+    expr: &Expr,
+    db: &dyn SemanticGroup,
+    arenas: &Arenas,
+) -> bool {
     let function_call = match expr {
         // If it is block, it is necessary to extract tail from it
         Expr::Block(expr_block) => {
@@ -387,7 +392,7 @@ pub fn is_never_type(expr: &Expr, db: &dyn SemanticGroup, arenas: &Arenas) -> bo
 
 /// Checks whether the specified arm of a `match` expression contains
 /// **at most one** statement in its block expression
-pub fn is_match_arm_single_or_empty(
+pub fn match_with_single_statement_or_empty(
     expr_match: &ExprMatch,
     db: &dyn SemanticGroup,
     arm_index: usize,
@@ -401,13 +406,11 @@ pub fn is_match_arm_single_or_empty(
 
     let ast_expr = arms[arm_index].expression(db.upcast());
 
-    if let ast::Expr::Block(block_expr) = &ast_expr {
-        if block_expr
-            .statements(db.upcast())
-            .elements(db.upcast())
-            .len()
-            > 1
-        {
+    if_chain! {
+        if let ast::Expr::Block(block_expr) = &ast_expr;
+        let statements_len = block_expr.statements(db.upcast()).elements(db.upcast()).len();
+        if statements_len > 1;
+        then {
             return false;
         }
     }
