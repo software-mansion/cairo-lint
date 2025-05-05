@@ -22,6 +22,7 @@ pub mod performance;
 pub mod redundant_brackets_in_enum_call;
 pub mod redundant_op;
 pub mod single_match;
+pub mod unit_return_type;
 
 pub(crate) const LE: &str = "core::traits::PartialOrd::le";
 pub(crate) const GE: &str = "core::traits::PartialOrd::ge";

@@ -74,6 +74,8 @@ use crate::lints::redundant_op::RedundantOperation;
 use crate::lints::single_match::check_single_matches;
 use crate::lints::single_match::DestructMatch;
 use crate::lints::single_match::EqualityMatch;
+use crate::lints::unit_return_type::check_unit_return_type;
+use crate::lints::unit_return_type::UnitReturnType;
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::SyntaxNode;
@@ -126,6 +128,7 @@ pub enum CairoLintKind {
     EnumVariantNames,
     CloneOnCopy,
     EnumEmptyVariantBrackets,
+    UnitReturnType,
 }
 
 pub trait Lint: Sync + Send {
@@ -338,6 +341,10 @@ impl LintContext {
             LintRuleGroup {
                 lints: vec![Box::new(RedundantBracketsInEnumCall)],
                 check_function: check_redundant_brackets_in_enum_call,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(UnitReturnType)],
+                check_function: check_unit_return_type,
             },
         ]
     }
