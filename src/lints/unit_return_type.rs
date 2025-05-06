@@ -1,7 +1,12 @@
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_syntax::node::{ast::OptionReturnTypeClause, TypedStablePtr};
+use cairo_lang_syntax::node::TypedSyntaxNode;
+use cairo_lang_syntax::node::{
+    ast::{FunctionSignature, OptionReturnTypeClause},
+    db::SyntaxGroup,
+    SyntaxNode, TypedStablePtr,
+};
 
 use crate::{
     context::{CairoLintKind, Lint},
@@ -41,6 +46,14 @@ impl Lint for UnitReturnType {
     fn kind(&self) -> CairoLintKind {
         CairoLintKind::UnitReturnType
     }
+
+    fn has_fixer(&self) -> bool {
+        true
+    }
+
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_unit_return_type(db, node)
+    }
 }
 
 pub fn check_unit_return_type(
@@ -68,4 +81,25 @@ pub fn check_unit_return_type(
             }
         }
     }
+}
+
+pub fn fix_unit_return_type(
+    db: &dyn SyntaxGroup,
+    node: SyntaxNode,
+) -> Option<(SyntaxNode, String)> {
+    let function_signature = FunctionSignature::from_syntax_node(db, node);
+    let return_type_clause = function_signature.ret_ty(db);
+    if let OptionReturnTypeClause::ReturnTypeClause(type_clause) = return_type_clause {
+        let fixed = node.get_text(db);
+        let type_clause_text = type_clause.as_syntax_node().get_text(db);
+        let fixed = fixed.replace(&type_clause_text, "");
+
+        if type_clause_text.ends_with(" ") {
+            return Some((node, fixed));
+        }
+
+        // In case the `()` type doesn't have a space after it, like `fn foo() -> ();`, we trim the end.
+        return Some((node, fixed.trim_end().to_string()));
+    }
+    panic!("Expected a function signature with a return type clause.");
 }
