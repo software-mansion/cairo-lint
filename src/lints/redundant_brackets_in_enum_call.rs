@@ -112,16 +112,14 @@ fn is_redundant_enum_brackets_call(expr: &Expr, db: &dyn SemanticGroup) -> bool 
 }
 
 fn type_clause_uses_generics(variant_id: VariantId, db: &dyn SemanticGroup) -> bool {
-    let variant_node = variant_id.stable_ptr(db).untyped().lookup(db);
-    let variant_ast = ast::Variant::from_syntax_node(db, variant_node);
+    let variant_ast = variant_id.stable_ptr(db).lookup(db);
 
     // Extract type clause (e.g., in `VariantName: T`, this matches `: T`)
     let OptionTypeClause::TypeClause(clause) = variant_ast.type_clause(db) else {
         return false;
     };
 
-    let enum_node = variant_id.enum_id(db).stable_ptr(db).untyped().lookup(db);
-    let enum_ast = ast::ItemEnum::from_syntax_node(db, enum_node);
+    let enum_ast = variant_id.enum_id(db).stable_ptr(db).lookup(db);
 
     // Extract generic parameters, if present
     let OptionWrappedGenericParamList::WrappedGenericParamList(generic_list) =
@@ -139,7 +137,7 @@ fn type_clause_uses_generics(variant_id: VariantId, db: &dyn SemanticGroup) -> b
         .filter_map(|param| {
             param
                 .name(db)
-                .map(|name| name.token(db).as_syntax_node().get_text(db))
+                .map(|name| name.token(db).as_syntax_node().get_text_without_trivia(db))
         })
         .collect();
 

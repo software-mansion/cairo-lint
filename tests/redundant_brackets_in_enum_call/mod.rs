@@ -77,8 +77,8 @@ fn main() {
 
 const UNIT_GENERIC: &str = r#"
 #[derive(Drop)]
-enum MyEnum<T> {
-    V: T,
+enum MyEnum< T> {
+    V:   T,
     Value: u8,
     Empty: ()
 }
@@ -223,8 +223,8 @@ fn unit_generic_diagnostics() {
 fn unit_generic_fixer() {
     test_lint_fixer!(UNIT_GENERIC, @r"
     #[derive(Drop)]
-    enum MyEnum<T> {
-        V: T,
+    enum MyEnum< T> {
+        V:   T,
         Value: u8,
         Empty
     }
