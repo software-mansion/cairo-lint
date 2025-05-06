@@ -2,10 +2,18 @@ use crate::{
     context::{CairoLintKind, Lint},
     queries::get_all_function_bodies,
 };
-use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
+use cairo_lang_defs::{
+    ids::{ModuleItemId, VariantId},
+    plugin::PluginDiagnostic,
+};
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::{db::SemanticGroup, Expr};
-use cairo_lang_syntax::node::{ast, db::SyntaxGroup, SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{
+    ast::{self, OptionTypeClause, OptionWrappedGenericParamList},
+    db::SyntaxGroup,
+    helpers::{GenericParamEx, IsDependentType},
+    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
+};
 use if_chain::if_chain;
 
 pub struct RedundantBracketsInEnumCall;
@@ -87,10 +95,13 @@ fn is_redundant_enum_brackets_call(expr: &Expr, db: &dyn SemanticGroup) -> bool 
         if let Expr::EnumVariantCtor(enum_expr) = expr;
 
         // Check if the type of the enum variant is of unit type `()`.
-        if enum_expr.variant.ty.is_unit(db.upcast());
+        if enum_expr.variant.ty.is_unit(db);
 
-        let node = enum_expr.stable_ptr.lookup(db.upcast());
+        let node = enum_expr.stable_ptr.lookup(db);
         if let ast::Expr::FunctionCall(_) = node;
+
+        // Check if the variant's type clause depends on the enum's generic parameters
+        if !type_clause_uses_generics(enum_expr.variant.id, db);
 
         then {
             return true;
@@ -98,6 +109,43 @@ fn is_redundant_enum_brackets_call(expr: &Expr, db: &dyn SemanticGroup) -> bool 
     }
 
     false
+}
+
+fn type_clause_uses_generics(variant_id: VariantId, db: &dyn SemanticGroup) -> bool {
+    let variant_node = variant_id.stable_ptr(db).untyped().lookup(db);
+    let variant_ast = ast::Variant::from_syntax_node(db, variant_node);
+
+    // Extract type clause (e.g., in `VariantName: T`, this matches `: T`)
+    let OptionTypeClause::TypeClause(clause) = variant_ast.type_clause(db) else {
+        return false;
+    };
+
+    let enum_node = variant_id.enum_id(db).stable_ptr(db).untyped().lookup(db);
+    let enum_ast = ast::ItemEnum::from_syntax_node(db, enum_node);
+
+    // Extract generic parameters, if present
+    let OptionWrappedGenericParamList::WrappedGenericParamList(generic_list) =
+        enum_ast.generic_params(db)
+    else {
+        return false;
+    };
+
+    // Collect generic parameter names.
+    // e.g., for `enum Result<T, E>`, the result will be ["T", "E"]
+    let identifiers: Vec<String> = generic_list
+        .generic_params(db)
+        .elements(db)
+        .iter()
+        .filter_map(|param| {
+            param
+                .name(db)
+                .map(|name| name.token(db).as_syntax_node().get_text(db))
+        })
+        .collect();
+
+    let identifiers_refs: Vec<&str> = identifiers.iter().map(String::as_str).collect();
+
+    clause.ty(db).is_dependent_type(db, &identifiers_refs)
 }
 
 fn fix_redundant_brackets_in_enum_call(
