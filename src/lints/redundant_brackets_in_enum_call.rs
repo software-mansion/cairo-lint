@@ -2,17 +2,13 @@ use crate::{
     context::{CairoLintKind, Lint},
     queries::get_all_function_bodies,
 };
-use cairo_lang_defs::{
-    ids::{ModuleItemId, VariantId},
-    plugin::PluginDiagnostic,
-};
+use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::{db::SemanticGroup, Expr};
+use cairo_lang_semantic::{db::SemanticGroup, ConcreteVariant, Expr};
 use cairo_lang_syntax::node::{
-    ast::{self, OptionTypeClause, OptionWrappedGenericParamList},
+    ast::{self, OptionTypeClause},
     db::SyntaxGroup,
-    helpers::{GenericParamEx, IsDependentType},
-    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
+    SyntaxNode, Terminal, TypedStablePtr, TypedSyntaxNode,
 };
 use if_chain::if_chain;
 
@@ -97,53 +93,115 @@ fn is_redundant_enum_brackets_call(expr: &Expr, db: &dyn SemanticGroup) -> bool 
         // Check if the type of the enum variant is of unit type `()`.
         if enum_expr.variant.ty.is_unit(db);
 
-        let node = enum_expr.stable_ptr.lookup(db);
-        if let ast::Expr::FunctionCall(_) = node;
+        // Without the parentheses at the end, it would not be defined as a function call.
+        if let ast::Expr::FunctionCall(func_call) = expr.stable_ptr().lookup(db);
+
+        // Retrieve inner arguments of the function call without whitespace
+        let args_text = func_call.arguments(db).arguments(db).as_syntax_node().get_text_without_trivia(db);
+        let args_without_whitespace = args_text.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+
+        // Check if the arguments are truly `()` and not just of unit type
+        if args_without_whitespace == "()";
 
         // Check if the variant's type clause depends on the enum's generic parameters
-        if !type_clause_uses_generics(enum_expr.variant.id, db);
+        if match find_generic_param_with_index(&enum_expr.variant, db) {
+            // No generics - parentheses are redundant
+            None =>  true,
+            // Only keep () if the generic param isn't unit.
+            Some((index, generic_param_name)) => has_unit_generic_arg_at_index(&func_call, index, generic_param_name, db),
+        };
 
         then {
-            return true;
+            return true
         }
     }
 
     false
 }
 
-fn type_clause_uses_generics(variant_id: VariantId, db: &dyn SemanticGroup) -> bool {
+/// Returns Some((index, name)) if the enum variant's type clause uses one of the enum's
+/// generic parameters, returning its position and name. e.g., `T` returns (0, "T") if used and
+/// the enum is declared as `enum MyEnum<T, E> { ... }`
+fn find_generic_param_with_index(
+    variant: &ConcreteVariant,
+    db: &dyn SemanticGroup,
+) -> Option<(usize, String)> {
+    let variant_id = variant.id;
     let variant_ast = variant_id.stable_ptr(db).lookup(db);
 
     // Extract type clause (e.g., in `VariantName: T`, this matches `: T`)
     let OptionTypeClause::TypeClause(clause) = variant_ast.type_clause(db) else {
-        return false;
+        return None;
     };
 
-    let enum_ast = variant_id.enum_id(db).stable_ptr(db).lookup(db);
+    // Retrieve the generic parameters from the semantic model of the enum.
+    let generic_params = db
+        .enum_generic_params(variant.concrete_enum_id.enum_id(db))
+        .ok()?;
 
-    // Extract generic parameters, if present
-    let OptionWrappedGenericParamList::WrappedGenericParamList(generic_list) =
-        enum_ast.generic_params(db)
-    else {
-        return false;
+    let ast::Expr::Path(path) = clause.ty(db) else {
+        return None;
     };
 
-    // Collect generic parameter names.
-    // e.g., for `enum Result<T, E>`, the result will be ["T", "E"]
-    let identifiers: Vec<String> = generic_list
-        .generic_params(db)
-        .elements(db)
-        .iter()
-        .filter_map(|param| {
-            param
-                .name(db)
-                .map(|name| name.token(db).as_syntax_node().get_text_without_trivia(db))
-        })
-        .collect();
+    // Iterates over path segments (e.g., `T` in `VariantName: T`) to find matches with enum generic parameters.
+    path.elements(db).iter().find_map(|segment| {
+        let ast::PathSegment::Simple(simple_segment) = segment else {
+            return None;
+        };
 
-    let identifiers_refs: Vec<&str> = identifiers.iter().map(String::as_str).collect();
+        let param_name = simple_segment.ident(db).text(db);
 
-    clause.ty(db).is_dependent_type(db, &identifiers_refs)
+        // Find the position of this parameter in the enum's generic parameters list
+        // and return the (index, name) if found
+        generic_params
+            .iter()
+            .position(|param| param.id().name(db).as_ref() == Some(&param_name))
+            .map(|index| (index, param_name.to_string()))
+    })
+}
+
+/// Returns true if the generic argument at `index_to_match` is a unit type `()`.
+/// Handles both named arguments (matching against `generic_param_name`) and
+/// unnamed arguments at the specified position in the path segment's generic args.
+fn has_unit_generic_arg_at_index(
+    func_call: &ast::ExprFunctionCall,
+    index_to_match: usize,
+    generic_param_name: String,
+    db: &dyn SemanticGroup,
+) -> bool {
+    for segment in func_call.path(db).elements(db) {
+        let ast::PathSegment::WithGenericArgs(path_segment) = &segment else {
+            continue;
+        };
+
+        let args = path_segment.generic_args(db).generic_args(db).elements(db);
+
+        if_chain! {
+            if let Some(arg) = args.get(index_to_match);
+
+            if let Some(ast::GenericArgValue::Expr(arg_val)) = match arg {
+                // Match named argument if it matches our target generic parameter
+                ast::GenericArg::Named(named_arg) if named_arg.name(db).text(db) == generic_param_name => {
+                    Some(named_arg.value(db))
+                },
+                // Skip other named arguments
+                ast::GenericArg::Named(_) => None,
+                // Handle unnamed arguments
+                ast::GenericArg::Unnamed(unnamed_arg) => Some(unnamed_arg.value(db))
+            };
+
+            if let ast::Expr::Tuple(unit) = arg_val.expr(db);
+
+            // Check if the tuple is empty; if it is, it means it is a unit type
+            if unit.expressions(db).elements(db).is_empty();
+
+            then {
+                return true;
+            }
+        }
+    }
+
+    false
 }
 
 fn fix_redundant_brackets_in_enum_call(
@@ -157,7 +215,10 @@ fn fix_redundant_brackets_in_enum_call(
     };
 
     // Retrieve parentheses that can be removed
-    let arguments = call_expr.arguments(db).as_syntax_node().get_text(db);
+    let arguments = call_expr
+        .arguments(db)
+        .as_syntax_node()
+        .get_text_without_trivia(db);
 
     let fixed_expr = ast_expr
         .as_syntax_node()
