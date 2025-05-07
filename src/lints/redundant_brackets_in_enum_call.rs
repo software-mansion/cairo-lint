@@ -96,12 +96,15 @@ fn is_redundant_enum_brackets_call(expr: &Expr, db: &dyn SemanticGroup) -> bool 
         // Without the parentheses at the end, it would not be defined as a function call.
         if let ast::Expr::FunctionCall(func_call) = expr.stable_ptr().lookup(db);
 
-        // Retrieve inner arguments of the function call without whitespace
-        let args_text = func_call.arguments(db).arguments(db).as_syntax_node().get_text_without_trivia(db);
-        let args_without_whitespace = args_text.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+        let args = func_call.arguments(db).arguments(db).elements(db);
 
-        // Verify the arguments explicitly match unit syntax `()` and not just semantically unit type.
-        if args_without_whitespace == "()";
+        // There should be exactly one argument which is the `()`
+        if args.len() == 1;
+
+        // Verify the argument explicitly match unit syntax `()` (empty tuple) and not just semantically unit type.
+        if let ast::ArgClause::Unnamed(unnamed_clause) = args[0].arg_clause(db);
+        if let ast::Expr::Tuple(tuple) = unnamed_clause.value(db);
+        if tuple.expressions(db).elements(db).is_empty();
 
         // Check if the variant's type clause depends on the enum's generic parameters
         if match find_generic_param_with_index(&enum_expr.variant, db) {
@@ -112,7 +115,7 @@ fn is_redundant_enum_brackets_call(expr: &Expr, db: &dyn SemanticGroup) -> bool 
         };
 
         then {
-            return true
+            return true;
         }
     }
 
