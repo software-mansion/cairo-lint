@@ -100,14 +100,14 @@ fn is_redundant_enum_brackets_call(expr: &Expr, db: &dyn SemanticGroup) -> bool 
         let args_text = func_call.arguments(db).arguments(db).as_syntax_node().get_text_without_trivia(db);
         let args_without_whitespace = args_text.chars().filter(|c| !c.is_whitespace()).collect::<String>();
 
-        // Check if the arguments are truly `()` and not just of unit type
+        // Verify the arguments explicitly match unit syntax `()` and not just semantically unit type.
         if args_without_whitespace == "()";
 
         // Check if the variant's type clause depends on the enum's generic parameters
         if match find_generic_param_with_index(&enum_expr.variant, db) {
             // No generics - parentheses are redundant
             None =>  true,
-            // Only keep () if the generic param isn't unit.
+            // Only keep () if the generic param, at given index, isn't unit.
             Some((index, generic_param_name)) => has_unit_generic_arg_at_index(&func_call, index, generic_param_name, db),
         };
 
