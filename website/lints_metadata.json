@@ -280,5 +280,11 @@
         "docs": "## What it does\n\nChecks for matches that do something only in 1 arm and can be rewrote as an `if`\n\n## Example\n\n```cairo\nmatch variable {\n    Option::None => println!(\"None\"),\n    Option::Some => (),\n};\n```\n\nWhich can be probably rewritten as\n\n```cairo\nif variable.is_none() {\n    println!(\"None\");\n}\n```",
         "enabled": true,
         "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/single_match.rs#L85"
+    },
+    {
+        "name": "unit_return_type",
+        "docs": "## What it does\n\nDetects if the function has a unit return type, which is not needed to be specified.\n\n## Example\n\n```cairo\nfn foo() -> () {\n    println!(\"Hello, world!\");\n}\n```\n\nCan be simplified to just:\n\n```cairo\nfn foo() {\n    println!(\"Hello, world!\");\n}\n```",
+        "enabled": true,
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/unit_return_type.rs#L32"
     }
 ]
