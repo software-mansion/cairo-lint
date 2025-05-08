@@ -162,13 +162,13 @@ enum MyEnum {
     Empty,
 }
 
-fn returns_unit() -> () { () }
+fn returns_unit() { () }
 
 fn main() {
-    // Redundant parentheses with function call
+    // Non-redundant parentheses with function call
     let _a = MyEnum::Empty(returns_unit());
     
-    // Redundant parentheses with block expression
+    // Non-redundant parentheses with block expression
     let _b = MyEnum::Empty({
         let _ = 1;
         ()
@@ -567,7 +567,7 @@ fn enum_with_module_paths_fixer() {
 
 #[test]
 fn enum_with_unit_returning_expr_diagnostics() {
-    test_lint_diagnostics!(ENUM_WITH_UNIT_RETURNING_EXPR, @"");
+    test_lint_diagnostics!(ENUM_WITH_UNIT_RETURNING_EXPR, @r"");
 }
 
 #[test]
