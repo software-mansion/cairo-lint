@@ -162,7 +162,7 @@ enum MyEnum {
     Empty,
 }
 
-fn returns_unit() -> () { () }
+fn returns_unit() { () }
 
 fn main() {
     // Redundant parentheses with function call
