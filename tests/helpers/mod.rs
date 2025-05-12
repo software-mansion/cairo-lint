@@ -89,17 +89,18 @@ macro_rules! test_lint_fixer {
     } else {
       Vec::new()
     };
-    for diag in diags.iter() {
-      if !matches!(diag.kind, ::cairo_lang_semantic::diagnostic::SemanticDiagnosticKind::UnusedImport(_)) {
-        if let Some((fix_node, fix)) = ::cairo_lint::fixes::fix_semantic_diagnostic(&db, &diag) {
-          let span = fix_node.span(db.upcast());
-          fixes.push(::cairo_lint::fixes::Fix {
-            span,
-            suggestion: fix,
-          });
-        }
-      }
-    }
+    fixes.extend(::cairo_lint::get_fixes(db.upcast(), diags).values().flatten().cloned());
+    // for diag in diags.iter() {
+    //   if !matches!(diag.kind, ::cairo_lang_semantic::diagnostic::SemanticDiagnosticKind::UnusedImport(_)) {
+    //     if let Some((fix_node, fix)) = ::cairo_lint::fixes::fix_semantic_diagnostic(&db, &diag) {
+    //       let span = fix_node.span(db.upcast());
+    //       fixes.push(::cairo_lint::fixes::Fix {
+    //         span,
+    //         suggestion: fix,
+    //       });
+    //     }
+    //   }
+    // }
     fixes.sort_by_key(|v| std::cmp::Reverse(v.span.start));
     if !$is_nested {
       for fix in fixes.iter() {

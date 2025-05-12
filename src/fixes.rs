@@ -12,28 +12,67 @@
 
 use std::collections::HashMap;
 
+use cairo_lang_compiler::diagnostics::DiagnosticsReporter;
 use cairo_lang_defs::ids::UseId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
-use cairo_lang_diagnostics::DiagnosticEntry;
-use cairo_lang_filesystem::ids::FileId;
+use cairo_lang_diagnostics::{DiagnosticEntry, Diagnostics, FormattedDiagnosticEntry, Severity};
+use cairo_lang_filesystem::db::FilesGroupEx;
+use cairo_lang_filesystem::ids::{FileId, FileKind, FileLongId, VirtualFile};
 use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_utils::Intern;
 use log::debug;
 
 use crate::context::get_fix_for_diagnostic_message;
+use crate::db::FixerDatabase;
+use crate::{get_fixes, CairoLintGroup};
 use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 
 /// Represents a fix for a diagnostic, containing the span of code to be replaced
 /// and the suggested replacement.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Fix {
     pub span: TextSpan,
     pub suggestion: String,
+}
+
+pub fn get_fixes_without_resolving_overlapping(
+    db: &(dyn SemanticGroup + 'static),
+    diagnostics: Vec<SemanticDiagnostic>,
+) -> HashMap<FileId, Vec<Fix>> {
+    // Handling unused imports separately as we need to run pre-analysis on the diagnostics.
+    // to handle complex cases.
+    let unused_imports: HashMap<FileId, HashMap<SyntaxNode, ImportFix>> =
+        collect_unused_imports(db, &diagnostics);
+    let mut fixes = HashMap::new();
+    unused_imports.keys().for_each(|file_id| {
+        let file_fixes: Vec<Fix> = apply_import_fixes(db, unused_imports.get(file_id).unwrap());
+        fixes.insert(*file_id, file_fixes);
+    });
+
+    let diags_without_imports = diagnostics
+        .iter()
+        .filter(|diag| !matches!(diag.kind, SemanticDiagnosticKind::UnusedImport(_)))
+        .collect::<Vec<_>>();
+
+    for diag in diags_without_imports {
+        if let Some((fix_node, fix)) = fix_semantic_diagnostic(db, diag) {
+            let location = diag.location(db);
+            fixes
+                .entry(location.file_id)
+                .or_insert_with(Vec::new)
+                .push(Fix {
+                    span: fix_node.span(db),
+                    suggestion: fix,
+                });
+        }
+    }
+    fixes
 }
 
 /// Attempts to fix a semantic diagnostic.
@@ -345,4 +384,66 @@ fn find_use_path_list(db: &dyn SyntaxGroup, node: &SyntaxNode) -> SyntaxNode {
     node.descendants(db)
         .find(|descendant| descendant.kind(db) == SyntaxKind::UsePathList)
         .unwrap_or(*node)
+}
+
+pub fn merge_overlapping_fixes(db: &FixerDatabase, file_id: FileId, fixes: Vec<Fix>) -> Vec<Fix> {
+    let file_name = file_id.file_name(db);
+    let mut current_fixes: Vec<Fix> = fixes.clone();
+    let mut current_file = file_id.clone();
+    // db.crates()
+    //     .iter()
+    //     .for_each(|crate_id| db.crate_config(crate_id));
+
+    let mut iteration = 0;
+    while let Some(overlapping_fix) = get_first_overlapping_fix(&current_fixes) {
+        println!("fixes {:?}", current_fixes);
+        let fixed_file = apply_fix_for_file(db, current_file, overlapping_fix);
+        // db.override_file_content(file, content);
+        println!("New file: {}", fixed_file);
+        let new_file = FileLongId::Virtual(VirtualFile {
+            parent: Some(file_id),
+            name: format!("fixer_iteration_{}_{}", iteration, file_name).into(),
+            content: fixed_file.into(),
+            code_mappings: [].into(),
+            kind: current_file.kind(db),
+        });
+        current_file = new_file.intern(db);
+        println!("New file id: {:?}", current_file);
+        let diags: Vec<SemanticDiagnostic> = db
+            .file_modules(current_file)
+            .unwrap()
+            .iter()
+            .filter_map(|module_id| db.module_semantic_diagnostics(*module_id).ok())
+            .flat_map(|diag| diag.get_all())
+            .collect();
+
+        current_fixes = get_fixes_without_resolving_overlapping(db, diags)
+            .values()
+            .flat_map(|v| v.clone())
+            .collect();
+        iteration += 1;
+    }
+    current_fixes
+}
+
+fn get_first_overlapping_fix(fixes: &Vec<Fix>) -> Option<Fix> {
+    for current_fix in fixes.iter() {
+        if fixes
+            .iter()
+            .any(|fix| span_intersects(fix.span, current_fix.span) && fix != current_fix)
+        {
+            return Some(current_fix.clone());
+        }
+    }
+    None
+}
+
+fn apply_fix_for_file(db: &dyn SemanticGroup, file_id: FileId, fix: Fix) -> String {
+    let mut content = db.file_content(file_id).unwrap().to_string();
+    content.replace_range(fix.span.to_str_range(), &fix.suggestion);
+    content
+}
+
+fn span_intersects(span_a: TextSpan, span_b: TextSpan) -> bool {
+    span_a.start <= span_b.end && span_b.start <= span_a.end
 }
