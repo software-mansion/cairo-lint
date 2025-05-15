@@ -93,16 +93,11 @@ pub fn check_manual_unwrap_or(
 fn fix_manual_unwrap_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
     let expr = ast::Expr::from_syntax_node(db, node);
 
-    let indent = node
-        .get_text(db)
-        .chars()
-        .take_while(|c| c.is_whitespace())
-        .collect::<String>();
-
     let (matched_expr, or_body) = match &expr {
         ast::Expr::Match(expr_match) => {
+            let arms = expr_match.arms(db).elements(db);
             let matched_expr = expr_match.expr(db).as_syntax_node();
-            let arm = &expr_match.arms(db).elements(db)[1];
+            let arm = arms.get(1).expect("Expected a `match` with second arm.");
 
             let or_body = if let ast::Expr::Block(block) = arm.expression(db) {
                 let block_text = block.statements(db).node.get_text(db);
@@ -163,8 +158,14 @@ fn fix_manual_unwrap_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synta
             (condition, or_body)
         }
 
-        _ => panic!("The expression cannot be simplified to `.unwrap_or()`."),
+        _ => panic!("The expression is expected to be either a `match` or an `if` statement."),
     };
+
+    let indent = node
+        .get_text(db)
+        .chars()
+        .take_while(|c| c.is_whitespace())
+        .collect::<String>();
 
     Some((
         node,
