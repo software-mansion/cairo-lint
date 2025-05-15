@@ -1,17 +1,18 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
-use fixes::{apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic, Fix, ImportFix};
+use db::FixerDatabase;
+use fixes::{
+    file_for_url, get_fixes_without_resolving_overlapping, merge_overlapping_fixes, url_for_file,
+    Fix,
+};
 
-use cairo_lang_syntax::node::SyntaxNode;
+use cairo_lang_syntax::node::db::SyntaxGroup;
 
 use std::{cmp::Reverse, collections::HashMap};
 
 use anyhow::{anyhow, Result};
-use cairo_lang_diagnostics::DiagnosticEntry;
 use cairo_lang_filesystem::db::FilesGroup;
 use cairo_lang_filesystem::ids::FileId;
-use cairo_lang_semantic::{
-    db::SemanticGroup, diagnostic::SemanticDiagnosticKind, SemanticDiagnostic,
-};
+use cairo_lang_semantic::{db::SemanticGroup, SemanticDiagnostic};
 
 pub static CAIRO_LINT_TOOL_NAME: &str = "cairo-lint";
 
@@ -21,6 +22,7 @@ pub static CAIRO_LINT_TOOL_NAME: &str = "cairo-lint";
 pub type CairoLintToolMetadata = HashMap<String, bool>;
 
 pub mod context;
+mod db;
 pub mod diagnostics;
 pub mod fixes;
 mod helper;
@@ -29,6 +31,8 @@ pub mod plugin;
 mod queries;
 
 use context::{get_lint_type_from_diagnostic_message, CairoLintKind};
+
+pub trait CairoLintGroup: SemanticGroup + SyntaxGroup {}
 
 /// Gets the fixes for a set of a compiler diagnostics (that uses Cairo lint analyzer plugin).
 /// # Arguments
@@ -45,34 +49,23 @@ pub fn get_fixes(
     db: &(dyn SemanticGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
 ) -> HashMap<FileId, Vec<Fix>> {
-    // Handling unused imports separately as we need to run pre-analysis on the diagnostics.
-    // to handle complex cases.
-    let unused_imports: HashMap<FileId, HashMap<SyntaxNode, ImportFix>> =
-        collect_unused_imports(db, &diagnostics);
-    let mut fixes = HashMap::new();
-    unused_imports.keys().for_each(|file_id| {
-        let file_fixes: Vec<Fix> = apply_import_fixes(db, unused_imports.get(file_id).unwrap());
-        fixes.insert(*file_id, file_fixes);
-    });
-
-    let diags_without_imports = diagnostics
-        .iter()
-        .filter(|diag| !matches!(diag.kind, SemanticDiagnosticKind::UnusedImport(_)))
-        .collect::<Vec<_>>();
-
-    for diag in diags_without_imports {
-        if let Some((fix_node, fix)) = fix_semantic_diagnostic(db, diag) {
-            let location = diag.location(db);
-            fixes
-                .entry(location.file_id)
-                .or_insert_with(Vec::new)
-                .push(Fix {
-                    span: fix_node.span(db),
-                    suggestion: fix,
-                });
-        }
-    }
-    fixes
+    let mut new_db = FixerDatabase::new_from(db);
+    let fixes = get_fixes_without_resolving_overlapping(db, diagnostics);
+    println!("previous fixes: {:?}", fixes);
+    let result = fixes
+        .into_iter()
+        .map(|(file_id, fixes)| {
+            let file_url = url_for_file(db, file_id)
+                .unwrap_or_else(|| panic!("FileId {:?} should have a URL", file_id));
+            let new_db_file_id = file_for_url(&new_db, &file_url).unwrap_or_else(|| {
+                panic!("FileUrl {:?} should have a corresponding FileId", file_url)
+            });
+            let new_fixes = merge_overlapping_fixes(&mut new_db, new_db_file_id, fixes);
+            (file_id, new_fixes)
+        })
+        .collect();
+    println!("result: {:?}", result);
+    result
 }
 
 /// Applies the fixes to the file.
