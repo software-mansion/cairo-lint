@@ -253,8 +253,8 @@ fn main() {
             v
         },
         Option::None => {
-            // comment
             [1, 2]
+            // comment
         }
     };
 }
@@ -293,8 +293,42 @@ fn main() {
     if let Option::Some(v) = a {
         v
     } else {
-        // comment
         777
+        // comment
+    };
+}
+"#;
+
+const MATCH_WITH_COMMENT_AFTER_BRACE: &str = r#"
+fn main() {
+    let a: Option<u64> = Option::Some(42);
+    let _x = match a {
+        Option::Some(v) => v,
+        Option::None => { // comment after {
+            123
+        }
+    };
+}
+"#;
+
+const MATCH_WITH_COMMENT_AFTER_ARROW: &str = r#"
+fn main() {
+    let a: Result<u64, felt252> = Result::Ok(54);
+    let _x = match a {
+        Result::Ok(v) => v,
+        Result::Err(_) => // comment after =>
+            231
+    };
+}
+"#;
+
+const IF_LET_WITH_COMMENT_AFTER_BRACE: &str = r#"
+fn main() {
+    let x: Option<Array<u128>> = Option::Some(array![1, 2, 3]);
+    if let Option::Some(v) = x {
+        v
+    } else { // comment after {
+        array![1, 2, 3]
     };
 }
 "#;
@@ -917,8 +951,8 @@ fn match_with_option_with_comment_fixer() {
         let a: Option<[u64; 2]> = Option::Some([10, 20]);
 
         let _x = a.unwrap_or({
-            // comment
             [1, 2]
+            // comment
         });
     }
     ");
@@ -996,8 +1030,8 @@ fn if_let_with_comment_option_fixer() {
         let a: Option<u128> = Option::Some(42);
 
         a.unwrap_or({
-            // comment
             777
+            // comment
         });
     }
     ");
@@ -1046,6 +1080,42 @@ fn if_let_with_option_some_comment_fixer() {
         let a: Option<u128> = Option::Some(42);
 
         a.unwrap_or(777);
+    }
+    ");
+}
+
+#[test]
+fn match_with_comment_after_brace_fixer() {
+    test_lint_fixer!(MATCH_WITH_COMMENT_AFTER_BRACE, @r"
+    fn main() {
+        let a: Option<u64> = Option::Some(42);
+        let _x = a.unwrap_or({ // comment after {
+            123
+        });
+    }
+    ");
+}
+
+#[test]
+fn match_with_comment_after_arrow_fixer() {
+    test_lint_fixer!(MATCH_WITH_COMMENT_AFTER_ARROW, @r"
+    fn main() {
+        let a: Result<u64, felt252> = Result::Ok(54);
+        let _x = a.unwrap_or( // comment after =>
+            231
+        );
+    }
+    ");
+}
+
+#[test]
+fn if_let_with_comment_after_brace_fixer() {
+    test_lint_fixer!(IF_LET_WITH_COMMENT_AFTER_BRACE, @r"
+    fn main() {
+        let x: Option<Array<u128>> = Option::Some(array![1, 2, 3]);
+        x.unwrap_or({ // comment after {
+            array![1, 2, 3]
+        });
     }
     ");
 }

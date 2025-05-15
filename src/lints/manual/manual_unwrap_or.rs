@@ -100,24 +100,40 @@ fn fix_manual_unwrap_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synta
             let arm = arms.get(1).expect("Expected a `match` with second arm.");
 
             let or_body = if let ast::Expr::Block(block) = arm.expression(db) {
-                let block_text = block.statements(db).node.get_text(db);
+                let block_statements = block.statements(db).node.get_text(db);
 
-                // If the block has more than one line, we need to adjust the indentation.
+                // If the block has more than one line or a comment, we need to adjust the indentation.
                 // Otherwise, we can remove `{ }` and whitespaces.
-                if block_text.lines().count() > 1 {
+                if block_statements.lines().count() > 1
+                    || block.as_syntax_node().get_text(db).contains("//")
+                {
                     let (text, _) = get_adjusted_lines_and_indent(db, node, arm);
                     text
                 } else {
-                    block_text.trim().to_string()
+                    block_statements.trim().to_string()
                 }
             } else {
                 let expression_text = arm.expression(db).as_syntax_node().get_text(db);
 
-                // If the expression has more than one line, we need to adjust the indentation.
-                if expression_text.lines().count() > 1 {
+                // Comments that are right behind the arrow.
+                let arrow_trivia = arm
+                    .arrow(db)
+                    .trailing_trivia(db)
+                    .node
+                    .get_text(db)
+                    .trim_end()
+                    .to_string();
+
+                // If the expression has more than one line or a comment after the arrow, we need to adjust the indentation.
+                // Otherwise, we can remove whitespaces.
+                if expression_text.lines().count() > 1 || arrow_trivia.contains("//") {
                     let (text, expression_bracket_indent) =
                         get_adjusted_lines_and_indent(db, node, arm);
-                    format!("\n{}\n{}", text, " ".repeat(expression_bracket_indent))
+                    format!(
+                        "{arrow_trivia}\n{}\n{}",
+                        text,
+                        " ".repeat(expression_bracket_indent)
+                    )
                 } else {
                     expression_text.trim().to_string()
                 }
@@ -141,8 +157,10 @@ fn fix_manual_unwrap_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synta
                 ast::BlockOrIf::Block(block) => {
                     let mut text = block.statements(db).node.get_text(db);
 
-                    // If the there is more than one statement, we want whole block.
-                    if text.lines().count() > 1 {
+                    // If the block has more than one line or a comment, we want the whole block.
+                    if text.lines().count() > 1
+                        || block.as_syntax_node().get_text(db).contains("//")
+                    {
                         text = else_clause
                             .else_block_or_if(db)
                             .as_syntax_node()
