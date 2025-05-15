@@ -11,24 +11,27 @@
 //! items are removed while preserving the structure of the import statements.
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
-use cairo_lang_compiler::diagnostics::DiagnosticsReporter;
 use cairo_lang_defs::ids::UseId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
-use cairo_lang_diagnostics::{DiagnosticEntry, Diagnostics, FormattedDiagnosticEntry, Severity};
-use cairo_lang_filesystem::db::FilesGroupEx;
-use cairo_lang_filesystem::ids::{FileId, FileKind, FileLongId, VirtualFile};
-use cairo_lang_filesystem::span::TextSpan;
+use cairo_lang_diagnostics::DiagnosticEntry;
+use cairo_lang_filesystem::db::{FilesGroup, FilesGroupEx};
+use cairo_lang_filesystem::ids::{FileId, FileLongId};
+use cairo_lang_filesystem::span::{TextOffset, TextSpan, TextWidth};
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
-use cairo_lang_utils::Intern;
+use cairo_lang_utils::LookupIntern;
+use cairo_lang_utils::UpcastMut;
 use log::debug;
+use lsp_types::Url;
+use salsa::InternKey;
+use similar::{DiffOp, TextDiff};
 
 use crate::context::get_fix_for_diagnostic_message;
 use crate::db::FixerDatabase;
-use crate::{get_fixes, CairoLintGroup};
 use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::db::SyntaxGroup;
@@ -386,31 +389,26 @@ fn find_use_path_list(db: &dyn SyntaxGroup, node: &SyntaxNode) -> SyntaxNode {
         .unwrap_or(*node)
 }
 
-pub fn merge_overlapping_fixes(db: &FixerDatabase, file_id: FileId, fixes: Vec<Fix>) -> Vec<Fix> {
-    let file_name = file_id.file_name(db);
+pub fn merge_overlapping_fixes(
+    db: &mut FixerDatabase,
+    file_id: FileId,
+    fixes: Vec<Fix>,
+) -> Vec<Fix> {
     let mut current_fixes: Vec<Fix> = fixes.clone();
-    let mut current_file = file_id.clone();
-    // db.crates()
-    //     .iter()
-    //     .for_each(|crate_id| db.crate_config(crate_id));
+    let mut were_overlapped = false;
+    let file_content = db.file_content(file_id).unwrap();
 
-    let mut iteration = 0;
     while let Some(overlapping_fix) = get_first_overlapping_fix(&current_fixes) {
-        println!("fixes {:?}", current_fixes);
-        let fixed_file = apply_fix_for_file(db, current_file, overlapping_fix);
-        // db.override_file_content(file, content);
-        println!("New file: {}", fixed_file);
-        let new_file = FileLongId::Virtual(VirtualFile {
-            parent: Some(file_id),
-            name: format!("fixer_iteration_{}_{}", iteration, file_name).into(),
-            content: fixed_file.into(),
-            code_mappings: [].into(),
-            kind: current_file.kind(db),
-        });
-        current_file = new_file.intern(db);
-        println!("New file id: {:?}", current_file);
+        were_overlapped = true;
+        apply_fix_for_file(db, file_id, overlapping_fix);
+
+        println!(
+            "file content loop after fix: {}",
+            db.file_content(file_id).unwrap()
+        );
+
         let diags: Vec<SemanticDiagnostic> = db
-            .file_modules(current_file)
+            .file_modules(file_id)
             .unwrap()
             .iter()
             .filter_map(|module_id| db.module_semantic_diagnostics(*module_id).ok())
@@ -421,7 +419,19 @@ pub fn merge_overlapping_fixes(db: &FixerDatabase, file_id: FileId, fixes: Vec<F
             .values()
             .flat_map(|v| v.clone())
             .collect();
-        iteration += 1;
+    }
+    let file_content_after = db.file_content(file_id).unwrap();
+    println!("file content after: {}", file_content_after);
+    println!("were overlapped: {}", were_overlapped);
+    println!("fixes: {:?}", current_fixes);
+    if were_overlapped {
+        current_fixes = vec![Fix {
+            span: TextSpan {
+                start: TextOffset::START,
+                end: TextWidth::from_str(&file_content).as_offset(),
+            },
+            suggestion: file_content_after.to_string(),
+        }];
     }
     current_fixes
 }
@@ -430,7 +440,7 @@ fn get_first_overlapping_fix(fixes: &Vec<Fix>) -> Option<Fix> {
     for current_fix in fixes.iter() {
         if fixes
             .iter()
-            .any(|fix| span_intersects(fix.span, current_fix.span) && fix != current_fix)
+            .any(|fix| spans_intersects(fix.span, current_fix.span) && fix != current_fix)
         {
             return Some(current_fix.clone());
         }
@@ -438,12 +448,55 @@ fn get_first_overlapping_fix(fixes: &Vec<Fix>) -> Option<Fix> {
     None
 }
 
-fn apply_fix_for_file(db: &dyn SemanticGroup, file_id: FileId, fix: Fix) -> String {
-    let mut content = db.file_content(file_id).unwrap().to_string();
+fn apply_fix_for_file(db: &mut FixerDatabase, file_id: FileId, fix: Fix) {
+    let mut content = db.upcast_mut().file_content(file_id).unwrap().to_string();
     content.replace_range(fix.span.to_str_range(), &fix.suggestion);
-    content
+    db.override_file_content(file_id, Some(Arc::from(content)));
 }
 
-fn span_intersects(span_a: TextSpan, span_b: TextSpan) -> bool {
+fn spans_intersects(span_a: TextSpan, span_b: TextSpan) -> bool {
     span_a.start <= span_b.end && span_b.start <= span_a.end
+}
+
+pub fn file_for_url(db: &(dyn SemanticGroup + 'static), uri: &Url) -> Option<FileId> {
+    match uri.scheme() {
+        "file" => uri
+            .to_file_path()
+            .inspect_err(|()| panic!("invalid file url: {uri}"))
+            .ok()
+            .map(|path| FileId::new(db.upcast(), path)),
+        "vfs" => uri
+            .host_str()
+            .or_else(|| {
+                panic!("invalid vfs url, missing host string: {uri:?}");
+            })?
+            .parse::<usize>()
+            .inspect_err(|e| {
+                panic!("invalid vfs url, host string is not a valid integer, {e}: {uri:?}")
+            })
+            .ok()
+            .map(Into::into)
+            .map(FileId::from_intern_id),
+        _ => {
+            panic!("invalid url, scheme is not supported by this language server: {uri:?}");
+        }
+    }
+}
+
+/// Get the canonical [`Url`] for a [`FileId`].
+pub fn url_for_file(db: &(dyn SemanticGroup + 'static), file_id: FileId) -> Option<Url> {
+    let vf = match file_id.lookup_intern(db) {
+        FileLongId::OnDisk(path) => return Some(Url::from_file_path(path).unwrap()),
+        FileLongId::Virtual(vf) => vf,
+        FileLongId::External(id) => db.try_ext_as_virtual(id)?,
+    };
+    // NOTE: The URL is constructed using setters and path segments in order to
+    //   url-encode any funky characters in parts that LS is not controlling.
+    let mut url = Url::parse("vfs://").unwrap();
+    url.set_host(Some(&file_id.as_intern_id().to_string()))
+        .unwrap();
+    url.path_segments_mut()
+        .unwrap()
+        .push(&format!("{}.cairo", vf.name));
+    Some(url)
 }

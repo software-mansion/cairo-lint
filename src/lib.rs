@@ -1,23 +1,18 @@
-use cairo_lang_compiler::{db::RootDatabase, diagnostics::DiagnosticsReporter};
 use cairo_lang_defs::plugin::PluginDiagnostic;
-use cairo_lang_utils::Upcast;
 use db::FixerDatabase;
 use fixes::{
-    apply_import_fixes, collect_unused_imports, fix_semantic_diagnostic,
-    get_fixes_without_resolving_overlapping, merge_overlapping_fixes, Fix, ImportFix,
+    file_for_url, get_fixes_without_resolving_overlapping, merge_overlapping_fixes, url_for_file,
+    Fix,
 };
 
-use cairo_lang_syntax::node::{db::SyntaxGroup, SyntaxNode};
+use cairo_lang_syntax::node::db::SyntaxGroup;
 
 use std::{cmp::Reverse, collections::HashMap};
 
 use anyhow::{anyhow, Result};
-use cairo_lang_diagnostics::{DiagnosticEntry, FormattedDiagnosticEntry};
 use cairo_lang_filesystem::db::FilesGroup;
 use cairo_lang_filesystem::ids::FileId;
-use cairo_lang_semantic::{
-    db::SemanticGroup, diagnostic::SemanticDiagnosticKind, SemanticDiagnostic,
-};
+use cairo_lang_semantic::{db::SemanticGroup, SemanticDiagnostic};
 
 pub static CAIRO_LINT_TOOL_NAME: &str = "cairo-lint";
 
@@ -54,27 +49,23 @@ pub fn get_fixes(
     db: &(dyn SemanticGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
 ) -> HashMap<FileId, Vec<Fix>> {
-    let new_db = FixerDatabase::new_from(db);
-    // let mut diagnostics_reporter = DiagnosticsReporter::callback({
-    //     move |entry: FormattedDiagnosticEntry| {
-    //         let msg = entry
-    //             .message()
-    //             .strip_suffix('\n')
-    //             .unwrap_or(entry.message());
-    //         println!("Diagnostic: {}", msg);
-    //     }
-    // })
-    // .skip_lowering_diagnostics()
-    // .with_ignore_warnings_crates(&vec![db.core_crate()]);
-    let fixes = get_fixes_without_resolving_overlapping(new_db.upcast(), diagnostics);
-
-    fixes
+    let mut new_db = FixerDatabase::new_from(db);
+    let fixes = get_fixes_without_resolving_overlapping(db, diagnostics);
+    println!("previous fixes: {:?}", fixes);
+    let result = fixes
         .into_iter()
         .map(|(file_id, fixes)| {
-            let new_fixes = merge_overlapping_fixes(&new_db, file_id, fixes);
+            let file_url = url_for_file(db, file_id)
+                .expect(format!("FileId {:?} should have a URL", file_id).as_str());
+            let new_db_file_id = file_for_url(&new_db, &file_url).expect(
+                format!("FileUrl {:?} should have a corresponding FileId", file_url).as_str(),
+            );
+            let new_fixes = merge_overlapping_fixes(&mut new_db, new_db_file_id, fixes);
             (file_id, new_fixes)
         })
-        .collect()
+        .collect();
+    println!("result: {:?}", result);
+    result
 }
 
 /// Applies the fixes to the file.

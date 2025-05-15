@@ -338,13 +338,15 @@ fn a_diagnostics() {
 
 #[test]
 fn a_fixer() {
-    test_lint_fixer!(A, @r"
-    Plugin diagnostic: Consider using else if instead of else { if ... }
-     --> lib.cairo:4:5-14:5
-          if x {
-     _____^
-    | ...
-    |     }
-    |_____^
-    ");
+    test_lint_fixer!(A, @r#"
+    fn main() {
+        let x = true;
+        let a = true;
+        let b = true;
+        let c = false;
+        if (x) && ((a || b) && (b && c)) {
+            println!("Hello");
+        }
+    }
+    "#);
 }
