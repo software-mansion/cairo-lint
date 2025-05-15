@@ -24,11 +24,9 @@ use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::LookupIntern;
-use cairo_lang_utils::UpcastMut;
 use log::debug;
 use lsp_types::Url;
 use salsa::InternKey;
-use similar::{DiffOp, TextDiff};
 
 use crate::context::get_fix_for_diagnostic_message;
 use crate::db::FixerDatabase;
@@ -402,11 +400,6 @@ pub fn merge_overlapping_fixes(
         were_overlapped = true;
         apply_fix_for_file(db, file_id, overlapping_fix);
 
-        println!(
-            "file content loop after fix: {}",
-            db.file_content(file_id).unwrap()
-        );
-
         let diags: Vec<SemanticDiagnostic> = db
             .file_modules(file_id)
             .unwrap()
@@ -420,11 +413,9 @@ pub fn merge_overlapping_fixes(
             .flat_map(|v| v.clone())
             .collect();
     }
-    let file_content_after = db.file_content(file_id).unwrap();
-    println!("file content after: {}", file_content_after);
-    println!("were overlapped: {}", were_overlapped);
-    println!("fixes: {:?}", current_fixes);
+
     if were_overlapped {
+        let file_content_after = db.file_content(file_id).unwrap();
         current_fixes = vec![Fix {
             span: TextSpan {
                 start: TextOffset::START,
@@ -436,7 +427,7 @@ pub fn merge_overlapping_fixes(
     current_fixes
 }
 
-fn get_first_overlapping_fix(fixes: &Vec<Fix>) -> Option<Fix> {
+fn get_first_overlapping_fix(fixes: &[Fix]) -> Option<Fix> {
     for current_fix in fixes.iter() {
         if fixes
             .iter()
@@ -449,7 +440,7 @@ fn get_first_overlapping_fix(fixes: &Vec<Fix>) -> Option<Fix> {
 }
 
 fn apply_fix_for_file(db: &mut FixerDatabase, file_id: FileId, fix: Fix) {
-    let mut content = db.upcast_mut().file_content(file_id).unwrap().to_string();
+    let mut content = db.file_content(file_id).unwrap().to_string();
     content.replace_range(fix.span.to_str_range(), &fix.suggestion);
     db.override_file_content(file_id, Some(Arc::from(content)));
 }

@@ -683,7 +683,6 @@ dependencies = [
  "pretty_assertions",
  "rust-analyzer-salsa",
  "scarb-metadata",
- "similar",
  "tempfile",
  "test-case",
  "which",

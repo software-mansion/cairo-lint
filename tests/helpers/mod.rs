@@ -80,15 +80,10 @@ macro_rules! test_lint_fixer {
       crate::helpers::setup::setup_test_crate_ex(&mut db, $before),
       &mut db,
     );
-    let semantic_diags: Vec<_> = diags.clone();
-    let unused_imports: ::std::collections::HashMap<::cairo_lang_filesystem::ids::FileId, ::std::collections::HashMap<::cairo_lang_syntax::node::SyntaxNode, ::cairo_lint::fixes::ImportFix>> =
-      ::cairo_lint::fixes::collect_unused_imports(&db, &semantic_diags);
-    let mut fixes = if unused_imports.keys().len() > 0 {
-      let current_file_id = unused_imports.keys().next().unwrap();
-      ::cairo_lint::fixes::apply_import_fixes(&db, unused_imports.get(&current_file_id).unwrap())
-    } else {
-      Vec::new()
-    };
+    // let semantic_diags: Vec<_> = diags.clone();
+    // let unused_imports: ::std::collections::HashMap<::cairo_lang_filesystem::ids::FileId, ::std::collections::HashMap<::cairo_lang_syntax::node::SyntaxNode, ::cairo_lint::fixes::ImportFix>> =
+    //   ::cairo_lint::fixes::collect_unused_imports(&db, &semantic_diags);
+    let mut fixes = Vec::new();
     fixes.extend(::cairo_lint::get_fixes(db.upcast(), diags).values().flatten().cloned());
     // for diag in diags.iter() {
     //   if !matches!(diag.kind, ::cairo_lang_semantic::diagnostic::SemanticDiagnosticKind::UnusedImport(_)) {

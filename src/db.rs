@@ -3,7 +3,6 @@ use std::{collections::BTreeMap, sync::Arc};
 use cairo_lang_defs::{
     db::{try_ext_as_virtual_impl, DefsDatabase, DefsGroup},
     ids::{InlineMacroExprPluginId, MacroPluginId},
-    plugin::MacroPlugin,
 };
 use cairo_lang_filesystem::{
     db::{AsFilesGroupMut, CrateConfiguration, ExternalFiles, FilesDatabase, FilesGroup},
@@ -68,11 +67,9 @@ impl FixerDatabase {
     }
 
     fn new() -> Self {
-        let db = Self {
+        Self {
             storage: Default::default(),
-        };
-
-        db
+        }
     }
 
     fn migrate_default_analyzer_plugins(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
