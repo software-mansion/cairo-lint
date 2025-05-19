@@ -17,6 +17,19 @@ fn main() {
 }
 "#;
 
+const NESTED_DESTRUCTURING_MATCH: &str = r#"
+fn main() {
+    let variable = Option::Some(Option::Some(1_felt252));
+    match variable {
+        Option::Some(a) => match a {
+            Option::Some(b) => println!("{b}"),
+            _ => (),
+        },
+        _ => (),
+    };
+}
+"#;
+
 #[test]
 fn nested_ifs_diagnostics() {
     test_lint_diagnostics!(NESTED_IFS, @r"
@@ -48,6 +61,40 @@ fn nested_ifs_fixer() {
         if (x) && ((a || b) && (b && c)) {
             println!("Hello");
         }
+    }
+    "#);
+}
+
+#[test]
+fn nested_destructuring_match_diagnostics() {
+    test_lint_diagnostics!(NESTED_DESTRUCTURING_MATCH, @r"
+    Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+     --> lib.cairo:5:28-8:9
+              Option::Some(a) => match a {
+     ____________________________^
+    | ...
+    |         },
+    |_________^
+    Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+     --> lib.cairo:4:5-10:5
+          match variable {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn nested_destructuring_match_fixer() {
+    test_lint_fixer!(NESTED_DESTRUCTURING_MATCH, @r#"
+    fn main() {
+        let variable = Option::Some(Option::Some(1_felt252));
+        if let Option::Some(a) = variable {
+            if let Option::Some(b) = a {
+                println!("{b}")
+            }
+        };
     }
     "#);
 }
