@@ -420,6 +420,8 @@ pub fn merge_overlapping_fixes(
             apply_fix_for_file(db, file_id, fix.clone());
         }
         let file_content_after = db.file_content(file_id).unwrap();
+        // Currently we are just replacing the entire file content with the new fixed one.
+        // This is not ideal, but as for now we don't need to worry about it.
         current_fixes = vec![Fix {
             span: TextSpan {
                 start: TextOffset::START,
@@ -453,6 +455,7 @@ fn spans_intersects(span_a: TextSpan, span_b: TextSpan) -> bool {
     span_a.start <= span_b.end && span_b.start <= span_a.end
 }
 
+/// Get the [`FileId`] for a [`Url`].
 pub fn file_for_url(db: &(dyn SemanticGroup + 'static), uri: &Url) -> Option<FileId> {
     match uri.scheme() {
         "file" => uri
@@ -485,8 +488,6 @@ pub fn url_for_file(db: &(dyn SemanticGroup + 'static), file_id: FileId) -> Opti
         FileLongId::Virtual(vf) => vf,
         FileLongId::External(id) => db.try_ext_as_virtual(id)?,
     };
-    // NOTE: The URL is constructed using setters and path segments in order to
-    //   url-encode any funky characters in parts that LS is not controlling.
     let mut url = Url::parse("vfs://").unwrap();
     url.set_host(Some(&file_id.as_intern_id().to_string()))
         .unwrap();
