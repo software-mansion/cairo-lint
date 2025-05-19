@@ -33,6 +33,7 @@ fn main() -> (felt252, felt252) {
 }
 "#;
 
+// TODO: https://github.com/software-mansion/cairo-lint/issues/327
 // const ASSERT_EXPRESSIONS: &str = r#"
 // fn main() {
 //     assert!(((5)) == 4);
