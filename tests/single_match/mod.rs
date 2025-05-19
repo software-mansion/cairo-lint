@@ -497,6 +497,10 @@ fn comprehensive_match_diagnostics() {
     | ...
     |     };
     |_____^
+    Pattern missing subpattern for the payload of variant. Consider using `Option::Some(_)`
+     --> lib.cairo:6:9
+            Option::Some => (),
+            ^^^^^^^^^^^^
     ");
 }
 
@@ -515,8 +519,12 @@ fn comprehensive_match_fixer() {
 
 #[test]
 fn comprehensive_match_allowed_diagnostics() {
-    test_lint_diagnostics!(COMPREHENSIVE_MATCH_ALLOWED, @r#"
-    "#);
+    test_lint_diagnostics!(COMPREHENSIVE_MATCH_ALLOWED, @r"
+    Pattern missing subpattern for the payload of variant. Consider using `Option::Some(_)`
+     --> lib.cairo:7:9
+            Option::Some => (),
+            ^^^^^^^^^^^^
+    ");
 }
 
 #[test]

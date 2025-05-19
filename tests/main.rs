@@ -20,6 +20,7 @@ mod performance;
 mod redundant_brackets_in_enum_call;
 mod redundant_op;
 mod single_match;
+mod unit_return_type;
 mod unused_imports;
 mod unused_variables;
 

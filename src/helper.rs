@@ -284,7 +284,7 @@ fn check_if_panic_block(db: &dyn SemanticGroup, arenas: &Arenas, expr_id: ExprId
 fn check_if_inline_panic(db: &dyn SemanticGroup, arenas: &Arenas, expr_id: ExprId) -> bool {
     if_chain! {
         if let Expr::FunctionCall(ref expr_func_call) = arenas.exprs[expr_id];
-        if expr_func_call.function.full_path(db) == PANIC_PATH;
+        if expr_func_call.function.full_path(db) == PANIC_PATH || expr_func_call.function.full_path(db) == PANIC_WITH_BYTE_ARRAY_PATH;
         then {
             return true;
         }
