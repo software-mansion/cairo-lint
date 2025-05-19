@@ -14,6 +14,7 @@ mod ifs;
 mod int_operations;
 mod loops;
 mod manual;
+mod nested_fixes;
 mod panic;
 mod performance;
 mod redundant_brackets_in_enum_call;

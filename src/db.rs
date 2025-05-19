@@ -37,30 +37,18 @@ impl FixerDatabase {
         let mut new_db = Self::new();
 
         // SemanticGroup salsa inputs.
-
-        // new_db.set_default_analyzer_plugins(db.default_analyzer_plugins());
         new_db.migrate_default_analyzer_plugins(db);
-        // new_db.set_analyzer_plugin_overrides(db.analyzer_plugin_overrides());
         new_db.migrate_analyzer_plugin_overrides(db);
 
         // DefsGroup salsa inputs.
-
-        // new_db.set_default_macro_plugins(db.default_macro_plugins());
         new_db.migrate_default_macro_plugins(db);
-        // new_db.set_macro_plugin_overrides(db.macro_plugin_overrides());
         new_db.migrate_macro_plugin_overrides(db);
-        // new_db.set_default_inline_macro_plugins(db.default_inline_macro_plugins());
         new_db.migrate_default_inline_macro_plugins(db);
-        // new_db.set_inline_macro_plugin_overrides(db.inline_macro_plugin_overrides());
         new_db.migrate_inline_macro_plugin_overrides(db);
 
         // FilesGroup salsa inputs.
-
-        // new_db.set_crate_configs(db.crate_configs());
         new_db.migrate_crate_configs(db);
-        // new_db.set_file_overrides(db.file_overrides());
         new_db.migrate_file_overrides(db);
-        // new_db.set_flags(db.flags());
         new_db.migrate_flags(db);
         new_db.set_cfg_set(db.cfg_set());
         new_db

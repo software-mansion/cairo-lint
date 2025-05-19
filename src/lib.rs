@@ -51,8 +51,7 @@ pub fn get_fixes(
 ) -> HashMap<FileId, Vec<Fix>> {
     let mut new_db = FixerDatabase::new_from(db);
     let fixes = get_fixes_without_resolving_overlapping(db, diagnostics);
-    println!("previous fixes: {:?}", fixes);
-    let result = fixes
+    fixes
         .into_iter()
         .map(|(file_id, fixes)| {
             let file_url = url_for_file(db, file_id)
@@ -63,9 +62,7 @@ pub fn get_fixes(
             let new_fixes = merge_overlapping_fixes(&mut new_db, new_db_file_id, fixes);
             (file_id, new_fixes)
         })
-        .collect();
-    println!("result: {:?}", result);
-    result
+        .collect()
 }
 
 /// Applies the fixes to the file.
@@ -77,22 +74,6 @@ pub fn get_fixes(
 pub fn apply_file_fixes(file_id: FileId, fixes: Vec<Fix>, db: &dyn FilesGroup) -> Result<()> {
     let mut fixes = fixes;
     fixes.sort_by_key(|fix| Reverse(fix.span.start));
-    let mut fixable_diagnostics = Vec::with_capacity(fixes.len());
-    if fixes.len() <= 1 {
-        fixable_diagnostics = fixes;
-    } else {
-        // Check if we have nested diagnostics. If so it's a nightmare to fix hence just ignore it
-        for i in 0..fixes.len() - 1 {
-            let first = fixes[i].span;
-            let second = fixes[i + 1].span;
-            if first.start >= second.end {
-                fixable_diagnostics.push(fixes[i].clone());
-                if i == fixes.len() - 1 {
-                    fixable_diagnostics.push(fixes[i + 1].clone());
-                }
-            }
-        }
-    }
     // Get all the files that need to be fixed
     let mut files: HashMap<FileId, String> = HashMap::default();
     files.insert(
@@ -102,7 +83,7 @@ pub fn apply_file_fixes(file_id: FileId, fixes: Vec<Fix>, db: &dyn FilesGroup) -
             .to_string(),
     );
     // Fix the files
-    for fix in fixable_diagnostics {
+    for fix in fixes {
         // Can't fail we just set the file value.
         files
             .entry(file_id)
