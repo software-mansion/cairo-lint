@@ -406,6 +406,7 @@ pub fn merge_overlapping_fixes(
             .iter()
             .filter_map(|module_id| db.module_semantic_diagnostics(*module_id).ok())
             .flat_map(|diag| diag.get_all())
+            .filter(|diag| diag.stable_location.diagnostic_location(db).file_id == file_id)
             .collect();
 
         current_fixes = get_fixes_without_resolving_overlapping(db, diags)
@@ -415,6 +416,9 @@ pub fn merge_overlapping_fixes(
     }
 
     if were_overlapped {
+        for fix in current_fixes.iter() {
+            apply_fix_for_file(db, file_id, fix.clone());
+        }
         let file_content_after = db.file_content(file_id).unwrap();
         current_fixes = vec![Fix {
             span: TextSpan {

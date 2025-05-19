@@ -182,7 +182,16 @@ fn while_loop_exit_condition_nested_diagnostics() {
 
 #[test]
 fn while_loop_exit_condition_nested_fixer() {
-    test_lint_fixer!(WHILE_LOOP_EXIT_CONDITION_NESTED, @r#"
-    Contains nested diagnostics can't fix it
-    "#, true);
+    test_lint_fixer!(WHILE_LOOP_EXIT_CONDITION_NESTED, @r"
+    fn main() {
+        let mut a = 0_u32;
+        let mut b = 0_u32;
+        while a < 10 && b < 5 {
+            a += 1;
+            if a % 2 == 0 {
+                b += 1
+            }
+        }
+    }
+    ");
 }
