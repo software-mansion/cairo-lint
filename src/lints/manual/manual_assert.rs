@@ -1,6 +1,7 @@
 use crate::helper::indent_snippet;
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
+use cairo_lang_parser::macro_helpers::AsLegacyInlineMacro;
 use cairo_lang_semantic::{db::SemanticGroup, Arenas, Expr, ExprBlock, ExprIf, Statement};
 use cairo_lang_syntax::node::{
     ast::{
@@ -121,7 +122,8 @@ fn check_single_condition_block(
                 stable_ptr: if_expr.stable_ptr.untyped(),
                 message: ManualAssert.diagnostic_message().to_string(),
                 severity: Severity::Warning,
-                relative_span: None
+                relative_span: None,
+                inner_span: None,
             });
             return;
         }
@@ -137,7 +139,8 @@ fn check_single_condition_block(
                 stable_ptr: if_expr.stable_ptr.untyped(),
                 message: ManualAssert.diagnostic_message().to_string(),
                 severity: Severity::Warning,
-                relative_span: None
+                relative_span: None,
+                inner_span: None,
             });
         }
     }
@@ -311,6 +314,7 @@ fn get_panic_args_from_block(
 
     Some(
         inline_macro
+            .as_legacy_inline_macro(db)?
             .arguments(db)
             .arg_list(db)
             .expect("Expected arguments in the inline macro")
