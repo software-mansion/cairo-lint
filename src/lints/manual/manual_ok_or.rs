@@ -87,6 +87,7 @@ pub fn check_manual_ok_or(
                     message: ManualOkOr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                     relative_span: None,
+                    inner_span: None,
                 });
             }
         }
@@ -97,6 +98,7 @@ pub fn check_manual_ok_or(
                     message: ManualOkOr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                     relative_span: None,
+                    inner_span: None,
                 });
             }
         }

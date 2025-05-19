@@ -182,12 +182,14 @@ fn check_single_match(
             message: EqualityMatch.diagnostic_message().to_string(),
             severity: Severity::Warning,
             relative_span: None,
+            inner_span: None,
         }),
         (true, true) => diagnostics.push(PluginDiagnostic {
             stable_ptr: match_expr.stable_ptr.into(),
             message: DestructMatch.diagnostic_message().to_string(),
             severity: Severity::Warning,
             relative_span: None,
+            inner_span: None,
         }),
         (_, _) => (),
     }

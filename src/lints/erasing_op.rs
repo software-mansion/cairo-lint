@@ -87,6 +87,7 @@ fn check_single_erasing_operation(
             message: ErasingOperation.diagnostic_message().to_string(),
             severity: Severity::Warning,
             relative_span: None,
+            inner_span: None,
         });
     }
 }

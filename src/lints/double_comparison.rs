@@ -263,6 +263,7 @@ fn check_single_double_comparison(
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Warning,
             relative_span: None,
+            inner_span: None,
         })
     }
 
@@ -338,6 +339,7 @@ fn check_single_double_comparison(
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Warning,
             relative_span: None,
+            inner_span: None,
         });
     } else if is_redundant_double_comparison(
         &lhs_fn_trait_name,
@@ -349,6 +351,7 @@ fn check_single_double_comparison(
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Warning,
             relative_span: None,
+            inner_span: None,
         });
     } else if is_contradictory_double_comparison(
         &lhs_fn_trait_name,
@@ -360,6 +363,7 @@ fn check_single_double_comparison(
             stable_ptr: logical_operator_exprs.stable_ptr.untyped(),
             severity: Severity::Warning,
             relative_span: None,
+            inner_span: None,
         });
     }
 }

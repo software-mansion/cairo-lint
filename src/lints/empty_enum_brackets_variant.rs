@@ -83,6 +83,7 @@ pub fn check_empty_enum_brackets_variant(
                     message: EmptyEnumBracketsVariant.diagnostic_message().to_string(),
                     severity: Severity::Warning,
                     relative_span: None,
+                    inner_span: None,
                 });
             }
         }
