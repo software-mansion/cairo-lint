@@ -30,6 +30,18 @@ fn main() {
 }
 "#;
 
+const NESTED_MANUAL_ASSERT_AND_IFS: &str = r#"
+fn main() {
+    let a = 5;
+    let b = 10;
+    if a == 5 {
+        if b == 10 {
+            panic!("a shouldn't be equal to 5");
+        }
+    }
+}
+"#;
+
 #[test]
 fn nested_ifs_diagnostics() {
     test_lint_diagnostics!(NESTED_IFS, @r"
@@ -95,6 +107,41 @@ fn nested_destructuring_match_fixer() {
                 println!("{b}")
             }
         };
+    }
+    "#);
+}
+
+#[test]
+fn nested_manual_assert_and_ifs_diagnostics() {
+    test_lint_diagnostics!(NESTED_MANUAL_ASSERT_AND_IFS, @r#"
+    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+     --> lib.cairo:5:5-9:5
+          if a == 5 {
+     _____^
+    | ...
+    |     }
+    |_____^
+    Plugin diagnostic: Leaving `panic` in the code is discouraged.
+     --> lib.cairo:7:13
+                panic!("a shouldn't be equal to 5");
+                ^^^^^
+    Plugin diagnostic: Manual assert detected. Consider using assert!() macro instead.
+     --> lib.cairo:6:9-8:9
+              if b == 10 {
+     _________^
+    |             panic!("a shouldn't be equal to 5");
+    |         }
+    |_________^
+    "#);
+}
+
+#[test]
+fn nested_manual_assert_and_ifs_fixer() {
+    test_lint_fixer!(NESTED_MANUAL_ASSERT_AND_IFS, @r#"
+    fn main() {
+        let a = 5;
+        let b = 10;
+        assert!(!((a == 5) && (b == 10)), "a shouldn't be equal to 5");
     }
     "#);
 }

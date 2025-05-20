@@ -49,6 +49,8 @@ pub fn get_fixes(
     db: &(dyn SemanticGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
 ) -> HashMap<FileId, Vec<Fix>> {
+    // We need to create a new database to avoid modifying the original one.
+    // This one is used to resolve the overlapping fixes.
     let mut new_db = FixerDatabase::new_from(db);
     let fixes = get_fixes_without_resolving_overlapping(db, diagnostics);
     fixes

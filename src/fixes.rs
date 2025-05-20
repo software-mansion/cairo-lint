@@ -46,23 +46,22 @@ pub fn get_fixes_without_resolving_overlapping(
     db: &(dyn SemanticGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
 ) -> HashMap<FileId, Vec<Fix>> {
+    let (import_diagnostics, diags_without_imports): (Vec<_>, Vec<_>) = diagnostics
+        .into_iter()
+        .partition(|diag| matches!(diag.kind, SemanticDiagnosticKind::UnusedImport(_)));
+
     // Handling unused imports separately as we need to run pre-analysis on the diagnostics.
     // to handle complex cases.
     let unused_imports: HashMap<FileId, HashMap<SyntaxNode, ImportFix>> =
-        collect_unused_imports(db, &diagnostics);
+        collect_unused_import_fixes(db, &import_diagnostics);
     let mut fixes = HashMap::new();
     unused_imports.keys().for_each(|file_id| {
         let file_fixes: Vec<Fix> = apply_import_fixes(db, unused_imports.get(file_id).unwrap());
         fixes.insert(*file_id, file_fixes);
     });
 
-    let diags_without_imports = diagnostics
-        .iter()
-        .filter(|diag| !matches!(diag.kind, SemanticDiagnosticKind::UnusedImport(_)))
-        .collect::<Vec<_>>();
-
     for diag in diags_without_imports {
-        if let Some((fix_node, fix)) = fix_semantic_diagnostic(db, diag) {
+        if let Some((fix_node, fix)) = fix_semantic_diagnostic(db, &diag) {
             let location = diag.location(db);
             fixes
                 .entry(location.file_id)
@@ -149,7 +148,7 @@ impl ImportFix {
     }
 }
 
-/// Collects unused imports from semantic diagnostics.
+/// Collects unused import fixes from semantic diagnostics.
 ///
 /// # Arguments
 ///
@@ -159,7 +158,7 @@ impl ImportFix {
 /// # Returns
 ///
 /// A HashMap where keys are FileIds and values are HashMaps of SyntaxNodes to ImportFixes.
-pub fn collect_unused_imports(
+pub fn collect_unused_import_fixes(
     db: &(dyn SemanticGroup + 'static),
     diags: &Vec<SemanticDiagnostic>,
 ) -> HashMap<FileId, HashMap<SyntaxNode, ImportFix>> {
@@ -387,6 +386,20 @@ fn find_use_path_list(db: &dyn SyntaxGroup, node: &SyntaxNode) -> SyntaxNode {
         .unwrap_or(*node)
 }
 
+/// Merges overlapping fixes for a given file.
+/// This function iteratively applies fixes to the file, resolving any overlapping fixes.
+/// If any overlapping fixes are found, fixes are merged into a single one modifying the whole file content.
+/// If no overlapping fixes are found, the original fixes are returned.
+///
+/// # Arguments
+///
+/// * `db` - A mutable reference to the FixerDatabase.
+/// * `file_id` - The FileId of the file to merge fixes for.
+/// * `fixes` - A vector of Fix objects to be merged.
+///
+/// # Returns
+///
+/// A vector of merged Fix objects.
 pub fn merge_overlapping_fixes(
     db: &mut FixerDatabase,
     file_id: FileId,
