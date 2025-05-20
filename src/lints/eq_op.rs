@@ -311,6 +311,7 @@ fn check_single_eq_op(
                 message: message.to_owned(),
                 severity: Severity::Warning,
                 relative_span: None,
+                inner_span: None,
             });
         }
     }

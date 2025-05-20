@@ -79,6 +79,7 @@ fn check_clone_usage(
             message: CloneOnCopy.diagnostic_message().to_string(),
             severity: Severity::Warning,
             relative_span: None,
+            inner_span: None,
         });
     }
 }

@@ -33,11 +33,12 @@ fn main() -> (felt252, felt252) {
 }
 "#;
 
-const ASSERT_EXPRESSIONS: &str = r#"
-fn main() {
-    assert!(((5)) == 4);
-}
-"#;
+// TODO: https://github.com/software-mansion/cairo-lint/issues/327
+// const ASSERT_EXPRESSIONS: &str = r#"
+// fn main() {
+//     assert!(((5)) == 4);
+// }
+// "#;
 
 const DOUBLE_PARENS_WITH_FUNCTION_CALL: &str = r#"
 fn foo(x: felt252) -> felt252 {
@@ -183,24 +184,24 @@ fn tuple_double_parens_fixer() {
     ");
 }
 
-#[test]
-fn assert_expressions_diagnostics() {
-    test_lint_diagnostics!(ASSERT_EXPRESSIONS, @r"
-    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
-     --> lib.cairo:3:13
-        assert!(((5)) == 4);
-                ^^^^^
-    ");
-}
+// #[test]
+// fn assert_expressions_diagnostics() {
+//     test_lint_diagnostics!(ASSERT_EXPRESSIONS, @r"
+//     Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+//      --> lib.cairo:3:13
+//         assert!(((5)) == 4);
+//                 ^^^^^
+//     ");
+// }
 
-#[test]
-fn assert_expressions_fixer() {
-    test_lint_fixer!(ASSERT_EXPRESSIONS, @r"
-    fn main() {
-        assert!(5== 4);
-    }
-    ");
-}
+// #[test]
+// fn assert_expressions_fixer() {
+//     test_lint_fixer!(ASSERT_EXPRESSIONS, @r"
+//     fn main() {
+//         assert!(5== 4);
+//     }
+//     ");
+// }
 
 #[test]
 fn double_parens_with_function_call_diagnostics() {

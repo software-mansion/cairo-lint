@@ -220,6 +220,7 @@ pub fn check_manual_is(
                     message: ManualIsSome.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                     relative_span: None,
+                    inner_span: None,
                 });
             }
             if check_manual(db, match_expr, arenas, ManualLint::ManualIsNone) {
@@ -228,6 +229,7 @@ pub fn check_manual_is(
                     message: ManualIsNone.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                     relative_span: None,
+                    inner_span: None,
                 });
             }
             if check_manual(db, match_expr, arenas, ManualLint::ManualIsOk) {
@@ -236,6 +238,7 @@ pub fn check_manual_is(
                     message: ManualIsOk.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                     relative_span: None,
+                    inner_span: None,
                 });
             }
             if check_manual(db, match_expr, arenas, ManualLint::ManualIsErr) {
@@ -244,6 +247,7 @@ pub fn check_manual_is(
                     message: ManualIsErr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                     relative_span: None,
+                    inner_span: None,
                 });
             }
         }
@@ -254,6 +258,7 @@ pub fn check_manual_is(
                     message: ManualIsSome.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                     relative_span: None,
+                    inner_span: None,
                 });
             }
             if check_manual_if(db, if_expr, arenas, ManualLint::ManualIsNone) {
@@ -262,6 +267,7 @@ pub fn check_manual_is(
                     message: ManualIsNone.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                     relative_span: None,
+                    inner_span: None,
                 });
             }
             if check_manual_if(db, if_expr, arenas, ManualLint::ManualIsOk) {
@@ -270,6 +276,7 @@ pub fn check_manual_is(
                     message: ManualIsOk.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                     relative_span: None,
+                    inner_span: None,
                 });
             }
             if check_manual_if(db, if_expr, arenas, ManualLint::ManualIsErr) {
@@ -278,6 +285,7 @@ pub fn check_manual_is(
                     message: ManualIsErr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                     relative_span: None,
+                    inner_span: None,
                 });
             }
         }

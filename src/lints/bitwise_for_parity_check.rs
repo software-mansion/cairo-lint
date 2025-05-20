@@ -84,7 +84,8 @@ fn check_single_bitwise_for_parity(
                 stable_ptr: function_call_expr.stable_ptr.untyped(),
                 message: BitwiseForParity.diagnostic_message().to_string(),
                 severity: Severity::Warning,
-                relative_span: None
+                relative_span: None,
+                inner_span: None,
             });
         }
     }

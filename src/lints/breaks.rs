@@ -85,7 +85,8 @@ fn check_single_break(
                 stable_ptr: break_expr.stable_ptr.untyped(),
                 message: BreakUnit.diagnostic_message().to_string(),
                 severity: Severity::Warning,
-                relative_span: None
+                relative_span: None,
+                inner_span: None
             });
         }
     }
