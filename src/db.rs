@@ -5,7 +5,7 @@ use cairo_lang_defs::{
     ids::{InlineMacroExprPluginId, MacroPluginId},
 };
 use cairo_lang_filesystem::{
-    db::{AsFilesGroupMut, CrateConfiguration, ExternalFiles, FilesDatabase, FilesGroup},
+    db::{CrateConfiguration, ExternalFiles, FilesDatabase, FilesGroup},
     flag::Flag,
     ids::{CrateId, Directory, FileId, FlagId, VirtualFile},
 };
@@ -246,12 +246,6 @@ impl salsa::ParallelDatabase for FixerDatabase {
         salsa::Snapshot::new(FixerDatabase {
             storage: self.storage.snapshot(),
         })
-    }
-}
-
-impl AsFilesGroupMut for FixerDatabase {
-    fn as_files_group_mut(&mut self) -> &mut (dyn FilesGroup + 'static) {
-        self
     }
 }
 

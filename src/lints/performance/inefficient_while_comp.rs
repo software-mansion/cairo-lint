@@ -105,6 +105,7 @@ fn check_expression(
                     message: InefficientWhileComparison.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                     relative_span: None,
+                    inner_span: None,
                 });
             }
         }

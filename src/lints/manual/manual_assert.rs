@@ -5,10 +5,9 @@ use cairo_lang_semantic::{db::SemanticGroup, Arenas, Expr, ExprBlock, ExprIf, St
 use cairo_lang_syntax::node::{
     ast::{
         BlockOrIf, Condition, ElseClause, Expr as AstExpr, ExprBlock as AstExprBlock,
-        ExprIf as AstExprIf, OptionElseClause, Statement as AstStatement,
+        ExprIf as AstExprIf, OptionElseClause, Statement as AstStatement, WrappedTokenTree,
     },
     db::SyntaxGroup,
-    helpers::WrappedArgListHelper,
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
 use cairo_lang_utils::LookupIntern;
@@ -121,7 +120,8 @@ fn check_single_condition_block(
                 stable_ptr: if_expr.stable_ptr.untyped(),
                 message: ManualAssert.diagnostic_message().to_string(),
                 severity: Severity::Warning,
-                relative_span: None
+                relative_span: None,
+                inner_span: None
             });
             return;
         }
@@ -137,7 +137,8 @@ fn check_single_condition_block(
                 stable_ptr: if_expr.stable_ptr.untyped(),
                 message: ManualAssert.diagnostic_message().to_string(),
                 severity: Severity::Warning,
-                relative_span: None
+                relative_span: None,
+                inner_span: None
             });
         }
     }
@@ -183,8 +184,14 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synt
                 "assert!({}, {});\n",
                 contrary_condition,
                 panic_args
-                    .map(|arg| arg.get_text(db).trim().to_string())
-                    .join(", ")
+                    .map(|arg| {
+                        let arg_text = arg.get_text(db).trim().to_string();
+                        if arg_text == "," {
+                            return format!("{} ", arg_text);
+                        }
+                        arg_text
+                    })
+                    .join("")
             );
             if let OptionElseClause::ElseClause(else_clause) = else_block_option {
                 // Else is just a block (not `else if`).
@@ -234,8 +241,14 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synt
                 "assert!({}, {});\n",
                 condition.trim(),
                 panic_args
-                    .map(|arg| arg.get_text(db).trim().to_string())
-                    .join(", ")
+                    .map(|arg| {
+                        let arg_text = arg.get_text(db).trim().to_string();
+                        if arg_text == "," {
+                            return format!("{} ", arg_text);
+                        }
+                        arg_text
+                    })
+                    .join("")
             );
             let if_statements = if_expr
                 .if_block(db)
@@ -309,12 +322,15 @@ fn get_panic_args_from_block(
         return None;
     }
 
+    let args = match inline_macro.arguments(db).subtree(db) {
+        WrappedTokenTree::Parenthesized(arg_list) => arg_list.tokens(db),
+        WrappedTokenTree::Bracketed(arg_list) => arg_list.tokens(db),
+        WrappedTokenTree::Braced(arg_list) => arg_list.tokens(db),
+        WrappedTokenTree::Missing(_) => panic!("Expected arguments in the inline macro"),
+    };
+
     Some(
-        inline_macro
-            .arguments(db)
-            .arg_list(db)
-            .expect("Expected arguments in the inline macro")
-            .elements(db)
+        args.elements(db)
             .into_iter()
             .map(|arg| arg.as_syntax_node()),
     )

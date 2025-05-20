@@ -123,6 +123,7 @@ fn check_single_duplicate_if_condition(
                     message: DuplicateIfCondition.diagnostic_message().to_string(),
                     severity: Severity::Warning,
                     relative_span: None,
+                    inner_span: None,
                 });
                 break;
             }

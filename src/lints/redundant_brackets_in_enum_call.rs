@@ -79,6 +79,7 @@ pub fn check_redundant_brackets_in_enum_call(
                     message: RedundantBracketsInEnumCall.diagnostic_message().to_string(),
                     severity: Severity::Warning,
                     relative_span: None,
+                    inner_span: None,
                 });
             }
         }
@@ -147,7 +148,7 @@ fn find_generic_param_with_index(
     };
 
     // Iterates over path segments (e.g., `T` in `VariantName: T`) to find matches with enum generic parameters.
-    path.elements(db).iter().find_map(|segment| {
+    path.segments(db).elements(db).iter().find_map(|segment| {
         let ast::PathSegment::Simple(simple_segment) = segment else {
             return None;
         };
@@ -172,7 +173,7 @@ fn has_unit_generic_arg_at_index(
     generic_param_name: String,
     db: &dyn SemanticGroup,
 ) -> bool {
-    for segment in func_call.path(db).elements(db) {
+    for segment in func_call.path(db).segments(db).elements(db) {
         let ast::PathSegment::WithGenericArgs(path_segment) = &segment else {
             continue;
         };
