@@ -51,7 +51,7 @@
         "name": "double_parens",
         "docs": "## What it does\n\nChecks for unnecessary double parentheses in expressions.\n\n## Example\n\n```cairo\nfn main() -> u32 {\n    ((0))\n}\n```\n\nCan be simplified to:\n\n```cairo\nfn main() -> u32 {\n    0\n}\n```",
         "enabled": true,
-        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/double_parens.rs#L34"
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/double_parens.rs#L33"
     },
     {
         "name": "duplicate_underscore_args",
@@ -177,7 +177,7 @@
         "name": "manual_assert",
         "docs": "## What it does\n\nChecks for manual implementations of `assert` macro in `if` expressions.\n\n## Example\n\n```cairo\nfn main() {\n    let a = 5;\n    if a == 5 {\n        panic!(\"a shouldn't be equal to 5\");\n    }\n}\n```\n\nCan be rewritten as:\n\n```cairo\nfn main() {\n    let a = 5;\n    assert!(a != 5, \"a shouldn't be equal to 5\");\n}\n```",
         "enabled": true,
-        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_assert.rs#L49"
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_assert.rs#L48"
     },
     {
         "name": "manual_err",
@@ -261,7 +261,7 @@
         "name": "redundant_brackets_in_enum_call",
         "docs": "## What it does\n\nDetects calls to enum variant constructors with redundant parentheses\n\n## Example\n\n```cairo\nenum MyEnum {\n    Data: u8,\n    Empty,\n}\n\nfn main() {\n    let a = MyEnum::Empty(()); // redundant parentheses\n}\n```\n\nCan be simplified to:\n\n```cairo\nenum MyEnum {\n    Data: u8,\n    Empty,\n}\n\nfn main() {\n    let a = MyEnum::Empty;\n}\n```",
         "enabled": true,
-        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/redundant_brackets_in_enum_call.rs#L42"
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/redundant_brackets_in_enum_call.rs#L46"
     },
     {
         "name": "redundant_op",
@@ -285,6 +285,12 @@
         "name": "unit_return_type",
         "docs": "## What it does\n\nDetects if the function has a unit return type, which is not needed to be specified.\n\n## Example\n\n```cairo\nfn foo() -> () {\n    println!(\"Hello, world!\");\n}\n```\n\nCan be simplified to just:\n\n```cairo\nfn foo() {\n    println!(\"Hello, world!\");\n}\n```",
         "enabled": true,
-        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/unit_return_type.rs#L32"
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/unit_return_type.rs#L37"
+    },
+    {
+        "name": "unwrap_syscall",
+        "docs": "## What it does\n\nDetects if the function uses `unwrap` on a `SyscallResult` object.\n\n## Example\n\n```cairo\nuse starknet::storage_access::{storage_address_from_base, storage_base_address_from_felt252};\nuse starknet::syscalls::storage_read_syscall;\n\nfn main() {\n    let storage_address = storage_base_address_from_felt252(3534535754756246375475423547453);\n    let result = storage_read_syscall(0, storage_address_from_base(storage_address));\n    result.unwrap();\n}\n```\n\nCan be changed to:\n\n```cairo\nuse starknet::SyscallResultTrait;\nuse starknet::storage_access::{storage_address_from_base, storage_base_address_from_felt252};\nuse starknet::syscalls::storage_read_syscall;\n\nfn main() {\n    let storage_address = storage_base_address_from_felt252(3534535754756246375475423547453);\n    let result = storage_read_syscall(0, storage_address_from_base(storage_address));\n    result.unwrap_syscall();\n}\n```",
+        "enabled": true,
+        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/unwrap_syscall.rs#L50"
     }
 ]
