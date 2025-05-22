@@ -27,6 +27,7 @@ mod helper;
 pub mod lints;
 pub mod plugin;
 mod queries;
+mod types;
 
 use context::{get_lint_type_from_diagnostic_message, CairoLintKind};
 

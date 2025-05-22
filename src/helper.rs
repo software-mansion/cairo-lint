@@ -13,7 +13,9 @@
 //! consistency and modularity when working with blocks and conditions.
 use cairo_lang_defs::ids::{FileIndex, ModuleFileId, ModuleId, ModuleItemId};
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCallArg, ExprId};
+use cairo_lang_semantic::expr::inference::InferenceId;
+use cairo_lang_semantic::resolve::Resolver;
+use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCallArg, ExprId, TypeId, TypeLongId};
 use cairo_lang_syntax::node::ast::{self, BlockOrIf, ElseClause, ExprBlock, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::GetIdentifier;
@@ -348,4 +350,15 @@ fn find_module_containing_node(db: &dyn SemanticGroup, node: &SyntaxNode) -> Opt
             };
             Some(ModuleId::Submodule(submodule))
         })
+}
+
+pub fn get_resolver_from_node(db: &dyn SemanticGroup, node: &SyntaxNode) -> Option<ModuleId> {
+    let module_file_id = find_module_file_containing_node(db, &node)?;
+    let lookup_item_id = find_lookup_item(&node);
+    let resolver = match lookup_item_id.and_then(|item| item.resolver_data(db).ok()) {
+        Some(item) => {
+            Resolver::with_data(db, item.clone_with_inference_id(db, InferenceId::NoContext))
+        }
+        None => Resolver::new(db, module_file_id, InferenceId::NoContext),
+    };
 }

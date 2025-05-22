@@ -78,6 +78,8 @@ use crate::lints::single_match::DestructMatch;
 use crate::lints::single_match::EqualityMatch;
 use crate::lints::unit_return_type::check_unit_return_type;
 use crate::lints::unit_return_type::UnitReturnType;
+use crate::lints::unwrap_syscall::check_unwrap_syscall;
+use crate::lints::unwrap_syscall::UnwrapSyscall;
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::SyntaxNode;
@@ -132,6 +134,7 @@ pub enum CairoLintKind {
     EnumEmptyVariantBrackets,
     ManualUnwrapOr,
     UnitReturnType,
+    UnwrapSyscall,
 }
 
 pub trait Lint: Sync + Send {
@@ -352,6 +355,10 @@ impl LintContext {
             LintRuleGroup {
                 lints: vec![Box::new(UnitReturnType)],
                 check_function: check_unit_return_type,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(UnwrapSyscall)],
+                check_function: check_unwrap_syscall,
             },
         ]
     }
