@@ -7,7 +7,7 @@ use crate::{
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::{db::SemanticGroup, Arenas, ExprFunctionCall, ExprFunctionCallArg};
-use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{ast, SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use itertools::Itertools;
 
 pub struct UnwrapSyscall;
@@ -58,6 +58,14 @@ impl Lint for UnwrapSyscall {
 
     fn kind(&self) -> CairoLintKind {
         CairoLintKind::UnwrapSyscall
+    }
+
+    fn has_fixer(&self) -> bool {
+        true
+    }
+
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+        fix_unwrap_syscall(db, node)
     }
 }
 
@@ -111,7 +119,13 @@ fn check_single_unwrap_syscall(
             let formatted_type = format_type(db, expr.ty(), &importables);
             if formatted_type == SYSCALL_RESULT_TYPE && type_name == RESULT_CORE_PATH {
                 diagnostics.push(PluginDiagnostic {
-                    stable_ptr: expr.stable_ptr().into(),
+                    stable_ptr: expr
+                        .stable_ptr()
+                        .lookup(db)
+                        .as_syntax_node()
+                        .parent(db)
+                        .unwrap()
+                        .stable_ptr(db),
                     message: UnwrapSyscall.diagnostic_message().to_string(),
                     severity: Severity::Warning,
                     relative_span: None,
@@ -120,4 +134,20 @@ fn check_single_unwrap_syscall(
             }
         }
     }
+}
+
+fn fix_unwrap_syscall(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    let ast_expr_binary = ast::ExprBinary::cast(db, node).unwrap_or_else(|| {
+        panic!(
+          "Expected a binary expression for unwrap called on SyscallResult. Actual node text: {:?}",
+          node.get_text(db)
+        )
+    });
+
+    let fixed = format!(
+        "{}{}unwrap_syscall()",
+        ast_expr_binary.lhs(db).as_syntax_node().get_text(db),
+        ast_expr_binary.op(db).as_syntax_node().get_text(db)
+    );
+    Some((node, fixed))
 }
