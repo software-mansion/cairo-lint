@@ -17,6 +17,7 @@ pub fn setup_test_crate_ex(db: &mut dyn SemanticGroup, content: &str) -> CrateId
         content: content.into(),
         code_mappings: [].into(),
         kind: FileKind::Module,
+        original_item_removed: false,
     })
     .intern(db);
 
@@ -29,6 +30,7 @@ pub fn setup_test_crate_ex(db: &mut dyn SemanticGroup, content: &str) -> CrateId
             negative_impls: true,
             associated_item_constraints: true,
             coupons: true,
+            user_defined_inline_macros: true,
         },
         cfg_set: Default::default(),
     };
