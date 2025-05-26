@@ -100,8 +100,10 @@ fn check_single_unwrap_syscall(
             let expr = &arenas.exprs[*id];
             let type_name = expr.ty().short_name(db).split("::").take(3).join("::");
             let node = expr.stable_ptr().lookup(db).as_syntax_node();
-            let module_file_id = find_module_file_containing_node(db, &node)
-                .unwrap_or_else(|| panic!("Couldn't find module file for {:?}", node));
+            let module_file_id = match find_module_file_containing_node(db, &node) {
+                Some(id) => id,
+                None => return,
+            };
             let importables = db
                 .visible_importables_from_module(module_file_id)
                 .unwrap_or_else(|| panic!("Couldn't find importables for {:?}", node));

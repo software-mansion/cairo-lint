@@ -56,7 +56,6 @@ pub fn format_type(
                 .get(&importable)
                 .cloned()
                 .unwrap_or_else(|| concrete_type.generic_type(db).format(db));
-            println!("path: {path}");
             let generics = concrete_type.generic_args(db);
 
             if generics.is_empty() {
