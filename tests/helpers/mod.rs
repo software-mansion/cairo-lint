@@ -80,26 +80,8 @@ macro_rules! test_lint_fixer {
       crate::helpers::setup::setup_test_crate_ex(&mut db, $before),
       &mut db,
     );
-    let semantic_diags: Vec<_> = diags.clone();
-    let unused_imports: ::std::collections::HashMap<::cairo_lang_filesystem::ids::FileId, ::std::collections::HashMap<::cairo_lang_syntax::node::SyntaxNode, ::cairo_lint::fixes::ImportFix>> =
-      ::cairo_lint::fixes::collect_unused_imports(&db, &semantic_diags);
-    let mut fixes = if unused_imports.keys().len() > 0 {
-      let current_file_id = unused_imports.keys().next().unwrap();
-      ::cairo_lint::fixes::apply_import_fixes(&db, unused_imports.get(&current_file_id).unwrap())
-    } else {
-      Vec::new()
-    };
-    for diag in diags.iter() {
-      if !matches!(diag.kind, ::cairo_lang_semantic::diagnostic::SemanticDiagnosticKind::UnusedImport(_)) {
-        if let Some((fix_node, fix)) = ::cairo_lint::fixes::fix_semantic_diagnostic(&db, &diag) {
-          let span = fix_node.span(db.upcast());
-          fixes.push(::cairo_lint::fixes::Fix {
-            span,
-            suggestion: fix,
-          });
-        }
-      }
-    }
+    let mut fixes = Vec::new();
+    fixes.extend(::cairo_lint::get_fixes(db.upcast(), diags).values().flatten().cloned());
     fixes.sort_by_key(|v| std::cmp::Reverse(v.span.start));
     if !$is_nested {
       for fix in fixes.iter() {

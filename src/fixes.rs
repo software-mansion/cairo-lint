@@ -11,29 +11,68 @@
 //! items are removed while preserving the structure of the import statements.
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use cairo_lang_defs::ids::UseId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::DiagnosticEntry;
-use cairo_lang_filesystem::ids::FileId;
-use cairo_lang_filesystem::span::TextSpan;
+use cairo_lang_filesystem::db::{FilesGroup, FilesGroupEx};
+use cairo_lang_filesystem::ids::{FileId, FileLongId};
+use cairo_lang_filesystem::span::{TextOffset, TextSpan, TextWidth};
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_utils::LookupIntern;
 use log::debug;
+use lsp_types::Url;
+use salsa::InternKey;
 
 use crate::context::get_fix_for_diagnostic_message;
+use crate::db::FixerDatabase;
 use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 
 /// Represents a fix for a diagnostic, containing the span of code to be replaced
 /// and the suggested replacement.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Fix {
     pub span: TextSpan,
     pub suggestion: String,
+}
+
+pub fn get_fixes_without_resolving_overlapping(
+    db: &(dyn SemanticGroup + 'static),
+    diagnostics: Vec<SemanticDiagnostic>,
+) -> HashMap<FileId, Vec<Fix>> {
+    let (import_diagnostics, diags_without_imports): (Vec<_>, Vec<_>) = diagnostics
+        .into_iter()
+        .partition(|diag| matches!(diag.kind, SemanticDiagnosticKind::UnusedImport(_)));
+
+    // Handling unused imports separately as we need to run pre-analysis on the diagnostics.
+    // to handle complex cases.
+    let unused_imports: HashMap<FileId, HashMap<SyntaxNode, ImportFix>> =
+        collect_unused_import_fixes(db, &import_diagnostics);
+    let mut fixes = HashMap::new();
+    unused_imports.keys().for_each(|file_id| {
+        let file_fixes: Vec<Fix> = apply_import_fixes(db, unused_imports.get(file_id).unwrap());
+        fixes.insert(*file_id, file_fixes);
+    });
+
+    for diag in diags_without_imports {
+        if let Some((fix_node, fix)) = fix_semantic_diagnostic(db, &diag) {
+            let location = diag.location(db);
+            fixes
+                .entry(location.file_id)
+                .or_insert_with(Vec::new)
+                .push(Fix {
+                    span: fix_node.span(db),
+                    suggestion: fix,
+                });
+        }
+    }
+    fixes
 }
 
 /// Attempts to fix a semantic diagnostic.
@@ -109,7 +148,7 @@ impl ImportFix {
     }
 }
 
-/// Collects unused imports from semantic diagnostics.
+/// Collects unused import fixes from semantic diagnostics.
 ///
 /// # Arguments
 ///
@@ -119,7 +158,7 @@ impl ImportFix {
 /// # Returns
 ///
 /// A HashMap where keys are FileIds and values are HashMaps of SyntaxNodes to ImportFixes.
-pub fn collect_unused_imports(
+pub fn collect_unused_import_fixes(
     db: &(dyn SemanticGroup + 'static),
     diags: &Vec<SemanticDiagnostic>,
 ) -> HashMap<FileId, HashMap<SyntaxNode, ImportFix>> {
@@ -345,4 +384,128 @@ fn find_use_path_list(db: &dyn SyntaxGroup, node: &SyntaxNode) -> SyntaxNode {
     node.descendants(db)
         .find(|descendant| descendant.kind(db) == SyntaxKind::UsePathList)
         .unwrap_or(*node)
+}
+
+/// Merges overlapping fixes for a given file.
+/// This function iteratively applies fixes to the file, resolving any overlapping fixes.
+/// If any overlapping fixes are found, fixes are merged into a single one modifying the whole file content.
+/// If no overlapping fixes are found, the original fixes are returned.
+///
+/// # Arguments
+///
+/// * `db` - A mutable reference to the FixerDatabase.
+/// * `file_id` - The FileId of the file to merge fixes for.
+/// * `fixes` - A vector of Fix objects to be merged.
+///
+/// # Returns
+///
+/// A vector of merged Fix objects.
+pub fn merge_overlapping_fixes(
+    db: &mut FixerDatabase,
+    file_id: FileId,
+    fixes: Vec<Fix>,
+) -> Vec<Fix> {
+    let mut current_fixes: Vec<Fix> = fixes.clone();
+    let mut were_overlapped = false;
+    let file_content = db.file_content(file_id).unwrap();
+
+    while let Some(overlapping_fix) = get_first_overlapping_fix(&current_fixes) {
+        were_overlapped = true;
+        apply_fix_for_file(db, file_id, overlapping_fix);
+
+        let diags: Vec<SemanticDiagnostic> = db
+            .file_modules(file_id)
+            .unwrap()
+            .iter()
+            .filter_map(|module_id| db.module_semantic_diagnostics(*module_id).ok())
+            .flat_map(|diag| diag.get_all())
+            .filter(|diag| diag.stable_location.diagnostic_location(db).file_id == file_id)
+            .collect();
+
+        current_fixes = get_fixes_without_resolving_overlapping(db, diags)
+            .values()
+            .flat_map(|v| v.clone())
+            .collect();
+    }
+
+    if were_overlapped {
+        for fix in current_fixes.iter() {
+            apply_fix_for_file(db, file_id, fix.clone());
+        }
+        let file_content_after = db.file_content(file_id).unwrap();
+        // Currently we are just replacing the entire file content with the new fixed one.
+        // This is not ideal, but as for now we don't need to worry about it.
+        current_fixes = vec![Fix {
+            span: TextSpan {
+                start: TextOffset::START,
+                end: TextWidth::from_str(&file_content).as_offset(),
+            },
+            suggestion: file_content_after.to_string(),
+        }];
+    }
+    current_fixes
+}
+
+fn get_first_overlapping_fix(fixes: &[Fix]) -> Option<Fix> {
+    for current_fix in fixes.iter() {
+        if fixes
+            .iter()
+            .any(|fix| spans_intersects(fix.span, current_fix.span) && fix != current_fix)
+        {
+            return Some(current_fix.clone());
+        }
+    }
+    None
+}
+
+fn apply_fix_for_file(db: &mut FixerDatabase, file_id: FileId, fix: Fix) {
+    let mut content = db.file_content(file_id).unwrap().to_string();
+    content.replace_range(fix.span.to_str_range(), &fix.suggestion);
+    db.override_file_content(file_id, Some(Arc::from(content)));
+}
+
+fn spans_intersects(span_a: TextSpan, span_b: TextSpan) -> bool {
+    span_a.start <= span_b.end && span_b.start <= span_a.end
+}
+
+/// Get the [`FileId`] for a [`Url`].
+pub fn file_for_url(db: &(dyn SemanticGroup + 'static), uri: &Url) -> Option<FileId> {
+    match uri.scheme() {
+        "file" => uri
+            .to_file_path()
+            .inspect_err(|()| panic!("invalid file url: {uri}"))
+            .ok()
+            .map(|path| FileId::new(db.upcast(), path)),
+        "vfs" => uri
+            .host_str()
+            .or_else(|| {
+                panic!("invalid vfs url, missing host string: {uri:?}");
+            })?
+            .parse::<usize>()
+            .inspect_err(|e| {
+                panic!("invalid vfs url, host string is not a valid integer, {e}: {uri:?}")
+            })
+            .ok()
+            .map(Into::into)
+            .map(FileId::from_intern_id),
+        _ => {
+            panic!("invalid url, scheme is not supported by this language server: {uri:?}");
+        }
+    }
+}
+
+/// Get the canonical [`Url`] for a [`FileId`].
+pub fn url_for_file(db: &(dyn SemanticGroup + 'static), file_id: FileId) -> Option<Url> {
+    let vf = match file_id.lookup_intern(db) {
+        FileLongId::OnDisk(path) => return Some(Url::from_file_path(path).unwrap()),
+        FileLongId::Virtual(vf) => vf,
+        FileLongId::External(id) => db.try_ext_as_virtual(id)?,
+    };
+    let mut url = Url::parse("vfs://").unwrap();
+    url.set_host(Some(&file_id.as_intern_id().to_string()))
+        .unwrap();
+    url.path_segments_mut()
+        .unwrap()
+        .push(&format!("{}.cairo", vf.name));
+    Some(url)
 }
