@@ -307,8 +307,15 @@ fn nested_destructuring_match_diagnostics() {
 #[test]
 fn nested_destructuring_match_fixer() {
     test_lint_fixer!(NESTED_DESTRUCTURING_MATCH, @r#"
-    Contains nested diagnostics can't fix it
-    "#, true);
+    fn main() {
+        let variable = Option::Some(Option::Some(1_felt252));
+        if let Option::Some(a) = variable {
+            if let Option::Some(b) = a {
+                println!("{b}")
+            }
+        };
+    }
+    "#);
 }
 
 #[test]
