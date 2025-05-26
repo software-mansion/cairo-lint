@@ -32,4 +32,5 @@ edition = "2024_07"
 negative_impls = true
 coupons = true
 associated_item_constraints = true
+user_defined_inline_macros = true
 "#;

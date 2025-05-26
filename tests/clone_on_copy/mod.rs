@@ -257,7 +257,7 @@ fn clone_felt252_fixer() {
     test_lint_fixer!(CLONE_FELT252, @r#"
     fn main() {
         let a: felt252 = 'hello'
-        let b = a;s
+        let b = a;
         println!("{}", b);
     }
     "#);
