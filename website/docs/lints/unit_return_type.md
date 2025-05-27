@@ -2,7 +2,7 @@
 
 Default: **Enabled**
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/unit_return_type.rs#L32)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/unit_return_type.rs#L37)
 
 ## What it does
 

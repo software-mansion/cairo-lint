@@ -32,7 +32,7 @@ pub struct ManualOk;
 /// Can be replaced with:
 ///
 /// ```cairo
-// fn main() {
+/// fn main() {
 ///     let res_val: Result<i32> = Result::Err('err');
 ///     let _a = res_val.ok();
 /// }
