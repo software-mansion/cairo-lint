@@ -223,7 +223,7 @@
     },
     {
         "name": "manual_ok",
-        "docs": "## What it does\n\nChecks for manual implementation of `ok` method in match and if expressions.\n\n## Example\n\n```cairo\nfn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    let _a = match res_val {\n        Result::Ok(x) => Option::Some(x),\n        Result::Err(_) => Option::None,\n    };\n}\n```\n\nCan be replaced with:\n\n```cairo\n    let res_val: Result<i32> = Result::Err('err');\n    let _a = res_val.ok();\n}\n```",
+        "docs": "## What it does\n\nChecks for manual implementation of `ok` method in match and if expressions.\n\n## Example\n\n```cairo\nfn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    let _a = match res_val {\n        Result::Ok(x) => Option::Some(x),\n        Result::Err(_) => Option::None,\n    };\n}\n```\n\nCan be replaced with:\n\n```cairo\nfn main() {\n    let res_val: Result<i32> = Result::Err('err');\n    let _a = res_val.ok();\n}\n```",
         "enabled": true,
         "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_ok.rs#L40"
     },
@@ -286,11 +286,5 @@
         "docs": "## What it does\n\nDetects if the function has a unit return type, which is not needed to be specified.\n\n## Example\n\n```cairo\nfn foo() -> () {\n    println!(\"Hello, world!\");\n}\n```\n\nCan be simplified to just:\n\n```cairo\nfn foo() {\n    println!(\"Hello, world!\");\n}\n```",
         "enabled": true,
         "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/unit_return_type.rs#L37"
-    },
-    {
-        "name": "unwrap_syscall",
-        "docs": "## What it does\n\nDetects if the function uses `unwrap` on a `SyscallResult` object.\n\n## Example\n\n```cairo\nuse starknet::storage_access::{storage_address_from_base, storage_base_address_from_felt252};\nuse starknet::syscalls::storage_read_syscall;\n\nfn main() {\n    let storage_address = storage_base_address_from_felt252(3534535754756246375475423547453);\n    let result = storage_read_syscall(0, storage_address_from_base(storage_address));\n    result.unwrap();\n}\n```\n\nCan be changed to:\n\n```cairo\nuse starknet::SyscallResultTrait;\nuse starknet::storage_access::{storage_address_from_base, storage_base_address_from_felt252};\nuse starknet::syscalls::storage_read_syscall;\n\nfn main() {\n    let storage_address = storage_base_address_from_felt252(3534535754756246375475423547453);\n    let result = storage_read_syscall(0, storage_address_from_base(storage_address));\n    result.unwrap_syscall();\n}\n```",
-        "enabled": true,
-        "source_link": "https://github.com/software-mansion/cairo-lint/tree/main/src/lints/unwrap_syscall.rs#L50"
     }
 ]
