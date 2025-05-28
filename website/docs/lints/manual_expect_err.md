@@ -2,7 +2,7 @@
 
 Default: **Enabled**
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_expect_err.rs#L53)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_expect_err.rs#L54)
 
 ## What it does
 

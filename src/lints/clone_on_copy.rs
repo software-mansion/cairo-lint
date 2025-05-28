@@ -86,10 +86,6 @@ fn check_clone_usage(
 }
 
 fn fix_clone_on_copy(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-    println!(
-        "Fixing `clone` on `Copy` type at node: {:?}",
-        node.get_text(db.upcast())
-    );
     let ast_expr_binary = ast::ExprBinary::cast(db.upcast(), node)?;
 
     let module_file_id = find_module_file_containing_node(db, &node)?;

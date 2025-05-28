@@ -2,7 +2,7 @@
 
 Default: **Enabled**
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/single_match.rs#L85)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/single_match.rs#L86)
 
 ## What it does
 

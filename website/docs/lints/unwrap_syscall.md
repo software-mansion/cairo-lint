@@ -2,7 +2,7 @@
 
 Default: **Enabled**
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/unwrap_syscall.rs#L50)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/unwrap_syscall.rs#L52)
 
 ## What it does
 

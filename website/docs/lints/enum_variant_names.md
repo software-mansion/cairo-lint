@@ -2,7 +2,7 @@
 
 Default: **Disabled**
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/enum_variant_names.rs#L36)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/enum_variant_names.rs#L37)
 
 ## What it does
 

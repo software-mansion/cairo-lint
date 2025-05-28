@@ -2,7 +2,7 @@
 
 Default: **Enabled**
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/bool_comparison.rs#L42)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/bool_comparison.rs#L43)
 
 ## What it does
 

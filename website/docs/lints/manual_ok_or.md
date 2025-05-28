@@ -2,7 +2,7 @@
 
 Default: **Enabled**
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_ok_or.rs#L51)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/manual/manual_ok_or.rs#L52)
 
 ## What it does
 

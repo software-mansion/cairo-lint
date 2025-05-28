@@ -84,6 +84,9 @@ pub fn get_fixes_without_resolving_overlapping(
                     span: fix_node.span(db),
                     suggestion: fix,
                 });
+            // If there are import addition paths, we add them as a suggestion.
+            // Even if the import is being duplicated, later cairo-lang-formatter will handle that,
+            // and leave only a single import.
             if let Some(import_paths) = import_addition_paths {
                 let imports_suggestion = import_paths
                     .iter()
