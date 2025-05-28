@@ -7,7 +7,10 @@ use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
 
-use crate::context::{CairoLintKind, Lint};
+use crate::{
+    context::{CairoLintKind, Lint},
+    fixes::InternalFix,
+};
 
 pub struct EmptyEnumBracketsVariant;
 
@@ -49,7 +52,7 @@ impl Lint for EmptyEnumBracketsVariant {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_empty_enum_brackets_variant(db.upcast(), node)
     }
 }
@@ -90,10 +93,7 @@ pub fn check_empty_enum_brackets_variant(
     }
 }
 
-fn fix_empty_enum_brackets_variant(
-    db: &dyn SyntaxGroup,
-    node: SyntaxNode,
-) -> Option<(SyntaxNode, String)> {
+fn fix_empty_enum_brackets_variant(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let ast_variant = ast::Variant::from_syntax_node(db, node);
 
     // Extract a clean type definition, to remove
@@ -105,5 +105,9 @@ fn fix_empty_enum_brackets_variant(
     let variant_text = node.get_text(db);
     let fixed = variant_text.replace(&type_clause, "");
 
-    Some((node, fixed))
+    Some(InternalFix {
+        node,
+        suggestion: fixed,
+        import_addition_paths: None,
+    })
 }

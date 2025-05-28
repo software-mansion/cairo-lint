@@ -17,6 +17,7 @@ use cairo_lang_syntax::node::{
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::helper::indent_snippet;
 use crate::lints::{NONE, SOME};
 use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
@@ -66,7 +67,7 @@ impl Lint for LoopMatchPopFront {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_loop_match_pop_front(db.upcast(), node)
     }
 }
@@ -258,10 +259,7 @@ fn check_block_is_break(db: &dyn SemanticGroup, expr_block: &ExprBlock, arenas: 
 ///     do_smth(val);
 /// };
 /// ```
-pub fn fix_loop_match_pop_front(
-    db: &dyn SyntaxGroup,
-    node: SyntaxNode,
-) -> Option<(SyntaxNode, String)> {
+pub fn fix_loop_match_pop_front(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let expr_loop = AstExprLoop::from_syntax_node(db, node);
     let body = expr_loop.body(db);
     let AstStatement::Expr(expr) = &body.statements(db).elements(db)[0] else {
@@ -316,11 +314,12 @@ pub fn fix_loop_match_pop_front(
             }
         }
     }
-    Some((
+    Some(InternalFix {
         node,
-        indent_snippet(
+        suggestion: indent_snippet(
             &format!("{trivia}for {elt_name} in {span_name} {{\n{some_arm}\n}};\n"),
             indent.len() / 4,
         ),
-    ))
+        import_addition_paths: None,
+    })
 }

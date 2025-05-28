@@ -13,7 +13,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use cairo_lang_defs::ids::UseId;
+use cairo_lang_defs::ids::{TopLevelLanguageElementId, UseId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::DiagnosticEntry;
 use cairo_lang_filesystem::db::{FilesGroup, FilesGroupEx};
@@ -24,6 +24,7 @@ use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::LookupIntern;
+use itertools::Itertools;
 use log::debug;
 use lsp_types::Url;
 use salsa::InternKey;
@@ -42,6 +43,14 @@ pub struct Fix {
     pub suggestion: String,
 }
 
+/// Represents an internal fix that includes the node to be modified,
+/// the suggestion for the fix, and optional import additions.
+pub struct InternalFix {
+    pub node: SyntaxNode,
+    pub suggestion: String,
+    pub import_addition_paths: Option<Vec<String>>,
+}
+
 pub fn get_fixes_without_resolving_overlapping(
     db: &(dyn SemanticGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
@@ -54,6 +63,8 @@ pub fn get_fixes_without_resolving_overlapping(
     // to handle complex cases.
     let unused_imports: HashMap<FileId, HashMap<SyntaxNode, ImportFix>> =
         collect_unused_import_fixes(db, &import_diagnostics);
+    println!("Collected {:?} unused import diagnostics", unused_imports);
+    println!("fsfsd: {:?}", import_diagnostics);
     let mut fixes = HashMap::new();
     unused_imports.keys().for_each(|file_id| {
         let file_fixes: Vec<Fix> = apply_import_fixes(db, unused_imports.get(file_id).unwrap());
@@ -61,7 +72,12 @@ pub fn get_fixes_without_resolving_overlapping(
     });
 
     for diag in diags_without_imports {
-        if let Some((fix_node, fix)) = fix_semantic_diagnostic(db, &diag) {
+        if let Some(InternalFix {
+            node: fix_node,
+            suggestion: fix,
+            import_addition_paths,
+        }) = fix_semantic_diagnostic(db, &diag)
+        {
             let location = diag.location(db);
             fixes
                 .entry(location.file_id)
@@ -70,6 +86,22 @@ pub fn get_fixes_without_resolving_overlapping(
                     span: fix_node.span(db),
                     suggestion: fix,
                 });
+            if let Some(import_paths) = import_addition_paths {
+                let imports_suggestion = import_paths
+                    .iter()
+                    .map(|import_path| format!("use {};", import_path))
+                    .join("\n");
+                fixes
+                    .entry(location.file_id)
+                    .or_insert_with(Vec::new)
+                    .push(Fix {
+                        span: TextSpan {
+                            start: TextOffset::START,
+                            end: TextOffset::START,
+                        },
+                        suggestion: imports_suggestion,
+                    });
+            }
         }
     }
     fixes
@@ -93,7 +125,7 @@ pub fn get_fixes_without_resolving_overlapping(
 pub fn fix_semantic_diagnostic(
     db: &dyn SemanticGroup,
     diag: &SemanticDiagnostic,
-) -> Option<(SyntaxNode, String)> {
+) -> Option<InternalFix> {
     match diag.kind {
         SemanticDiagnosticKind::PluginDiagnostic(ref plugin_diag) => {
             fix_plugin_diagnostic(db, plugin_diag)
@@ -119,12 +151,11 @@ pub fn fix_semantic_diagnostic(
 ///
 /// # Returns
 ///
-/// An `Option<(SyntaxNode, String)>` containing the node to be replaced and the
-/// suggested replacement.
+/// `Option<InternalFix>` if a fix is available, or `None` if no fix can be applied.
 fn fix_plugin_diagnostic(
     db: &dyn SemanticGroup,
     plugin_diag: &PluginDiagnostic,
-) -> Option<(SyntaxNode, String)> {
+) -> Option<InternalFix> {
     let node = plugin_diag.stable_ptr.lookup(db);
     get_fix_for_diagnostic_message(db, node, &plugin_diag.message)
 }

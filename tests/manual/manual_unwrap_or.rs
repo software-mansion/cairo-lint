@@ -505,9 +505,9 @@ fn if_let_with_array_literal_option_diagnostics() {
 fn if_let_with_array_literal_option_fixer() {
     test_lint_fixer!(IF_LET_WITH_ARRAY_LITERAL_OPTION, @r"
     fn main() {
-      let a: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
+        let a: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
 
-      a.unwrap_or([3; 5]);
+        a.unwrap_or([3; 5]);
     }
     ");
 }
@@ -599,8 +599,8 @@ fn if_let_with_tuple_option_diagnostics() {
 fn if_let_with_tuple_option_fixer() {
     test_lint_fixer!(IF_LET_WITH_TUPLE_OPTION, @r#"
     fn main() {
-      let a: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
-      a.unwrap_or(("", 0, true));
+        let a: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
+        a.unwrap_or(("", 0, true));
     }
     "#);
 }
@@ -645,9 +645,9 @@ fn match_with_tuple_option_diagnostics() {
 fn match_with_tuple_option_fixer() {
     test_lint_fixer!(MATCH_WITH_TUPLE_OPTION, @r#"
     fn main() {
-      let x: Option<(ByteArray, u128, bool)> =Option::Some(("James", 90, true));
+        let x: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
 
-      x.unwrap_or(("sdkfh", 898, false));
+        x.unwrap_or(("sdkfh", 898, false));
     }
     "#);
 }
@@ -891,7 +891,6 @@ fn if_let_with_match_in_else_option_fixer() {
                 true => 10,
                 false => 20,
             }
-
             // comment
         //third comment
 
@@ -920,7 +919,7 @@ fn if_let_with_if_in_else_option_fixer() {
         let x: Option<u128> = Option::Some(123);
 
         #[allow(collapsible_if_else)]
-        x.unwrap_or({ 
+        x.unwrap_or({
             if true {
                 10
             } else {
@@ -976,10 +975,8 @@ fn match_with_result_with_comment_fixer() {
     test_lint_fixer!(MATCH_WITH_RESULT_WITH_COMMENT, @r"
     fn main() {
         let a: Result<[u64; 2], felt252> = Result::Ok([10, 20]);
-        let _x = a.unwrap_or(
-            // comment
-            [1, 2]
-        );
+        let _x = a.unwrap_or(// comment
+        [1, 2]);
     }
     ");
 }
@@ -1102,8 +1099,7 @@ fn match_with_comment_after_arrow_fixer() {
     fn main() {
         let a: Result<u64, felt252> = Result::Ok(54);
         let _x = a.unwrap_or( // comment after =>
-            231
-        );
+        231);
     }
     ");
 }

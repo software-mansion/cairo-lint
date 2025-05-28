@@ -1,5 +1,6 @@
 use crate::{
     context::{CairoLintKind, Lint},
+    fixes::InternalFix,
     queries::get_all_function_bodies,
 };
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
@@ -60,7 +61,7 @@ impl Lint for RedundantBracketsInEnumCall {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_redundant_brackets_in_enum_call(db.upcast(), node)
     }
 }
@@ -211,7 +212,7 @@ fn has_unit_generic_arg_at_index(
 fn fix_redundant_brackets_in_enum_call(
     db: &dyn SyntaxGroup,
     node: SyntaxNode,
-) -> Option<(SyntaxNode, String)> {
+) -> Option<InternalFix> {
     let ast_expr = ast::Expr::from_syntax_node(db, node);
 
     let ast::Expr::FunctionCall(call_expr) = &ast_expr else {
@@ -230,5 +231,9 @@ fn fix_redundant_brackets_in_enum_call(
         .strip_suffix(&arguments)?
         .to_string();
 
-    Some((node, fixed_expr))
+    Some(InternalFix {
+        node,
+        suggestion: fixed_expr,
+        import_addition_paths: None,
+    })
 }

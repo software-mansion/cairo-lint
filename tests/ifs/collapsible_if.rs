@@ -405,8 +405,12 @@ fn collapsible_if_with_function_calls_diagnostics() {
 #[test]
 fn collapsible_if_with_function_calls_fixer() {
     test_lint_fixer!(COLLAPSIBLE_IF_WITH_FUNCTION_CALLS, @r#"
-    fn is_valid(_a: bool) -> bool { true } 
-    fn is_ready(_b: bool) -> bool { true } 
+    fn is_valid(_a: bool) -> bool {
+        true
+    }
+    fn is_ready(_b: bool) -> bool {
+        true
+    }
 
     fn main() {
         if (is_valid(true)) && (is_ready(true)) {
@@ -485,7 +489,7 @@ fn collapsible_if_with_else_on_outer_if_fixer() {
         if x || z {
             if y && z {
                 println!("Hello");
-            } 
+            }
         } else {
             println!("World");
         }
@@ -678,7 +682,9 @@ fn collapsible_if_in_trait_fixer() {
     }
 
     trait TExample {
-        fn check_conditions(self: @MyStruct, z: bool) {
+        fn check_conditions(
+            self: @MyStruct, z: bool,
+        ) {
             if (*self.x) && (*self.y && z) {
                 println!("Trait default function with collapsible if");
             }

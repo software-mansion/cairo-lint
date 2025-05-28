@@ -179,17 +179,17 @@ fn enum_unit_variant_pattern_matching_diagnostics() {
 
 #[test]
 fn enum_unit_variant_pattern_matching_fixer() {
-    test_lint_fixer!(ENUM_UNIT_VARIANT_PATTERN_MATCHING, @r#"
+    test_lint_fixer!(ENUM_UNIT_VARIANT_PATTERN_MATCHING, @r"
     enum Enum {
-        UnitVariant
-    } 
+        UnitVariant,
+    }
 
     fn main() {
         let e = Enum::UnitVariant;
 
         if e == Enum::UnitVariant {}
     }
-    "#);
+    ");
 }
 
 #[test]

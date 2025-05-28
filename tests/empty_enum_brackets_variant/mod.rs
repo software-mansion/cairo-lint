@@ -110,8 +110,8 @@ fn multiple_empty_variants_fixer() {
     enum MyEnum {
         Data: u8,
         Empty1, // Some comment
-        Empty2,         // Different comment
-        Empty3
+        Empty2, // Different comment
+        Empty3,
     }
     ");
 }
@@ -148,7 +148,7 @@ fn allow_multiple_empty_variants_fixer() {
         Data: u8,
         Empty1: (),
         Empty2: (),
-        Empty3
+        Empty3,
     }
     ");
 }

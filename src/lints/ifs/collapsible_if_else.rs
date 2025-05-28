@@ -14,6 +14,7 @@ use cairo_lang_syntax::node::{
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
 pub struct CollapsibleIfElse;
@@ -67,7 +68,7 @@ impl Lint for CollapsibleIfElse {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_collapsible_if_else(db.upcast(), node)
     }
 }
@@ -169,10 +170,7 @@ fn is_only_statement_if(block_expr: &ExprBlock, arenas: &Arenas) -> bool {
 /// # Returns
 ///
 /// A `String` with the refactored `if-else` structure.
-pub fn fix_collapsible_if_else(
-    db: &dyn SyntaxGroup,
-    node: SyntaxNode,
-) -> Option<(SyntaxNode, String)> {
+pub fn fix_collapsible_if_else(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let if_expr = AstExprIf::from_syntax_node(db, node);
     let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) else {
         return None;
@@ -195,13 +193,14 @@ pub fn fix_collapsible_if_else(
                     .take_while(|c| c.is_whitespace())
                     .collect::<String>();
 
-                return Some((
-                    else_clause.as_syntax_node(),
-                    format!(
+                return Some(InternalFix {
+                    node: else_clause.as_syntax_node(),
+                    suggestion: format!(
                         "{}else if {} {} {}",
                         original_indent, condition, if_body, else_body
                     ),
-                ));
+                    import_addition_paths: None,
+                });
             }
         }
     }

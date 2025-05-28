@@ -1,4 +1,5 @@
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use cairo_lang_defs::ids::{LanguageElementId, ModuleItemId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
@@ -54,7 +55,7 @@ impl Lint for EnumVariantNames {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_enum_variant_names(db.upcast(), node)
     }
 }
@@ -85,7 +86,7 @@ pub fn check_enum_variant_names(
     }
 }
 
-fn fix_enum_variant_names(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+fn fix_enum_variant_names(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let enum_item = AstEnumItem::from_syntax_node(db, node);
 
     let source = enum_item.as_syntax_node().get_text(db);
@@ -118,7 +119,11 @@ fn fix_enum_variant_names(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Syn
         fixed_enum = fixed_enum.replace(variant, &fixed_name);
     }
 
-    Some((node, fixed_enum))
+    Some(InternalFix {
+        node,
+        suggestion: fixed_enum,
+        import_addition_paths: None,
+    })
 }
 
 fn get_prefix_and_suffix(variant_names: &[String]) -> (Vec<String>, Vec<String>) {

@@ -65,10 +65,7 @@ fn single_unused_import_diagnostics() {
 
 #[test]
 fn single_unused_import_fixer() {
-    test_lint_fixer!(SINGLE_UNUSED_IMPORT, @r#"
-    fn main() {
-    }
-    "#);
+    test_lint_fixer!(SINGLE_UNUSED_IMPORT, @"fn main() {}");
 }
 
 #[test]
@@ -87,10 +84,7 @@ fn multiple_unused_imports_diagnostics() {
 
 #[test]
 fn multiple_unused_imports_fixer() {
-    test_lint_fixer!(MULTIPLE_UNUSED_IMPORTS, @r#"
-    fn main() {
-    }
-    "#);
+    test_lint_fixer!(MULTIPLE_UNUSED_IMPORTS, @"fn main() {}");
 }
 
 #[test]
@@ -105,10 +99,7 @@ fn unused_import_aliased_diagnostics() {
 
 #[test]
 fn unused_import_aliased_fixer() {
-    test_lint_fixer!(UNUSED_IMPORT_ALIASED, @r#"
-    fn main() {
-    }
-    "#);
+    test_lint_fixer!(UNUSED_IMPORT_ALIASED, @"fn main() {}");
 }
 
 #[test]
@@ -123,10 +114,7 @@ fn unused_import_trait_diagnostics() {
 
 #[test]
 fn unused_import_trait_fixer() {
-    test_lint_fixer!(UNUSED_IMPORT_TRAIT, @r#"
-    fn main() {
-    }
-    "#);
+    test_lint_fixer!(UNUSED_IMPORT_TRAIT, @"fn main() {}");
 }
 
 #[test]
@@ -186,13 +174,13 @@ fn multiple_import_statements_lines_with_some_used_and_some_unused_diagnostics()
 
 #[test]
 fn multiple_import_statements_lines_with_some_used_and_some_unused_fixer() {
-    test_lint_fixer!(MULTIPLE_IMPORT_STATEMENTS_LINES_WITH_SOME_USED_AND_SOME_UNUSED, @r#"
-    use core::option::Option;
+    test_lint_fixer!(MULTIPLE_IMPORT_STATEMENTS_LINES_WITH_SOME_USED_AND_SOME_UNUSED, @r"
     use core::box::BoxTrait;
+    use core::option::Option;
 
     fn main() {
         let _ = Option::<u128>::Some(5);
         let _res = BoxTrait::<u128>::new(5);
     }
-    "#);
+    ");
 }

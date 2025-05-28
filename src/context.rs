@@ -1,3 +1,4 @@
+use crate::fixes::InternalFix;
 use crate::lints::bitwise_for_parity_check::check_bitwise_for_parity;
 use crate::lints::bitwise_for_parity_check::BitwiseForParity;
 use crate::lints::bool_comparison::check_bool_comparison;
@@ -170,13 +171,12 @@ pub trait Lint: Sync + Send {
     /// * `diag` - A reference to the SemanticDiagnostic to be fixed
     ///
     /// # Returns
-    /// An `Option<(SyntaxNode, String)>` where the `SyntaxNode` represents the node to be
-    /// replaced, and the `String` is the suggested replacement. Returns `None` if no fix
+    /// An `Option<Vec<InternalFix>>`. Returns `None` if no fix
     /// is available for the given diagnostic.
     ///
     /// By default there is no fixing procedure for a Lint.
     #[expect(unused_variables)]
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         unreachable!("fix() has been called for a lint which has_fixer() returned false")
     }
 }
@@ -405,7 +405,7 @@ pub fn get_fix_for_diagnostic_message(
     db: &dyn SemanticGroup,
     node: SyntaxNode,
     message: &str,
-) -> Option<(SyntaxNode, String)> {
+) -> Option<InternalFix> {
     LINT_CONTEXT
         .lint_groups
         .iter()

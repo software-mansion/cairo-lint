@@ -8,6 +8,7 @@ use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr,
 };
 
+use crate::fixes::InternalFix;
 use crate::{
     context::{CairoLintKind, Lint},
     queries::get_all_checkable_functions,
@@ -51,7 +52,7 @@ impl Lint for UnitReturnType {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_unit_return_type(db, node)
     }
 }
@@ -84,10 +85,7 @@ pub fn check_unit_return_type(
     }
 }
 
-pub fn fix_unit_return_type(
-    db: &dyn SyntaxGroup,
-    node: SyntaxNode,
-) -> Option<(SyntaxNode, String)> {
+pub fn fix_unit_return_type(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let function_signature = FunctionSignature::from_syntax_node(db, node);
     let return_type_clause = function_signature.ret_ty(db);
     if let OptionReturnTypeClause::ReturnTypeClause(type_clause) = return_type_clause {
@@ -96,11 +94,19 @@ pub fn fix_unit_return_type(
         let fixed = fixed.replace(&type_clause_text, "");
 
         if type_clause_text.ends_with(" ") {
-            return Some((node, fixed));
+            return Some(InternalFix {
+                node,
+                suggestion: fixed,
+                import_addition_paths: None,
+            });
         }
 
         // In case the `()` type doesn't have a space after it, like `fn foo() -> ();`, we trim the end.
-        return Some((node, fixed.trim_end().to_string()));
+        return Some(InternalFix {
+            node,
+            suggestion: fixed.trim_end().to_string(),
+            import_addition_paths: None,
+        });
     }
     panic!("Expected a function signature with a return type clause.");
 }

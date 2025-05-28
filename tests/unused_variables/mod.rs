@@ -52,7 +52,7 @@ fn one_unused_variable_diagnostics() {
 fn one_unused_variable_fixer() {
     test_lint_fixer!(ONE_UNUSED_VARIABLE, @r"
     fn main() {
-      let a: Option<felt252> = Option::Some(1);
+        let a: Option<felt252> = Option::Some(1);
     }
     ");
 }
@@ -73,12 +73,12 @@ fn two_unused_variables_diagnostics() {
 
 #[test]
 fn two_unused_variables_fixer() {
-    test_lint_fixer!(TWO_UNUSED_VARIABLES, @r#"
+    test_lint_fixer!(TWO_UNUSED_VARIABLES, @r"
     fn main() {
-      let a: Option<felt252> = Option::Some(1);
-      let b = 1;
+        let a: Option<felt252> = Option::Some(1);
+        let b = 1;
     }
-  "#);
+    ");
 }
 
 #[test]
@@ -117,28 +117,28 @@ fn plenty_unused_variables_diagnostics() {
 
 #[test]
 fn plenty_unused_variables_fixer() {
-    test_lint_fixer!(PLENTY_UNUSED_VARIABLES, @r#"
+    test_lint_fixer!(PLENTY_UNUSED_VARIABLES, @r"
     fn main() {
-      let used: Option<felt252> = Option::Some(1);
-      let b = 1;
-      {
-          let c = 1_u32;
-      }
-      if true {
-          let _avoid_collapsible = 1_u32;
-          if false {
-              let d = 3_u32;
-          } else {
-              let e = false;
-          }
-          let f: Array<u32> = array![];
-      } else {
-          let g: Option<u32> = Option::None;
-          match used {
-              Option::Some(not_used) => 1_u32,
-              Option::None => 2_u32,
-          };
-      }
+        let used: Option<felt252> = Option::Some(1);
+        let b = 1;
+        {
+            let c = 1_u32;
+        }
+        if true {
+            let _avoid_collapsible = 1_u32;
+            if false {
+                let d = 3_u32;
+            } else {
+                let e = false;
+            }
+            let f: Array<u32> = array![];
+        } else {
+            let g: Option<u32> = Option::None;
+            match used {
+                Option::Some(not_used) => 1_u32,
+                Option::None => 2_u32,
+            };
+        }
     }
-  "#);
+    ");
 }

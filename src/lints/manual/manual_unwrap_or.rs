@@ -6,6 +6,7 @@ use cairo_lang_syntax::node::{ast, db::SyntaxGroup, SyntaxNode, TypedStablePtr, 
 
 use crate::{
     context::CairoLintKind,
+    fixes::InternalFix,
     queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions},
 };
 use crate::{
@@ -52,7 +53,7 @@ impl Lint for ManualUnwrapOr {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_unwrap_or(db, node)
     }
 }
@@ -92,7 +93,7 @@ pub fn check_manual_unwrap_or(
     }
 }
 
-fn fix_manual_unwrap_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+fn fix_manual_unwrap_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let expr = ast::Expr::from_syntax_node(db, node);
 
     let (matched_expr, or_body) = match &expr {
@@ -187,13 +188,14 @@ fn fix_manual_unwrap_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synta
         .take_while(|c| c.is_whitespace())
         .collect::<String>();
 
-    Some((
+    Some(InternalFix {
         node,
-        format!(
+        suggestion: format!(
             "{indent}{}.unwrap_or({or_body})",
             matched_expr.get_text(db).trim_end()
         ),
-    ))
+        import_addition_paths: None,
+    })
 }
 
 // Adjusts the arm body indentation to align with the match closing bracket.

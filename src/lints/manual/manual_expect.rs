@@ -10,6 +10,7 @@ use cairo_lang_syntax::node::{
 };
 
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::lints::manual::helpers::{
     expr_if_get_var_name_and_err, expr_match_get_var_name_and_err,
 };
@@ -59,7 +60,7 @@ impl Lint for ManualExpect {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_expect(db.upcast(), node)
     }
 }
@@ -120,7 +121,7 @@ pub fn check_manual_expect(
 }
 
 /// Rewrites a manual implementation of expect
-pub fn fix_manual_expect(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+pub fn fix_manual_expect(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let fix = match node.kind(db) {
         SyntaxKind::ExprMatch => {
             let expr_match = ExprMatch::from_syntax_node(db, node);
@@ -139,5 +140,9 @@ pub fn fix_manual_expect(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synt
         }
         _ => panic!("SyntaxKind should be either ExprIf or ExprMatch"),
     };
-    Some((node, fix))
+    Some(InternalFix {
+        node,
+        suggestion: fix,
+        import_addition_paths: None,
+    })
 }

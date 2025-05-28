@@ -169,7 +169,7 @@ fn test_core_panic_with_felt252_diagnostics() {
 fn test_core_panic_with_felt252_fixer() {
     test_lint_fixer!(TEST_CORE_PANIC_WITH_FELT252, @r"
     fn main() {
-        let foo: Option::<i32> = Option::None;
+        let foo: Option<i32> = Option::None;
         // This is just a variable.
         let _foo = foo.expect('err');
     }
@@ -194,7 +194,7 @@ fn test_panic_with_felt252_fixer() {
     test_lint_fixer!(TEST_PANIC_WITH_FELT252, @r"
     use core::panic_with_felt252;
     fn main() {
-        let foo: Option::<i32> = Option::None;
+        let foo: Option<i32> = Option::None;
         // This is just a variable.
         let _foo = foo.expect('err');
     }
@@ -221,7 +221,7 @@ fn test_with_enum_error_fixer() {
         pub const Error: felt252 = 'this is an err';
     }
     fn main() {
-        let foo: Option::<i32> = Option::None;
+        let foo: Option<i32> = Option::None;
         // This is just a variable.
         let _foo = foo.expect(Error::Error);
     }
@@ -238,7 +238,7 @@ fn test_with_comment_in_some_diagnostics() {
 fn test_with_comment_in_some_fixer() {
     test_lint_fixer!(TEST_WITH_COMMENT_IN_SOME, @r"
     fn main() {
-        let foo: Option::<i32> = Option::None;
+        let foo: Option<i32> = Option::None;
         // This is just a variable.
         let _foo = match foo {
             Option::Some(x) => {
@@ -261,12 +261,11 @@ fn test_with_comment_in_none_diagnostics() {
 fn test_with_comment_in_none_fixer() {
     test_lint_fixer!(TEST_WITH_COMMENT_IN_NONE, @r"
     fn main() {
-        let foo: Option::<i32> = Option::None;
+        let foo: Option<i32> = Option::None;
         // This is just a variable.
         let _foo = match foo {
             Option::Some(x) => x,
-            Option::None => 
-            {
+            Option::None => {
                 // do something
                 core::panic_with_felt252('err')
             },
@@ -293,9 +292,9 @@ fn test_match_expression_is_a_function_fixer() {
     test_lint_fixer!(TEST_MATCH_EXPRESSION_IS_A_FUNCTION, @r"
     fn foo(a: u256) -> Option<u256> {
         Option::Some(a)
-    } 
+    }
     fn main() {
-        let a: u256 = 0; 
+        let a: u256 = 0;
         // This is just a variable.
         let _a = foo(a).expect('err');
     }

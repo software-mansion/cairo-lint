@@ -6,6 +6,7 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions};
 
@@ -54,7 +55,7 @@ impl Lint for ManualIsSome {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_is_some(db.upcast(), node)
     }
 }
@@ -102,7 +103,7 @@ impl Lint for ManualIsNone {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_is_none(db.upcast(), node)
     }
 }
@@ -150,7 +151,7 @@ impl Lint for ManualIsOk {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_is_ok(db.upcast(), node)
     }
 }
@@ -198,7 +199,7 @@ impl Lint for ManualIsErr {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_is_err(db.upcast(), node)
     }
 }
@@ -293,21 +294,37 @@ pub fn check_manual_is(
 }
 
 /// Rewrites a manual implementation of is_some
-pub fn fix_manual_is_some(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    Some((node, fix_manual("is_some", db, node)))
+pub fn fix_manual_is_some(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+    Some(InternalFix {
+        node,
+        suggestion: fix_manual("is_some", db, node),
+        import_addition_paths: None,
+    })
 }
 
 // Rewrites a manual implementation of is_none
-pub fn fix_manual_is_none(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    Some((node, fix_manual("is_none", db, node)))
+pub fn fix_manual_is_none(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+    Some(InternalFix {
+        node,
+        suggestion: fix_manual("is_none", db, node),
+        import_addition_paths: None,
+    })
 }
 
 /// Rewrites a manual implementation of is_ok
-pub fn fix_manual_is_ok(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    Some((node, fix_manual("is_ok", db, node)))
+pub fn fix_manual_is_ok(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+    Some(InternalFix {
+        node,
+        suggestion: fix_manual("is_ok", db, node),
+        import_addition_paths: None,
+    })
 }
 
 /// Rewrites a manual implementation of is_err
-pub fn fix_manual_is_err(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    Some((node, fix_manual("is_err", db, node)))
+pub fn fix_manual_is_err(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+    Some(InternalFix {
+        node,
+        suggestion: fix_manual("is_err", db, node),
+        import_addition_paths: None,
+    })
 }

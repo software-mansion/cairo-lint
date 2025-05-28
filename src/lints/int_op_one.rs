@@ -9,6 +9,7 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 pub struct IntegerGreaterEqualPlusOne;
@@ -53,7 +54,7 @@ impl Lint for IntegerGreaterEqualPlusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_int_ge_plus_one(db.upcast(), node)
     }
 }
@@ -100,7 +101,7 @@ impl Lint for IntegerGreaterEqualMinusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_int_ge_min_one(db.upcast(), node)
     }
 }
@@ -147,7 +148,7 @@ impl Lint for IntegerLessEqualPlusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_int_le_plus_one(db.upcast(), node)
     }
 }
@@ -194,7 +195,7 @@ impl Lint for IntegerLessEqualMinusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_int_le_min_one(db.upcast(), node)
     }
 }
@@ -341,7 +342,7 @@ fn check_is_add_or_sub_one(
 }
 
 /// Rewrites a manual implementation of int ge plus one x >= y + 1
-pub fn fix_int_ge_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+pub fn fix_int_ge_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let node = ExprBinary::from_syntax_node(db, node);
     let lhs = node.lhs(db).as_syntax_node().get_text(db);
 
@@ -351,11 +352,15 @@ pub fn fix_int_ge_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Sy
     let rhs = rhs_exp.lhs(db).as_syntax_node().get_text(db);
 
     let fix = format!("{} > {} ", lhs.trim(), rhs.trim());
-    Some((node.as_syntax_node(), fix))
+    Some(InternalFix {
+        node: node.as_syntax_node(),
+        suggestion: fix,
+        import_addition_paths: None,
+    })
 }
 
 /// Rewrites a manual implementation of int ge min one x - 1 >= y
-pub fn fix_int_ge_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+pub fn fix_int_ge_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let node = ExprBinary::from_syntax_node(db, node);
     let AstExpr::Binary(lhs_exp) = node.lhs(db) else {
         panic!("should be substraction")
@@ -365,11 +370,15 @@ pub fn fix_int_ge_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Syn
     let lhs = lhs_exp.lhs(db).as_syntax_node().get_text(db);
 
     let fix = format!("{} > {} ", lhs.trim(), rhs.trim());
-    Some((node.as_syntax_node(), fix))
+    Some(InternalFix {
+        node: node.as_syntax_node(),
+        suggestion: fix,
+        import_addition_paths: None,
+    })
 }
 
 /// Rewrites a manual implementation of int le plus one x + 1 <= y
-pub fn fix_int_le_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+pub fn fix_int_le_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let node = ExprBinary::from_syntax_node(db, node);
     let AstExpr::Binary(lhs_exp) = node.lhs(db) else {
         panic!("should be addition")
@@ -379,11 +388,15 @@ pub fn fix_int_le_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Sy
     let lhs = lhs_exp.lhs(db).as_syntax_node().get_text(db);
 
     let fix = format!("{} < {} ", lhs.trim(), rhs.trim());
-    Some((node.as_syntax_node(), fix))
+    Some(InternalFix {
+        node: node.as_syntax_node(),
+        suggestion: fix,
+        import_addition_paths: None,
+    })
 }
 
 /// Rewrites a manual implementation of int le min one x <= y -1
-pub fn fix_int_le_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+pub fn fix_int_le_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let node = ExprBinary::from_syntax_node(db, node);
     let lhs = node.lhs(db).as_syntax_node().get_text(db);
 
@@ -393,5 +406,9 @@ pub fn fix_int_le_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Syn
     let rhs = rhs_exp.lhs(db).as_syntax_node().get_text(db);
 
     let fix = format!("{} < {} ", lhs.trim(), rhs.trim());
-    Some((node.as_syntax_node(), fix))
+    Some(InternalFix {
+        node: node.as_syntax_node(),
+        suggestion: fix,
+        import_addition_paths: None,
+    })
 }

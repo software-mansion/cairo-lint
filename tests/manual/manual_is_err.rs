@@ -105,7 +105,7 @@ fn test_match_expression_is_a_function_diagnostics() {
 #[test]
 fn test_match_expression_is_a_function_fixer() {
     test_lint_fixer!(TEST_MATCH_EXPRESSION_IS_A_FUNCTION, @r"
-    fn foo(a: i32) -> Result<i32,felt252> {
+    fn foo(a: i32) -> Result<i32, felt252> {
         Result::Err('err')
     }
     fn main() {
@@ -155,7 +155,7 @@ fn test_manual_if_expression_is_a_function_diagnostics() {
 #[test]
 fn test_manual_if_expression_is_a_function_fixer() {
     test_lint_fixer!(TEST_MANUAL_IF_EXPRESSION_IS_A_FUNCTION, @r"
-    fn foo(a: i32) -> Result<i32,felt252> {
+    fn foo(a: i32) -> Result<i32, felt252> {
         Result::Err('err')
     }
     fn main() {
@@ -174,7 +174,7 @@ fn test_manual_if_expression_is_a_function_allowed_diagnostics() {
 #[test]
 fn test_manual_if_expression_is_a_function_allowed_fixer() {
     test_lint_fixer!(TEST_MANUAL_IF_EXPRESSION_IS_A_FUNCTION_ALLOWED, @r"
-    fn foo(a: i32) -> Result<i32,felt252> {
+    fn foo(a: i32) -> Result<i32, felt252> {
         Result::Err('err')
     }
     fn main() {

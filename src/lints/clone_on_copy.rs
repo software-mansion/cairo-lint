@@ -1,4 +1,5 @@
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::helper::find_module_file_containing_node;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 use cairo_lang_defs::ids::{
@@ -47,7 +48,7 @@ impl Lint for CloneOnCopy {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_clone_on_copy(db, node)
     }
 }
@@ -84,7 +85,7 @@ fn check_clone_usage(
     }
 }
 
-fn fix_clone_on_copy(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+fn fix_clone_on_copy(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
     println!(
         "Fixing `clone` on `Copy` type at node: {:?}",
         node.get_text(db.upcast())
@@ -123,7 +124,11 @@ fn fix_clone_on_copy(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(Syntax
         ast_expr.as_syntax_node().get_text(db.upcast())
     );
 
-    Some((node, fixed_expr))
+    Some(InternalFix {
+        node,
+        suggestion: fixed_expr,
+        import_addition_paths: None,
+    })
 }
 
 fn get_expr_semantic(

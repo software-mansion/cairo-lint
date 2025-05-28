@@ -90,7 +90,7 @@ macro_rules! test_lint_fixer {
     } else {
       code = "Contains nested diagnostics can't fix it".to_string();
     }
-      ::insta::assert_snapshot!(code, @$expected_fix);
+      ::insta::assert_snapshot!(::cairo_lang_formatter::format_string(db.upcast(), code), @$expected_fix);
   }};
 }
 

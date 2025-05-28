@@ -8,6 +8,7 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::queries::{get_all_break_statements, get_all_function_bodies};
 
 pub struct BreakUnit;
@@ -52,7 +53,7 @@ impl Lint for BreakUnit {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_break_unit(db.upcast(), node)
     }
 }
@@ -93,9 +94,10 @@ fn check_single_break(
 }
 
 /// Rewrites `break ();` as `break;` given the node text contains it.
-pub fn fix_break_unit(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    Some((
+pub fn fix_break_unit(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+    Some(InternalFix {
         node,
-        node.get_text(db).replace("break ();", "break;").to_string(),
-    ))
+        suggestion: node.get_text(db).replace("break ();", "break;").to_string(),
+        import_addition_paths: None,
+    })
 }

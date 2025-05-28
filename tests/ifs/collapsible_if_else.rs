@@ -115,11 +115,10 @@ fn simple_else_if_with_new_line_fixer() {
         let x = true;
         if x {
             println!("x is true");
+        } else if !x {
+            println!("x is false");
         }
-        else if !x  {
-                println!("x is false");
-            }
-     }
+    }
     "#);
 }
 
@@ -137,8 +136,7 @@ fn simple_else_if_with_new_line_allowed_fixer() {
         #[allow(collapsible_if_else)]
         if x {
             println!("x is true");
-        }
-        else {
+        } else {
             if !x {
                 println!("x is false");
             }
@@ -167,10 +165,10 @@ fn simple_else_if_without_new_line_fixer() {
         let x = true;
         if x {
             println!("x is true");
-        } else if !x  {
-                println!("x is false");
-            }
-     }
+        } else if !x {
+            println!("x is false");
+        }
+    }
     "#);
 }
 
@@ -194,13 +192,11 @@ fn multiple_else_if_fixer() {
         let x = true;
         if x {
             println!("x is true");
+        } else if !x {
+            println!("x is false");
+        } else {
+            println!("x is neither true nor false");
         }
-        else if !x  {
-                println!("x is false");
-            }
-             else {
-                println!("x is neither true nor false");
-            }
     }
     "#);
 }
@@ -225,14 +221,12 @@ fn else_if_with_multiple_statements_fixer() {
         let x = true;
         if x {
             println!("x is true");
+        } else if !x {
+            println!("x is false");
+        } else {
+            let y = 10;
+            println!("y is {}", y);
         }
-        else if !x  {
-                println!("x is false");
-            }
-             else {
-                let y = 10;
-                println!("y is {}", y);
-            }
     }
     "#);
 }
@@ -252,19 +246,18 @@ fn else_if_inside_loop_diagnostics() {
 
 #[test]
 fn else_if_inside_loop_fixer() {
-    test_lint_fixer!(ELSE_IF_INSIDE_LOOP, @r#"
+    test_lint_fixer!(ELSE_IF_INSIDE_LOOP, @r"
     fn main() {
         let mut a = 1_u32;
         loop {
             if a == 10 {
                 a += 1;
-            } else if a == 15  {
-                    break;
-                }
-                 else {
-                    a += 2;
-                }
+            } else if a == 15 {
+                break;
+            } else {
+                a += 2;
+            }
         }
     }
-    "#);
+    ");
 }

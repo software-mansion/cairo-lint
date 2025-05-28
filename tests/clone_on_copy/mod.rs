@@ -381,7 +381,9 @@ fn clone_in_impl_fixer() {
     }
 
     trait TMovable {
-        fn move_self(self: @Point, dx: @@u32, dy: u32) -> Point {
+        fn move_self(
+            self: @Point, dx: @@u32, dy: u32,
+        ) -> Point {
             let new_point_in_trait = *self;
             new_point_in_trait
         }
@@ -528,7 +530,7 @@ fn clone_on_snap_function_fixer() {
         @123
     }
 
-    fn main(){
+    fn main() {
         let a = (*fun());
         println!("{}", a);
     }
@@ -565,7 +567,7 @@ fn clone_on_method_call_fixer() {
     }
 
     fn main() {
-        let a = Point { x: 1, y: 2};
+        let a = Point { x: 1, y: 2 };
         let b = a.get_x();
         println!("{}", b);
     }

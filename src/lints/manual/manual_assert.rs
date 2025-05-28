@@ -1,4 +1,4 @@
-use crate::helper::indent_snippet;
+use crate::{fixes::InternalFix, helper::indent_snippet};
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::{db::SemanticGroup, Arenas, Expr, ExprBlock, ExprIf, Statement};
@@ -62,7 +62,7 @@ impl Lint for ManualAssert {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_assert(db.upcast(), node)
     }
 }
@@ -144,7 +144,7 @@ fn check_single_condition_block(
     }
 }
 
-pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let if_expr = AstExprIf::from_syntax_node(db, node);
     let else_block_option = if_expr.else_clause(db);
     let is_else_if = is_else_if_expr(db, node);
@@ -197,23 +197,24 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synt
                 // Else is just a block (not `else if`).
                 if let BlockOrIf::Block(else_block) = else_clause.else_block_or_if(db) {
                     let else_statements = else_block.statements(db).as_syntax_node().get_text(db);
-                    return Some((
+                    return Some(InternalFix {
                         node,
-                        format!(
+                        suggestion: format!(
                             "{prefix}{}",
                             indent_snippet(
                                 &format!("{} {}{suffix}", assert_call, else_statements),
                                 indent / 4,
                             )
                         ),
-                    ));
+                        import_addition_paths: None,
+                    });
                 }
 
                 // Else is an `else if` expression.
                 if let BlockOrIf::If(else_if) = else_clause.else_block_or_if(db) {
-                    return Some((
+                    return Some(InternalFix {
                         node,
-                        format!(
+                        suggestion: format!(
                             "{prefix}{}",
                             indent_snippet(
                                 &format!(
@@ -224,17 +225,19 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synt
                                 indent / 4,
                             )
                         ),
-                    ));
+                        import_addition_paths: None,
+                    });
                 }
             }
             // If there is no else block, just return the assert call.
-            Some((
+            Some(InternalFix {
                 node,
-                format!(
+                suggestion: format!(
                     "{prefix}{}",
                     indent_snippet(&format!("{prefix}{}{suffix}", assert_call), indent / 4)
                 ),
-            ))
+                import_addition_paths: None,
+            })
         }
         (None, Some(panic_args)) => {
             let assert_call = format!(
@@ -255,16 +258,17 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synt
                 .statements(db)
                 .as_syntax_node()
                 .get_text(db);
-            Some((
+            Some(InternalFix {
                 node,
-                format!(
+                suggestion: format!(
                     "{prefix}{}",
                     indent_snippet(
                         &format!("{} {}{suffix}", assert_call, if_statements),
                         indent / 4,
                     )
                 ),
-            ))
+                import_addition_paths: None,
+            })
         }
         (None, None) => {
             panic!("Expected at least one panic argument in the if or else block");

@@ -106,7 +106,8 @@ fn simple_double_parens_diagnostics() {
 fn simple_double_parens_fixer() {
     test_lint_fixer!(SIMPLE_DOUBLE_PARENS, @r"
     fn main() -> u32 {
-        0}
+        0
+    }
     ");
 }
 
@@ -147,7 +148,8 @@ fn unnecessary_parentheses_in_arithmetic_expression_diagnostics() {
 fn unnecessary_parentheses_in_arithmetic_expression_fixer() {
     test_lint_fixer!(UNNECESSARY_PARENTHESES_IN_ARITHMETIC_EXPRESSION, @r"
     fn main() -> u32 {
-        3 + 5}
+        3 + 5
+    }
     ");
 }
 
@@ -180,7 +182,8 @@ fn tuple_double_parens_diagnostics() {
 fn tuple_double_parens_fixer() {
     test_lint_fixer!(TUPLE_DOUBLE_PARENS, @r"
     fn main() -> (felt252, felt252) {
-        (1, 2)}
+        (1, 2)
+    }
     ");
 }
 
@@ -221,7 +224,8 @@ fn double_parens_with_function_call_fixer() {
     }
 
     fn main() -> felt252 {
-        foo(10)}
+        foo(10)
+    }
     ");
 }
 

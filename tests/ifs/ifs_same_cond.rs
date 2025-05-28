@@ -272,9 +272,9 @@ fn same_condition_with_felt252_diagnostics() {
 #[test]
 fn same_condition_with_felt252_fixer() {
     test_lint_fixer!(SAME_CONDITION_WITH_FELT252, @r#"
-    fn main(){
-        let str1:felt252 = 'hello';
-        let str2:felt252 = 'hello';
+    fn main() {
+        let str1: felt252 = 'hello';
+        let str2: felt252 = 'hello';
 
         if str1 == str2 {
             println!("Strings are equal");
@@ -356,9 +356,9 @@ fn same_condition_with_multiple_if_else_diagnostics() {
 #[test]
 fn same_condition_with_multiple_if_else_fixer() {
     test_lint_fixer!(SAME_CONDITION_WITH_MULTIPLE_IF_ELSE, @r#"
-    fn main(){
-        let str1:felt252 = 'hello';
-        let str2:felt252 = 'hello';
+    fn main() {
+        let str1: felt252 = 'hello';
+        let str2: felt252 = 'hello';
 
         if str1 == str2 {
             println!("Strings are equal");
@@ -368,10 +368,9 @@ fn same_condition_with_multiple_if_else_fixer() {
             println!("Strings are still equal");
         } else if str1 == str2 {
             println!("Strings are still equal");
-        } 
-        else if str1 == str2 {
+        } else if str1 == str2 {
             println!("Strings are still equal");
-        } 
+        }
     }
     "#);
 }
@@ -386,8 +385,8 @@ fn similar_conditions_diagnostics() {
 fn similar_conditions_fixer() {
     test_lint_fixer!(SIMILAR_CONDITIONS, @r#"
     fn main() {
-        let a:u32 = 1;
-        let b:u32 = 2;
+        let a: u32 = 1;
+        let b: u32 = 2;
 
         if a == b {
             println!("a is equal to b");
@@ -417,9 +416,9 @@ fn combined_conditions_with_different_if_diagnostics() {
 fn combined_conditions_with_different_if_fixer() {
     test_lint_fixer!(COMBINED_CONDITIONS_WITH_DIFFERENT_IF, @r#"
     fn main() {
-        let x:u32 = 5;
-        let y:u32 = 10;
-        let z:u32 = 5;
+        let x: u32 = 5;
+        let y: u32 = 10;
+        let z: u32 = 5;
 
         if x == z {
             println!("x is equal to z");
@@ -448,15 +447,15 @@ fn if_with_functions_diagnostics() {
 #[test]
 fn if_with_functions_fixer() {
     test_lint_fixer!(IF_WITH_FUNCTIONS, @r#"
-    fn foo() -> bool{
-            println!("foo");
-            true
-        }
+    fn foo() -> bool {
+        println!("foo");
+        true
+    }
 
-    fn main(){
-       if foo() {
+    fn main() {
+        if foo() {
             println!("foo");
-        } else if foo() { 
+        } else if foo() {
             println!("foo");
         }
     }
@@ -479,8 +478,8 @@ fn greater_lesser_comparison_diagnostics() {
 #[test]
 fn greater_lesser_comparison_fixer() {
     test_lint_fixer!(GREATER_LESSER_COMPARISON, @r#"
-    fn main(){
-        let a:u32 = 3;
+    fn main() {
+        let a: u32 = 3;
 
         if a > 3 {
             println!("a == 3");
@@ -507,7 +506,7 @@ fn same_conditions_with_literals_and_vars_diagnostics() {
 #[test]
 fn same_conditions_with_literals_and_vars_fixer() {
     test_lint_fixer!(SAME_CONDITIONS_WITH_LITERALS_AND_VARS, @r#"
-    fn main(){
+    fn main() {
         let a = 3;
 
         if a == 3 {
@@ -535,8 +534,7 @@ fn same_conditions_with_literals_diagnostics() {
 #[test]
 fn same_conditions_with_literals_fixer() {
     test_lint_fixer!(SAME_CONDITIONS_WITH_LITERALS, @r#"
-    fn main(){
-
+    fn main() {
         if 2 == 3 {
             println!("a == 3");
         } else if 2 == 3 {

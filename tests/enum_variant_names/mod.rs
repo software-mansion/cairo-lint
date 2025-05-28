@@ -195,9 +195,9 @@ fn allow_enum_with_suffix_diagnostics() {
 fn enum_with_suffixed_name_fixer() {
     test_lint_fixer!(ENUM_WITH_SUFFIXED_NAME, @r"
     enum Cake {
-       BlackForest,
-       Hummingbird,
-       Battenberg,
+        BlackForest,
+        Hummingbird,
+        Battenberg,
     }
     ");
 }
@@ -206,9 +206,9 @@ fn enum_with_suffixed_name_fixer() {
 fn enum_with_prefixed_name_fixer() {
     test_lint_fixer!(ENUM_WITH_PREFIXED_NAME, @r"
     enum Cake {
-       BlackForest,
-       Hummingbird,
-       Battenberg,
+        BlackForest,
+        Hummingbird,
+        Battenberg,
     }
     ");
 }
@@ -237,9 +237,9 @@ fn enum_with_suffix_fixer() {
 fn enum_with_not_all_prefixed_fixer() {
     test_lint_fixer!(ENUM_WITH_NOT_ALL_PREFIXED, @r"
     enum Cake {
-       CakeBlackForest,
-       CakeCakeHummingbird,
-       Battenberg,
+        CakeBlackForest,
+        CakeCakeHummingbird,
+        Battenberg,
     }
     ");
 }
@@ -248,9 +248,9 @@ fn enum_with_not_all_prefixed_fixer() {
 fn enum_with_not_all_suffixed_fixer() {
     test_lint_fixer!(ENUM_WITH_NOT_ALL_SUFFIXED, @r"
     enum Cake {
-       BlackForestCake,
-       HummingbirdCake,
-       Battenberg,
+        BlackForestCake,
+        HummingbirdCake,
+        Battenberg,
     }
     ");
 }
@@ -259,9 +259,9 @@ fn enum_with_not_all_suffixed_fixer() {
 fn enum_with_not_camel_case_suffix_fixer() {
     test_lint_fixer!(ENUM_WITH_NOT_CAMEL_CASE_SUFFIX, @r"
     enum Cake {
-       BlackForestcake,
-       Hummingbirdcake,
-       Battenbergcake,
+        BlackForestcake,
+        Hummingbirdcake,
+        Battenbergcake,
     }
     ");
 }
@@ -270,7 +270,7 @@ fn enum_with_not_camel_case_suffix_fixer() {
 fn enum_single_fixer() {
     test_lint_fixer!(ENUM_SINGLE, @r"
     enum Cake {
-       BlackForest,
+        BlackForest,
     }
     ");
 }
@@ -279,9 +279,9 @@ fn enum_single_fixer() {
 fn enum_with_not_camel_case_prefix_fixer() {
     test_lint_fixer!(ENUM_WITH_NOT_CAMEL_CASE_PREFIX, @r"
     enum Cake {
-       CakeblackForest,
-       Cakehummingbird,
-       Cakebattenberg,
+        CakeblackForest,
+        Cakehummingbird,
+        Cakebattenberg,
     }
     ");
 }
@@ -290,9 +290,9 @@ fn enum_with_not_camel_case_prefix_fixer() {
 fn enum_with_prefixes_and_suffixes_fixer() {
     test_lint_fixer!(ENUM_WITH_PREFIXES_AND_SUFFIXES, @r"
     enum Cake {
-       Black,
-       Hummingbird,
-       Battenberg,
+        Black,
+        Hummingbird,
+        Battenberg,
     }
     ");
 }
@@ -302,9 +302,9 @@ fn allow_enum_with_prefix_and_suffix_fixer() {
     test_lint_fixer!(ALLOW_ENUM_WITH_PREFIX_AND_SUFFIX, @r"
     #[allow(enum_variant_names)]
     enum Cake {
-       DoubleBlackForest,
-       DoubleHummingbirdForest,
-       DoubleBattenbergForest,
+        DoubleBlackForest,
+        DoubleHummingbirdForest,
+        DoubleBattenbergForest,
     }
     ")
 }

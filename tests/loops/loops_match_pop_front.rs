@@ -186,7 +186,6 @@ fn simple_loop_match_pop_front_with_comment_fixer() {
         for val in a {
             // This comment should be persisted during fixing.
             println!("{val}")
-
         };
     }
     "#);
@@ -257,13 +256,13 @@ fn simple_loop_match_pop_front_multiple_dots_diagnostics() {
 fn simple_loop_match_pop_front_multiple_dots_fixer() {
     test_lint_fixer!(SIMPLE_LOOP_MATCH_POP_FRONT_MULTIPLE_DOTS, @r#"
     struct A {
-        b: B
+        b: B,
     }
     struct B {
-        c: Span<u32>
+        c: Span<u32>,
     }
     fn main() {
-        let mut a = A { b: B {c: array![1, 2, 3, 4, 5].span()} };
+        let mut a = A { b: B { c: array![1, 2, 3, 4, 5].span() } };
         for val in a.b.c {
             println!("{val}")
         };
@@ -292,7 +291,6 @@ fn loop_match_pop_front_with_comment_in_some_fixer() {
         for val in a {
             // This is a comment
             println!("{val}")
-
         };
     }
     "#);
@@ -316,9 +314,7 @@ fn loop_match_pop_front_with_comment_in_some_allowed_fixer() {
                     // This is a comment
                     println!("{val}")
                 },
-                Option::None => { 
-                    break;
-                },
+                Option::None => { break; },
             }
         }
     }
@@ -339,7 +335,7 @@ fn loop_match_pop_front_with_comment_in_none_fixer() {
         loop {
             match a.pop_front() {
                 Option::Some(val) => println!("{val}"),
-                Option::None => { 
+                Option::None => {
                     // This is a comment
                     break;
                 },
@@ -363,7 +359,7 @@ fn loop_match_pop_front_with_stuff_in_none_fixer() {
         loop {
             match a.pop_front() {
                 Option::Some(val) => println!("{val}"),
-                Option::None => { 
+                Option::None => {
                     println!("Finished looping");
                     break;
                 },

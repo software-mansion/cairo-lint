@@ -232,9 +232,9 @@ fn manual_unwrap_or_default_for_if_let_with_default_diagnostics() {
 fn manual_unwrap_or_default_for_if_let_with_default_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_DEFAULT, @r#"
     fn main() {
-      let a: Option<ByteArray> = Option::Some("Helok");
-      // This is just a variable.
-      a.unwrap_or_default();
+        let a: Option<ByteArray> = Option::Some("Helok");
+        // This is just a variable.
+        a.unwrap_or_default();
     }
     "#);
 }
@@ -256,9 +256,9 @@ fn manual_unwrap_or_default_for_if_let_with_empty_string_diagnostics() {
 fn manual_unwrap_or_default_for_if_let_with_empty_string_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_EMPTY_STRING, @r#"
     fn main() {
-      let x: Option<ByteArray> = Option::Some("Hello");
-      // This is just a variable.
-      x.unwrap_or_default();
+        let x: Option<ByteArray> = Option::Some("Hello");
+        // This is just a variable.
+        x.unwrap_or_default();
     }
     "#);
 }
@@ -280,9 +280,9 @@ fn manual_unwrap_or_default_for_if_let_with_new_diagnostics() {
 fn manual_unwrap_or_default_for_if_let_with_new_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_NEW, @r"
     fn main() {
-      let x: Option<Array<u128>> = Option::Some(array![1, 2, 3, 4, 5]);
-      // This is just a variable.
-      x.unwrap_or_default();
+        let x: Option<Array<u128>> = Option::Some(array![1, 2, 3, 4, 5]);
+        // This is just a variable.
+        x.unwrap_or_default();
     }
     ");
 }
@@ -304,9 +304,9 @@ fn manual_unwrap_or_default_for_if_let_with_zero_integer_diagnostics() {
 fn manual_unwrap_or_default_for_if_let_with_zero_integer_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_ZERO_INTEGER, @r"
     fn main() {
-      let x: Option<u128> = Option::Some(1038);
-      // This is just a variable.
-      x.unwrap_or_default();
+        let x: Option<u128> = Option::Some(1038);
+        // This is just a variable.
+        x.unwrap_or_default();
     }
     ");
 }
@@ -328,9 +328,9 @@ fn manual_unwrap_or_default_for_if_let_with_fixed_array_diagnostics() {
 fn manual_unwrap_or_default_for_if_let_with_fixed_array_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_FIXED_ARRAY, @r"
     fn main() {
-      let a: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
-      // This is just a variable.
-      a.unwrap_or_default();
+        let a: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
+        // This is just a variable.
+        a.unwrap_or_default();
     }
     ");
 }
@@ -352,9 +352,9 @@ fn manual_unwrap_or_default_for_if_let_with_tuple_diagnostics() {
 fn manual_unwrap_or_default_for_if_let_with_tuple_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_TUPLE, @r#"
     fn main() {
-      let a: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
-      // This is just a variable.
-      a.unwrap_or_default();
+        let a: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
+        // This is just a variable.
+        a.unwrap_or_default();
     }
     "#);
 }
@@ -376,9 +376,9 @@ fn manual_unwrap_or_default_for_if_let_with_array_diagnostics() {
 fn manual_unwrap_or_default_for_if_let_with_array_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_ARRAY, @r"
     fn main() {
-      let x: Option<Array<u128>> = Option::Some(array![1, 2, 3, 4, 5]);
-      // This is just a variable.
-      x.unwrap_or_default();
+        let x: Option<Array<u128>> = Option::Some(array![1, 2, 3, 4, 5]);
+        // This is just a variable.
+        x.unwrap_or_default();
     }
     ");
 }
@@ -400,9 +400,9 @@ fn manual_unwrap_or_default_for_if_let_with_comments_diagnostics() {
 fn manual_unwrap_or_default_for_if_let_with_comments_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_COMMENTS, @r#"
     fn main() {
-      let a: Option<ByteArray> = Option::Some("Helok");
-      // This is just a variable.
-      a.unwrap_or_default();
+        let a: Option<ByteArray> = Option::Some("Helok");
+        // This is just a variable.
+        a.unwrap_or_default();
     }
     "#);
 }
@@ -417,13 +417,13 @@ fn manual_unwrap_or_default_for_if_let_with_different_type_not_trigger_diagnosti
 fn manual_unwrap_or_default_for_if_let_with_different_type_not_trigger_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_IF_LET_WITH_DIFFERENT_TYPE_NOT_TRIGGER, @r#"
     fn main() {
-      let a: Option<ByteArray> = Option::Some("Hello");
-      // This is just a variable.
-      if let Option::Some(_) = a {
-        100
-       } else {
-        0
-      };
+        let a: Option<ByteArray> = Option::Some("Hello");
+        // This is just a variable.
+        if let Option::Some(_) = a {
+            100
+        } else {
+            0
+        };
     }
     "#);
 }
@@ -445,9 +445,9 @@ fn manual_unwrap_or_default_for_match_with_zero_integer_diagnostics() {
 fn manual_unwrap_or_default_for_match_with_zero_integer_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_ZERO_INTEGER, @r"
     fn main() {
-      let x: Option<u128> = Option::Some(1038);
-      // This is just a variable.
-      x.unwrap_or_default();
+        let x: Option<u128> = Option::Some(1038);
+        // This is just a variable.
+        x.unwrap_or_default();
     }
     ");
 }
@@ -469,9 +469,9 @@ fn manual_unwrap_or_default_for_match_with_empty_string_diagnostics() {
 fn manual_unwrap_or_default_for_match_with_empty_string_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_EMPTY_STRING, @r#"
     fn main() {
-      let x: Option<ByteArray> = Option::Some("Hello");
-      // This is just a variable.
-      x.unwrap_or_default();
+        let x: Option<ByteArray> = Option::Some("Hello");
+        // This is just a variable.
+        x.unwrap_or_default();
     }
     "#);
 }
@@ -493,9 +493,9 @@ fn manual_unwrap_or_default_for_match_with_default_diagnostic() {
 fn manual_unwrap_or_default_for_match_with_default_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_DEFAULT, @r"
     fn main() {
-      let a: Option<felt252> = Option::Some(1);
-      // Somethings wrong.
-      a.unwrap_or_default();
+        let a: Option<felt252> = Option::Some(1);
+        // Somethings wrong.
+        a.unwrap_or_default();
     }
     ");
 }
@@ -517,9 +517,9 @@ fn manual_unwrap_or_default_for_match_with_new_diagnostic() {
 fn manual_unwrap_or_default_for_match_with_new_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_NEW, @r"
     fn main() {
-      let x: Option<Array<u128>> = Option::Some(array![1, 2, 3, 4, 5]);
-      // This is just a variable.
-      x.unwrap_or_default();
+        let x: Option<Array<u128>> = Option::Some(array![1, 2, 3, 4, 5]);
+        // This is just a variable.
+        x.unwrap_or_default();
     }
     ");
 }
@@ -541,9 +541,9 @@ fn manual_unwrap_or_default_for_match_with_fixed_array_diagnostic() {
 fn manual_unwrap_or_default_for_match_with_fixed_array_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_FIXED_ARRAY, @r"
     fn main() {
-      let x: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
-      // This is just a variable.
-      x.unwrap_or_default();
+        let x: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
+        // This is just a variable.
+        x.unwrap_or_default();
     }
     ");
 }
@@ -565,9 +565,9 @@ fn manual_unwrap_or_default_for_match_with_tuple_diagnostics() {
 fn manual_unwrap_or_default_for_match_with_tuple_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_TUPLE, @r#"
     fn main() {
-      let x: Option<(ByteArray, u128, bool)> =Option::Some(("James", 90, true));
-      // This is just a variable.
-      x.unwrap_or_default();
+        let x: Option<(ByteArray, u128, bool)> = Option::Some(("James", 90, true));
+        // This is just a variable.
+        x.unwrap_or_default();
     }
     "#);
 }
@@ -589,9 +589,9 @@ fn manual_unwrap_or_default_for_match_with_array_diagnostics() {
 fn manual_unwrap_or_default_for_match_with_array_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_ARRAY, @r"
     fn main() {
-      let x: Option<Array<u128>> = Option::Some(array![1, 2, 3, 4, 5]);
-      // This is just a variable.
-      x.unwrap_or_default();
+        let x: Option<Array<u128>> = Option::Some(array![1, 2, 3, 4, 5]);
+        // This is just a variable.
+        x.unwrap_or_default();
     }
     ");
 }
@@ -605,18 +605,18 @@ fn manual_unwrap_or_default_for_match_with_comments_diagnostic() {
 fn manual_unwrap_or_default_for_match_with_comments_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_COMMENTS, @r"
     fn main() {
-      let x: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
-      // This is just a variable.
-      match x {
-        Option::Some(v) => {
-          // Testing with comments
-          v
-        },
-        Option::None => {
-          // Testing with comments
-          [0; 5]
-        }
-      };
+        let x: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
+        // This is just a variable.
+        match x {
+            Option::Some(v) => {
+                // Testing with comments
+                v
+            },
+            Option::None => {
+                // Testing with comments
+                [0; 5]
+            },
+        };
     }
     ");
 }
@@ -630,12 +630,12 @@ fn manual_unwrap_or_default_for_match_with_different_type_not_trigger_diagnostic
 fn manual_unwrap_or_default_for_match_with_different_type_not_trigger_fixer() {
     test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_FOR_MATCH_WITH_DIFFERENT_TYPE_NOT_TRIGGER, @r"
     fn main() {
-      let x: Option<u128> = Option::Some(1038);
-      // This is just a variable.
-      match x {
-        Option::Some(_) => array![1, 2, 3, 4, 5],
-        Option::None => array![]
-      };
+        let x: Option<u128> = Option::Some(1038);
+        // This is just a variable.
+        match x {
+            Option::Some(_) => array![1, 2, 3, 4, 5],
+            Option::None => array![],
+        };
     }
     ");
 }

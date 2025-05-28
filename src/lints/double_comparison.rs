@@ -13,6 +13,7 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 
 use super::function_trait_name_from_fn_id;
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::lints::{EQ, GE, GT, LE, LT};
 use crate::queries::{get_all_function_bodies, get_all_logical_operator_expressions};
 
@@ -99,7 +100,7 @@ impl Lint for SimplifiableComparison {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_double_comparison(db.upcast(), node)
     }
 }
@@ -150,7 +151,7 @@ impl Lint for RedundantComparison {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_double_comparison(db.upcast(), node)
     }
 }
@@ -201,7 +202,7 @@ impl Lint for ContradictoryComparison {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_double_comparison(db.upcast(), node)
     }
 }
@@ -478,10 +479,7 @@ fn is_contradictory_double_comparison(
 }
 
 /// Rewrites a double comparison. Ex: `a > b || a == b` to `a >= b`
-pub fn fix_double_comparison(
-    db: &dyn SyntaxGroup,
-    node: SyntaxNode,
-) -> Option<(SyntaxNode, String)> {
+pub fn fix_double_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let expr = AstExpr::from_syntax_node(db, node);
 
     if let AstExpr::Binary(binary_op) = expr {
@@ -501,7 +499,11 @@ pub fn fix_double_comparison(
                         .as_syntax_node()
                         .get_text(db)
                         .replace(operator_to_replace, simplified_op);
-                    return Some((node, lhs_text.to_string()));
+                    return Some(InternalFix {
+                        node,
+                        suggestion: lhs_text.to_string(),
+                        import_addition_paths: None,
+                    });
                 }
             }
         }
