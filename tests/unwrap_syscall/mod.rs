@@ -47,7 +47,7 @@ fn main() {
 "#;
 
 const ALREADY_IMPORTED_SYSCALL_RESULT_TRAIT: &str = r#"
-use starknet::SyscallResultTrait; // Already imported
+use starknet::SyscallResultTrait;
 use starknet::storage_access::{storage_address_from_base, storage_base_address_from_felt252};
 use starknet::syscalls::storage_read_syscall;
 
@@ -155,7 +155,7 @@ fn already_imported_syscall_result_trait_diagnostics() {
 #[test]
 fn already_imported_syscall_result_trait_fixer() {
     test_lint_fixer!(ALREADY_IMPORTED_SYSCALL_RESULT_TRAIT, @r"
-    use starknet::SyscallResultTrait; // Already imported
+    use starknet::SyscallResultTrait;
     use starknet::storage_access::{storage_address_from_base, storage_base_address_from_felt252};
     use starknet::syscalls::storage_read_syscall;
 

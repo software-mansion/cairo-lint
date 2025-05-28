@@ -13,7 +13,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use cairo_lang_defs::ids::{TopLevelLanguageElementId, UseId};
+use cairo_lang_defs::ids::UseId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::DiagnosticEntry;
 use cairo_lang_filesystem::db::{FilesGroup, FilesGroupEx};
@@ -63,8 +63,6 @@ pub fn get_fixes_without_resolving_overlapping(
     // to handle complex cases.
     let unused_imports: HashMap<FileId, HashMap<SyntaxNode, ImportFix>> =
         collect_unused_import_fixes(db, &import_diagnostics);
-    println!("Collected {:?} unused import diagnostics", unused_imports);
-    println!("fsfsd: {:?}", import_diagnostics);
     let mut fixes = HashMap::new();
     unused_imports.keys().for_each(|file_id| {
         let file_fixes: Vec<Fix> = apply_import_fixes(db, unused_imports.get(file_id).unwrap());

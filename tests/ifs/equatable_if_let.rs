@@ -160,8 +160,7 @@ fn simple_value_pattern_matching_with_comment_fixer() {
     test_lint_fixer!(SIMPLE_VALUE_PATTERN_MATCHING_WITH_COMMENT, @r"
     fn main() {
         let a = 2;
-        if a == 2 {
-          // Just a comment.
+        if a == 2 {// Just a comment.
         }
     }
     ");

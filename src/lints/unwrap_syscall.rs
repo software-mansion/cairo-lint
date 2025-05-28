@@ -17,7 +17,6 @@ const SYSCALL_RESULT_TYPE: &str = "Result<felt252, Array<felt252>>";
 const RESULT_CORE_PATH: &str = "core::result::Result";
 const UNWRAP_PATH_BEGINNING: &str = "core::result::ResultTraitImpl::<";
 const UNWRAP_PATH_END: &str = ">::unwrap";
-const UNWRAP_SYSCALL_TRAIT: &str = "SyscallResultTrait";
 const UNWRAP_SYSCALL_TRAIT_PATH: &str = "starknet::SyscallResultTrait";
 
 /// ## What it does
@@ -147,23 +146,6 @@ fn fix_unwrap_syscall(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<Intern
         )
     });
 
-    let module_file_id = find_module_file_containing_node(db, &node)
-        .unwrap_or_else(|| panic!("Couldn't find module file ID for node: {:?}", node));
-    let visible_traits = db
-        .visible_traits_from_module(module_file_id)
-        .unwrap_or_else(|| {
-            panic!(
-                "Couldn't find visible traits for module file ID: {:?}",
-                module_file_id
-            )
-        });
-
-    // This check is based upon the assumption that the path to `SyscallResultTrait` is the shortest one,
-    // so it doesn't contain any "::" segments.
-    let is_syscall_result_trait_imported = visible_traits
-        .values()
-        .any(|path| path == UNWRAP_SYSCALL_TRAIT);
-
     let fixed = format!(
         "{}{}unwrap_syscall()",
         ast_expr_binary.lhs(db).as_syntax_node().get_text(db),
@@ -172,10 +154,6 @@ fn fix_unwrap_syscall(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<Intern
     Some(InternalFix {
         node,
         suggestion: fixed,
-        import_addition_paths: if is_syscall_result_trait_imported {
-            None
-        } else {
-            Some(vec![UNWRAP_SYSCALL_TRAIT_PATH.to_string()])
-        },
+        import_addition_paths: Some(vec![UNWRAP_SYSCALL_TRAIT_PATH.to_string()]),
     })
 }

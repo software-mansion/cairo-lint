@@ -1,5 +1,4 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
-use cairo_lang_formatter::FormatterConfig;
 use db::FixerDatabase;
 use fixes::{
     file_for_url, get_fixes_without_resolving_overlapping, merge_overlapping_fixes, url_for_file,
@@ -77,12 +76,7 @@ pub fn get_fixes(
 /// * `fixes` - The list of fixes that should be applied to the file.
 /// * `db` - The reference to the database that contains the file content.
 /// * `cairo_formatter` - The formatter configuration to use when applying the fixes.
-pub fn apply_file_fixes(
-    file_id: FileId,
-    fixes: Vec<Fix>,
-    db: &dyn FilesGroup,
-    cairo_formatter: FormatterConfig,
-) -> Result<()> {
+pub fn apply_file_fixes(file_id: FileId, fixes: Vec<Fix>, db: &dyn FilesGroup) -> Result<()> {
     let mut fixes = fixes;
     fixes.sort_by_key(|fix| Reverse(fix.span.start));
     // Get all the files that need to be fixed
