@@ -108,9 +108,9 @@ pub fn format_type(
 }
 
 fn format_impl(db: &dyn SemanticGroup, impl_id: ImplId) -> String {
-    // Translate unresolved impl to `<missing>` instead of printing its salsa ID.
+    // Translate unresolved impl to `<?>` instead of printing its salsa ID.
     if matches!(impl_id.lookup_intern(db), ImplLongId::ImplVar(_)) {
-        "<missing>".to_string()
+        "<?>".to_string()
     } else {
         impl_id.format(db)
     }
