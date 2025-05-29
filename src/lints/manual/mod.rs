@@ -189,6 +189,16 @@ fn check_syntax_ok_arm(
             }
         }
         ManualLint::ManualUnwrapOr => match_arm_returns_extracted_var(arm, arenas),
+        ManualLint::ManualUnwrapOrDefault => {
+            let Expr::Var(enum_destruct_var) = &arenas.exprs[arm.expression] else {
+                return false;
+            };
+            pattern_check_enum_arg(
+                &arenas.patterns[arm.patterns[0]],
+                &enum_destruct_var.var,
+                arenas,
+            )
+        }
         _ => false,
     }
 }
@@ -273,6 +283,10 @@ fn check_syntax_err_arm(
             match_with_single_statement_or_empty(expr_match, db, 1)
                 && !func_call_or_block_returns_never(expr, db, arenas)
                 && !check_is_default(db, expr, arenas)
+        }
+
+        ManualLint::ManualUnwrapOrDefault => {
+            check_is_default(db, &arenas.exprs[arm.expression], arenas)
         }
         _ => false,
     }
@@ -371,6 +385,7 @@ fn check_syntax_res_if(
         }
         ManualLint::ManualResExpect => if_expr_pattern_matches_tail_var(expr, arenas),
         ManualLint::ManualUnwrapOr => if_expr_pattern_matches_tail_var(expr, arenas),
+        ManualLint::ManualUnwrapOrDefault => if_expr_pattern_matches_tail_var(expr, arenas),
         _ => false,
     }
 }
@@ -462,6 +477,7 @@ fn check_syntax_res_else(
             !check_is_default(db, tail_expr, arenas)
                 && !func_call_or_block_returns_never(tail_expr, db, arenas)
         }
+        ManualLint::ManualUnwrapOrDefault => check_is_default(db, tail_expr, arenas),
         _ => false,
     }
 }
