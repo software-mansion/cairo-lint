@@ -112,6 +112,7 @@ fn check_single_collapsible_if(
               return;
             }
 
+            // Skip cases where the outer or inner `if` is an `if let`, as they aren't collapsible.
             if matches!(if_expr.condition, Condition::Let(..)) || matches!(inner_if_expr.condition, Condition::Let(..)) {
                 return;
             }
@@ -132,22 +133,24 @@ fn check_single_collapsible_if(
         }
     }
 
-    // Case where the outter if only has a tail.
-    if if_block.tail.is_some_and(|tail| {
-        // Check that the tail expression is a if
-        let Expr::If(ref inner_if_expr) = arenas.exprs[tail] else {
-            return false;
-        };
+    // Case where the outer if only has a tail.
+    if if_block.statements.is_empty()
+        && if_block.tail.is_some_and(|tail| {
+            // Check that the tail expression is a if
+            let Expr::If(ref inner_if_expr) = arenas.exprs[tail] else {
+                return false;
+            };
 
-        if matches!(if_expr.condition, Condition::Let(..))
-            || matches!(inner_if_expr.condition, Condition::Let(..))
-        {
-            return false;
-        }
+            // Skip cases where the outer or inner `if` is an `if let`, as they aren't collapsible.
+            if matches!(if_expr.condition, Condition::Let(..))
+                || matches!(inner_if_expr.condition, Condition::Let(..))
+            {
+                return false;
+            }
 
-        // Check if any of the ifs (outer and inner) have an else block, if it's the case don't diagnostic
-        if_expr.else_block.is_none() && inner_if_expr.else_block.is_none()
-    }) && if_block.statements.is_empty()
+            // Check if any of the ifs (outer and inner) have an else block, if it's the case don't diagnostic
+            if_expr.else_block.is_none() && inner_if_expr.else_block.is_none()
+        })
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: if_expr.stable_ptr.untyped(),

@@ -177,6 +177,31 @@ fn main() {
 }
 "#;
 
+const COLLAPSIBLE_IF_IN_TRAIT: &str = r#"
+#[derive(Drop)]
+struct MyStruct {
+    x: bool,
+    y: bool,
+}
+
+trait TExample {
+    fn check_conditions(self: @MyStruct, z: bool) {
+        if *self.x {
+            if *self.y && z {
+                println!("Trait default function with collapsible if");
+            }
+        }
+    }
+}
+
+impl Example of TExample {}
+
+fn main() {
+    let instance = MyStruct { x: true, y: true };
+    instance.check_conditions(true);
+}
+"#;
+
 const SIMPLE_IF_INSIDE_IF_LET: &str = r#"
 fn main() {
     let x = Option::Some(true);
@@ -230,28 +255,13 @@ fn main() {
 }
 "#;
 
-const COLLAPSIBLE_IF_IN_TRAIT: &str = r#"
-#[derive(Drop)]
-struct MyStruct {
-    x: bool,
-    y: bool,
-}
-
-trait TExample {
-    fn check_conditions(self: @MyStruct, z: bool) {
-        if *self.x {
-            if *self.y && z {
-                println!("Trait default function with collapsible if");
-            }
-        }
-    }
-}
-
-impl Example of TExample {}
-
+const IF_LET_WITH_ASSERT: &str = r#"
 fn main() {
-    let instance = MyStruct { x: true, y: true };
-    instance.check_conditions(true);
+    let x = Some(42);
+
+    if let Some(y) = x {
+        assert!(y == 42);
+    }
 }
 "#;
 
@@ -653,7 +663,7 @@ fn collapsible_ifs_inside_if_let_fixer() {
 
 #[test]
 fn non_collapsible_if_lets_diagnostics() {
-    test_lint_diagnostics!(NON_COLLAPSIBLE_IF_LETS, @"");
+    test_lint_diagnostics!(NON_COLLAPSIBLE_IF_LETS, @r"");
 }
 
 #[test]
@@ -674,5 +684,10 @@ fn non_collapsible_if_lets_fixer() {
 
 #[test]
 fn simple_if_inside_if_let_diagnostics() {
-    test_lint_diagnostics!(SIMPLE_IF_INSIDE_IF_LET, @"");
+    test_lint_diagnostics!(SIMPLE_IF_INSIDE_IF_LET, @r"");
+}
+
+#[test]
+fn if_let_with_assert_diagnostics() {
+    test_lint_diagnostics!(IF_LET_WITH_ASSERT, @r"")
 }
