@@ -143,7 +143,7 @@ fn already_imported_syscall_result_trait_diagnostics() {
     test_lint_diagnostics!(ALREADY_IMPORTED_SYSCALL_RESULT_TRAIT, @r"
     Unused import: `test::SyscallResultTrait`
      --> lib.cairo:2:15
-    use starknet::SyscallResultTrait; // Already imported
+    use starknet::SyscallResultTrait;
                   ^^^^^^^^^^^^^^^^^^
     Plugin diagnostic: consider using `unwrap_syscall` instead of `unwrap`
      --> lib.cairo:9:5
