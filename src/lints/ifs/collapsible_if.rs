@@ -105,16 +105,13 @@ fn check_single_collapsible_if(
         if let Statement::Expr(ref inner_expr_stmt) = arenas.statements[if_block.statements[0]];
         // And this expression is an if expression
         if let Expr::If(ref inner_if_expr) = arenas.exprs[inner_expr_stmt.expr];
+        // Skip cases where the outer or inner `if` is an `if let`, as they aren't collapsible.
+        if !matches!(if_expr.condition, Condition::Let(..)) && !matches!(inner_if_expr.condition, Condition::Let(..));
         then {
             // We check whether the if inner `if` statement comes from an assert macro call.
             // If it does, we don't warn about collapsible ifs.
             if is_assert_macro_call(db, arenas, inner_if_expr) {
               return;
-            }
-
-            // Skip cases where the outer or inner `if` is an `if let`, as they aren't collapsible.
-            if matches!(if_expr.condition, Condition::Let(..)) || matches!(inner_if_expr.condition, Condition::Let(..)) {
-                return;
             }
 
             // Check if any of the ifs (outer and inner) have an else block, if it's the case don't diagnostic
