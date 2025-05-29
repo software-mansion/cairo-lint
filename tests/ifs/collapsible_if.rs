@@ -405,8 +405,12 @@ fn collapsible_if_with_function_calls_diagnostics() {
 #[test]
 fn collapsible_if_with_function_calls_fixer() {
     test_lint_fixer!(COLLAPSIBLE_IF_WITH_FUNCTION_CALLS, @r#"
-    fn is_valid(_a: bool) -> bool { true } 
-    fn is_ready(_b: bool) -> bool { true } 
+    fn is_valid(_a: bool) -> bool {
+        true
+    }
+    fn is_ready(_b: bool) -> bool {
+        true
+    }
 
     fn main() {
         if (is_valid(true)) && (is_ready(true)) {
@@ -485,7 +489,7 @@ fn collapsible_if_with_else_on_outer_if_fixer() {
         if x || z {
             if y && z {
                 println!("Hello");
-            } 
+            }
         } else {
             println!("World");
         }
@@ -617,11 +621,14 @@ fn if_let_to_ignore_fixer() {
 fn simple_if_inside_if_let_fixer() {
     test_lint_fixer!(SIMPLE_IF_INSIDE_IF_LET, @r#"
     fn main() {
-        let x = Option::Some(true);
+    let x = Option::Some(true);
 
-        let a = true;
-        let b = true;
-        if (let Option::Some(_y) = x) && (a || b) {
+    let a = true;
+    let b = true;
+    if (
+        let Option::Some(_y) = x
+        ) && (a || b)
+        {
             println!("Hello");
         }
     }
@@ -632,8 +639,12 @@ fn simple_if_inside_if_let_fixer() {
 fn collapsible_if_inside_if_let_fixer() {
     test_lint_fixer!(COLLAPSIBLE_IF_LETS, @r#"
     fn main() {
-        let x = Some(Some(42));
-        if (let Some(inner) = x) && (let Some(value) = inner) {
+    let x = Some(Some(42));
+    if (
+        let Some(inner) = x
+        ) && (
+        let Some(value) = inner
+        ) {
             println!("The value is: {}", value);
         }
     }
@@ -659,9 +670,11 @@ fn if_with_assert_fixer() {
 fn if_let_nested_within_if_fixer() {
     test_lint_fixer!(IF_LET_NESTED_WITHIN_IF, @r#"
     fn main() {
-        let x = Some(42);
-        let y = Some(2);
-        if (x == y) && (let Some(z) = x) {
+    let x = Some(42);
+    let y = Some(2);
+    if (x == y) && (
+        let Some(z) = x
+        ) {
             println!("Hello, {}", z);
         }
     }
@@ -678,7 +691,9 @@ fn collapsible_if_in_trait_fixer() {
     }
 
     trait TExample {
-        fn check_conditions(self: @MyStruct, z: bool) {
+        fn check_conditions(
+            self: @MyStruct, z: bool,
+        ) {
             if (*self.x) && (*self.y && z) {
                 println!("Trait default function with collapsible if");
             }

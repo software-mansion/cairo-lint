@@ -160,8 +160,7 @@ fn simple_value_pattern_matching_with_comment_fixer() {
     test_lint_fixer!(SIMPLE_VALUE_PATTERN_MATCHING_WITH_COMMENT, @r"
     fn main() {
         let a = 2;
-        if a == 2 {
-          // Just a comment.
+        if a == 2 {// Just a comment.
         }
     }
     ");
@@ -179,17 +178,17 @@ fn enum_unit_variant_pattern_matching_diagnostics() {
 
 #[test]
 fn enum_unit_variant_pattern_matching_fixer() {
-    test_lint_fixer!(ENUM_UNIT_VARIANT_PATTERN_MATCHING, @r#"
+    test_lint_fixer!(ENUM_UNIT_VARIANT_PATTERN_MATCHING, @r"
     enum Enum {
-        UnitVariant
-    } 
+        UnitVariant,
+    }
 
     fn main() {
         let e = Enum::UnitVariant;
 
         if e == Enum::UnitVariant {}
     }
-    "#);
+    ");
 }
 
 #[test]

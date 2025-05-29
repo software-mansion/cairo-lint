@@ -6,6 +6,7 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions};
 
@@ -54,7 +55,7 @@ impl Lint for ManualOk {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_ok(db.upcast(), node)
     }
 }
@@ -95,6 +96,10 @@ pub fn check_manual_ok(
 }
 
 /// Rewrites a manual implementation of ok
-pub fn fix_manual_ok(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
-    Some((node, fix_manual("ok", db, node)))
+pub fn fix_manual_ok(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+    Some(InternalFix {
+        node,
+        suggestion: fix_manual("ok", db, node),
+        import_addition_paths: None,
+    })
 }

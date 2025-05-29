@@ -11,6 +11,7 @@ use cairo_lang_syntax::node::{
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::helper::{invert_condition, remove_break_from_block, remove_break_from_else_clause};
 use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
 
@@ -63,7 +64,7 @@ impl Lint for LoopForWhile {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_loop_break(db.upcast(), node)
     }
 }
@@ -197,7 +198,7 @@ fn check_if_contains_break_with_no_return_value(expr: &ExprId, arenas: &Arenas) 
 ///     x += 1;
 /// }
 /// ```
-pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let loop_expr = AstExprLoop::from_syntax_node(db, node);
     let indent = node
         .get_text(db)
@@ -249,11 +250,12 @@ pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxN
         ));
     }
 
-    Some((
+    Some(InternalFix {
         node,
-        format!(
+        suggestion: format!(
             "{trivia}{}while {} {{\n{}{}}}\n",
             indent, condition_text, loop_body, indent
         ),
-    ))
+        import_addition_paths: None,
+    })
 }

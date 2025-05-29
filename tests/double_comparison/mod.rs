@@ -358,14 +358,14 @@ fn simple_double_comparison_allowed_diagnostics() {
 
 #[test]
 fn simple_double_comparison_allowed_fixer() {
-    test_lint_fixer!(SIMPLE_DOUBLE_COMPARISON_ALLOWED, @r#"
+    test_lint_fixer!(SIMPLE_DOUBLE_COMPARISON_ALLOWED, @r"
     fn main() -> bool {
         let x = 5_u32;
         let y = 10_u32;
         #[allow(simplifiable_comparison)]
-        x == y || x > y 
+        x == y || x > y
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -376,14 +376,14 @@ fn simple_let_double_comparison_allowed_diagnostics() {
 
 #[test]
 fn simple_let_double_comparison_allowed_fixer() {
-    test_lint_fixer!(SIMPLE_LET_DOUBLE_COMPARISON_ALLOWED, @r#"
+    test_lint_fixer!(SIMPLE_LET_DOUBLE_COMPARISON_ALLOWED, @r"
     fn main() {
         let x = 5_u32;
         let y = 10_u32;
         #[allow(simplifiable_comparison)]
-         let _cond = x == y || x > y;
+        let _cond = x == y || x > y;
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -812,14 +812,13 @@ fn impossible_comparison_gt_and_lt_diagnostics() {
 
 #[test]
 fn impossible_comparison_gt_and_lt_fixer() {
-    test_lint_fixer!(IMPOSSIBLE_COMPARISON_GT_AND_LT, @r#"
+    test_lint_fixer!(IMPOSSIBLE_COMPARISON_GT_AND_LT, @r"
     fn main() {
         let x: u32 = 1;
-        if x > 200 && x < 100 {
-            //impossible to reach
+        if x > 200 && x < 100 {//impossible to reach
         }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -830,14 +829,13 @@ fn impossible_comparison_gt_and_lt_possible_diagnostics() {
 
 #[test]
 fn impossible_comparison_gt_and_lt_possible_fixer() {
-    test_lint_fixer!(IMPOSSIBLE_COMPARISON_GT_AND_LT_POSSIBLE, @r#"
+    test_lint_fixer!(IMPOSSIBLE_COMPARISON_GT_AND_LT_POSSIBLE, @r"
     fn main() {
         let x: u32 = 1;
-        if x > 100 && x < 105 {
-            //possible to reach
+        if x > 100 && x < 105 {//possible to reach
         }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -852,14 +850,13 @@ fn impossible_comparison_gt_and_le_diagnostics() {
 
 #[test]
 fn impossible_comparison_gt_and_le_fixer() {
-    test_lint_fixer!(IMPOSSIBLE_COMPARISON_GT_AND_LE, @r#"
+    test_lint_fixer!(IMPOSSIBLE_COMPARISON_GT_AND_LE, @r"
     fn main() {
         let x: u32 = 1;
-        if x > 200 && x <= 100 {
-            //impossible to reach
+        if x > 200 && x <= 100 {//impossible to reach
         }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -874,14 +871,13 @@ fn impossible_comparison_ge_and_lt_diagnostics() {
 
 #[test]
 fn impossible_comparison_ge_and_lt_fixer() {
-    test_lint_fixer!(IMPOSSIBLE_COMPARISON_GE_AND_LT, @r#"
+    test_lint_fixer!(IMPOSSIBLE_COMPARISON_GE_AND_LT, @r"
     fn main() {
         let x: u32 = 1;
-        if x >= 200 && x < 100 {
-            //impossible to reach
+        if x >= 200 && x < 100 {//impossible to reach
         }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -896,14 +892,13 @@ fn impossible_comparison_ge_and_le_diagnostics() {
 
 #[test]
 fn impossible_comparison_ge_and_le_fixer() {
-    test_lint_fixer!(IMPOSSIBLE_COMPARISON_GE_AND_LE, @r#"
+    test_lint_fixer!(IMPOSSIBLE_COMPARISON_GE_AND_LE, @r"
     fn main() {
         let x: u32 = 1;
-        if x >= 200 && x <= 100 {
-            //impossible to reach
+        if x >= 200 && x <= 100 {//impossible to reach
         }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -918,14 +913,13 @@ fn impossible_comparison_lt_and_gt_diagnostics() {
 
 #[test]
 fn impossible_comparison_lt_and_gt_fixer() {
-    test_lint_fixer!(IMPOSSIBLE_COMPARISON_LT_AND_GT, @r#"
+    test_lint_fixer!(IMPOSSIBLE_COMPARISON_LT_AND_GT, @r"
     fn main() {
         let x: u32 = 1;
-        if x < 100 && x > 100 {
-            //impossible to reach
+        if x < 100 && x > 100 {//impossible to reach
         }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -936,14 +930,13 @@ fn impossible_comparison_lt_and_gt_possible_diagnostics() {
 
 #[test]
 fn impossible_comparison_lt_and_gt_possible_fixer() {
-    test_lint_fixer!(IMPOSSIBLE_COMPARISON_LT_AND_GT_POSSIBLE, @r#"
+    test_lint_fixer!(IMPOSSIBLE_COMPARISON_LT_AND_GT_POSSIBLE, @r"
     fn main() {
         let x: u32 = 1;
-        if x < 105 && x > 100 {
-            //possible to reach
+        if x < 105 && x > 100 {//possible to reach
         }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -958,14 +951,13 @@ fn impossible_comparison_lt_and_ge_diagnostics() {
 
 #[test]
 fn impossible_comparison_lt_and_ge_fixer() {
-    test_lint_fixer!(IMPOSSIBLE_COMPARISON_LT_AND_GE, @r#"
+    test_lint_fixer!(IMPOSSIBLE_COMPARISON_LT_AND_GE, @r"
     fn main() {
         let x: u32 = 1;
-        if x < 100 && x >= 100 {
-            //impossible to reach
+        if x < 100 && x >= 100 {//impossible to reach
         }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -980,14 +972,13 @@ fn impossible_comparison_le_and_gt_diagnostics() {
 
 #[test]
 fn impossible_comparison_le_and_gt_fixer() {
-    test_lint_fixer!(IMPOSSIBLE_COMPARISON_LE_AND_GT, @r#"
+    test_lint_fixer!(IMPOSSIBLE_COMPARISON_LE_AND_GT, @r"
     fn main() {
         let x: u32 = 1;
-        if x <= 100 && x > 200 {
-            //impossible to reach
+        if x <= 100 && x > 200 {//impossible to reach
         }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -1002,14 +993,13 @@ fn impossible_comparison_le_and_ge_diagnostics() {
 
 #[test]
 fn impossible_comparison_le_and_ge_fixer() {
-    test_lint_fixer!(IMPOSSIBLE_COMPARISON_LE_AND_GE, @r#"
+    test_lint_fixer!(IMPOSSIBLE_COMPARISON_LE_AND_GE, @r"
     fn main() {
         let x: u32 = 1;
-        if x <= 100 && x >= 200 {
-            //impossible to reach
+        if x <= 100 && x >= 200 {//impossible to reach
         }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -1020,15 +1010,14 @@ fn impossible_comparison_le_and_ge_allowed_diagnostics() {
 
 #[test]
 fn impossible_comparison_le_and_ge_allowed_fixer() {
-    test_lint_fixer!(IMPOSSIBLE_COMPARISON_LE_AND_GE_ALLOWED, @r#"
+    test_lint_fixer!(IMPOSSIBLE_COMPARISON_LE_AND_GE_ALLOWED, @r"
     fn main() {
         let x: u32 = 1;
         #[allow(impossible_comparison)]
-        if x <= 100 && x >= 200 {
-            //impossible to reach
+        if x <= 100 && x >= 200 {//impossible to reach
         }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -1039,15 +1028,14 @@ fn impossible_comparison_le_and_ge_different_var_diagnostics() {
 
 #[test]
 fn impossible_comparison_le_and_ge_different_var_fixer() {
-    test_lint_fixer!(IMPOSSIBLE_COMPARISON_LE_AND_GE_DIFFERENT_VAR, @r#"
+    test_lint_fixer!(IMPOSSIBLE_COMPARISON_LE_AND_GE_DIFFERENT_VAR, @r"
     fn main() {
         let x: u32 = 1;
         let y: u32 = 1;
-        if x <= 100 && y >= 200 {
-            //possible to reach
+        if x <= 100 && y >= 200 {//possible to reach
         }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -1062,16 +1050,13 @@ fn impossible_comparison_with_else_clause_diagnostics() {
 
 #[test]
 fn impossible_comparison_with_else_clause_fixer() {
-    test_lint_fixer!(IMPOSSIBLE_COMPARISON_WITH_ELSE_CLAUSE, @r#"
+    test_lint_fixer!(IMPOSSIBLE_COMPARISON_WITH_ELSE_CLAUSE, @r"
     fn main() {
         let x: u32 = 1;
-        if x >= 200 && x < 100 {
-            //impossible to reach
-        } else if x == 1 {
-            //possible to reach
-        } else {
-            //possible to reach
+        if x >= 200 && x < 100 {//impossible to reach
+        } else if x == 1 {//possible to reach
+        } else {//possible to reach
         }
     }
-    "#);
+    ");
 }

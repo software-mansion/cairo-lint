@@ -276,11 +276,11 @@ fn redundant_bracket_call_fixer() {
     #[derive(Drop)]
     enum MyEnum {
         Data: u8,
-        Empty
+        Empty,
     }
-      
+
     fn main() {
-        let _a = MyEnum::Empty; 
+        let _a = MyEnum::Empty;
     }
     ");
 }
@@ -306,10 +306,10 @@ fn multiple_empty_variants_fixer() {
     enum MyEnum {
         Data: u8,
         Empty1,
-        Empty2, 
-        Empty3
+        Empty2,
+        Empty3,
     }
-      
+
     fn main() {
         let _a = MyEnum::Empty1; // Comment
         let _b = MyEnum::Empty2;
@@ -336,17 +336,17 @@ fn simple_unit_generic_diagnostics() {
 fn simple_unit_fixer() {
     test_lint_fixer!(SIMPLE_UNIT_GENERIC, @r"
     #[derive(Drop)]
-    enum MyEnum< T> {
-        V:   T,
+    enum MyEnum<T> {
+        V: T,
         Value: u8,
-        Empty
+        Empty,
     }
 
     fn main() {
         // Non-redundant parentheses (required arguments)
         let _a = MyEnum::V(());
         let _b = MyEnum::<()>::Value(1);
-        
+
         // Redundant parentheses
         let _c = MyEnum::<()>::Empty;
     }
@@ -372,11 +372,11 @@ fn unit_generic_in_path_fixer() {
     test_lint_fixer!(REDUNDANT_UNIT_WITH_GENERIC_IN_PATH, @r"
     fn main() {
         // Redundant parentheses
-        let _a = Option::<(  )>::Some;
-        let _b = Result::<( ), Option::<()>>::Ok;
-        
+        let _a = Option::<()>::Some;
+        let _b = Result::<(), Option<()>>::Ok;
+
         // Non-redundant parentheses (required argument)
-        let _c = Result::<( ), felt252>::Err('Hello');
+        let _c = Result::<(), felt252>::Err('Hello');
     }
     ")
 }
@@ -399,19 +399,19 @@ fn generic_named_argument_diagnostics() {
 fn generic_named_argument_fixer() {
     test_lint_fixer!(GENERIC_NAMED_ARGUMENT, @r"
     #[derive(Drop)]
-    enum MyEnum< T, E> {
-        V:   T,
+    enum MyEnum<T, E> {
+        V: T,
         Value: u8,
-        V2: E
+        V2: E,
     }
-        
+
     fn main() {
-        // Redundant parentheses 
+        // Redundant parentheses
         let _a = MyEnum::<T: (), E: ()>::V;
         let _d = MyEnum::<(), E: ()>::V;
 
-        // Non-redundant parentheses 
-        let _b = MyEnum::<E : ()>::V(());
+        // Non-redundant parentheses
+        let _b = MyEnum::<E: ()>::V(());
         let _c = MyEnum::<T: _, E: ()>::V(());
         let _d = MyEnum::<_, E: ()>::V(());
     }
@@ -443,8 +443,8 @@ fn nested_enum_variants_fixer() {
 
     fn main() {
         // Non-redundant parentheses (required arguments)
-        let _a = Result::<Option::<()>, ()>::Ok(Option::Some(()));
-        
+        let _a = Result::<Option<()>, ()>::Ok(Option::Some(()));
+
         // Redundant parentheses
         let _b = Option::Some(MyEnum::Empty);
         let _c = Option::Some(Option::Some(MyEnum::Empty));
@@ -474,7 +474,7 @@ fn complex_nested_generics_fixer() {
     fn main() {
         // Redundant parentheses
         let _a = ComplexEnum::<(), (), ()>::Empty;
-        
+
         // Non-redundant parentheses (required arguments)
         let _b = ComplexEnum::<(), (), ()>::Variant(((), (), ()));
     }

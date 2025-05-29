@@ -10,6 +10,7 @@ use cairo_lang_syntax::node::{ast::ExprBinary, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 pub struct BoolComparison;
@@ -56,7 +57,7 @@ impl Lint for BoolComparison {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_bool_comparison(db.upcast(), node)
     }
 }
@@ -114,13 +115,17 @@ fn check_single_bool_comparison(
 
 /// Rewrites a bool comparison to a simple bool. Ex: `some_bool == false` would be rewritten to
 /// `!some_bool`
-pub fn fix_bool_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+pub fn fix_bool_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let node = ExprBinary::from_syntax_node(db, node);
     let lhs = node.lhs(db).as_syntax_node().get_text(db);
     let rhs = node.rhs(db).as_syntax_node().get_text(db);
 
     let result = generate_fixed_text_for_comparison(db, lhs.as_str(), rhs.as_str(), node.clone());
-    Some((node.as_syntax_node(), result))
+    Some(InternalFix {
+        node: node.as_syntax_node(),
+        suggestion: result,
+        import_addition_paths: None,
+    })
 }
 
 /// Generates the fixed boolean for a boolean comparison. It will transform `x == false` to `!x`

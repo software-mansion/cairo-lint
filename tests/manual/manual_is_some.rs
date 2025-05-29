@@ -108,9 +108,9 @@ fn test_basic_is_some_diagnostics() {
 fn test_basic_is_some_fixer() {
     test_lint_fixer!(TEST_BASIC_IS_SOME, @r"
     fn main() {
-      let foo: Option::<i32> = Option::None;
-      // This is just a variable.
-      let _foo = foo.is_some();
+        let foo: Option<i32> = Option::None;
+        // This is just a variable.
+        let _foo = foo.is_some();
     }
     ");
 }
@@ -126,12 +126,12 @@ fn test_basic_is_some_allowed_fixer() {
     test_lint_fixer!(TEST_BASIC_IS_SOME_ALLOWED, @r"
     #[allow(manual_is_some)]
     fn main() {
-      let foo: Option::<i32> = Option::None;
-      // This is just a variable.
-      let _foo = match foo {
-          Option::Some(_) => true,
-          Option::None => false,
-      };
+        let foo: Option<i32> = Option::None;
+        // This is just a variable.
+        let _foo = match foo {
+            Option::Some(_) => true,
+            Option::None => false,
+        };
     }
     ");
 }
@@ -146,15 +146,15 @@ fn test_with_comment_in_some_diagnostics() {
 fn test_with_comment_in_some_fixer() {
     test_lint_fixer!(TEST_WITH_COMMENT_IN_SOME, @r"
     fn main() {
-      let foo: Option::<i32> = Option::None;
-      // This is just a variable.
-      let _foo = match foo {
-          Option::Some(_) => {
-              // do something
-              true
-          },
-          Option::None => false,
-      };
+        let foo: Option<i32> = Option::None;
+        // This is just a variable.
+        let _foo = match foo {
+            Option::Some(_) => {
+                // do something
+                true
+            },
+            Option::None => false,
+        };
     }
     ");
 }
@@ -169,15 +169,15 @@ fn test_with_comment_in_none_diagnostics() {
 fn test_with_comment_in_none_fixer() {
     test_lint_fixer!(TEST_WITH_COMMENT_IN_NONE, @r"
     fn main() {
-      let foo: Option::<i32> = Option::None;
-      // This is just a variable.
-      let _foo = match foo {
-          Option::Some(_) => true,
-          Option::None => {
-              // do something
-              false
-          },
-      };
+        let foo: Option<i32> = Option::None;
+        // This is just a variable.
+        let _foo = match foo {
+            Option::Some(_) => true,
+            Option::None => {
+                // do something
+                false
+            },
+        };
     }
     ");
 }
@@ -199,12 +199,12 @@ fn test_match_expression_is_a_function_diagnostics() {
 fn test_match_expression_is_a_function_fixer() {
     test_lint_fixer!(TEST_MATCH_EXPRESSION_IS_A_FUNCTION, @r"
     fn foo(a: u256) -> Option<u256> {
-      Option::Some(a)
+        Option::Some(a)
     }
     fn main() {
-      let a: u256 = 0;
-      // This is just a variable.
-      let _a = foo(a).is_some();
+        let a: u256 = 0;
+        // This is just a variable.
+        let _a = foo(a).is_some();
     }
     ");
 }
@@ -226,9 +226,9 @@ fn test_manual_if_diagnostics() {
 fn test_manual_if_fixer() {
     test_lint_fixer!(TEST_MANUAL_IF, @r"
     fn main() {
-      let opt_val: Option<i32> = Option::None;
-      // This is just a variable.
-      let _a = opt_val.is_some();
+        let opt_val: Option<i32> = Option::None;
+        // This is just a variable.
+        let _a = opt_val.is_some();
     }
     ");
 }
@@ -243,15 +243,15 @@ fn test_manual_if_with_additional_instructions_diagnostics() {
 fn test_manual_if_with_additional_instructions_fixer() {
     test_lint_fixer!(TEST_MANUAL_IF_WITH_ADDITIONAL_INSTRUCTIONS, @r"
     fn main() {
-      let opt_val: Option::<i32> = Option::None;
-      let mut val = 1;
-      // This is just a variable.
-      let _a = if let Option::Some(_) = opt_val {
-          val += 1;
-          false
-      } else {
-          true
-      };
+        let opt_val: Option<i32> = Option::None;
+        let mut val = 1;
+        // This is just a variable.
+        let _a = if let Option::Some(_) = opt_val {
+            val += 1;
+            false
+        } else {
+            true
+        };
     }
     ");
 }

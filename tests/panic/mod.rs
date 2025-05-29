@@ -113,7 +113,7 @@ fn single_panic_diagnostics() {
 fn single_panic_fixer() {
     test_lint_fixer!(SINGLE_PANIC, @r#"
     fn main() {
-      panic!("panic");
+        panic!("panic");
     }
     "#);
 }
@@ -140,9 +140,9 @@ fn multiple_panic_diagnostics() {
 fn multiple_panic_fixer() {
     test_lint_fixer!(MULTIPLE_PANIC, @r#"
     fn main() {
-      panic!("panic");
-      panic!("panic 2");
-      panic!("panic 3");
+        panic!("panic");
+        panic!("panic 2");
+        panic!("panic 3");
     }
     "#);
 }
@@ -165,9 +165,9 @@ fn multiple_panic_and_other_macros_diagnostics() {
 fn multiple_panic_and_other_macros_fixer() {
     test_lint_fixer!(MULTIPLE_PANIC_AND_OTHER_MACROS, @r#"
     fn main() {
-      panic!("panic");
-      panic!("panic 2");
-      println!("print");
+        panic!("panic");
+        panic!("panic 2");
+        println!("print");
     }
     "#);
 }
@@ -186,7 +186,7 @@ fn empty_panic_diagnostics() {
 fn empty_panic_fixer() {
     test_lint_fixer!(EMPTY_PANIC, @r#"
     fn main() {
-      panic!("");
+        panic!("");
     }
     "#);
 }
@@ -252,7 +252,7 @@ fn no_panic_diagnostics() {
 fn no_panic_fixer() {
     test_lint_fixer!(NO_PANIC, @r#"
     fn main() {
-      println!("print");
+        println!("print");
     }
     "#);
 }
@@ -271,12 +271,12 @@ fn panic_inside_function_diagnostics() {
 fn panic_inside_function_fixer() {
     test_lint_fixer!(PANIC_INSIDE_FUNCTION, @r#"
     pub fn print_name() {
-      println!("Hello Alan");
-      panic!("panic Alan");
+        println!("Hello Alan");
+        panic!("panic Alan");
     }
 
     fn main() {
-      print_name();
+        print_name();
     }
     "#);
 }

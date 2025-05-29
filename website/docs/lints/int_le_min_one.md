@@ -2,7 +2,7 @@
 
 Default: **Enabled**
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/int_op_one.rs#L180)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/int_op_one.rs#L181)
 
 ## What it does
 

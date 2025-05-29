@@ -1,4 +1,5 @@
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::helper::indent_snippet;
 use crate::queries::get_all_parenthesized_expressions;
 use cairo_lang_defs::ids::ModuleItemId;
@@ -47,7 +48,7 @@ impl Lint for DoubleParens {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_double_parens(db.upcast(), node)
     }
 }
@@ -106,16 +107,16 @@ fn check_single_double_parens(
 ///
 /// Input: `((x + y))`
 /// Output: `x + y`
-pub fn fix_double_parens(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+pub fn fix_double_parens(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let mut expr = Expr::from_syntax_node(db, node);
 
     while let Expr::Parenthesized(inner_expr) = expr {
         expr = inner_expr.expr(db);
     }
 
-    Some((
+    Some(InternalFix {
         node,
-        indent_snippet(
+        suggestion: indent_snippet(
             &expr.as_syntax_node().get_text(db),
             node.get_text(db)
                 .chars()
@@ -124,5 +125,6 @@ pub fn fix_double_parens(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Synt
                 .len()
                 / 4,
         ),
-    ))
+        import_addition_paths: None,
+    })
 }

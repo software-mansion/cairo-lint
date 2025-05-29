@@ -29,6 +29,7 @@ mod helper;
 pub mod lints;
 pub mod plugin;
 mod queries;
+mod types;
 
 use context::{get_lint_type_from_diagnostic_message, CairoLintKind};
 
@@ -73,6 +74,7 @@ pub fn get_fixes(
 ///
 /// * `file_id` - The FileId of the file that the fixes should be applied to.
 /// * `fixes` - The list of fixes that should be applied to the file.
+/// * `db` - The reference to the database that contains the file content.
 pub fn apply_file_fixes(file_id: FileId, fixes: Vec<Fix>, db: &dyn FilesGroup) -> Result<()> {
     let mut fixes = fixes;
     fixes.sort_by_key(|fix| Reverse(fix.span.start));

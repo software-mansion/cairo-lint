@@ -57,13 +57,13 @@ fn simple_break_diagnostics() {
 
 #[test]
 fn simple_break_fixer() {
-    test_lint_fixer!(SIMPLE_BREAK, @r#"
+    test_lint_fixer!(SIMPLE_BREAK, @r"
     fn main() {
-       loop {
-           break;
-       }
+        loop {
+            break;
+        }
     }
-    "#);
+    ");
 }
 
 #[test]
@@ -75,10 +75,10 @@ fn simple_break_allowed_diagnostics() {
 fn simple_break_allowed_fixer() {
     test_lint_fixer!(SIMPLE_BREAK_ALLOWED, @r"
     fn main() {
-       loop {
-           #[allow(break_unit)]
-           break ();
-       }
+        loop {
+            #[allow(break_unit)]
+            break ();
+        }
     }
     ");
 }

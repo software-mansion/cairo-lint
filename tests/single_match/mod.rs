@@ -370,8 +370,8 @@ fn destructuring_match_twisted_differently_fixer() {
             _ => (),
             // This one is valid
             Option::Some(a) => if let Option::Some(b) = a {
-        println!("{b}")
-    },
+                println!("{b}")
+            },
         };
     }
     "#);
@@ -457,9 +457,9 @@ fn simple_destructuring_match_with_unit_and_comment_in_scope_fixer() {
         let variable = Option::Some(1_felt252);
         match variable {
             Option::Some(a) => println!("{a}"),
-            _ => { 
+            _ => {
                 // This is a comment
-                () 
+                ()
             },
         };
     }
@@ -479,8 +479,7 @@ fn simple_destructuring_match_with_comment_in_scope_fixer() {
         let variable = Option::Some(1_felt252);
         match variable {
             Option::Some(a) => println!("{a}"),
-            _ => { 
-                // This is a comment
+            _ => {// This is a comment
             },
         };
     }
@@ -559,14 +558,16 @@ fn destructing_match_in_trait_fixer() {
     test_lint_fixer!(DESTRUCTING_MATCH_IN_TRAIT, @r##"
     #[derive(Drop)]
     struct MyStruct {
-        variable: Option::<felt252>,
+        variable: Option<felt252>,
     }
 
     trait TExample {
-        fn match_struct(self: @MyStruct) {
+        fn match_struct(
+            self: @MyStruct,
+        ) {
             if let Option::Some(a) = *self.variable {
                 println!("{a}")
-            };  
+            };
         }
     }
 

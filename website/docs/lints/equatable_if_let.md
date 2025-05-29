@@ -2,7 +2,7 @@
 
 Default: **Enabled**
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/ifs/equatable_if_let.rs#L36)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/ifs/equatable_if_let.rs#L37)
 
 ## What it does
 

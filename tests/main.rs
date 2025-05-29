@@ -23,6 +23,7 @@ mod single_match;
 mod unit_return_type;
 mod unused_imports;
 mod unused_variables;
+mod unwrap_syscall;
 
 pub const CRATE_CONFIG: &str = r#"
 edition = "2024_07"

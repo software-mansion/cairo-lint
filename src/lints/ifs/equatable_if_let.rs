@@ -10,6 +10,7 @@ use cairo_lang_syntax::node::{
 };
 
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
 pub struct EquatableIfLet;
@@ -50,7 +51,7 @@ impl Lint for EquatableIfLet {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_equatable_if_let(db.upcast(), node)
     }
 }
@@ -115,10 +116,7 @@ fn is_simple_equality_condition(patterns: &[PatternId], arenas: &Arenas) -> bool
 }
 
 /// Rewrites a useless `if let` to a simple `if`
-pub fn fix_equatable_if_let(
-    db: &dyn SyntaxGroup,
-    node: SyntaxNode,
-) -> Option<(SyntaxNode, String)> {
+pub fn fix_equatable_if_let(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let expr = AstExprIf::from_syntax_node(db, node);
     let condition = expr.condition(db);
 
@@ -141,13 +139,14 @@ pub fn fix_equatable_if_let(
         _ => panic!("Incorrect diagnostic"),
     };
 
-    Some((
+    Some(InternalFix {
         node,
-        format!(
+        suggestion: format!(
             "{}{}{}",
             expr.if_kw(db).as_syntax_node().get_text(db),
             fixed_condition,
             expr.if_block(db).as_syntax_node().get_text(db),
         ),
-    ))
+        import_addition_paths: None,
+    })
 }

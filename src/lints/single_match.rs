@@ -12,6 +12,7 @@ use cairo_lang_syntax::node::{
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::helper::indent_snippet;
 use crate::queries::{get_all_function_bodies, get_all_match_expressions};
 
@@ -55,7 +56,7 @@ impl Lint for DestructMatch {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_destruct_match(db.upcast(), node)
     }
 }
@@ -259,7 +260,7 @@ pub fn is_expr_unit(expr: AstExpr, db: &dyn SyntaxGroup) -> bool {
 /// # Panics
 ///
 /// Panics if the diagnostic is incorrect (i.e., the match doesn't have the expected structure).
-pub fn fix_destruct_match(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+pub fn fix_destruct_match(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let match_expr = AstExprMatch::from_syntax_node(db, node);
     let arms = match_expr.arms(db).elements(db);
     let first_arm = &arms[0];
@@ -289,9 +290,9 @@ pub fn fix_destruct_match(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Syn
         .take_while(|c| c.is_whitespace())
         .collect::<String>();
     let trivia = pattern.get_text_of_span(db, pattern_span);
-    Some((
+    Some(InternalFix {
         node,
-        indent_snippet(
+        suggestion: indent_snippet(
             &format!(
                 "{trivia}{indent}if let {} = {} {{\n{}\n}}",
                 pattern.get_text_without_trivia(db),
@@ -303,5 +304,6 @@ pub fn fix_destruct_match(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Syn
             ),
             indent.len() / 4,
         ),
-    ))
+        import_addition_paths: None,
+    })
 }

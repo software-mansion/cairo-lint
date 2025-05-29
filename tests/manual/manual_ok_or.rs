@@ -216,7 +216,7 @@ fn test_with_comment_in_none_fixer() {
         // This is just a variable.
         let _foo = match foo {
             Option::Some(v) => Result::Ok(v),
-            Option::None =>{
+            Option::None => {
                 // do something
                 Result::Err('this is an err')
             },
@@ -269,7 +269,7 @@ fn test_match_expression_not_a_variable_fixer() {
         Error,
     }
     fn main() {
-        let self: u256 = 0; 
+        let self: u256 = 0;
         // This is just a variable.
         let _self_result: Result<u8, Error> = self.try_into().ok_or(Error::Error);
     }

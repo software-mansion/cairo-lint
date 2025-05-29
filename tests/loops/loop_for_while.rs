@@ -571,7 +571,7 @@ fn advanced_loop_with_break_in_the_middle_fixer() {
             let new_base = 2;
 
             base = new_base;
-        };
+        }
         1
     }
     ");
@@ -639,7 +639,9 @@ fn loop_in_trait_fixer() {
     }
 
     trait TExample {
-        fn loop_add(ref self: MyStruct) {
+        fn loop_add(
+            ref self: MyStruct,
+        ) {
             while self.x != 10 && self.y != 5 {
                 self.x += 1;
                 self.y -= 1;

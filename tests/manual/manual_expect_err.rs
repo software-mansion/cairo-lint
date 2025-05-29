@@ -219,9 +219,9 @@ fn test_match_with_function_diagnostics() {
 #[test]
 fn test_match_with_function_fixer() {
     test_lint_fixer!(TEST_MATCH_WITH_FUNCTION, @r"
-    fn foo(x : i32) -> Result<i32, felt252> {
+    fn foo(x: i32) -> Result<i32, felt252> {
         Result::Ok('i32')
-    } 
+    }
     fn main() {
         // This is just a variable.
         let _foo = foo(0).expect_err('error');
@@ -245,9 +245,9 @@ fn test_if_with_function_diagnostics() {
 #[test]
 fn test_if_with_function_fixer() {
     test_lint_fixer!(TEST_IF_WITH_FUNCTION, @r"
-    fn foo(x : i32) -> Result<i32, felt252> {
+    fn foo(x: i32) -> Result<i32, felt252> {
         Result::Ok('i32')
-    } 
+    }
     fn main() {
         // This is just a variable.
         let _a = foo(0).expect_err('panic');

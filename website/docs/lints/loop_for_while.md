@@ -2,7 +2,7 @@
 
 Default: **Enabled**
 
-[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/loops/loop_for_while.rs#L48)
+[Source Code](https://github.com/software-mansion/cairo-lint/tree/main/src/lints/loops/loop_for_while.rs#L49)
 
 ## What it does
 

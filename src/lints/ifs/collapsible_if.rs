@@ -11,6 +11,7 @@ use cairo_lang_syntax::node::{
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::helper::indent_snippet;
 use crate::queries::{get_all_function_bodies, get_all_if_expressions, is_assert_macro_call};
 
@@ -65,7 +66,7 @@ impl Lint for CollapsibleIf {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_collapsible_if(db.upcast(), node)
     }
 }
@@ -162,7 +163,7 @@ fn check_single_collapsible_if(
 /// A `String` containing the fixed code with the combined conditions if a collapsible
 /// `if` is found. If no collapsible `if` is detected, the original text of the node is
 /// returned.
-pub fn fix_collapsible_if(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+pub fn fix_collapsible_if(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let expr_if = AstExprIf::from_syntax_node(db, node);
     let outer_condition = expr_if.condition(db).as_syntax_node().get_text(db);
     let if_block = expr_if.if_block(db);
@@ -203,13 +204,15 @@ pub fn fix_collapsible_if(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<(Syn
                 .chars()
                 .take_while(|c| c.is_whitespace())
                 .count();
-            return Some((
+
+            return Some(InternalFix {
                 node,
-                indent_snippet(
-                    &format!("if {} {}", combined_condition, inner_if_block,),
+                suggestion: indent_snippet(
+                    &format!("if {} {}", combined_condition, inner_if_block),
                     indent / 4,
                 ),
-            ));
+                import_addition_paths: None,
+            });
         }
     }
     None

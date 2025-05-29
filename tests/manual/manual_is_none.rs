@@ -108,7 +108,7 @@ fn test_basic_is_none_diagnostics() {
 fn test_basic_is_none_fixer() {
     test_lint_fixer!(TEST_BASIC_IS_NONE, @r"
     fn main() {
-        let foo: Option::<i32> = Option::None;
+        let foo: Option<i32> = Option::None;
         // This is just a variable.
         let _foo = foo.is_none();
     }
@@ -125,7 +125,7 @@ fn test_basic_is_none_allowed_diagnostics() {
 fn test_basic_is_none_allowed_fixer() {
     test_lint_fixer!(TEST_BASIC_IS_NONE_ALLOWED, @r"
     fn main() {
-        let foo: Option::<i32> = Option::None;
+        let foo: Option<i32> = Option::None;
         #[allow(manual_is_none)]
         // This is just a variable.
         let _foo = match foo {
@@ -146,7 +146,7 @@ fn test_with_comment_in_some_diagnostics() {
 fn test_with_comment_in_some_fixer() {
     test_lint_fixer!(TEST_WITH_COMMENT_IN_SOME, @r"
     fn main() {
-        let foo: Option::<i32> = Option::None;
+        let foo: Option<i32> = Option::None;
         // This is just a variable.
         let _foo = match foo {
             Option::Some(_) => {
@@ -169,15 +169,15 @@ fn test_with_comment_in_none_diagnostics() {
 fn test_with_comment_in_none_fixer() {
     test_lint_fixer!(TEST_WITH_COMMENT_IN_NONE, @r"
     fn main() {
-      let foo: Option::<i32> = Option::None;
-      // This is just a variable.
-      let _foo = match foo {
-          Option::Some(_) => false,
-          Option::None => {
-              // do something
-              true
-          },
-      };
+        let foo: Option<i32> = Option::None;
+        // This is just a variable.
+        let _foo = match foo {
+            Option::Some(_) => false,
+            Option::None => {
+                // do something
+                true
+            },
+        };
     }
     ");
 }
@@ -243,7 +243,7 @@ fn test_manual_if_with_additional_instructions_diagnostics() {
 fn test_manual_if_with_additional_instructions_fixer() {
     test_lint_fixer!(TEST_MANUAL_IF_WITH_ADDITIONAL_INSTRUCTIONS, @r"
     fn main() {
-        let opt_val: Option::<i32> = Option::None;
+        let opt_val: Option<i32> = Option::None;
         let mut val = 1;
         // This is just a variable.
         let _a = if let Option::Some(_) = opt_val {

@@ -1,3 +1,4 @@
+use crate::fixes::InternalFix;
 use crate::lints::bitwise_for_parity_check::check_bitwise_for_parity;
 use crate::lints::bitwise_for_parity_check::BitwiseForParity;
 use crate::lints::bool_comparison::check_bool_comparison;
@@ -78,6 +79,8 @@ use crate::lints::single_match::DestructMatch;
 use crate::lints::single_match::EqualityMatch;
 use crate::lints::unit_return_type::check_unit_return_type;
 use crate::lints::unit_return_type::UnitReturnType;
+use crate::lints::unwrap_syscall::check_unwrap_syscall;
+use crate::lints::unwrap_syscall::UnwrapSyscall;
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::SyntaxNode;
@@ -132,6 +135,7 @@ pub enum CairoLintKind {
     EnumEmptyVariantBrackets,
     ManualUnwrapOr,
     UnitReturnType,
+    UnwrapSyscall,
 }
 
 pub trait Lint: Sync + Send {
@@ -167,13 +171,12 @@ pub trait Lint: Sync + Send {
     /// * `diag` - A reference to the SemanticDiagnostic to be fixed
     ///
     /// # Returns
-    /// An `Option<(SyntaxNode, String)>` where the `SyntaxNode` represents the node to be
-    /// replaced, and the `String` is the suggested replacement. Returns `None` if no fix
+    /// An `Option<Vec<InternalFix>>`. Returns `None` if no fix
     /// is available for the given diagnostic.
     ///
     /// By default there is no fixing procedure for a Lint.
     #[expect(unused_variables)]
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         unreachable!("fix() has been called for a lint which has_fixer() returned false")
     }
 }
@@ -353,6 +356,10 @@ impl LintContext {
                 lints: vec![Box::new(UnitReturnType)],
                 check_function: check_unit_return_type,
             },
+            LintRuleGroup {
+                lints: vec![Box::new(UnwrapSyscall)],
+                check_function: check_unwrap_syscall,
+            },
         ]
     }
 
@@ -398,7 +405,7 @@ pub fn get_fix_for_diagnostic_message(
     db: &dyn SemanticGroup,
     node: SyntaxNode,
     message: &str,
-) -> Option<(SyntaxNode, String)> {
+) -> Option<InternalFix> {
     LINT_CONTEXT
         .lint_groups
         .iter()

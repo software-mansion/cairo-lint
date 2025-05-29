@@ -10,6 +10,7 @@ use cairo_lang_syntax::node::{
 
 use crate::{
     context::CairoLintKind,
+    fixes::InternalFix,
     queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions},
 };
 use crate::{
@@ -61,7 +62,7 @@ impl Lint for ManualUnwrapOrDefault {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<(SyntaxNode, String)> {
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_unwrap_or_default(db.upcast(), node)
     }
 }
@@ -102,10 +103,7 @@ pub fn check_manual_unwrap_or_default(
 }
 
 /// Rewrites manual unwrap or default to use unwrap_or_default
-pub fn fix_manual_unwrap_or_default(
-    db: &dyn SyntaxGroup,
-    node: SyntaxNode,
-) -> Option<(SyntaxNode, String)> {
+pub fn fix_manual_unwrap_or_default(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     // Check if the node is a general expression
     let expr = Expr::from_syntax_node(db, node);
 
@@ -144,12 +142,12 @@ pub fn fix_manual_unwrap_or_default(
     } else {
         format!("{indent}{trivia}\n")
     };
-
-    Some((
+    Some(InternalFix {
         node,
-        format!(
+        suggestion: format!(
             "{trivia}{indent}{}.unwrap_or_default()",
             matched_expr.get_text(db).trim_end()
         ),
-    ))
+        import_addition_paths: None,
+    })
 }
