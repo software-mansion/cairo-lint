@@ -116,7 +116,7 @@ fn check_single_collapsible_if(
         if !is_assert_macro_call(db, arenas, inner_if_expr);
 
         // Check if any of the ifs (outer and inner) have an else block, if it's the case don't diagnostic
-        if !inner_if_expr.else_block.is_some() && !if_expr.else_block.is_some();
+        if inner_if_expr.else_block.is_none() && if_expr.else_block.is_none();
         then {
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: if_expr.stable_ptr.untyped(),
