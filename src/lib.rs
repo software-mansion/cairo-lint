@@ -77,6 +77,8 @@ pub fn get_fixes(
 /// * `db` - The reference to the database that contains the file content.
 pub fn apply_file_fixes(file_id: FileId, fixes: Vec<Fix>, db: &dyn FilesGroup) -> Result<()> {
     let mut fixes = fixes;
+    // Those fixes MUST be sorted in reverse, so changes at the end of the file,
+    // doesn't affect the spans of the previous file fixes.
     fixes.sort_by_key(|fix| Reverse(fix.span.start));
     // Get all the files that need to be fixed
     let mut files: HashMap<FileId, String> = HashMap::default();

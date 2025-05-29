@@ -10,6 +10,7 @@
 //! The module handles both single imports and multi-imports, ensuring that only unused
 //! items are removed while preserving the structure of the import statements.
 
+use std::cmp::Reverse;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -461,6 +462,9 @@ pub fn merge_overlapping_fixes(
     }
 
     if were_overlapped {
+        // Those fixes MUST be sorted in reverse, so changes at the end of the file,
+        // doesn't affect the spans of the previous file fixes.
+        current_fixes.sort_by_key(|fix| Reverse(fix.span.start));
         for fix in current_fixes.iter() {
             apply_fix_for_file(db, file_id, fix.clone());
         }
