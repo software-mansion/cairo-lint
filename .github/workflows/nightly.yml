@@ -29,7 +29,7 @@ jobs:
     needs: test-with-nightly-cairo
     steps:
       - name: Notify the team about workflow failure
-        uses: slackapi/slack-github-action@v2.0.0
+        uses: slackapi/slack-github-action@v2.1.0
         with:
           webhook: ${{ secrets.SLACK_NIGHTLY_CHECK_FAILURE_WEBHOOK_URL }}
           webhook-type: webhook-trigger
