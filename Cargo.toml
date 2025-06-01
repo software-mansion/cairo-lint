@@ -50,7 +50,7 @@ if_chain = "1.0.2"
 indoc = "2"
 itertools = "0.14.0"
 log = "0.4.27"
-lsp-types = "=0.95.1"
+lsp-types = "=0.97.0"
 num-bigint = "0.4.6"
 salsa = { package = "rust-analyzer-salsa", version = "0.17.0-pre.6" }
 scarb-metadata = "1.14.0"
