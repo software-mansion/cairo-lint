@@ -117,14 +117,29 @@ fn check_syntax_some_arm(
             pattern_check_enum_arg(&arenas.patterns[arm.patterns[0]], &expr_var.var, arenas)
         }
         ManualLint::ManualUnwrapOrDefault => {
-            let Expr::Var(enum_destruct_var) = &arenas.exprs[arm.expression] else {
+            if let Expr::Var(enum_destruct_var) = &arenas.exprs[arm.expression] {
+                pattern_check_enum_arg(
+                    &arenas.patterns[arm.patterns[0]],
+                    &enum_destruct_var.var,
+                    arenas,
+                )
+            } else if let Expr::Block(block) = &arenas.exprs[arm.expression] {
+                if_chain! {
+                    if block.statements.is_empty();
+                    if let Some(tail_expr_id) = block.tail;
+                    if let Expr::Var(enum_destruct_var) = &arenas.exprs[tail_expr_id];
+                    then {
+                        return pattern_check_enum_arg(
+                            &arenas.patterns[arm.patterns[0]],
+                            &enum_destruct_var.var,
+                            arenas,
+                        );
+                    }
+                }
                 return false;
-            };
-            pattern_check_enum_arg(
-                &arenas.patterns[arm.patterns[0]],
-                &enum_destruct_var.var,
-                arenas,
-            )
+            } else {
+                false
+            }
         }
         ManualLint::ManualUnwrapOr => match_arm_returns_extracted_var(arm, arenas),
 
@@ -190,14 +205,29 @@ fn check_syntax_ok_arm(
         }
         ManualLint::ManualUnwrapOr => match_arm_returns_extracted_var(arm, arenas),
         ManualLint::ManualUnwrapOrDefault => {
-            let Expr::Var(enum_destruct_var) = &arenas.exprs[arm.expression] else {
+            if let Expr::Var(enum_destruct_var) = &arenas.exprs[arm.expression] {
+                pattern_check_enum_arg(
+                    &arenas.patterns[arm.patterns[0]],
+                    &enum_destruct_var.var,
+                    arenas,
+                )
+            } else if let Expr::Block(block) = &arenas.exprs[arm.expression] {
+                if_chain! {
+                    if block.statements.is_empty();
+                    if let Some(tail_expr_id) = block.tail;
+                    if let Expr::Var(enum_destruct_var) = &arenas.exprs[tail_expr_id];
+                    then {
+                        return pattern_check_enum_arg(
+                            &arenas.patterns[arm.patterns[0]],
+                            &enum_destruct_var.var,
+                            arenas,
+                        );
+                    }
+                }
                 return false;
-            };
-            pattern_check_enum_arg(
-                &arenas.patterns[arm.patterns[0]],
-                &enum_destruct_var.var,
-                arenas,
-            )
+            } else {
+                false
+            }
         }
         _ => false,
     }

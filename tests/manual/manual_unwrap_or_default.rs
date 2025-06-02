@@ -408,6 +408,50 @@ fn main() {
 }
 "#;
 
+const MANUAL_UNWRAP_OR_DEFAULT_OPTION_FOR_MATCH_WITH_SOME_BLOCK: &str = r#"
+fn main() {
+    let x: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
+    // This is just a variable.
+    match x {
+        Option::Some(v) => { v },
+        Option::None => [0; 5],
+    };
+}
+"#;
+
+const MANUAL_UNWRAP_OR_DEFAULT_RESULT_FOR_MATCH_WITH_OK_BLOCK: &str = r#"
+fn main() {
+    let x: Result<[u64; 5], felt252> = Result::Ok([1, 2, 3, 4, 5]);
+    // This is just a variable.
+    match x {
+        Result::Ok(v) => { v },
+        Result::Err(_) => [0; 5],
+    };
+}
+"#;
+
+const MANUAL_UNWRAP_OR_DEFAULT_OPTION_FOR_MATCH_WITH_NONE_BLOCK: &str = r#"
+fn main() {
+    let x: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
+    // This is just a variable.
+    match x {
+        Option::Some(v) => v,
+        Option::None => { [0; 5] },
+    };
+}
+"#;
+
+const MANUAL_UNWRAP_OR_DEFAULT_OPTION_FOR_MATCH_WITH_ERR_BLOCK: &str = r#"
+fn main() {
+    let x: Result<[u64; 5], felt252> = Result::Ok([1, 2, 3, 4, 5]);
+    // This is just a variable.
+    match x {
+        Result::Ok(v) => v,
+        Result::Err(_) => { [0; 5] },
+    };
+}
+"#;
+
 const MANUAL_UNWRAP_OR_DEFAULT_OPTION_FOR_MATCH_WITH_DIFFERENT_TYPE_NOT_TRIGGER: &str = r#"
 fn main() {
   let x: Option<u128> = Option::Some(1038);
@@ -1193,7 +1237,15 @@ fn manual_unwrap_or_default_result_for_match_with_array_fixer() {
 
 #[test]
 fn manual_unwrap_or_default_option_for_match_with_comments_diagnostic() {
-    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_OPTION_FOR_MATCH_WITH_COMMENTS, @r"");
+    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_OPTION_FOR_MATCH_WITH_COMMENTS, @r"
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-14:3
+        match x {
+     ___^
+    | ...
+    |   };
+    |___^
+    ");
 }
 
 #[test]
@@ -1202,23 +1254,22 @@ fn manual_unwrap_or_default_option_for_match_with_comments_fixer() {
     fn main() {
         let x: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
         // This is just a variable.
-        match x {
-            Option::Some(v) => {
-                // Testing with comments
-                v
-            },
-            Option::None => {
-                // Testing with comments
-                [0; 5]
-            },
-        };
+        x.unwrap_or_default();
     }
     ");
 }
 
 #[test]
 fn manual_unwrap_or_default_result_for_match_with_comments_diagnostics() {
-    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_RESULT_FOR_MATCH_WITH_COMMENTS, @"");
+    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_RESULT_FOR_MATCH_WITH_COMMENTS, @r"
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:3-14:3
+        match x {
+     ___^
+    | ...
+    |   };
+    |___^
+    ");
 }
 
 #[test]
@@ -1227,16 +1278,103 @@ fn manual_unwrap_or_default_result_for_match_with_comments_fixer() {
     fn main() {
         let x: Result<[u64; 5], felt252> = Result::Ok([1, 2, 3, 4, 5]);
         // This is just a variable.
-        match x {
-            Result::Ok(v) => {
-                // Testing with comments
-                v
-            },
-            Result::Err(_) => {
-                // Testing with comments
-                [0; 5]
-            },
-        };
+        x.unwrap_or_default();
+    }
+    ");
+}
+
+#[test]
+fn manual_unwrap_or_default_option_for_match_with_some_block_diagnostics() {
+    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_OPTION_FOR_MATCH_WITH_SOME_BLOCK, @r"
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:5-8:5
+          match x {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn manual_unwrap_or_default_option_for_match_with_some_block_fixer() {
+    test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_OPTION_FOR_MATCH_WITH_SOME_BLOCK, @r#"
+    fn main() {
+        let x: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
+        // This is just a variable.
+        x.unwrap_or_default();
+    }
+    "#);
+}
+
+#[test]
+fn manual_unwrap_or_default_result_for_match_with_ok_block_diagnostics() {
+    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_RESULT_FOR_MATCH_WITH_OK_BLOCK, @r"
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:5-8:5
+          match x {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn manual_unwrap_or_default_result_for_match_with_ok_block_fixer() {
+    test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_RESULT_FOR_MATCH_WITH_OK_BLOCK, @r#"
+    fn main() {
+        let x: Result<[u64; 5], felt252> = Result::Ok([1, 2, 3, 4, 5]);
+        // This is just a variable.
+        x.unwrap_or_default();
+    }
+    "#);
+}
+
+#[test]
+fn manual_unwrap_or_default_option_for_match_with_none_block_diagnostics() {
+    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_OPTION_FOR_MATCH_WITH_NONE_BLOCK, @r"
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:5-8:5
+          match x {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn manual_unwrap_or_default_option_for_match_with_none_block_fixer() {
+    test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_OPTION_FOR_MATCH_WITH_NONE_BLOCK, @r"
+    fn main() {
+        let x: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
+        // This is just a variable.
+        x.unwrap_or_default();
+    }
+    ");
+}
+
+#[test]
+fn manual_unwrap_or_default_option_for_match_with_err_block_diagnostics() {
+    test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_OPTION_FOR_MATCH_WITH_ERR_BLOCK, @r"
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:5-8:5
+          match x {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn manual_unwrap_or_default_option_for_match_with_err_block_fixer() {
+    test_lint_fixer!(MANUAL_UNWRAP_OR_DEFAULT_OPTION_FOR_MATCH_WITH_ERR_BLOCK, @r"
+    fn main() {
+        let x: Result<[u64; 5], felt252> = Result::Ok([1, 2, 3, 4, 5]);
+        // This is just a variable.
+        x.unwrap_or_default();
     }
     ");
 }
