@@ -92,6 +92,54 @@ fn main() -> felt252 {
 }
 "#;
 
+const DOUBLE_PARENS_WITH_NEGATION: &str = r#"
+fn main() {
+    let x = 5_u8;
+    let y = 10;
+    let _z = !((x < y));
+}
+"#;
+
+const DOUBLE_PARENS_WITH_AND: &str = r#"
+fn main() {
+    let x = 5_u8;
+    let y = 10;
+    let compare = false;
+    let _z = !(((compare))) && ((x < y));
+}
+"#;
+
+const DOUBLE_PARENS_WITH_OR_SINGLE_VALUE: &str = r#"
+fn main() {
+    let x = 5_u8;
+    let y = 10;
+    let compare = false;
+    let _z = ((((false)) || (x < y))) == compare;
+}
+"#;
+
+const DOUBLE_PARENS_WITH_ARITHMETIC_EXPRESSION: &str = r#"
+fn main() {
+    let x = 5_u8;
+    let y = 10;
+    let _z = ((x + y)) * 2;
+}
+"#;
+
+const DOUBLE_PARENS_WITH_INDEXED: &str = r#"
+fn fun(c: Array<u8>) -> Array<u8> {
+    let mut a = c;
+    a.append(1);
+    a
+}
+
+fn main() {
+    let b = array![2,3];
+
+    let _c = *((((fun(b)))[1])) + 2;
+}
+"#;
+
 #[test]
 fn simple_double_parens_diagnostics() {
     test_lint_diagnostics!(SIMPLE_DOUBLE_PARENS, @r"
@@ -338,4 +386,133 @@ fn double_parens_in_match_arm_fixer() {
         }
     }
     "#);
+}
+
+#[test]
+fn double_parens_with_negation_diagnostics() {
+    test_lint_diagnostics!(DOUBLE_PARENS_WITH_NEGATION, @r"
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:5:15
+        let _z = !((x < y));
+                  ^^^^^^^^^
+    ")
+}
+
+#[test]
+fn double_parens_with_negation_fixer() {
+    test_lint_fixer!(DOUBLE_PARENS_WITH_NEGATION, @r"
+    fn main() {
+        let x = 5_u8;
+        let y = 10;
+        let _z = !(x < y);
+    }
+    ")
+}
+
+#[test]
+fn double_parens_with_and_diagnostics() {
+    test_lint_diagnostics!(DOUBLE_PARENS_WITH_AND, @r"
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:6:15
+        let _z = !(((compare))) && ((x < y));
+                  ^^^^^^^^^^^^^
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:6:16
+        let _z = !(((compare))) && ((x < y));
+                   ^^^^^^^^^^^
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:6:32
+        let _z = !(((compare))) && ((x < y));
+                                   ^^^^^^^^^
+    ")
+}
+
+#[test]
+fn double_parens_with_and_fixer() {
+    test_lint_fixer!(DOUBLE_PARENS_WITH_AND, @r"
+    fn main() {
+        let x = 5_u8;
+        let y = 10;
+        let compare = false;
+        let _z = !compare && (x < y);
+    }
+    ")
+}
+
+#[test]
+fn double_parens_with_or_single_value_diagnostics() {
+    test_lint_diagnostics!(DOUBLE_PARENS_WITH_OR_SINGLE_VALUE, @r"
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:6:14
+        let _z = ((((false)) || (x < y))) == compare;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:6:16
+        let _z = ((((false)) || (x < y))) == compare;
+                   ^^^^^^^^^
+    ")
+}
+
+#[test]
+fn double_parens_with_or_single_value_fixer() {
+    test_lint_fixer!(DOUBLE_PARENS_WITH_OR_SINGLE_VALUE, @r"
+    fn main() {
+        let x = 5_u8;
+        let y = 10;
+        let compare = false;
+        let _z = (false || (x < y)) == compare;
+    }
+    ")
+}
+
+#[test]
+fn double_parens_with_arithmetic_expression_diagnostics() {
+    test_lint_diagnostics!(DOUBLE_PARENS_WITH_ARITHMETIC_EXPRESSION, @r"
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:5:14
+        let _z = ((x + y)) * 2;
+                 ^^^^^^^^^
+    ")
+}
+
+#[test]
+fn double_parens_with_arithmetic_expression_fixer() {
+    test_lint_fixer!(DOUBLE_PARENS_WITH_ARITHMETIC_EXPRESSION, @r"
+    fn main() {
+        let x = 5_u8;
+        let y = 10;
+        let _z = (x + y) * 2;
+    }
+    ")
+}
+
+#[test]
+fn double_parens_with_indexed_diagnostics() {
+    test_lint_diagnostics!(DOUBLE_PARENS_WITH_INDEXED, @r"
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:11:15
+        let _c = *((((fun(b)))[1])) + 2;
+                  ^^^^^^^^^^^^^^^^^
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:11:17
+        let _c = *((((fun(b)))[1])) + 2;
+                    ^^^^^^^^^^
+    ")
+}
+
+#[test]
+fn double_parens_with_indexed_fixer() {
+    test_lint_fixer!(DOUBLE_PARENS_WITH_INDEXED, @r"
+    fn fun(c: Array<u8>) -> Array<u8> {
+        let mut a = c;
+        a.append(1);
+        a
+    }
+
+    fn main() {
+        let b = array![2, 3];
+
+        let _c = *fun(b)[1] + 2;
+    }
+    ")
 }
