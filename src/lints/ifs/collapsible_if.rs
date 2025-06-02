@@ -115,7 +115,7 @@ fn check_single_collapsible_if(
         // If it does, we don't warn about collapsible ifs.
         if !is_assert_macro_call(db, arenas, inner_if_expr);
 
-        // Check if any of the ifs (outer and inner) have an else block, if it's the case don't diagnostic
+        // Check if any of the ifs (outer and inner) have an else block, if it's the case, don't return any diagnostics.
         if inner_if_expr.else_block.is_none() && if_expr.else_block.is_none();
         then {
             diagnostics.push(PluginDiagnostic {
@@ -141,7 +141,7 @@ fn check_single_collapsible_if(
         // Skip cases where the outer or inner `if` is an `if let`, as they aren't collapsible.
         if !matches!(if_expr.condition, Condition::Let(..)) && !matches!(inner_if_expr.condition, Condition::Let(..));
 
-        // Check if any of the ifs (outer and inner) have an else block, if it's the case don't diagnostic
+        // Check if any of the ifs (outer and inner) have an else block, if it's the case, don't return any diagnostics.
         if if_expr.else_block.is_none() && inner_if_expr.else_block.is_none();
         then {
             diagnostics.push(PluginDiagnostic {
