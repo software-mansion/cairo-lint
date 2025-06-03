@@ -8,6 +8,7 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::ast::Expr;
 use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 
 pub struct DoubleParens;
@@ -110,21 +111,49 @@ fn check_single_double_parens(
 pub fn fix_double_parens(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let mut expr = Expr::from_syntax_node(db, node);
 
-    while let Expr::Parenthesized(inner_expr) = expr {
-        expr = inner_expr.expr(db);
+    // When the parent expression is binary or unary, we may want to keep the last parenthesis,
+    // as it can affect the meaning of the expression.
+    let leave_last_parens = node.parent(db).is_some_and(|parent| {
+        matches!(
+            parent.kind(db),
+            SyntaxKind::ExprBinary | SyntaxKind::ExprUnary
+        )
+    });
+
+    while let Expr::Parenthesized(inner_expr) = &expr {
+        let sub_expr = inner_expr.expr(db);
+
+        expr = match sub_expr {
+            // Preserve parentheses if the next expression is a binary operation and they might be needed.
+            Expr::Binary(_) if leave_last_parens => break,
+
+            // In all other cases, when the next expression is not binary
+            // and the parent node does not indicate parentheses are needed,
+            // we can proceed without them.
+            _ => sub_expr,
+        };
     }
+
+    let indented_snippet = indent_snippet(
+        &expr.as_syntax_node().get_text(db),
+        node.get_text(db)
+            .chars()
+            .take_while(|c| c.is_whitespace())
+            .collect::<String>()
+            .len()
+            / 4,
+    );
+
+    let end_whitespaces = node
+        .get_text(db)
+        .chars()
+        .rev()
+        .take_while(|c| c.is_whitespace())
+        .collect::<String>();
 
     Some(InternalFix {
         node,
-        suggestion: indent_snippet(
-            &expr.as_syntax_node().get_text(db),
-            node.get_text(db)
-                .chars()
-                .take_while(|c| c.is_whitespace())
-                .collect::<String>()
-                .len()
-                / 4,
-        ),
+        suggestion: format!("{}{}", indented_snippet, end_whitespaces),
         import_addition_paths: None,
     })
 }
