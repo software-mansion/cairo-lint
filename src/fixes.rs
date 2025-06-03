@@ -36,19 +36,21 @@ use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 
-/// Represents a fix for a diagnostic, containing the span of code to be replaced
-/// and the suggested replacement.
+/// Represents a fix for a diagnostic, containing the span of code to be replaced,
+/// the suggested replacement, and a short description of the fix.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Fix {
     pub span: TextSpan,
     pub suggestion: String,
+    pub description: String,
 }
 
 /// Represents an internal fix that includes the node to be modified,
-/// the suggestion for the fix, and optional import additions.
+/// the suggestion for the fix, a short description, and optional import additions.
 pub struct InternalFix {
     pub node: SyntaxNode,
     pub suggestion: String,
+    pub description: String,
     pub import_addition_paths: Option<Vec<String>>,
 }
 
@@ -74,6 +76,7 @@ pub fn get_fixes_without_resolving_overlapping(
         if let Some(InternalFix {
             node: fix_node,
             suggestion: fix,
+            description,
             import_addition_paths,
         }) = fix_semantic_diagnostic(db, &diag)
         {
@@ -84,6 +87,7 @@ pub fn get_fixes_without_resolving_overlapping(
                 .push(Fix {
                     span: fix_node.span(db),
                     suggestion: fix,
+                    description,
                 });
             // If there are import addition paths, we add them as a suggestion.
             // Even if the import is being duplicated, later cairo-lang-formatter will handle that,
@@ -102,6 +106,7 @@ pub fn get_fixes_without_resolving_overlapping(
                             end: TextOffset::START,
                         },
                         suggestion: imports_suggestion,
+                        description: String::new(),
                     });
             }
         }
@@ -267,6 +272,7 @@ pub fn apply_import_fixes(
                 vec![Fix {
                     span,
                     suggestion: String::new(),
+                    description: String::new(),
                 }]
             } else {
                 // Multi-import case
@@ -356,6 +362,7 @@ fn remove_entire_import(db: &dyn SyntaxGroup, node: &SyntaxNode) -> Vec<Fix> {
     vec![Fix {
         span: current_node.span(db),
         suggestion: String::new(),
+        description: String::new(),
     }]
 }
 
@@ -400,6 +407,7 @@ fn remove_specific_items(
     vec![Fix {
         span: node.span(db),
         suggestion: text,
+        description: String::new(),
     }]
 }
 
@@ -477,6 +485,7 @@ pub fn merge_overlapping_fixes(
                 end: TextWidth::from_str(&file_content).as_offset(),
             },
             suggestion: file_content_after.to_string(),
+            description: String::new(),
         }];
     }
     current_fixes

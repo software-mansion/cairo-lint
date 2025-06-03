@@ -55,6 +55,10 @@ impl Lint for UnitReturnType {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_unit_return_type(db, node)
     }
+
+    fn fix_message(&self) -> &'static str {
+        "Remove explicit unit return type"
+    }
 }
 
 pub fn check_unit_return_type(
@@ -97,6 +101,7 @@ pub fn fix_unit_return_type(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<In
             return Some(InternalFix {
                 node,
                 suggestion: fixed,
+                description: UnitReturnType.fix_message().to_string(),
                 import_addition_paths: None,
             });
         }
@@ -105,6 +110,7 @@ pub fn fix_unit_return_type(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<In
         return Some(InternalFix {
             node,
             suggestion: fixed.trim_end().to_string(),
+            description: UnitReturnType.fix_message().to_string(),
             import_addition_paths: None,
         });
     }

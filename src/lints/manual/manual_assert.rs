@@ -65,6 +65,10 @@ impl Lint for ManualAssert {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_assert(db.upcast(), node)
     }
+
+    fn fix_message(&self) -> &'static str {
+        "Replace manual assert with `assert!` macro"
+    }
 }
 
 pub fn check_manual_assert(
@@ -206,6 +210,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
                                 indent / 4,
                             )
                         ),
+                        description: ManualAssert.fix_message().to_string(),
                         import_addition_paths: None,
                     });
                 }
@@ -225,6 +230,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
                                 indent / 4,
                             )
                         ),
+                        description: ManualAssert.fix_message().to_string(),
                         import_addition_paths: None,
                     });
                 }
@@ -236,6 +242,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
                     "{prefix}{}",
                     indent_snippet(&format!("{prefix}{}{suffix}", assert_call), indent / 4)
                 ),
+                description: ManualAssert.fix_message().to_string(),
                 import_addition_paths: None,
             })
         }
@@ -267,6 +274,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
                         indent / 4,
                     )
                 ),
+                description: ManualAssert.fix_message().to_string(),
                 import_addition_paths: None,
             })
         }

@@ -69,6 +69,10 @@ impl Lint for CollapsibleIf {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_collapsible_if(db.upcast(), node)
     }
+
+    fn fix_message(&self) -> &'static str {
+        "Combine nested ifs into a single condition"
+    }
 }
 
 pub fn check_collapsible_if(
@@ -218,6 +222,7 @@ pub fn fix_collapsible_if(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
                     &format!("if {} {}", combined_condition, inner_if_block),
                     indent / 4,
                 ),
+                description: CollapsibleIf.fix_message().to_string(),
                 import_addition_paths: None,
             });
         }

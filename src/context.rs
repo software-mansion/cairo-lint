@@ -179,6 +179,11 @@ pub trait Lint: Sync + Send {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         unreachable!("fix() has been called for a lint which has_fixer() returned false")
     }
+
+    /// A short message describing the fix that will be applied.
+    fn fix_message(&self) -> &'static str {
+        "Fix lint"
+    }
 }
 
 /// A group of lint rules.

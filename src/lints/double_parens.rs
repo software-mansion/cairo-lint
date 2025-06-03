@@ -52,6 +52,10 @@ impl Lint for DoubleParens {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_double_parens(db.upcast(), node)
     }
+
+    fn fix_message(&self) -> &'static str {
+        "Remove nested parentheses"
+    }
 }
 
 pub fn check_double_parens(
@@ -154,6 +158,7 @@ pub fn fix_double_parens(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
     Some(InternalFix {
         node,
         suggestion: format!("{}{}", indented_snippet, end_whitespaces),
+        description: DoubleParens.fix_message().to_string(),
         import_addition_paths: None,
     })
 }

@@ -54,6 +54,10 @@ impl Lint for EquatableIfLet {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_equatable_if_let(db.upcast(), node)
     }
+
+    fn fix_message(&self) -> &'static str {
+        "Replace `if let` with `==` comparison"
+    }
 }
 
 pub fn check_equatable_if_let(
@@ -147,6 +151,7 @@ pub fn fix_equatable_if_let(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<In
             fixed_condition,
             expr.if_block(db).as_syntax_node().get_text(db),
         ),
+        description: EquatableIfLet.fix_message().to_string(),
         import_addition_paths: None,
     })
 }

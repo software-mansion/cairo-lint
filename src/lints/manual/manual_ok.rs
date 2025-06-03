@@ -58,6 +58,10 @@ impl Lint for ManualOk {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_ok(db.upcast(), node)
     }
+
+    fn fix_message(&self) -> &'static str {
+        "Replace manual conversion with `ok()` method"
+    }
 }
 
 pub fn check_manual_ok(
@@ -100,6 +104,7 @@ pub fn fix_manual_ok(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalF
     Some(InternalFix {
         node,
         suggestion: fix_manual("ok", db, node),
+        description: ManualOk.fix_message().to_string(),
         import_addition_paths: None,
     })
 }

@@ -67,6 +67,10 @@ impl Lint for LoopForWhile {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_loop_break(db.upcast(), node)
     }
+
+    fn fix_message(&self) -> &'static str {
+        "Replace `loop` with `while` for clarity"
+    }
 }
 
 /// Checks for
@@ -256,6 +260,7 @@ pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Internal
             "{trivia}{}while {} {{\n{}{}}}\n",
             indent, condition_text, loop_body, indent
         ),
+        description: LoopForWhile.fix_message().to_string(),
         import_addition_paths: None,
     })
 }
