@@ -68,8 +68,8 @@ impl Lint for LoopForWhile {
         fix_loop_break(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace `loop` with `while` for clarity"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace `loop` with `while` for clarity")
     }
 }
 
@@ -260,7 +260,7 @@ pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Internal
             "{trivia}{}while {} {{\n{}{}}}\n",
             indent, condition_text, loop_body, indent
         ),
-        description: LoopForWhile.fix_message().to_string(),
+        description: LoopForWhile.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

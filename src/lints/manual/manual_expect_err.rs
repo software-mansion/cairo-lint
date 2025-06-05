@@ -72,8 +72,8 @@ impl Lint for ManualExpectErr {
         fix_manual_expect_err(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace manual `expect_err` with `expect_err()` method"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace manual `expect_err` with `expect_err()` method")
     }
 }
 
@@ -135,7 +135,7 @@ pub fn fix_manual_expect_err(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<I
     Some(InternalFix {
         node,
         suggestion: fix,
-        description: ManualExpectErr.fix_message().to_string(),
+        description: ManualExpectErr.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

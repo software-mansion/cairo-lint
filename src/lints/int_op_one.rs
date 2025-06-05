@@ -58,8 +58,8 @@ impl Lint for IntegerGreaterEqualPlusOne {
         fix_int_ge_plus_one(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace with simplified '>' comparison"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace with simplified '>' comparison")
     }
 }
 
@@ -109,8 +109,8 @@ impl Lint for IntegerGreaterEqualMinusOne {
         fix_int_ge_min_one(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace with simplified '>' comparison"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace with simplified '>' comparison")
     }
 }
 
@@ -160,8 +160,8 @@ impl Lint for IntegerLessEqualPlusOne {
         fix_int_le_plus_one(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace with simplified '<' comparison"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace with simplified '<' comparison")
     }
 }
 
@@ -211,8 +211,8 @@ impl Lint for IntegerLessEqualMinusOne {
         fix_int_le_min_one(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace with simplified '<' comparison"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace with simplified '<' comparison")
     }
 }
 
@@ -371,7 +371,10 @@ pub fn fix_int_ge_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Int
     Some(InternalFix {
         node: node.as_syntax_node(),
         suggestion: fix,
-        description: IntegerGreaterEqualPlusOne.fix_message().to_string(),
+        description: IntegerGreaterEqualPlusOne
+            .fix_message()
+            .unwrap()
+            .to_string(),
         import_addition_paths: None,
     })
 }
@@ -390,7 +393,10 @@ pub fn fix_int_ge_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
     Some(InternalFix {
         node: node.as_syntax_node(),
         suggestion: fix,
-        description: IntegerGreaterEqualMinusOne.fix_message().to_string(),
+        description: IntegerGreaterEqualMinusOne
+            .fix_message()
+            .unwrap()
+            .to_string(),
         import_addition_paths: None,
     })
 }
@@ -409,7 +415,7 @@ pub fn fix_int_le_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Int
     Some(InternalFix {
         node: node.as_syntax_node(),
         suggestion: fix,
-        description: IntegerLessEqualPlusOne.fix_message().to_string(),
+        description: IntegerLessEqualPlusOne.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }
@@ -428,7 +434,7 @@ pub fn fix_int_le_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
     Some(InternalFix {
         node: node.as_syntax_node(),
         suggestion: fix,
-        description: IntegerLessEqualMinusOne.fix_message().to_string(),
+        description: IntegerLessEqualMinusOne.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

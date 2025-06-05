@@ -9,6 +9,7 @@ mod empty_enum_brackets_variant;
 mod enum_variant_names;
 mod eq_op;
 mod erasing_operations;
+mod fix_messages;
 mod helpers;
 mod ifs;
 mod int_operations;

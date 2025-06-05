@@ -64,8 +64,8 @@ impl Lint for ManualExpect {
         fix_manual_expect(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace manual `expect` with `expect()` method"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace manual `expect` with `expect()` method")
     }
 }
 
@@ -147,7 +147,7 @@ pub fn fix_manual_expect(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
     Some(InternalFix {
         node,
         suggestion: fix,
-        description: ManualExpect.fix_message().to_string(),
+        description: ManualExpect.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

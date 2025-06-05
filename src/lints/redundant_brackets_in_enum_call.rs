@@ -65,8 +65,8 @@ impl Lint for RedundantBracketsInEnumCall {
         fix_redundant_brackets_in_enum_call(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Remove redundant parentheses in enum call"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Remove redundant parentheses in enum call")
     }
 }
 
@@ -238,7 +238,10 @@ fn fix_redundant_brackets_in_enum_call(
     Some(InternalFix {
         node,
         suggestion: fixed_expr,
-        description: RedundantBracketsInEnumCall.fix_message().to_string(),
+        description: RedundantBracketsInEnumCall
+            .fix_message()
+            .unwrap()
+            .to_string(),
         import_addition_paths: None,
     })
 }

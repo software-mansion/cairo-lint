@@ -181,8 +181,10 @@ pub trait Lint: Sync + Send {
     }
 
     /// A short message describing the fix that will be applied.
-    fn fix_message(&self) -> &'static str {
-        "Fix lint"
+    fn fix_message(&self) -> Option<&'static str> {
+        unreachable!(
+            "A fix message has been requested for a lint which has_fixer() returned false for."
+        )
     }
 }
 
@@ -467,4 +469,34 @@ pub fn find_lint_by_struct_name(name: &str) -> Option<&Box<dyn Lint>> {
         .iter()
         .flat_map(|group| group.lints.iter())
         .find(|rule| rule.type_name().split("::").last().unwrap() == name)
+}
+
+/// Get lint name based on the fix message.
+/// Only checks lints that have a fixer.
+pub fn get_name_for_fix_message(message: &str) -> Option<&'static str> {
+    LINT_CONTEXT
+        .lint_groups
+        .iter()
+        .flat_map(|group| group.lints.iter())
+        .find(|rule| {
+            rule.has_fixer()
+                && rule.fix_message().is_some()
+                && rule.fix_message().unwrap() == message
+        })
+        .map(|rule| rule.allowed_name())
+}
+
+/// Returns `fix_message` for all lints that support fixes.
+pub fn get_all_fix_messages() -> Vec<Option<&'static str>> {
+    LINT_CONTEXT
+        .lint_groups
+        .iter()
+        .flat_map(|rule_group| {
+            rule_group
+                .lints
+                .iter()
+                .filter(|rule| rule.has_fixer())
+                .map(|rule| rule.fix_message())
+        })
+        .collect()
 }

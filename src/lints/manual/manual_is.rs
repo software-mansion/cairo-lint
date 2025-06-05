@@ -59,8 +59,8 @@ impl Lint for ManualIsSome {
         fix_manual_is_some(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace manual check with `is_some()`"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace manual check with `is_some()`")
     }
 }
 
@@ -111,8 +111,8 @@ impl Lint for ManualIsNone {
         fix_manual_is_none(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace manual check with `is_none()`"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace manual check with `is_none()`")
     }
 }
 
@@ -163,8 +163,8 @@ impl Lint for ManualIsOk {
         fix_manual_is_ok(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace manual check with `is_ok()`"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace manual check with `is_ok()`")
     }
 }
 
@@ -215,8 +215,8 @@ impl Lint for ManualIsErr {
         fix_manual_is_err(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace manual check with `is_err()`"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace manual check with `is_err()`")
     }
 }
 
@@ -314,7 +314,7 @@ pub fn fix_manual_is_some(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
     Some(InternalFix {
         node,
         suggestion: fix_manual("is_some", db, node),
-        description: ManualIsSome.fix_message().to_string(),
+        description: ManualIsSome.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }
@@ -324,7 +324,7 @@ pub fn fix_manual_is_none(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
     Some(InternalFix {
         node,
         suggestion: fix_manual("is_none", db, node),
-        description: ManualIsNone.fix_message().to_string(),
+        description: ManualIsNone.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }
@@ -334,7 +334,7 @@ pub fn fix_manual_is_ok(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Intern
     Some(InternalFix {
         node,
         suggestion: fix_manual("is_ok", db, node),
-        description: ManualIsOk.fix_message().to_string(),
+        description: ManualIsOk.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }
@@ -344,7 +344,7 @@ pub fn fix_manual_is_err(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
     Some(InternalFix {
         node,
         suggestion: fix_manual("is_err", db, node),
-        description: ManualIsErr.fix_message().to_string(),
+        description: ManualIsErr.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

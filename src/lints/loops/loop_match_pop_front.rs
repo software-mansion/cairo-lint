@@ -71,8 +71,8 @@ impl Lint for LoopMatchPopFront {
         fix_loop_match_pop_front(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace `loop` with `for in` for iterating over spans"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace `loop` with `for in` for iterating over spans")
     }
 }
 
@@ -324,7 +324,7 @@ pub fn fix_loop_match_pop_front(db: &dyn SyntaxGroup, node: SyntaxNode) -> Optio
             &format!("{trivia}for {elt_name} in {span_name} {{\n{some_arm}\n}};\n"),
             indent.len() / 4,
         ),
-        description: LoopMatchPopFront.fix_message().to_string(),
+        description: LoopMatchPopFront.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

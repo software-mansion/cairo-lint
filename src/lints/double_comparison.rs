@@ -104,8 +104,8 @@ impl Lint for SimplifiableComparison {
         fix_simplifiable_comparison(db, node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Simplify to single comparison"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Simplify to single comparison")
     }
 }
 
@@ -159,8 +159,8 @@ impl Lint for RedundantComparison {
         fix_redundant_comparison(db, node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Remove redundant comparison"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Remove redundant comparison")
     }
 }
 
@@ -214,8 +214,8 @@ impl Lint for ContradictoryComparison {
         fix_contradictory_comparison(db, node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace with 'false' since comparison is impossible"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace with 'false' since comparison is impossible")
     }
 }
 
@@ -496,7 +496,7 @@ pub fn fix_simplifiable_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Op
     Some(InternalFix {
         node,
         suggestion: lhs_text,
-        description: SimplifiableComparison.fix_message().to_string(),
+        description: SimplifiableComparison.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }
@@ -507,7 +507,7 @@ pub fn fix_redundant_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Optio
     Some(InternalFix {
         node,
         suggestion: lhs_text,
-        description: RedundantComparison.fix_message().to_string(),
+        description: RedundantComparison.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }
@@ -518,7 +518,7 @@ pub fn fix_contradictory_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> O
     Some(InternalFix {
         node,
         suggestion: lhs_text,
-        description: ContradictoryComparison.fix_message().to_string(),
+        description: ContradictoryComparison.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

@@ -66,8 +66,8 @@ impl Lint for ManualAssert {
         fix_manual_assert(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace manual assert with `assert!` macro"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace manual assert with `assert!` macro")
     }
 }
 
@@ -210,7 +210,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
                                 indent / 4,
                             )
                         ),
-                        description: ManualAssert.fix_message().to_string(),
+                        description: ManualAssert.fix_message().unwrap().to_string(),
                         import_addition_paths: None,
                     });
                 }
@@ -230,7 +230,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
                                 indent / 4,
                             )
                         ),
-                        description: ManualAssert.fix_message().to_string(),
+                        description: ManualAssert.fix_message().unwrap().to_string(),
                         import_addition_paths: None,
                     });
                 }
@@ -242,7 +242,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
                     "{prefix}{}",
                     indent_snippet(&format!("{prefix}{}{suffix}", assert_call), indent / 4)
                 ),
-                description: ManualAssert.fix_message().to_string(),
+                description: ManualAssert.fix_message().unwrap().to_string(),
                 import_addition_paths: None,
             })
         }
@@ -274,7 +274,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
                         indent / 4,
                     )
                 ),
-                description: ManualAssert.fix_message().to_string(),
+                description: ManualAssert.fix_message().unwrap().to_string(),
                 import_addition_paths: None,
             })
         }

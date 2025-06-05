@@ -70,8 +70,8 @@ impl Lint for UnwrapSyscall {
         fix_unwrap_syscall(db, node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace with `unwrap_syscall()` for syscall results"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace with `unwrap_syscall()` for syscall results")
     }
 }
 
@@ -158,7 +158,7 @@ fn fix_unwrap_syscall(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<Intern
     Some(InternalFix {
         node,
         suggestion: fixed,
-        description: UnwrapSyscall.fix_message().to_string(),
+        description: UnwrapSyscall.fix_message().unwrap().to_string(),
         import_addition_paths: Some(vec![UNWRAP_SYSCALL_TRAIT_PATH.to_string()]),
     })
 }

@@ -55,8 +55,8 @@ impl Lint for EquatableIfLet {
         fix_equatable_if_let(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Replace `if let` with `==` comparison"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace `if let` with `==` comparison")
     }
 }
 
@@ -151,7 +151,7 @@ pub fn fix_equatable_if_let(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<In
             fixed_condition,
             expr.if_block(db).as_syntax_node().get_text(db),
         ),
-        description: EquatableIfLet.fix_message().to_string(),
+        description: EquatableIfLet.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

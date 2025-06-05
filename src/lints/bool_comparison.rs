@@ -61,8 +61,8 @@ impl Lint for BoolComparison {
         fix_bool_comparison(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Simplify to direct boolean check"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Simplify to direct boolean check")
     }
 }
 
@@ -128,7 +128,7 @@ pub fn fix_bool_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Int
     Some(InternalFix {
         node: node.as_syntax_node(),
         suggestion: result,
-        description: BoolComparison.fix_message().to_string(),
+        description: BoolComparison.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

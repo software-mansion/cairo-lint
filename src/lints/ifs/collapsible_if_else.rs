@@ -72,8 +72,8 @@ impl Lint for CollapsibleIfElse {
         fix_collapsible_if_else(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Use else-if instead of nested if"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Use else-if instead of nested if")
     }
 }
 
@@ -203,7 +203,7 @@ pub fn fix_collapsible_if_else(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option
                         "{}else if {} {} {}",
                         original_indent, condition, if_body, else_body
                     ),
-                    description: CollapsibleIfElse.fix_message().to_string(),
+                    description: CollapsibleIfElse.fix_message().unwrap().to_string(),
                     import_addition_paths: None,
                 });
             }

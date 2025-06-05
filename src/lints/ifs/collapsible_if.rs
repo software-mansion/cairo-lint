@@ -70,8 +70,8 @@ impl Lint for CollapsibleIf {
         fix_collapsible_if(db.upcast(), node)
     }
 
-    fn fix_message(&self) -> &'static str {
-        "Combine nested ifs into a single condition"
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Combine nested ifs into a single condition")
     }
 }
 
@@ -222,7 +222,7 @@ pub fn fix_collapsible_if(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
                     &format!("if {} {}", combined_condition, inner_if_block),
                     indent / 4,
                 ),
-                description: CollapsibleIf.fix_message().to_string(),
+                description: CollapsibleIf.fix_message().unwrap().to_string(),
                 import_addition_paths: None,
             });
         }

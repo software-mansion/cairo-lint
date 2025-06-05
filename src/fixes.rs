@@ -30,7 +30,7 @@ use log::debug;
 use lsp_types::Url;
 use salsa::InternKey;
 
-use crate::context::get_fix_for_diagnostic_message;
+use crate::context::{get_fix_for_diagnostic_message, get_name_for_fix_message};
 use crate::db::FixerDatabase;
 use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_semantic::db::SemanticGroup;
@@ -80,6 +80,8 @@ pub fn get_fixes_without_resolving_overlapping(
             import_addition_paths,
         }) = fix_semantic_diagnostic(db, &diag)
         {
+            let lint_name = get_name_for_fix_message(&description);
+
             let location = diag.location(db);
             fixes
                 .entry(location.file_id)
@@ -89,6 +91,13 @@ pub fn get_fixes_without_resolving_overlapping(
                     suggestion: fix,
                     description,
                 });
+
+            let description = if let Some(lint_name) = lint_name {
+                format!("Add necessary import for `{}` fix", lint_name)
+            } else {
+                String::from("Add necessary import for lint fix")
+            };
+
             // If there are import addition paths, we add them as a suggestion.
             // Even if the import is being duplicated, later cairo-lang-formatter will handle that,
             // and leave only a single import.
@@ -106,7 +115,7 @@ pub fn get_fixes_without_resolving_overlapping(
                             end: TextOffset::START,
                         },
                         suggestion: imports_suggestion,
-                        description: String::new(),
+                        description,
                     });
             }
         }
@@ -272,7 +281,7 @@ pub fn apply_import_fixes(
                 vec![Fix {
                     span,
                     suggestion: String::new(),
-                    description: String::new(),
+                    description: String::from("Remove unused import"),
                 }]
             } else {
                 // Multi-import case
@@ -362,7 +371,7 @@ fn remove_entire_import(db: &dyn SyntaxGroup, node: &SyntaxNode) -> Vec<Fix> {
     vec![Fix {
         span: current_node.span(db),
         suggestion: String::new(),
-        description: String::new(),
+        description: String::from("Remove unused import"),
     }]
 }
 
@@ -407,7 +416,7 @@ fn remove_specific_items(
     vec![Fix {
         span: node.span(db),
         suggestion: text,
-        description: String::new(),
+        description: String::from("Remove unused import"),
     }]
 }
 
@@ -485,7 +494,7 @@ pub fn merge_overlapping_fixes(
                 end: TextWidth::from_str(&file_content).as_offset(),
             },
             suggestion: file_content_after.to_string(),
-            description: String::new(),
+            description: String::from("Fix whole"),
         }];
     }
     current_fixes
