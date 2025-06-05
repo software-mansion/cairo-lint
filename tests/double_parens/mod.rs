@@ -516,3 +516,30 @@ fn double_parens_with_indexed_fixer() {
     }
     ")
 }
+
+const ABC: &str = r#"
+fn main() {
+    let a = 1;
+    let b = 2;
+    let c = 3;
+
+    let _d = ((a + b)) * c;
+    assert!(((1 == 1)), "This is a test assertion");
+}
+"#;
+
+#[test]
+fn abc_test() {
+    test_lint_diagnostics!(ABC, @r"
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:7:14
+        let _d = ((a + b)) * c;
+                 ^^^^^^^^^
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:2:12-3:9
+      fn main() {
+     ____________^
+    |     let a = 1;
+    |_________^
+    ");
+}

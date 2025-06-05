@@ -5,6 +5,7 @@ use crate::queries::get_all_parenthesized_expressions;
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
+use cairo_lang_filesystem::span::TextSpan;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::ast::Expr;
 use cairo_lang_syntax::node::db::SyntaxGroup;
@@ -80,8 +81,34 @@ fn check_single_double_parens(
     };
 
     if is_double_parens {
+        let a = parens_expr.stable_ptr(db.upcast()).untyped();
+        println!(
+            "node hehe: {:?}",
+            parens_expr
+                .stable_ptr(db.upcast())
+                .lookup(db.upcast())
+                .as_syntax_node()
+                .span(db.upcast())
+        );
+        println!(
+            "wynik: {:?}",
+            parens_expr.as_syntax_node().stable_ptr(db).lookup(db) == parens_expr.as_syntax_node()
+        );
+        println!(
+            "first pointer: {:?}",
+            parens_expr.as_syntax_node().get_text(db)
+        );
+        println!(
+            "second pointer: {:?}",
+            parens_expr
+                .as_syntax_node()
+                .stable_ptr(db)
+                .lookup(db)
+                .get_text(db)
+        );
+        println!("node hehe 2: {:?}", parens_expr.as_syntax_node().span(db));
         diagnostics.push(PluginDiagnostic {
-            stable_ptr: parens_expr.stable_ptr(db.upcast()).untyped(),
+            stable_ptr: parens_expr.stable_ptr(db.upcast()).into(),
             message: DoubleParens.diagnostic_message().to_string(),
             severity: Severity::Warning,
             relative_span: None,

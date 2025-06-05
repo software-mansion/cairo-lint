@@ -93,7 +93,7 @@ impl AnalyzerPlugin for CairoLint {
             for checking_function in checking_functions {
                 checking_function(db, item, &mut item_diagnostics);
             }
-
+            
             diags.extend(item_diagnostics.into_iter().map(|diag| (diag, module_file)));
         }
 

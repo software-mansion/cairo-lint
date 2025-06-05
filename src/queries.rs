@@ -1,15 +1,17 @@
 use std::sync::Arc;
 
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleItemId};
+use cairo_lang_parser::macro_helpers::AsLegacyInlineMacro;
+use cairo_lang_parser::printer::print_tree;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
     Arenas, Expr, ExprFunctionCall, ExprIf, ExprLogicalOperator, ExprLoop, ExprMatch, ExprWhile,
     FunctionBody, Pattern, Statement, StatementBreak,
 };
-use cairo_lang_syntax::node::ast::Expr as AstExpr;
+use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprInlineMacro};
 use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_syntax::node::TypedStablePtr;
 use cairo_lang_syntax::node::TypedSyntaxNode;
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 use if_chain::if_chain;
 
 use crate::helper::{ASSERT_FORMATTER_NAME, ASSERT_PATH};
@@ -72,9 +74,45 @@ pub fn get_all_parenthesized_expressions(
     .descendants(db.upcast());
 
     function_nodes
-        .filter(|node| node.kind(db.upcast()) == SyntaxKind::ExprParenthesized)
-        .map(|node| AstExpr::from_syntax_node(db.upcast(), node))
+        .flat_map(|node| get_all_parenthesized_expressions_from_syntax_node(db, node))
         .collect()
+}
+
+fn get_all_parenthesized_expressions_from_syntax_node(
+    db: &dyn SemanticGroup,
+    node: SyntaxNode,
+) -> Vec<AstExpr> {
+    // Diagnostyka wskazuje na wirtualne pliki, przez co spany nie są poprawne.
+    if node.kind(db.upcast()) == SyntaxKind::ExprInlineMacro {
+        let inline_macro = ExprInlineMacro::from_syntax_node(db, node.clone())
+            .as_legacy_inline_macro(db)
+            .unwrap();
+        return inline_macro
+            .as_syntax_node()
+            .descendants(db.upcast())
+            .flat_map(|child_node| {
+                get_all_parenthesized_expressions_from_syntax_node(db, child_node)
+            })
+            .collect();
+    }
+    if node.kind(db.upcast()) != SyntaxKind::ExprParenthesized {
+        return vec![];
+    }
+    println!("offset: {:?}", node.span(db.upcast()));
+    let parent = node
+        .parent(db)
+        .unwrap()
+        .parent(db)
+        .unwrap()
+        .parent(db)
+        .unwrap()
+        .parent(db)
+        .unwrap()
+        .parent(db)
+        .unwrap();
+    println!("tree: {}", print_tree(db, &parent, false, false));
+    println!("code: {}", parent.get_text(db.upcast()));
+    vec![AstExpr::from_syntax_node(db.upcast(), node)]
 }
 
 pub fn get_all_match_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprMatch> {
