@@ -95,8 +95,8 @@ pub fn get_fixes_without_resolving_overlapping(
             if let Some(import_paths) = import_addition_paths {
                 let imports_suggestion = import_paths
                     .iter()
-                    .map(|import_path| format!("use {};", import_path))
-                    .join("\n");
+                    .map(|import_path| format!("use {};\n", import_path))
+                    .join("");
                 fixes
                     .entry(location.file_id)
                     .or_insert_with(Vec::new)

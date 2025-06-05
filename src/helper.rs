@@ -12,6 +12,10 @@
 //! These helper functions can be reused in various parts of the Cairo Lint codebase to maintain
 //! consistency and modularity when working with blocks and conditions.
 use cairo_lang_defs::ids::{FileIndex, ModuleFileId, ModuleId, ModuleItemId};
+use cairo_lang_diagnostics::DiagnosticsBuilder;
+use cairo_lang_filesystem::ids::{FileKind, FileLongId, VirtualFile};
+use cairo_lang_formatter::{get_formatted_file, FormatterConfig};
+use cairo_lang_parser::parser::Parser;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCallArg, ExprId};
 use cairo_lang_syntax::node::ast::{self, BlockOrIf, ElseClause, ExprBlock, Statement};
@@ -19,6 +23,7 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::GetIdentifier;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
+use cairo_lang_utils::Intern;
 use if_chain::if_chain;
 use num_bigint::BigInt;
 
@@ -348,4 +353,24 @@ fn find_module_containing_node(db: &dyn SemanticGroup, node: &SyntaxNode) -> Opt
             };
             Some(ModuleId::Submodule(submodule))
         })
+}
+
+pub fn format_fixed_file(
+    db: &dyn SyntaxGroup,
+    formatter_config: FormatterConfig,
+    content: String,
+) -> String {
+    let virtual_file = FileLongId::Virtual(VirtualFile {
+        parent: None,
+        name: "string_to_format".into(),
+        content: content.clone().into(),
+        code_mappings: [].into(),
+        kind: FileKind::Module,
+        original_item_removed: false,
+    })
+    .intern(db);
+    let mut diagnostics = DiagnosticsBuilder::default();
+    let syntax_root =
+        Parser::parse_file(db, &mut diagnostics, virtual_file, content.as_str()).as_syntax_node();
+    get_formatted_file(db, &syntax_root, formatter_config)
 }
