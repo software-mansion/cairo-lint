@@ -702,7 +702,7 @@ dependencies = [
 
 [[package]]
 name = "cairo-lint"
-version = "2.11.4"
+version = "2.12.0-rc.0"
 dependencies = [
  "anyhow",
  "cairo-lang-compiler",
