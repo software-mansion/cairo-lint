@@ -519,11 +519,6 @@ fn double_parens_with_indexed_fixer() {
 
 const ABC: &str = r#"
 fn main() {
-    let a = 1;
-    let b = 2;
-    let c = 3;
-
-    let _d = ((a + b)) * c;
     assert!(((1 == 1)), "This is a test assertion");
 }
 "#;

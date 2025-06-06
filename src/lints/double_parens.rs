@@ -11,6 +11,7 @@ use cairo_lang_syntax::node::ast::Expr;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_utils::LookupIntern;
 
 pub struct DoubleParens;
 
@@ -94,18 +95,24 @@ fn check_single_double_parens(
             "wynik: {:?}",
             parens_expr.as_syntax_node().stable_ptr(db).lookup(db) == parens_expr.as_syntax_node()
         );
-        println!(
-            "first pointer: {:?}",
-            parens_expr.as_syntax_node().get_text(db)
-        );
-        println!(
-            "second pointer: {:?}",
-            parens_expr
-                .as_syntax_node()
-                .stable_ptr(db)
-                .lookup(db)
-                .get_text(db)
-        );
+        let node = parens_expr.as_syntax_node();
+println!(
+    "{:?}\n{:?}",
+    node.lookup_intern(db),
+    node.stable_ptr(db).lookup(db).lookup_intern(db)
+);
+
+println!("{:?}\n{:?}", node, node.stable_ptr(db).lookup(db));
+
+        println!("first pointer: {:?}", parens_expr.as_syntax_node().span(db));
+        // println!(
+        //     "second pointer: {:?}",
+        //     parens_expr
+        //         .as_syntax_node()
+        //         .stable_ptr(db)
+        //         .lookup(db)
+        //         .lookup_position(db, position)
+        // );
         println!("node hehe 2: {:?}", parens_expr.as_syntax_node().span(db));
         diagnostics.push(PluginDiagnostic {
             stable_ptr: parens_expr.stable_ptr(db.upcast()).into(),
