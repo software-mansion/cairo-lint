@@ -56,6 +56,10 @@ impl Lint for BreakUnit {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_break_unit(db.upcast(), node)
     }
+
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Remove unnecessary parentheses from break")
+    }
 }
 
 pub fn check_break(
@@ -98,6 +102,7 @@ pub fn fix_break_unit(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Internal
     Some(InternalFix {
         node,
         suggestion: node.get_text(db).replace("break ();", "break;").to_string(),
+        description: BreakUnit.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

@@ -55,6 +55,10 @@ impl Lint for EmptyEnumBracketsVariant {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_empty_enum_brackets_variant(db.upcast(), node)
     }
+
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Remove unit type definition from enum variant")
+    }
 }
 
 pub fn check_empty_enum_brackets_variant(
@@ -108,6 +112,7 @@ fn fix_empty_enum_brackets_variant(db: &dyn SyntaxGroup, node: SyntaxNode) -> Op
     Some(InternalFix {
         node,
         suggestion: fixed,
+        description: EmptyEnumBracketsVariant.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

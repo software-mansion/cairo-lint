@@ -59,6 +59,10 @@ impl Lint for DestructMatch {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_destruct_match(db.upcast(), node)
     }
+
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Convert to 'if let' pattern matching")
+    }
 }
 
 pub struct EqualityMatch;
@@ -304,6 +308,7 @@ pub fn fix_destruct_match(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
             ),
             indent.len() / 4,
         ),
+        description: DestructMatch.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

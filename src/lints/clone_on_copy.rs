@@ -51,6 +51,10 @@ impl Lint for CloneOnCopy {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_clone_on_copy(db, node)
     }
+
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Remove redundant `.clone()`")
+    }
 }
 
 pub fn check_clone_on_copy(
@@ -123,6 +127,7 @@ fn fix_clone_on_copy(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<Interna
     Some(InternalFix {
         node,
         suggestion: fixed_expr,
+        description: CloneOnCopy.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

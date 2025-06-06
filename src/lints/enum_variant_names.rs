@@ -58,6 +58,10 @@ impl Lint for EnumVariantNames {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_enum_variant_names(db.upcast(), node)
     }
+
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Remove redundant prefix/suffix from enum variants")
+    }
 }
 
 pub fn check_enum_variant_names(
@@ -122,6 +126,7 @@ fn fix_enum_variant_names(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
     Some(InternalFix {
         node,
         suggestion: fixed_enum,
+        description: EnumVariantNames.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

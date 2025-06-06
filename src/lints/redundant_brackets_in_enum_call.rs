@@ -64,6 +64,10 @@ impl Lint for RedundantBracketsInEnumCall {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_redundant_brackets_in_enum_call(db.upcast(), node)
     }
+
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Remove redundant parentheses in enum call")
+    }
 }
 
 pub fn check_redundant_brackets_in_enum_call(
@@ -234,6 +238,10 @@ fn fix_redundant_brackets_in_enum_call(
     Some(InternalFix {
         node,
         suggestion: fixed_expr,
+        description: RedundantBracketsInEnumCall
+            .fix_message()
+            .unwrap()
+            .to_string(),
         import_addition_paths: None,
     })
 }

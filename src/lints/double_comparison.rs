@@ -101,7 +101,11 @@ impl Lint for SimplifiableComparison {
     }
 
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_double_comparison(db.upcast(), node)
+        fix_simplifiable_comparison(db, node)
+    }
+
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Simplify to single comparison")
     }
 }
 
@@ -152,7 +156,11 @@ impl Lint for RedundantComparison {
     }
 
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_double_comparison(db.upcast(), node)
+        fix_redundant_comparison(db, node)
+    }
+
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Remove redundant comparison")
     }
 }
 
@@ -203,7 +211,11 @@ impl Lint for ContradictoryComparison {
     }
 
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_double_comparison(db.upcast(), node)
+        fix_contradictory_comparison(db, node)
+    }
+
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace with 'false' since comparison is impossible")
     }
 }
 
@@ -478,8 +490,41 @@ fn is_contradictory_double_comparison(
     )
 }
 
+pub fn fix_simplifiable_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+    let lhs_text = fix_double_comparison(db, node)?;
+
+    Some(InternalFix {
+        node,
+        suggestion: lhs_text,
+        description: SimplifiableComparison.fix_message().unwrap().to_string(),
+        import_addition_paths: None,
+    })
+}
+
+pub fn fix_redundant_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+    let lhs_text = fix_double_comparison(db, node)?;
+
+    Some(InternalFix {
+        node,
+        suggestion: lhs_text,
+        description: RedundantComparison.fix_message().unwrap().to_string(),
+        import_addition_paths: None,
+    })
+}
+
+pub fn fix_contradictory_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+    let lhs_text = fix_double_comparison(db, node)?;
+
+    Some(InternalFix {
+        node,
+        suggestion: lhs_text,
+        description: ContradictoryComparison.fix_message().unwrap().to_string(),
+        import_addition_paths: None,
+    })
+}
+
 /// Rewrites a double comparison. Ex: `a > b || a == b` to `a >= b`
-pub fn fix_double_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_double_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<String> {
     let expr = AstExpr::from_syntax_node(db, node);
 
     if let AstExpr::Binary(binary_op) = expr {
@@ -491,19 +536,14 @@ pub fn fix_double_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<I
             extract_binary_operator_expr(&lhs, db),
             extract_binary_operator_expr(&rhs, db),
         ) {
-            let simplified_op = determine_simplified_operator(&lhs_op, &rhs_op, &middle_op);
-
-            if let Some(simplified_op) = simplified_op {
+            if let Some(simplified_op) = determine_simplified_operator(&lhs_op, &rhs_op, &middle_op)
+            {
                 if let Some(operator_to_replace) = operator_to_replace(lhs_op) {
                     let lhs_text = lhs
                         .as_syntax_node()
                         .get_text(db)
                         .replace(operator_to_replace, simplified_op);
-                    return Some(InternalFix {
-                        node,
-                        suggestion: lhs_text.to_string(),
-                        import_addition_paths: None,
-                    });
+                    return Some(lhs_text.to_string());
                 }
             }
         }

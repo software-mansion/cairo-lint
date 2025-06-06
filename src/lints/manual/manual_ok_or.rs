@@ -69,6 +69,10 @@ impl Lint for ManualOkOr {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_ok_or(db.upcast(), node)
     }
+
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace manual conversion with `ok_or()` method")
+    }
 }
 
 pub fn check_manual_ok_or(
@@ -129,6 +133,7 @@ pub fn fix_manual_ok_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Intern
     Some(InternalFix {
         node,
         suggestion: fix,
+        description: ManualOkOr.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

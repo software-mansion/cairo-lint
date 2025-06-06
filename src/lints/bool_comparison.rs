@@ -60,6 +60,10 @@ impl Lint for BoolComparison {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_bool_comparison(db.upcast(), node)
     }
+
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Simplify to direct boolean check")
+    }
 }
 
 /// Checks for ` a == true`. Bool comparisons are useless and can be rewritten more clearly.
@@ -124,6 +128,7 @@ pub fn fix_bool_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Int
     Some(InternalFix {
         node: node.as_syntax_node(),
         suggestion: result,
+        description: BoolComparison.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

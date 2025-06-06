@@ -56,6 +56,10 @@ impl Lint for ManualUnwrapOr {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_unwrap_or(db, node)
     }
+
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Use `unwrap_or()` instead of manual pattern")
+    }
 }
 
 pub fn check_manual_unwrap_or(
@@ -194,6 +198,7 @@ fn fix_manual_unwrap_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Intern
             "{indent}{}.unwrap_or({or_body})",
             matched_expr.get_text(db).trim_end()
         ),
+        description: ManualUnwrapOr.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

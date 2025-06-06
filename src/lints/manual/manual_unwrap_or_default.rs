@@ -65,6 +65,10 @@ impl Lint for ManualUnwrapOrDefault {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_unwrap_or_default(db.upcast(), node)
     }
+
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Use `unwrap_or_default()` instead of manual pattern")
+    }
 }
 
 pub fn check_manual_unwrap_or_default(
@@ -148,6 +152,7 @@ pub fn fix_manual_unwrap_or_default(db: &dyn SyntaxGroup, node: SyntaxNode) -> O
             "{trivia}{indent}{}.unwrap_or_default()",
             matched_expr.get_text(db).trim_end()
         ),
+        description: ManualUnwrapOrDefault.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }

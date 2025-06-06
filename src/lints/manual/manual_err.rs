@@ -58,6 +58,10 @@ impl Lint for ManualErr {
     fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_err(db.upcast(), node)
     }
+
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace manual `err` with `err()` method")
+    }
 }
 
 pub fn check_manual_err(
@@ -100,6 +104,7 @@ pub fn fix_manual_err(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Internal
     Some(InternalFix {
         node,
         suggestion: fix_manual("err", db, node),
+        description: ManualErr.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
 }
