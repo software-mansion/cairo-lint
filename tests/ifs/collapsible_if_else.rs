@@ -95,6 +95,21 @@ fn main() {
 }
 "#;
 
+const ELSE_IF_WITH_IF_LET: &str = r#"
+fn main() {
+    let x: Option<u128> = Option::Some(123);
+    let _a = if let Option::Some(_) = x {
+        123
+    } else { 
+        if true {
+            10
+        } else {
+            20
+        }
+    };
+}
+"#;
+
 #[test]
 fn simple_else_if_with_new_line_diagnostics() {
     test_lint_diagnostics!(SIMPLE_ELSE_IF_WITH_NEW_LINE, @r"
@@ -260,4 +275,33 @@ fn else_if_inside_loop_fixer() {
         }
     }
     ");
+}
+
+#[test]
+fn else_if_with_if_let_diagnostics() {
+    test_lint_diagnostics!(ELSE_IF_WITH_IF_LET, @r"
+    Plugin diagnostic: Consider using else if instead of else { if ... }
+     --> lib.cairo:4:14-12:5
+          let _a = if let Option::Some(_) = x {
+     ______________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn else_if_with_if_let_fixer() {
+    test_lint_fixer!(ELSE_IF_WITH_IF_LET, @r#"
+    fn main() {
+        let x: Option<u128> = Option::Some(123);
+        let _a = if let Option::Some(_) = x {
+            123
+        } else if true {
+            10
+        } else {
+            20
+        };
+    }
+    "#);
 }
