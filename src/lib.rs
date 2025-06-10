@@ -39,13 +39,13 @@ pub trait CairoLintGroup: SemanticGroup + SyntaxGroup {}
 /// Gets the fixes for a set of a compiler diagnostics (that uses Cairo lint analyzer plugin).
 /// # Arguments
 ///
-/// * `db` - The reference to the `dyn SemanticGroup` that the diagnostics were based upon.
-/// * `diagnostics` - The list of compiler diagnostics. Make sure that the diagnostics from the Cairo lint analyzer plugin are also included.
+/// * `db` - The reference to the database.
+/// * `diagnostics` - The list of all compiler diagnostics including those coming from the cairo-lint plugin.
 ///
 /// # Returns
 ///
 /// A HashMap where:
-/// * keys are FileIds (that points to a file that the fixes might be applied to)
+/// * keys are FileIds (that points to a file that the fixes might be applied to).
 /// * values are vectors of proposed Fixes.
 pub fn get_fixes(
     db: &(dyn SemanticGroup + 'static),
@@ -67,6 +67,27 @@ pub fn get_fixes(
             (file_id, new_fixes)
         })
         .collect()
+}
+
+/// Gets all possible fixes for a set of compiler diagnostics (that uses Cairo lint analyzer plugin)
+/// without resolving overlapping fixes. This is needed when you want to see all potential fixes,
+/// even if they might conflict with each other.
+///
+/// # Arguments
+///
+/// * `db` - The reference to the database.
+/// * `diagnostics` - The list of all compiler diagnostics including those coming from the cairo-lint plugin.
+///
+/// # Returns
+///
+/// A HashMap where:
+/// * keys are FileIds (that points to a file that the fixes might be applied to).
+/// * values are vectors of proposed Fixes.
+pub fn get_separated_fixes(
+    db: &(dyn SemanticGroup + 'static),
+    diagnostics: Vec<SemanticDiagnostic>,
+) -> HashMap<FileId, Vec<Fix>> {
+    get_fixes_without_resolving_overlapping(db, diagnostics)
 }
 
 /// Applies the fixes to the file.
