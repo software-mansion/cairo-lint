@@ -3,7 +3,7 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::{
-    ast::{Condition, Expr},
+    ast::{self},
     db::SyntaxGroup,
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
@@ -81,6 +81,7 @@ pub fn check_manual_unwrap_or_default(
         let if_exprs = get_all_if_expressions(function_body);
         let match_exprs = get_all_match_expressions(function_body);
         let arenas = &function_body.arenas;
+
         for match_expr in match_exprs.iter() {
             if check_manual(db, match_expr, arenas, ManualLint::ManualUnwrapOrDefault) {
                 diagnostics.push(PluginDiagnostic {
@@ -92,6 +93,7 @@ pub fn check_manual_unwrap_or_default(
                 });
             }
         }
+
         for if_expr in if_exprs.iter() {
             if check_manual_if(db, if_expr, arenas, ManualLint::ManualUnwrapOrDefault) {
                 diagnostics.push(PluginDiagnostic {
@@ -106,53 +108,79 @@ pub fn check_manual_unwrap_or_default(
     }
 }
 
-/// Rewrites manual unwrap or default to use unwrap_or_default
 pub fn fix_manual_unwrap_or_default(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
-    // Check if the node is a general expression
-    let expr = Expr::from_syntax_node(db, node);
+    let expr = ast::Expr::from_syntax_node(db, node);
 
-    let matched_expr = match expr {
-        // Handle the case where the expression is a match expression
-        Expr::Match(expr_match) => expr_match.expr(db).as_syntax_node(),
-
-        // Handle the case where the expression is an if-let expression
-        Expr::If(expr_if) => {
-            // Extract the condition from the if-let expression
-            let condition = expr_if.condition(db);
-
-            match condition {
-                Condition::Let(condition_let) => {
-                    // Extract and return the syntax node for the matched expression
-                    condition_let.expr(db).as_syntax_node()
-                }
-                _ => panic!("Expected an `if let` expression."),
-            }
-        }
-        // Handle unsupported expressions
-        _ => panic!("The expression cannot be simplified to `.unwrap_or_default()`."),
+    let matched_expr = match &expr {
+        ast::Expr::Match(expr_match) => expr_match.expr(db).as_syntax_node(),
+        ast::Expr::If(expr_if) => match expr_if.condition(db) {
+            ast::Condition::Let(condition_let) => condition_let.expr(db).as_syntax_node(),
+            _ => panic!("Expected an `if let` expression."),
+        },
+        _ => panic!("The expression is expected to be either a `match` or an `if` statement."),
     };
 
-    let indent = node
+    // If the expression is part of a `let` statement (e.g., `let x = match a { ... }`),
+    // we need to take the parent node to capture the entire statement, not just the `match` expression.
+    let (expression, target_node) = if let ast::Statement::Let(parent_node) =
+        ast::Statement::from_syntax_node(db, node.parent(db).unwrap())
+    {
+        let mut expr = parent_node
+            .as_syntax_node()
+            .get_text_without_trivia(db)
+            .replace(
+                parent_node.rhs(db).as_syntax_node().get_text(db).as_str(),
+                &format!("{}.unwrap_or_default()", matched_expr.get_text(db).trim()),
+            );
+
+        // Since `get_text_without_trivia` removes trailing whitespace and newlines,
+        // we explicitly add a newline to ensure expression maintains correct formatting.
+        expr.push('\n');
+
+        (expr, parent_node.as_syntax_node())
+    } else {
+        (
+            format!("{}.unwrap_or_default()", matched_expr.get_text(db).trim()),
+            node,
+        )
+    };
+
+    let indent = target_node
         .get_text(db)
         .chars()
         .take_while(|c| c.is_whitespace())
         .collect::<String>();
 
-    let mut loop_span = node.span(db);
-    loop_span.end = node.span_start_without_trivia(db);
-    let trivia = node.get_text_of_span(db, loop_span).trim().to_string();
-    let trivia = if trivia.is_empty() {
-        trivia
-    } else {
-        format!("{indent}{trivia}\n")
-    };
+    let comments = extract_comments(db, &target_node, &indent);
+
     Some(InternalFix {
-        node,
-        suggestion: format!(
-            "{trivia}{indent}{}.unwrap_or_default()",
-            matched_expr.get_text(db).trim_end()
-        ),
+        node: target_node,
+        suggestion: format!("{comments}{indent}{expression}"),
         description: ManualUnwrapOrDefault.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
+}
+
+// Extracts comments from the node's text and formats them with the given indentation.
+fn extract_comments(db: &dyn SyntaxGroup, node: &SyntaxNode, indent: &str) -> String {
+    let text = node.get_text(db);
+    let comments_lines = text
+        .lines()
+        .filter_map(|line| extract_comment_only(line).map(|comment| format!("{indent}{comment}")))
+        .collect::<Vec<_>>();
+
+    if !comments_lines.is_empty() {
+        let mut comments = comments_lines.join("\n");
+        if !comments.ends_with('\n') {
+            comments.push('\n');
+        }
+        comments
+    } else {
+        String::new()
+    }
+}
+
+// Extracts only the comment from a line, e.g. `let x = 5; // comment` -> `// comment`
+fn extract_comment_only(line: &str) -> Option<String> {
+    line.find("//").map(|idx| line[idx..].trim().to_string())
 }

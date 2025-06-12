@@ -148,7 +148,7 @@ const MANUAL_UNWRAP_OR_DEFAULT_OPTION_FOR_IF_LET_WITH_ARRAY: &str = r#"
 fn main() {
   let x: Option<Array<u128>> = Option::Some(array![1, 2, 3, 4, 5]);
   // This is just a variable.
-  if let Option::Some(v) = x {
+  let _z = if let Option::Some(v) = x {
     v
   } else {
      array![]
@@ -173,10 +173,10 @@ fn main() {
   let a: Option<ByteArray> = Option::Some("Helok");
   // This is just a variable.
   if let Option::Some(v) = a {
-    // testing with comments
+    // testing with comments some arm
     v
   } else {
-    // testing with comments
+    // testing with comments none arm
     Default::default()
   };
 }
@@ -187,10 +187,10 @@ fn main() {
   let a: Result<ByteArray, felt252> = Result::Ok("Helok");
   // This is just a variable.
   if let Result::Ok(v) = a {
-    // testing with comments
+    // testing with comments ok arm
     v
   } else {
-    // testing with comments
+    // testing with comments err arm 
     Default::default()
   };
 }
@@ -345,7 +345,7 @@ const MANUAL_UNWRAP_OR_DEFAULT_RESULT_FOR_MATCH_WITH_TUPLE: &str = r#"
 fn main() {
   let x: Result<(ByteArray, u128, bool), felt252> = Result::Ok(("James", 90, true));
   // This is just a variable.
-  match x {
+  let _z = match x {
     Result::Ok(v) => v,
     Result::Err(_) => ("", 0, false)
   };
@@ -383,9 +383,10 @@ fn main() {
       // Testing with comments
       v
     },
-    Option::None => {
+    Option::None => { // comment after { 
       // Testing with comments
       [0; 5]
+      // comment before }
     }
   };
 }
@@ -397,11 +398,11 @@ fn main() {
   // This is just a variable.
   match x {
     Result::Ok(v) => {
-      // Testing with comments
+      // Testing with comments ok arm
       v
     },
     Result::Err(_) => {
-      // Testing with comments
+      // Testing with comments err arm
       [0; 5]
     }
   };
@@ -471,6 +472,33 @@ fn main() {
     Result::Ok(_) => array![1, 2, 3, 4, 5],
     Result::Err(_) => array![]
   };
+}
+"#;
+
+const IF_LET_WITH_COMMENT_OPTION: &str = r#"
+fn main() {
+    let a: Option<u128> = Option::Some(42);
+    // Some before
+    let _z = if let Option::Some(v) = a {
+        v
+    } else { // comment after { 
+        // Some comment
+        0 // Comment after value
+        // comment before } 
+    };
+}
+"#;
+
+const MATCH_WITH_COMMENT_AFTER_ARROW: &str = r#"
+fn main() {
+    let a: Result<u64, felt252> = Result::Ok(54);
+    // This is comment
+    let _x = match a {
+        Result::Ok(v) => v,
+        Result::Err(_) => // comment after =>
+            // Different comment 
+            0 
+    };
 }
 "#;
 
@@ -766,9 +794,9 @@ fn manual_unwrap_or_default_result_for_if_let_with_tuple_fixer() {
 fn manual_unwrap_or_default_option_for_if_let_with_array_diagnostics() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_OPTION_FOR_IF_LET_WITH_ARRAY, @r"
     Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3-9:3
-        if let Option::Some(v) = x {
-     ___^
+     --> lib.cairo:5:12-9:3
+        let _z = if let Option::Some(v) = x {
+     ____________^
     | ...
     |   };
     |___^
@@ -781,7 +809,7 @@ fn manual_unwrap_or_default_option_for_if_let_with_array_fixer() {
     fn main() {
         let x: Option<Array<u128>> = Option::Some(array![1, 2, 3, 4, 5]);
         // This is just a variable.
-        x.unwrap_or_default();
+        let _z = x.unwrap_or_default();
     }
     ");
 }
@@ -829,6 +857,8 @@ fn manual_unwrap_or_default_option_for_if_let_with_comments_fixer() {
     fn main() {
         let a: Option<ByteArray> = Option::Some("Helok");
         // This is just a variable.
+        // testing with comments some arm
+        // testing with comments none arm
         a.unwrap_or_default();
     }
     "#);
@@ -853,6 +883,8 @@ fn manual_unwrap_or_default_result_for_if_let_with_comments_fixer() {
     fn main() {
         let a: Result<ByteArray, felt252> = Result::Ok("Helok");
         // This is just a variable.
+        // testing with comments ok arm
+        // testing with comments err arm
         a.unwrap_or_default();
     }
     "#);
@@ -1167,9 +1199,9 @@ fn manual_unwrap_or_default_option_for_match_with_tuple_fixer() {
 fn manual_unwrap_or_default_result_for_match_with_tuple_diagnostics() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_RESULT_FOR_MATCH_WITH_TUPLE, @r"
     Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3-8:3
-        match x {
-     ___^
+     --> lib.cairo:5:12-8:3
+        let _z = match x {
+     ____________^
     | ...
     |   };
     |___^
@@ -1182,7 +1214,7 @@ fn manual_unwrap_or_default_result_for_match_with_tuple_fixer() {
     fn main() {
         let x: Result<(ByteArray, u128, bool), felt252> = Result::Ok(("James", 90, true));
         // This is just a variable.
-        x.unwrap_or_default();
+        let _z = x.unwrap_or_default();
     }
     "#);
 }
@@ -1239,7 +1271,7 @@ fn manual_unwrap_or_default_result_for_match_with_array_fixer() {
 fn manual_unwrap_or_default_option_for_match_with_comments_diagnostic() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_OPTION_FOR_MATCH_WITH_COMMENTS, @r"
     Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3-14:3
+     --> lib.cairo:5:3-15:3
         match x {
      ___^
     | ...
@@ -1254,6 +1286,10 @@ fn manual_unwrap_or_default_option_for_match_with_comments_fixer() {
     fn main() {
         let x: Option<[u64; 5]> = Option::Some([1, 2, 3, 4, 5]);
         // This is just a variable.
+        // Testing with comments
+        // comment after {
+        // Testing with comments
+        // comment before }
         x.unwrap_or_default();
     }
     ");
@@ -1278,6 +1314,8 @@ fn manual_unwrap_or_default_result_for_match_with_comments_fixer() {
     fn main() {
         let x: Result<[u64; 5], felt252> = Result::Ok([1, 2, 3, 4, 5]);
         // This is just a variable.
+        // Testing with comments ok arm
+        // Testing with comments err arm
         x.unwrap_or_default();
     }
     ");
@@ -1412,6 +1450,60 @@ fn manual_unwrap_or_default_result_for_match_with_different_type_not_trigger_fix
             Result::Ok(_) => array![1, 2, 3, 4, 5],
             Result::Err(_) => array![],
         };
+    }
+    ");
+}
+
+#[test]
+fn manual_unwrap_or_default_option_for_if_let_with_comment_diagnostics() {
+    test_lint_diagnostics!(IF_LET_WITH_COMMENT_OPTION, @r"
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:14-11:5
+          let _z = if let Option::Some(v) = a {
+     ______________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn manual_unwrap_or_default_option_for_if_let_with_comment_fixer() {
+    test_lint_fixer!(IF_LET_WITH_COMMENT_OPTION, @r"
+    fn main() {
+        let a: Option<u128> = Option::Some(42);
+        // Some before
+        // comment after {
+        // Some comment
+        // Comment after value
+        // comment before }
+        let _z = a.unwrap_or_default();
+    }
+    ");
+}
+
+#[test]
+fn manual_unwrap_or_default_result_for_match_with_comment_after_arrow_diagnostics() {
+    test_lint_diagnostics!(MATCH_WITH_COMMENT_AFTER_ARROW, @r"
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:5:14-10:5
+          let _x = match a {
+     ______________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn manual_unwrap_or_default_result_for_match_with_comment_after_arrow_fixer() {
+    test_lint_fixer!(MATCH_WITH_COMMENT_AFTER_ARROW, @r"
+    fn main() {
+        let a: Result<u64, felt252> = Result::Ok(54);
+        // This is comment
+        // comment after =>
+        // Different comment
+        let _x = a.unwrap_or_default();
     }
     ");
 }
