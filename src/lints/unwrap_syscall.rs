@@ -134,7 +134,6 @@ fn check_single_unwrap_syscall(
                         .stable_ptr(db),
                     message: UnwrapSyscall.diagnostic_message().to_string(),
                     severity: Severity::Warning,
-                    relative_span: None,
                     inner_span: None,
                 })
             }

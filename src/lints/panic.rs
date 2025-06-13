@@ -106,7 +106,6 @@ fn check_single_panic_usage(
             stable_ptr: init_node.stable_ptr(db.upcast()),
             message: PanicInCode.diagnostic_message().to_owned(),
             severity: Severity::Warning,
-            relative_span: None,
             inner_span: None,
         });
     } else {
@@ -121,7 +120,6 @@ fn check_single_panic_usage(
                     stable_ptr: syntax_node.stable_ptr(db.upcast()),
                     message: PanicInCode.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
-                    relative_span: None,
                     inner_span: None
                 });
             }

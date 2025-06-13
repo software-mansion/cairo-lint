@@ -236,7 +236,6 @@ pub fn check_manual_is(
                     stable_ptr: match_expr.stable_ptr.untyped(),
                     message: ManualIsSome.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
-                    relative_span: None,
                     inner_span: None,
                 });
             }
@@ -245,7 +244,6 @@ pub fn check_manual_is(
                     stable_ptr: match_expr.stable_ptr.untyped(),
                     message: ManualIsNone.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
-                    relative_span: None,
                     inner_span: None,
                 });
             }
@@ -254,7 +252,6 @@ pub fn check_manual_is(
                     stable_ptr: match_expr.stable_ptr.untyped(),
                     message: ManualIsOk.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
-                    relative_span: None,
                     inner_span: None,
                 });
             }
@@ -263,7 +260,6 @@ pub fn check_manual_is(
                     stable_ptr: match_expr.stable_ptr.untyped(),
                     message: ManualIsErr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
-                    relative_span: None,
                     inner_span: None,
                 });
             }
@@ -274,7 +270,6 @@ pub fn check_manual_is(
                     stable_ptr: if_expr.stable_ptr.untyped(),
                     message: ManualIsSome.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
-                    relative_span: None,
                     inner_span: None,
                 });
             }
@@ -283,7 +278,6 @@ pub fn check_manual_is(
                     stable_ptr: if_expr.stable_ptr.untyped(),
                     message: ManualIsNone.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
-                    relative_span: None,
                     inner_span: None,
                 });
             }
@@ -292,7 +286,6 @@ pub fn check_manual_is(
                     stable_ptr: if_expr.stable_ptr.untyped(),
                     message: ManualIsOk.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
-                    relative_span: None,
                     inner_span: None,
                 });
             }
@@ -301,7 +294,6 @@ pub fn check_manual_is(
                     stable_ptr: if_expr.stable_ptr.untyped(),
                     message: ManualIsErr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
-                    relative_span: None,
                     inner_span: None,
                 });
             }

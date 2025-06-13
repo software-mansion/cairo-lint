@@ -88,7 +88,6 @@ pub fn check_manual_unwrap_or_default(
                     stable_ptr: match_expr.stable_ptr.untyped(),
                     message: ManualUnwrapOrDefault.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
-                    relative_span: None,
                     inner_span: None,
                 });
             }
@@ -100,7 +99,6 @@ pub fn check_manual_unwrap_or_default(
                     stable_ptr: if_expr.stable_ptr.untyped(),
                     message: ManualUnwrapOrDefault.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
-                    relative_span: None,
                     inner_span: None,
                 });
             }
