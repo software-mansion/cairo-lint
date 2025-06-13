@@ -94,7 +94,6 @@ fn check_single_equatable_if_let(
                 stable_ptr: if_expr.stable_ptr.untyped(),
                 message: EquatableIfLet.diagnostic_message().to_string(),
                 severity: Severity::Warning,
-                relative_span: None,
                 inner_span: None,
             });
         }
