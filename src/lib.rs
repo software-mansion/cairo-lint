@@ -28,6 +28,7 @@ pub mod diagnostics;
 pub mod fixes;
 mod helper;
 pub mod lints;
+mod mappings;
 pub mod plugin;
 mod queries;
 mod types;
