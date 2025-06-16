@@ -43,7 +43,7 @@ pub fn cairo_lint_allow_plugin_suite() -> PluginSuite {
 
 #[derive(Debug, Default)]
 pub struct CairoLint {
-    include_compiler_generated_files: bool,
+    only_generated_files: bool,
     tool_metadata: CairoLintToolMetadata,
 }
 
@@ -53,13 +53,13 @@ impl CairoLint {
         tool_metadata: CairoLintToolMetadata,
     ) -> Self {
         Self {
-            include_compiler_generated_files,
+            only_generated_files: include_compiler_generated_files,
             tool_metadata,
         }
     }
 
     pub fn include_compiler_generated_files(&self) -> bool {
-        self.include_compiler_generated_files
+        self.only_generated_files
     }
 
     pub fn tool_metadata(&self) -> &CairoLintToolMetadata {
@@ -87,7 +87,7 @@ impl AnalyzerPlugin for CairoLint {
             let is_generated_item =
                 matches!(item_file, FileLongId::Virtual(_) | FileLongId::External(_));
 
-            if is_generated_item {
+            if is_generated_item && !self.only_generated_files {
                 let item_syntax_node = item.stable_location(db).stable_ptr().lookup(db.upcast());
                 let origin_node = get_origin_module_item_as_syntax_node(db, item);
 
@@ -109,7 +109,7 @@ impl AnalyzerPlugin for CairoLint {
                           (diag, module_file)}));
                     }
                 }
-            } else {
+            } else if !is_generated_item || self.only_generated_files {
                 let checking_functions = get_all_checking_functions();
                 for checking_function in checking_functions {
                     checking_function(db, item, &mut item_diagnostics);

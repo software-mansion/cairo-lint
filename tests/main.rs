@@ -26,8 +26,6 @@ mod unused_imports;
 mod unused_variables;
 mod unwrap_syscall;
 
-mod playground;
-
 pub const CRATE_CONFIG: &str = r#"
 edition = "2024_07"
 
