@@ -1,3 +1,5 @@
+//! This module provides functionality to handle any code that comes as the product of procedural macros.
+
 use std::collections::{HashSet, VecDeque};
 
 use cairo_lang_defs::ids::LanguageElementId;
@@ -16,6 +18,7 @@ use cairo_lang_syntax::node::{
 };
 use cairo_lang_utils::ordered_hash_set::OrderedHashSet;
 use cairo_lang_utils::LookupIntern;
+
 pub fn get_node_resultants(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<Vec<SyntaxNode>> {
     let main_file = node.stable_ptr(db).file_id(db);
 
@@ -29,6 +32,7 @@ pub fn get_node_resultants(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<V
     Some(resultants.into_iter().collect())
 }
 
+/// Returns the originating syntax node for a given stable pointer.
 pub fn get_origin_syntax_node(
     db: &dyn SemanticGroup,
     ptr: &SyntaxStablePtrId,
@@ -41,6 +45,8 @@ pub fn get_origin_syntax_node(
         None,
     );
 
+    // Heuristically find the syntax node at the given offset.
+    // We match the ancestors with node text to ensure we get the whole node.
     return find_syntax_node_at_offset(db.upcast(), file, span.start)?
         .ancestors_with_self(db)
         .find(|node| {
@@ -143,6 +149,10 @@ fn find_generated_nodes(
         let mut new_nodes: OrderedHashSet<_> = Default::default();
 
         for token in file_syntax.tokens(db) {
+            // Skip end of the file terminal, which is also a syntax tree leaf.
+            // As `ModuleItemList` and `TerminalEndOfFile` have the same parent,
+            // which is the `SyntaxFile`, so we don't want to take the `SyntaxFile`
+            // as an additional resultant.
             if token.kind(db) == SyntaxKind::TerminalEndOfFile {
                 continue;
             }
