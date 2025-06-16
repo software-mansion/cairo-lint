@@ -88,7 +88,6 @@ fn check_single_double_parens(
             stable_ptr: parens_expr.stable_ptr(db.upcast()).untyped(),
             message: DoubleParens.diagnostic_message().to_string(),
             severity: Severity::Warning,
-            relative_span: None,
             inner_span: None,
         });
     }

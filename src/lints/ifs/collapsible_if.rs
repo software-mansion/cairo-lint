@@ -126,7 +126,6 @@ fn check_single_collapsible_if(
                 stable_ptr: if_expr.stable_ptr.untyped(),
                 message: CollapsibleIf.diagnostic_message().to_string(),
                 severity: Severity::Warning,
-                relative_span: None,
                 inner_span: None
             });
 
@@ -152,7 +151,6 @@ fn check_single_collapsible_if(
                 stable_ptr: if_expr.stable_ptr.untyped(),
                 message: CollapsibleIf.diagnostic_message().to_string(),
                 severity: Severity::Warning,
-                relative_span: None,
                 inner_span: None,
             });
         }

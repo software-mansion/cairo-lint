@@ -91,7 +91,6 @@ pub fn check_manual_ok_or(
                     stable_ptr: match_expr.stable_ptr.untyped(),
                     message: ManualOkOr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
-                    relative_span: None,
                     inner_span: None,
                 });
             }
@@ -102,7 +101,6 @@ pub fn check_manual_ok_or(
                     stable_ptr: if_expr.stable_ptr.untyped(),
                     message: ManualOkOr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
-                    relative_span: None,
                     inner_span: None,
                 });
             }

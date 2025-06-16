@@ -81,7 +81,6 @@ pub fn check_unit_return_type(
                     stable_ptr: function_signature.stable_ptr.untyped(),
                     message: UnitReturnType.diagnostic_message().to_string(),
                     severity: Severity::Warning,
-                    relative_span: None,
                     inner_span: None,
                 });
             }
