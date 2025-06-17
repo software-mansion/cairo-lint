@@ -53,6 +53,17 @@ fn main() {
 }
 "#;
 
+const MULTIPLE_UNUSED_IMPORTS_OF_DIFFERENT_MOD: &str = r#"
+use core::{
+    integer::u32_safe_divmod as safe, 
+    option::Option as opt,
+};
+
+fn main() {
+    let _ = opt::<u128>::Some(5);
+}
+"#;
+
 #[test]
 fn single_unused_import_diagnostics() {
     test_lint_diagnostics!(SINGLE_UNUSED_IMPORT, @r"
@@ -183,4 +194,25 @@ fn multiple_import_statements_lines_with_some_used_and_some_unused_fixer() {
         let _res = BoxTrait::<u128>::new(5);
     }
     ");
+}
+
+#[test]
+fn multiple_unused_imports_of_different_mod_diagnostics() {
+    test_lint_diagnostics!(MULTIPLE_UNUSED_IMPORTS_OF_DIFFERENT_MOD, @r"
+    Unused import: `test::safe`
+     --> lib.cairo:3:14
+        integer::u32_safe_divmod as safe, 
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ")
+}
+
+#[test]
+fn multiple_unused_imports_of_different_mod_fixer() {
+    test_lint_fixer!(MULTIPLE_UNUSED_IMPORTS_OF_DIFFERENT_MOD, @r"
+    use core::option::Option as opt;
+
+    fn main() {
+        let _ = opt::<u128>::Some(5);
+    }
+    ")
 }

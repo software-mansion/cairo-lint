@@ -237,6 +237,7 @@ fn process_unused_import(
 ) {
     let unused_node = id.stable_ptr(db).lookup(db).as_syntax_node();
     let mut current_node = unused_node;
+    let mut path_to_remove = unused_node;
 
     while let Some(parent) = current_node.parent(db) {
         match parent.kind(db) {
@@ -245,14 +246,31 @@ fn process_unused_import(
                     .entry(parent)
                     .or_insert_with(|| ImportFix::new(parent))
                     .items_to_remove
-                    .push(unused_node.get_text_without_trivia(db));
+                    .push(path_to_remove.get_text_without_trivia(db));
+
                 break;
             }
+
             SyntaxKind::ItemUse => {
                 fixes.insert(parent, ImportFix::new(parent));
                 break;
             }
-            _ => current_node = parent,
+
+            // Store the last `UsePathSingle` node so it can be removed later (e.g., `integer::u32_safe_divmod`)
+            SyntaxKind::UsePathSingle => {
+                path_to_remove = parent;
+                current_node = parent;
+            }
+
+            // Continue traversing up the tree
+            SyntaxKind::UsePathList => {
+                current_node = parent;
+            }
+
+            kind => panic!(
+                "Unexpected parent kind in unused import traversal: {:?}",
+                kind
+            ),
         }
     }
 }
