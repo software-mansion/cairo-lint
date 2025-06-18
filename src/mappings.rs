@@ -13,9 +13,7 @@ use cairo_lang_filesystem::{db::get_originating_location, ids::FileId, span::Tex
 use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_syntax::node::{
-    ast::ModuleItem, ids::SyntaxStablePtrId, SyntaxNode, TypedSyntaxNode,
-};
+use cairo_lang_syntax::node::{ast::ModuleItem, ids::SyntaxStablePtrId, SyntaxNode};
 use cairo_lang_utils::ordered_hash_set::OrderedHashSet;
 use cairo_lang_utils::LookupIntern;
 
@@ -70,7 +68,7 @@ pub fn get_origin_module_item_as_syntax_node(
 
     find_syntax_node_at_offset(db.upcast(), file, span.start)?
         .ancestors_with_self(db)
-        .find(|n| ModuleItem::is_variant(db, n.kind(db)))
+        .find(|n| ModuleItem::is_variant(n.kind(db)))
 }
 
 fn find_syntax_node_at_offset(
