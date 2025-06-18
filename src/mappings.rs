@@ -19,6 +19,7 @@ use cairo_lang_syntax::node::{
 use cairo_lang_utils::ordered_hash_set::OrderedHashSet;
 use cairo_lang_utils::LookupIntern;
 
+/// Copied from https://github.com/software-mansion/cairols/blob/0bb49e7d2f89ffe68ba20379c20b63fc49f82557/src/lang/db/semantic.rs#L326.
 pub fn get_node_resultants(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<Vec<SyntaxNode>> {
     let main_file = node.stable_ptr(db).file_id(db);
 
@@ -69,7 +70,7 @@ pub fn get_origin_module_item_as_syntax_node(
 
     find_syntax_node_at_offset(db.upcast(), file, span.start)?
         .ancestors_with_self(db)
-        .find(|n| ModuleItem::cast(db, *n).is_some())
+        .find(|n| ModuleItem::is_variant(db, n.kind(db)))
 }
 
 fn find_syntax_node_at_offset(
@@ -80,6 +81,7 @@ fn find_syntax_node_at_offset(
     Some(db.file_syntax(file).to_option()?.lookup_offset(db, offset))
 }
 
+/// Copied from https://github.com/software-mansion/cairols/blob/0bb49e7d2f89ffe68ba20379c20b63fc49f82557/src/lang/db/semantic.rs#L290.
 fn file_and_subfiles_with_corresponding_modules(
     db: &dyn SemanticGroup,
     file: FileId,
@@ -116,6 +118,7 @@ fn file_and_subfiles_with_corresponding_modules(
     Some((files, modules))
 }
 
+/// Copied from https://github.com/software-mansion/cairols/blob/0bb49e7d2f89ffe68ba20379c20b63fc49f82557/src/lang/db/semantic.rs#L508.
 fn find_generated_nodes(
     db: &dyn SemanticGroup,
     node_descendant_files: &[FileId],
