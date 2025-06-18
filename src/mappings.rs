@@ -48,10 +48,7 @@ pub fn get_origin_syntax_node(
     // We match the ancestors with node text to ensure we get the whole node.
     return find_syntax_node_at_offset(db.upcast(), file, span.start)?
         .ancestors_with_self(db)
-        .find(|node| {
-            node.get_text_without_trivia(db)
-                .contains(&syntax_node.get_text_without_trivia(db))
-        });
+        .find(|node| node.get_text_without_trivia(db) == syntax_node.get_text_without_trivia(db));
 }
 
 pub fn get_origin_module_item_as_syntax_node(

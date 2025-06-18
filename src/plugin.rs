@@ -99,6 +99,9 @@ impl AnalyzerPlugin for CairoLint {
                     // If we don't check this, we might generate different diagnostics for the same item,
                     // which is a very unpredictable behavior.
                     if resultants.len() == 1;
+                    // We don't do the `==` check here, as the origin node always has the proc macro attributes.
+                    // It also means that if the macro changed anything in the original item code,
+                    // we won't be processing it, as it might lead to unexpected behavior.
                     if node.get_text(db).contains(&item_syntax_node.get_text(db));
                     then {
                         let checking_functions = get_all_checking_functions();
@@ -118,7 +121,10 @@ impl AnalyzerPlugin for CairoLint {
                     checking_function(db, item, &mut item_diagnostics);
                 }
 
-                diags.extend(item_diagnostics.into_iter().map(|diag| (diag, module_file)));
+                diags.extend(item_diagnostics.into_iter().filter_map(|diag| {
+                    // If the diagnostic is not mapped to an on-disk file, it mean that it's an inline macro diagnostic.
+                    get_origin_syntax_node(db, &diag.stable_ptr).map(|_| (diag, module_file))
+                }));
             }
         }
 
