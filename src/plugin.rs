@@ -8,11 +8,15 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_utils::LookupIntern;
+use if_chain::if_chain;
 use std::sync::Arc;
 
 use crate::context::{
     get_all_checking_functions, get_name_for_diagnostic_message, get_unique_allowed_names,
     is_lint_enabled_by_default,
+};
+use crate::mappings::{
+    get_node_resultants, get_origin_module_item_as_syntax_node, get_origin_syntax_node,
 };
 use crate::CairoLintToolMetadata;
 
@@ -39,7 +43,7 @@ pub fn cairo_lint_allow_plugin_suite() -> PluginSuite {
 
 #[derive(Debug, Default)]
 pub struct CairoLint {
-    include_compiler_generated_files: bool,
+    only_generated_files: bool,
     tool_metadata: CairoLintToolMetadata,
 }
 
@@ -49,13 +53,13 @@ impl CairoLint {
         tool_metadata: CairoLintToolMetadata,
     ) -> Self {
         Self {
-            include_compiler_generated_files,
+            only_generated_files: include_compiler_generated_files,
             tool_metadata,
         }
     }
 
     pub fn include_compiler_generated_files(&self) -> bool {
-        self.include_compiler_generated_files
+        self.only_generated_files
     }
 
     pub fn tool_metadata(&self) -> &CairoLintToolMetadata {
@@ -77,33 +81,57 @@ impl AnalyzerPlugin for CairoLint {
             return Vec::default();
         };
         for item in &*items {
+            let mut item_diagnostics = Vec::new();
             let module_file = db.module_main_file(module_id).unwrap();
             let item_file = item.stable_location(db).file_id(db).lookup_intern(db);
+            let is_generated_item =
+                matches!(item_file, FileLongId::Virtual(_) | FileLongId::External(_));
 
-            // Skip compiler generated files. By default it checks whether the item is inside the virtual or external file.
-            if !self.include_compiler_generated_files
-                && (matches!(item_file, FileLongId::Virtual(_) | FileLongId::External(_)))
-            {
-                continue;
+            if is_generated_item && !self.only_generated_files {
+                let item_syntax_node = item.stable_location(db).stable_ptr().lookup(db.upcast());
+                let origin_node = get_origin_module_item_as_syntax_node(db, item);
+
+                if_chain! {
+                    if let Some(node) = origin_node;
+                    if let Some(resultants) = get_node_resultants(db, node);
+                    // Check if the item has only a single resultant, as if there is multiple resultants,
+                    // we would generate different diagnostics for each of resultants.
+                    // If we don't check this, we might generate different diagnostics for the same item,
+                    // which is a very unpredictable behavior.
+                    if resultants.len() == 1;
+                    // We don't do the `==` check here, as the origin node always has the proc macro attributes.
+                    // It also means that if the macro changed anything in the original item code,
+                    // we won't be processing it, as it might lead to unexpected behavior.
+                    if node.get_text(db).contains(&item_syntax_node.get_text(db));
+                    then {
+                        let checking_functions = get_all_checking_functions();
+                        for checking_function in checking_functions {
+                            checking_function(db, item, &mut item_diagnostics);
+                        }
+
+                        diags.extend(item_diagnostics.into_iter().map(|mut diag| {
+                          let ptr = diag.stable_ptr;
+                          diag.stable_ptr = get_origin_syntax_node(db, &ptr).unwrap().stable_ptr(db);
+                          (diag, module_file)}));
+                    }
+                }
+            } else if !is_generated_item || self.only_generated_files {
+                let checking_functions = get_all_checking_functions();
+                for checking_function in checking_functions {
+                    checking_function(db, item, &mut item_diagnostics);
+                }
+
+                diags.extend(item_diagnostics.into_iter().filter_map(|diag| {
+                    // If the diagnostic is not mapped to an on-disk file, it mean that it's an inline macro diagnostic.
+                    get_origin_syntax_node(db, &diag.stable_ptr).map(|_| (diag, module_file))
+                }));
             }
-
-            let checking_functions = get_all_checking_functions();
-            let mut item_diagnostics = Vec::new();
-
-            for checking_function in checking_functions {
-                checking_function(db, item, &mut item_diagnostics);
-            }
-
-            diags.extend(item_diagnostics.into_iter().map(|diag| (diag, module_file)));
         }
 
         diags
             .into_iter()
             .filter(|diag| {
                 let diagnostic = &diag.0;
-                let diagnostic_origin_module_file = &diag.1;
-                let is_compiler_plugin_generated_file =
-                    &diagnostic.stable_ptr.file_id(db) != diagnostic_origin_module_file;
                 let node = diagnostic.stable_ptr.lookup(db.upcast());
                 let allowed_name = get_name_for_diagnostic_message(&diagnostic.message).unwrap();
                 let default_allowed = is_lint_enabled_by_default(&diagnostic.message).unwrap();
@@ -113,7 +141,6 @@ impl AnalyzerPlugin for CairoLint {
                     .unwrap_or(&default_allowed);
                 !node_has_ascendants_with_allow_name_attr(db.upcast(), node, allowed_name)
                     && is_rule_allowed_globally
-                    && (self.include_compiler_generated_files || !is_compiler_plugin_generated_file)
             })
             .map(|diag| diag.0)
             .collect()
