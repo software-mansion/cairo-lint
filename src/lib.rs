@@ -104,7 +104,6 @@ pub fn apply_file_fixes(
     db: &dyn SyntaxGroup,
     formatter_config: FormatterConfig,
 ) -> Result<()> {
-    // let mut fixes = fixes;
     // Those suggestions MUST be sorted in reverse, so changes at the end of the file,
     // doesn't affect the spans of the previous file suggestions.
     let suggestions = fixes
