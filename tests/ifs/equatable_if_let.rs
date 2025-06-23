@@ -39,13 +39,14 @@ fn main() {
 "#;
 
 const ENUM_UNIT_VARIANT_PATTERN_MATCHING: &str = r#"
+#[derive(PartialEq, Drop)]
 enum Enum {
     UnitVariant
 } 
 
 fn main() {
     let e = Enum::UnitVariant;
-
+    
     if let Enum::UnitVariant = e {}
 }
 "#;
@@ -170,7 +171,7 @@ fn simple_value_pattern_matching_with_comment_fixer() {
 fn enum_unit_variant_pattern_matching_diagnostics() {
     test_lint_diagnostics!(ENUM_UNIT_VARIANT_PATTERN_MATCHING, @r"
     Plugin diagnostic: `if let` pattern used for equatable value. Consider using a simple comparison `==` instead
-     --> lib.cairo:9:5
+     --> lib.cairo:10:5
         if let Enum::UnitVariant = e {}
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     ");
@@ -179,6 +180,7 @@ fn enum_unit_variant_pattern_matching_diagnostics() {
 #[test]
 fn enum_unit_variant_pattern_matching_fixer() {
     test_lint_fixer!(ENUM_UNIT_VARIANT_PATTERN_MATCHING, @r"
+    #[derive(PartialEq, Drop)]
     enum Enum {
         UnitVariant,
     }
