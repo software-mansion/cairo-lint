@@ -109,10 +109,10 @@ impl AnalyzerPlugin for CairoLint {
                             checking_function(db, item, &mut item_diagnostics);
                         }
 
-                        diags.extend(item_diagnostics.into_iter().map(|mut diag| {
+                        diags.extend(item_diagnostics.into_iter().filter_map(|mut diag| {
                           let ptr = diag.stable_ptr;
-                          diag.stable_ptr = get_origin_syntax_node(db, &ptr).unwrap().stable_ptr(db);
-                          (diag, module_file)}));
+                          diag.stable_ptr = get_origin_syntax_node(db, &ptr)?.stable_ptr(db);
+                          Some((diag, module_file))}));
                     }
                 }
             } else if !is_generated_item || self.only_generated_files {
