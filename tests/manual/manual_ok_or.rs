@@ -426,3 +426,20 @@ fn test_error_str_block_fixer() {
 fn test_error_str_block_more_statements_diagnostics() {
     test_lint_diagnostics!(TEST_ERROR_STR_BLOCK_MORE_STATEMENTS, @r"")
 }
+
+#[test]
+fn test_error_str_block_more_statements_fixer() {
+    test_lint_fixer!(TEST_ERROR_STR_BLOCK_MORE_STATEMENTS, @r"
+    fn main() {
+        let foo: Option<i32> = Option::None;
+        // This is just a variable.
+        let _foo = match foo {
+            Option::Some(v) => { Result::Ok(v) },
+            Option::None => {
+                let _a = 23;
+                Result::Err('this is an err')
+            },
+        };
+    }
+    ")
+}

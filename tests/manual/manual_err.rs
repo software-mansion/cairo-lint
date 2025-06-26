@@ -233,3 +233,20 @@ fn test_basic_err_block_fixer() {
 fn test_basic_err_block_with_more_statements_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_ERR_BLOCK_WITH_MORE_STATEMENTS, @"");
 }
+
+#[test]
+fn test_basic_err_block_with_more_statements_fixer() {
+    test_lint_fixer!(TEST_BASIC_ERR_BLOCK_WITH_MORE_STATEMENTS, @r"
+    fn main() {
+        let foo: Result<i32> = Result::Err('err');
+        // This is just a variable.
+        let _foo = match foo {
+            Result::Ok(_) => {
+                let _a = 5;
+                Option::None
+            },
+            Result::Err(x) => { Option::Some(x) },
+        };
+    }
+    ")
+}
