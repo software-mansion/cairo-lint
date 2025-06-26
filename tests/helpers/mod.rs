@@ -67,6 +67,7 @@ macro_rules! test_lint_fixer {
   }};
   ($before:ident, @$expected_fix:literal, $is_nested:literal) => {{
     use ::cairo_lang_utils::Upcast;
+    use ::itertools::Itertools;
     let mut code = String::from($before);
     let mut testing_suite = ::cairo_lang_semantic::plugin::PluginSuite::default();
     testing_suite.add_analyzer_plugin_ex(::std::sync::Arc::new(::cairo_lint::plugin::CairoLint::new(true, $crate::helpers::get_cairo_lint_tool_metadata_with_all_lints_enabled())));
@@ -82,10 +83,10 @@ macro_rules! test_lint_fixer {
     );
     let mut fixes = Vec::new();
     fixes.extend(::cairo_lint::get_fixes(db.upcast(), diags).values().flatten().cloned());
-    fixes.sort_by_key(|v| std::cmp::Reverse(v.span.start));
+    let suggestions = fixes.iter().flat_map(|fix| fix.suggestions.iter()).sorted_by_key(|s| std::cmp::Reverse(s.span.start));
     if !$is_nested {
-      for fix in fixes.iter() {
-        code.replace_range(fix.span.to_str_range(), &fix.suggestion);
+      for suggestion in suggestions {
+        code.replace_range(suggestion.span.to_str_range(), &suggestion.code);
       }
     } else {
       code = "Contains nested diagnostics can't fix it".to_string();
