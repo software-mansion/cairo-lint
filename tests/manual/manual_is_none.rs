@@ -91,6 +91,21 @@ fn main() {
 }
 "#;
 
+const TEST_BASIC_IS_NONE_BLOCK: &str = r#"
+fn main() {
+    let foo: Option<i32> = Option::None;
+    // This is just a variable.
+    let _foo = match foo {
+        Option::Some(_) => {
+            false
+        },
+        Option::None => {
+            true
+        },
+    };
+}
+"#;
+
 #[test]
 fn test_basic_is_none_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_IS_NONE, @r"
@@ -138,8 +153,15 @@ fn test_basic_is_none_allowed_fixer() {
 
 #[test]
 fn test_with_comment_in_some_diagnostics() {
-    test_lint_diagnostics!(TEST_WITH_COMMENT_IN_SOME, @r#"
-    "#);
+    test_lint_diagnostics!(TEST_WITH_COMMENT_IN_SOME, @r"
+    Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
+     --> lib.cairo:5:16-11:5
+          let _foo = match foo {
+     ________________^
+    | ...
+    |     };
+    |_____^
+    ");
 }
 
 #[test]
@@ -148,21 +170,22 @@ fn test_with_comment_in_some_fixer() {
     fn main() {
         let foo: Option<i32> = Option::None;
         // This is just a variable.
-        let _foo = match foo {
-            Option::Some(_) => {
-                // do something
-                false
-            },
-            Option::None => true,
-        };
+        let _foo = foo.is_none();
     }
     ");
 }
 
 #[test]
 fn test_with_comment_in_none_diagnostics() {
-    test_lint_diagnostics!(TEST_WITH_COMMENT_IN_NONE, @r#"
-    "#);
+    test_lint_diagnostics!(TEST_WITH_COMMENT_IN_NONE, @r"
+    Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
+     --> lib.cairo:5:14-11:3
+        let _foo = match foo {
+     ______________^
+    | ...
+    |   };
+    |___^
+    ");
 }
 
 #[test]
@@ -171,13 +194,7 @@ fn test_with_comment_in_none_fixer() {
     fn main() {
         let foo: Option<i32> = Option::None;
         // This is just a variable.
-        let _foo = match foo {
-            Option::Some(_) => false,
-            Option::None => {
-                // do something
-                true
-            },
-        };
+        let _foo = foo.is_none();
     }
     ");
 }
@@ -252,6 +269,30 @@ fn test_manual_if_with_additional_instructions_fixer() {
         } else {
             true
         };
+    }
+    ");
+}
+
+#[test]
+fn test_basic_is_none_block_diagnostics() {
+    test_lint_diagnostics!(TEST_BASIC_IS_NONE_BLOCK, @r"
+    Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
+     --> lib.cairo:5:16-12:5
+          let _foo = match foo {
+     ________________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn test_basic_is_none_block_fixer() {
+    test_lint_fixer!(TEST_BASIC_IS_NONE_BLOCK, @r"
+    fn main() {
+        let foo: Option<i32> = Option::None;
+        // This is just a variable.
+        let _foo = foo.is_none();
     }
     ");
 }

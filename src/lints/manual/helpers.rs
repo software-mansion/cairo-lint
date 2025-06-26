@@ -1,16 +1,15 @@
 use cairo_lang_defs::ids::TopLevelLanguageElementId;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
-    Arenas, Condition, Expr, ExprIf, ExprMatch, FixedSizeArrayItems, MatchArm, Pattern, Statement,
-    VarId,
+    Arenas, Condition, Expr, ExprIf, FixedSizeArrayItems, Pattern, Statement, VarId,
 };
 use cairo_lang_syntax::node::ast::{
-    self, BlockOrIf, Condition as AstCondition, Expr as AstExpr, ExprIf as AstExprIf,
+    BlockOrIf, Condition as AstCondition, Expr as AstExpr, ExprIf as AstExprIf,
     ExprMatch as AstExprMatch, OptionElseClause, Statement as AstStatement,
 };
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 use if_chain::if_chain;
 use num_bigint::BigInt;
 
@@ -194,7 +193,7 @@ pub fn if_expr_condition_and_block_match_enum_pattern(
         if let Expr::Block(if_block) = &arenas.exprs[expr.if_block];
         if let Some(tail_expr_id) = if_block.tail;
         if let Expr::EnumVariantCtor(enum_var) = &arenas.exprs[tail_expr_id];
-        if is_expected_variant(&tail_expr_id, arenas, db, enum_name);
+        if is_expected_variant(&arenas.exprs[tail_expr_id], db, enum_name);
         if let Expr::Var(var) = &arenas.exprs[enum_var.value_expr];
         if let VarId::Local(return_var) = var.var;
         then {
@@ -325,11 +324,26 @@ pub fn expr_match_get_var_name_and_err(
         panic!("Invalid arm index. Expected 0 for first arm or 1 for second arm.");
     }
 
-    let AstExpr::FunctionCall(func_call) = &arms[arm_index].expression(db) else {
-        panic!("Expected a function call expression");
+    let args = match &arms[arm_index].expression(db) {
+        AstExpr::FunctionCall(func_call) => func_call.arguments(db).arguments(db).elements(db),
+        AstExpr::Block(block) => {
+            if block.statements(db).elements(db).len() != 1 {
+                panic!("Expected a single statement in the block");
+            }
+
+            let AstStatement::Expr(statement_expr) = &block.statements(db).elements(db)[0] else {
+                panic!("Expected an expression statement in the block");
+            };
+
+            let AstExpr::FunctionCall(func_call) = statement_expr.expr(db) else {
+                panic!("Expected a function call expression in the block");
+            };
+
+            func_call.arguments(db).arguments(db).elements(db)
+        }
+        _ => panic!("Expected a function call or block expression"),
     };
 
-    let args = func_call.arguments(db).arguments(db).elements(db);
     let arg = args.first().expect("Should have arg");
 
     let none_arm_err = arg.as_syntax_node().get_text(db).to_string();
@@ -394,52 +408,26 @@ pub fn func_call_or_block_returns_never(
     function_call.ty.short_name(db) == NEVER
 }
 
-/// Checks whether the specified arm of a `match` expression contains
-/// **at most one** statement in its block expression
-pub fn match_with_single_statement_or_empty(
-    expr_match: &ExprMatch,
-    db: &dyn SemanticGroup,
-    arm_index: usize,
-) -> bool {
-    let ast_expr_match = ast::ExprMatch::from_syntax_node(
-        db.upcast(),
-        expr_match.stable_ptr.untyped().lookup(db.upcast()),
-    );
-
-    let arms = ast_expr_match.arms(db.upcast()).elements(db.upcast());
-
-    let ast_expr = arms[arm_index].expression(db.upcast());
-
-    if_chain! {
-        if let ast::Expr::Block(block_expr) = &ast_expr;
-        let statements_len = block_expr.statements(db.upcast()).elements(db.upcast()).len();
-        if statements_len > 1;
-        then {
-            return false;
-        }
-    }
-
-    true
-}
-
 /// Checks if a match arm directly returns the variable extracted from an enum variant
-pub fn match_arm_returns_extracted_var(arm: &MatchArm, arenas: &Arenas) -> bool {
-    let expr = if let Expr::Block(expr_block) = &arenas.exprs[arm.expression] {
-        match expr_block.tail {
-            Some(tail_expr_id) => &arenas.exprs[tail_expr_id],
-            None => return false,
-        }
-    } else {
-        &arenas.exprs[arm.expression]
-    };
-
+pub fn match_arm_returns_extracted_var(expr: &Expr, pattern: &Pattern, arenas: &Arenas) -> bool {
     let Expr::Var(enum_destruct_var) = expr else {
         return false;
     };
 
-    pattern_check_enum_arg(
-        &arenas.patterns[arm.patterns[0]],
-        &enum_destruct_var.var,
-        arenas,
-    )
+    pattern_check_enum_arg(pattern, &enum_destruct_var.var, arenas)
+}
+
+/// Returns the tail expression from a block if it's the only content, otherwise returns the original expression.
+/// If the block contains statements, it returns the block itself.
+pub fn extract_tail_or_preserve_expr<'a>(expr: &'a Expr, arenas: &'a Arenas) -> &'a Expr {
+    if_chain! {
+        if let Expr::Block(expr_block) = expr;
+        if expr_block.statements.is_empty();
+        if let Some(tail_expr_id) = expr_block.tail;
+        then {
+            return &arenas.exprs[tail_expr_id]
+        }
+    }
+
+    expr
 }

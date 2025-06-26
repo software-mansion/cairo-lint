@@ -60,6 +60,39 @@ fn main() {
 }
 "#;
 
+const TEST_BASIC_ERR_BLOCK: &str = r#"
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    // This is just a variable.
+    let _foo = match foo {
+        Result::Ok(_) => {
+            // let _a = 5;
+        
+            Option::None
+        },
+        Result::Err(x) => {
+            Option::Some(x)
+        },
+    };
+}
+"#;
+
+const TEST_BASIC_ERR_BLOCK_WITH_MORE_STATEMENTS: &str = r#"
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    // This is just a variable.
+    let _foo = match foo {
+        Result::Ok(_) => {
+            let _a = 5;
+            Option::None
+        },
+        Result::Err(x) => {
+            Option::Some(x)
+        },
+    };
+}
+"#;
+
 #[test]
 fn test_basic_err_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_ERR, @r"
@@ -170,4 +203,50 @@ fn test_other_err_fixer() {
         };
     }
     ");
+}
+
+#[test]
+fn test_basic_err_block_diagnostics() {
+    test_lint_diagnostics!(TEST_BASIC_ERR_BLOCK, @r"
+    Plugin diagnostic: Manual match for `err` detected. Consider using `err()` instead
+     --> lib.cairo:5:16-14:5
+          let _foo = match foo {
+     ________________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn test_basic_err_block_fixer() {
+    test_lint_fixer!(TEST_BASIC_ERR_BLOCK, @r"
+    fn main() {
+        let foo: Result<i32> = Result::Err('err');
+        // This is just a variable.
+        let _foo = foo.err();
+    }
+    ");
+}
+
+#[test]
+fn test_basic_err_block_with_more_statements_diagnostics() {
+    test_lint_diagnostics!(TEST_BASIC_ERR_BLOCK_WITH_MORE_STATEMENTS, @"");
+}
+
+#[test]
+fn test_basic_err_block_with_more_statements_fixer() {
+    test_lint_fixer!(TEST_BASIC_ERR_BLOCK_WITH_MORE_STATEMENTS, @r"
+    fn main() {
+        let foo: Result<i32> = Result::Err('err');
+        // This is just a variable.
+        let _foo = match foo {
+            Result::Ok(_) => {
+                let _a = 5;
+                Option::None
+            },
+            Result::Err(x) => { Option::Some(x) },
+        };
+    }
+    ")
 }
