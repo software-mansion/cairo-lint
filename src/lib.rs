@@ -3,7 +3,7 @@ use cairo_lang_formatter::FormatterConfig;
 use db::FixerDatabase;
 use fixes::{
     file_for_url, get_fixes_without_resolving_overlapping, merge_overlapping_fixes, url_for_file,
-    Fix,
+    DiagnosticFixSuggestion,
 };
 
 use cairo_lang_syntax::node::db::SyntaxGroup;
@@ -51,7 +51,7 @@ pub trait CairoLintGroup: SemanticGroup + SyntaxGroup {}
 pub fn get_fixes(
     db: &(dyn SemanticGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
-) -> HashMap<FileId, Vec<Fix>> {
+) -> HashMap<FileId, Vec<DiagnosticFixSuggestion>> {
     // We need to create a new database to avoid modifying the original one.
     // This one is used to resolve the overlapping fixes.
     let mut new_db = FixerDatabase::new_from(db);
@@ -87,7 +87,7 @@ pub fn get_fixes(
 pub fn get_separated_fixes(
     db: &(dyn SemanticGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
-) -> HashMap<FileId, Vec<Fix>> {
+) -> HashMap<FileId, Vec<DiagnosticFixSuggestion>> {
     get_fixes_without_resolving_overlapping(db, diagnostics)
 }
 
@@ -100,7 +100,7 @@ pub fn get_separated_fixes(
 /// * `db` - The reference to the database that contains the file content.
 pub fn apply_file_fixes(
     file_id: FileId,
-    fixes: Vec<Fix>,
+    fixes: Vec<DiagnosticFixSuggestion>,
     db: &dyn SyntaxGroup,
     formatter_config: FormatterConfig,
 ) -> Result<()> {
