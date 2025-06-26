@@ -369,7 +369,9 @@ fn main() {
   // This is just a variable.
   match x {
     Result::Ok(v) => v,
-    Result::Err(_) => array![]
+    Result::Err(_) => {
+      array![]
+    }
   };
 }
 "#;
@@ -1247,7 +1249,7 @@ fn manual_unwrap_or_default_option_for_match_with_array_fixer() {
 fn manual_unwrap_or_default_result_for_match_with_array_diagnostics() {
     test_lint_diagnostics!(MANUAL_UNWRAP_OR_DEFAULT_RESULT_FOR_MATCH_WITH_ARRAY, @r"
     Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
-     --> lib.cairo:5:3-8:3
+     --> lib.cairo:5:3-10:3
         match x {
      ___^
     | ...
