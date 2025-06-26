@@ -172,7 +172,9 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
     };
 
     // TODO (wawel37): Handle `if let` case as the `matches!` macro will be implemented inside the corelib.
-    let Condition::Expr(condition_expr) = if_expr.condition(db) else {
+    let conditions = if_expr.conditions(db).elements(db);
+    let condition = conditions.first()?;
+    let Condition::Expr(condition_expr) = condition else {
         return None;
     };
 

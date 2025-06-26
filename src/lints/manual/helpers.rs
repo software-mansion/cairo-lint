@@ -293,8 +293,10 @@ pub fn fix_manual(func_name: &str, db: &dyn SyntaxGroup, node: SyntaxNode) -> St
         }
         SyntaxKind::ExprIf => {
             let expr_if = AstExprIf::from_syntax_node(db, node);
+            let conditions = expr_if.conditions(db).elements(db);
+            let condition = conditions.first().expect("Expected at least one condition");
 
-            let var_name = if let AstCondition::Let(condition_let) = expr_if.condition(db) {
+            let var_name = if let AstCondition::Let(condition_let) = condition {
                 condition_let.expr(db).as_syntax_node().get_text(db)
             } else {
                 panic!("Expected an ConditionLet condition")
@@ -350,7 +352,9 @@ pub fn expr_match_get_var_name_and_err(
 }
 
 pub fn expr_if_get_var_name_and_err(expr_if: AstExprIf, db: &dyn SyntaxGroup) -> (String, String) {
-    let AstCondition::Let(condition_let) = expr_if.condition(db) else {
+    let conditions = expr_if.conditions(db).elements(db);
+    let condition = conditions.first().expect("Expected at least one condition");
+    let AstCondition::Let(condition_let) = condition else {
         panic!("Expected a ConditionLet condition");
     };
     let option_var_name = condition_let.expr(db).as_syntax_node().get_text(db);

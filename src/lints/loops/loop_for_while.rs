@@ -225,7 +225,7 @@ pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Internal
         if let AstExpr::If(if_expr) = expr_statement.expr(db) {
             condition_text = invert_condition(
                 &if_expr
-                    .condition(db)
+                    .conditions(db)
                     .as_syntax_node()
                     .get_text_without_trivia(db),
             );

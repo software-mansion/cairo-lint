@@ -184,7 +184,7 @@ pub fn fix_collapsible_if_else(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option
         {
             if let AstExpr::If(if_expr) = statement_expr.expr(db) {
                 // Construct the new "else if" expression
-                let condition = if_expr.condition(db).as_syntax_node().get_text(db);
+                let condition = if_expr.conditions(db).as_syntax_node().get_text(db);
                 let if_body = if_expr.if_block(db).as_syntax_node().get_text(db);
                 let else_body = if_expr.else_clause(db).as_syntax_node().get_text(db);
 
