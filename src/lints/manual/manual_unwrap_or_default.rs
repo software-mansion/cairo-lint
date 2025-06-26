@@ -111,10 +111,16 @@ pub fn fix_manual_unwrap_or_default(db: &dyn SyntaxGroup, node: SyntaxNode) -> O
 
     let matched_expr = match &expr {
         ast::Expr::Match(expr_match) => expr_match.expr(db).as_syntax_node(),
-        ast::Expr::If(expr_if) => match expr_if.condition(db) {
-            ast::Condition::Let(condition_let) => condition_let.expr(db).as_syntax_node(),
-            _ => panic!("Expected an `if let` expression."),
-        },
+        ast::Expr::If(expr_if) => {
+            let conditions = expr_if.conditions(db).elements(db);
+            let condition = conditions
+                .first()
+                .expect("Expected at least one condition in `if` expression.");
+            match condition {
+                ast::Condition::Let(condition_let) => condition_let.expr(db).as_syntax_node(),
+                _ => panic!("Expected an `if let` expression."),
+            }
+        }
         _ => panic!("The expression is expected to be either a `match` or an `if` statement."),
     };
 

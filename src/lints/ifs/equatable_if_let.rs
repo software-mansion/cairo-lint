@@ -121,7 +121,8 @@ fn is_simple_equality_condition(patterns: &[PatternId], arenas: &Arenas) -> bool
 /// Rewrites a useless `if let` to a simple `if`
 pub fn fix_equatable_if_let(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let expr = AstExprIf::from_syntax_node(db, node);
-    let condition = expr.condition(db);
+    let conditions = expr.conditions(db).elements(db);
+    let condition = conditions.first()?;
 
     let fixed_condition = match condition {
         AstCondition::Let(condition_let) => {
