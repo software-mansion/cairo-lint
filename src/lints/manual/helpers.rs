@@ -410,7 +410,7 @@ pub fn match_arm_returns_extracted_var(expr: &Expr, pattern: &Pattern, arenas: &
         return false;
     };
 
-    pattern_check_enum_arg(&pattern, &enum_destruct_var.var, arenas)
+    pattern_check_enum_arg(pattern, &enum_destruct_var.var, arenas)
 }
 
 /// Returns the tail expression from a block if it's the only content, otherwise returns the original expression.
