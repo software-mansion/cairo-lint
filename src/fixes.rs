@@ -268,9 +268,7 @@ fn process_unused_import(
                 current_node = parent;
             }
 
-            kind => panic!(
-                "Unexpected parent kind in unused import traversal: {kind:?}"
-            ),
+            kind => panic!("Unexpected parent kind in unused import traversal: {kind:?}"),
         }
     }
 }
