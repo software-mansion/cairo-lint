@@ -199,8 +199,7 @@ pub fn fix_collapsible_if_else(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option
                 return Some(InternalFix {
                     node: else_clause.as_syntax_node(),
                     suggestion: format!(
-                        "{}else if {} {} {}",
-                        original_indent, condition, if_body, else_body
+                        "{original_indent}else if {condition} {if_body} {else_body}"
                     ),
                     description: CollapsibleIfElse.fix_message().unwrap().to_string(),
                     import_addition_paths: None,

@@ -67,6 +67,7 @@ macro_rules! test_lint_fixer {
   }};
   ($before:ident, @$expected_fix:literal, $is_nested:literal) => {{
     use ::cairo_lang_utils::Upcast;
+    use ::cairo_lang_diagnostics::DiagnosticEntry;
     use ::itertools::Itertools;
     let mut code = String::from($before);
     let mut testing_suite = ::cairo_lang_semantic::plugin::PluginSuite::default();
@@ -74,11 +75,11 @@ macro_rules! test_lint_fixer {
     let mut db = ::cairo_lang_compiler::db::RootDatabase::builder()
       .with_default_plugin_suite(::cairo_lang_semantic::inline_macros::get_default_plugin_suite())
       .with_default_plugin_suite(::cairo_lang_test_plugin::test_plugin_suite())
-      .with_default_plugin_suite(testing_suite)
+      .with_default_plugin_suite(testing_suite.clone())
       .build()
       .unwrap();
     let diags = $crate::helpers::get_diags(
-      crate::helpers::setup::setup_test_crate_ex(&mut db, $before),
+      $crate::helpers::setup::setup_test_crate_ex(&mut db, $before),
       &mut db,
     );
     let mut fixes = Vec::new();
@@ -91,7 +92,22 @@ macro_rules! test_lint_fixer {
     } else {
       code = "Contains nested diagnostics can't fix it".to_string();
     }
-      ::insta::assert_snapshot!(::cairo_lang_formatter::format_string(db.upcast(), code), @$expected_fix);
+    let after = ::cairo_lang_formatter::format_string(db.upcast(), code);
+
+    ::insta::assert_snapshot!(after, @$expected_fix);
+
+    let mut after_db = ::cairo_lang_compiler::db::RootDatabase::builder()
+    .with_default_plugin_suite(::cairo_lang_semantic::inline_macros::get_default_plugin_suite())
+    .with_default_plugin_suite(::cairo_lang_test_plugin::test_plugin_suite())
+    .with_default_plugin_suite(testing_suite)
+    .build()
+    .unwrap();
+
+    let after_diags = $crate::helpers::get_diags(
+      crate::helpers::setup::setup_test_crate_ex(&mut after_db, &after),
+      &mut after_db,
+    );
+    assert!(after_diags.iter().filter(|diag| diag.severity() == ::cairo_lang_diagnostics::Severity::Error).collect::<Vec<_>>().is_empty(), "Expected no diagnostics after fix, but found: {:?}", after_diags);
   }};
 }
 
@@ -111,7 +127,7 @@ macro_rules! test_lint_diagnostics {
       .build()
       .unwrap();
     let diags = $crate::helpers::get_diags(
-      crate::helpers::setup::setup_test_crate_ex(&mut db, $before),
+      $crate::helpers::setup::setup_test_crate_ex(&mut db, $before),
       &mut db,
     );
     let formatted_diags = diags

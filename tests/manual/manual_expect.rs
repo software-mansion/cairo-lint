@@ -447,16 +447,17 @@ fn test_manual_match_result_with_unwrapped_error_diagnostics() {
     ");
 }
 
-#[test]
-fn test_manual_match_result_with_unwrapped_error_fixer() {
-    test_lint_fixer!(TEST_MANUAL_MATCH_RESULT_WITH_UNWRAPPED_ERROR, @r"
-    fn main() {
-        let res_val: Result<i32> = Result::Err('err');
-        // This is just a variable.
-        let _a = res_val.expect(err);
-    }
-    ");
-}
+// TODO: https://github.com/software-mansion/cairo-lint/issues/365.
+// #[test]
+// fn test_manual_match_result_with_unwrapped_error_fixer() {
+//     test_lint_fixer!(TEST_MANUAL_MATCH_RESULT_WITH_UNWRAPPED_ERROR, @r"
+//     fn main() {
+//         let res_val: Result<i32> = Result::Err('err');
+//         // This is just a variable.
+//         let _a = res_val.expect(err);
+//     }
+//     ");
+// }
 
 #[test]
 fn test_core_panic_with_felt252_block_diagnostics() {

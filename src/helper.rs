@@ -118,7 +118,7 @@ pub fn remove_break_from_else_clause(
                 else_if.conditions(db).as_syntax_node().get_text(db)
             ));
             else_body.push_str(&remove_break_from_block(db, else_if.if_block(db), indent));
-            else_body.push_str(&format!("{}}}\n", indent));
+            else_body.push_str(&format!("{indent}}}\n"));
         }
     }
     else_body
@@ -188,7 +188,7 @@ pub fn invert_simple_condition(condition: &str) -> String {
     } else if condition.contains("!=") {
         condition.replace("!=", "==")
     } else {
-        format!("!({})", condition)
+        format!("!({condition})")
     }
 }
 
