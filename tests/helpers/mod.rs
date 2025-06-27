@@ -79,7 +79,7 @@ macro_rules! test_lint_fixer {
       .build()
       .unwrap();
     let diags = $crate::helpers::get_diags(
-      crate::helpers::setup::setup_test_crate_ex(&mut db, $before),
+      $crate::helpers::setup::setup_test_crate_ex(&mut db, $before),
       &mut db,
     );
     let mut fixes = Vec::new();
@@ -127,7 +127,7 @@ macro_rules! test_lint_diagnostics {
       .build()
       .unwrap();
     let diags = $crate::helpers::get_diags(
-      crate::helpers::setup::setup_test_crate_ex(&mut db, $before),
+      $crate::helpers::setup::setup_test_crate_ex(&mut db, $before),
       &mut db,
     );
     let formatted_diags = diags

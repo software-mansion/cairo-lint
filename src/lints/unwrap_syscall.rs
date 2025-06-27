@@ -120,7 +120,7 @@ fn check_single_unwrap_syscall(
             };
             let importables = db
                 .visible_importables_from_module(module_file_id)
-                .unwrap_or_else(|| panic!("Couldn't find importables for {:?}", node));
+                .unwrap_or_else(|| panic!("Couldn't find importables for {node:?}"));
 
             let formatted_type = format_type(db, expr.ty(), &importables);
             if formatted_type == SYSCALL_RESULT_TYPE && type_name == RESULT_CORE_PATH {

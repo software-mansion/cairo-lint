@@ -61,9 +61,9 @@ pub fn get_fixes(
         .into_iter()
         .map(|(file_id, fixes)| {
             let file_url = url_for_file(db, file_id)
-                .unwrap_or_else(|| panic!("FileId {:?} should have a URL", file_id));
+                .unwrap_or_else(|| panic!("FileId {file_id:?} should have a URL"));
             let new_db_file_id = file_for_url(&new_db, &file_url).unwrap_or_else(|| {
-                panic!("FileUrl {:?} should have a corresponding FileId", file_url)
+                panic!("FileUrl {file_url:?} should have a corresponding FileId")
             });
             let new_fixes = merge_overlapping_fixes(&mut new_db, new_db_file_id, fixes);
             (file_id, new_fixes)

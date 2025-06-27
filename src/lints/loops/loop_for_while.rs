@@ -255,8 +255,7 @@ pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Internal
     Some(InternalFix {
         node,
         suggestion: format!(
-            "{trivia}{}while {} {{\n{}{}}}\n",
-            indent, condition_text, loop_body, indent
+            "{trivia}{indent}while {condition_text} {{\n{loop_body}{indent}}}\n"
         ),
         description: LoopForWhile.fix_message().unwrap().to_string(),
         import_addition_paths: None,

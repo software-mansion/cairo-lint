@@ -105,7 +105,7 @@ pub fn get_fixes_without_resolving_overlapping(
             if let Some(import_paths) = import_addition_paths {
                 let imports_suggestion = import_paths
                     .iter()
-                    .map(|import_path| format!("use {};\n", import_path))
+                    .map(|import_path| format!("use {import_path};\n"))
                     .join("");
                 fix.suggestions.push(Suggestion {
                     span: TextSpan {
@@ -269,8 +269,7 @@ fn process_unused_import(
             }
 
             kind => panic!(
-                "Unexpected parent kind in unused import traversal: {:?}",
-                kind
+                "Unexpected parent kind in unused import traversal: {kind:?}"
             ),
         }
     }

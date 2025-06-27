@@ -217,7 +217,7 @@ pub fn fix_collapsible_if(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
             return Some(InternalFix {
                 node,
                 suggestion: indent_snippet(
-                    &format!("if {} {}", combined_condition, inner_if_block),
+                    &format!("if {combined_condition} {inner_if_block}"),
                     indent / 4,
                 ),
                 description: CollapsibleIf.fix_message().unwrap().to_string(),

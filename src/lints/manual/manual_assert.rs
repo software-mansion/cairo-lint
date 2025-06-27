@@ -191,7 +191,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
                     .map(|arg| {
                         let arg_text = arg.get_text(db).trim().to_string();
                         if arg_text == "," {
-                            return format!("{} ", arg_text);
+                            return format!("{arg_text} ");
                         }
                         arg_text
                     })
@@ -206,7 +206,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
                         suggestion: format!(
                             "{prefix}{}",
                             indent_snippet(
-                                &format!("{} {}{suffix}", assert_call, else_statements),
+                                &format!("{assert_call} {else_statements}{suffix}"),
                                 indent / 4,
                             )
                         ),
@@ -240,7 +240,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
                 node,
                 suggestion: format!(
                     "{prefix}{}",
-                    indent_snippet(&format!("{prefix}{}{suffix}", assert_call), indent / 4)
+                    indent_snippet(&format!("{prefix}{assert_call}{suffix}"), indent / 4)
                 ),
                 description: ManualAssert.fix_message().unwrap().to_string(),
                 import_addition_paths: None,
@@ -254,7 +254,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
                     .map(|arg| {
                         let arg_text = arg.get_text(db).trim().to_string();
                         if arg_text == "," {
-                            return format!("{} ", arg_text);
+                            return format!("{arg_text} ");
                         }
                         arg_text
                     })
@@ -270,7 +270,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
                 suggestion: format!(
                     "{prefix}{}",
                     indent_snippet(
-                        &format!("{} {}{suffix}", assert_call, if_statements),
+                        &format!("{assert_call} {if_statements}{suffix}"),
                         indent / 4,
                     )
                 ),

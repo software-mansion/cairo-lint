@@ -156,7 +156,7 @@ pub fn fix_double_parens(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
 
     Some(InternalFix {
         node,
-        suggestion: format!("{}{}", indented_snippet, end_whitespaces),
+        suggestion: format!("{indented_snippet}{end_whitespaces}"),
         description: DoubleParens.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })

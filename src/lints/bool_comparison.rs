@@ -145,16 +145,16 @@ fn generate_fixed_text_for_comparison(
 
     match (lhs, rhs, op_kind) {
         // lhs
-        ("false", _, SyntaxKind::TerminalEqEq | SyntaxKind::TokenEqEq) => format!("!{} ", rhs),
-        ("true", _, SyntaxKind::TerminalEqEq | SyntaxKind::TokenEqEq) => format!("{} ", rhs),
-        ("false", _, SyntaxKind::TerminalNeq) => format!("{} ", rhs),
-        ("true", _, SyntaxKind::TerminalNeq) => format!("!{} ", rhs),
+        ("false", _, SyntaxKind::TerminalEqEq | SyntaxKind::TokenEqEq) => format!("!{rhs} "),
+        ("true", _, SyntaxKind::TerminalEqEq | SyntaxKind::TokenEqEq) => format!("{rhs} "),
+        ("false", _, SyntaxKind::TerminalNeq) => format!("{rhs} "),
+        ("true", _, SyntaxKind::TerminalNeq) => format!("!{rhs} "),
 
         // rhs
-        (_, "false", SyntaxKind::TerminalEqEq | SyntaxKind::TokenEqEq) => format!("!{} ", lhs),
-        (_, "true", SyntaxKind::TerminalEqEq | SyntaxKind::TokenEqEq) => format!("{} ", lhs),
-        (_, "false", SyntaxKind::TerminalNeq) => format!("{} ", lhs),
-        (_, "true", SyntaxKind::TerminalNeq) => format!("!{} ", lhs),
+        (_, "false", SyntaxKind::TerminalEqEq | SyntaxKind::TokenEqEq) => format!("!{lhs} "),
+        (_, "true", SyntaxKind::TerminalEqEq | SyntaxKind::TokenEqEq) => format!("{lhs} "),
+        (_, "false", SyntaxKind::TerminalNeq) => format!("{lhs} "),
+        (_, "true", SyntaxKind::TerminalNeq) => format!("!{lhs} "),
 
         _ => node.as_syntax_node().get_text(db).to_string(),
     }
