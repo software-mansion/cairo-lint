@@ -61,6 +61,21 @@ fn main() {
 }
 "#;
 
+const TEST_BASIC_OK_BLOCK: &str = r#"
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    // This is just a variable.
+    let _a = match res_val {
+        Result::Ok(x) => {
+            Option::Some(x)
+        },
+        Result::Err(_) => {
+            Option::None
+        },
+    };
+}
+"#;
+
 #[test]
 fn test_basic_ok_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_OK, @r"
@@ -170,6 +185,30 @@ fn test_if_other_var_fixer() {
         } else {
             Option::None
         };
+    }
+    ");
+}
+
+#[test]
+fn test_basic_ok_block_diagnostics() {
+    test_lint_diagnostics!(TEST_BASIC_OK_BLOCK, @r"
+    Plugin diagnostic: Manual match for `ok` detected. Consider using `ok()` instead
+     --> lib.cairo:5:14-12:5
+          let _a = match res_val {
+     ______________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn test_basic_ok_block_fixer() {
+    test_lint_fixer!(TEST_BASIC_OK_BLOCK, @r"
+    fn main() {
+        let res_val: Result<i32> = Result::Err('err');
+        // This is just a variable.
+        let _a = res_val.ok();
     }
     ");
 }

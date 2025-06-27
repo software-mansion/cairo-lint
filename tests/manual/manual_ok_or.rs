@@ -130,6 +130,37 @@ fn main() {
 }
 "#;
 
+const TEST_ERROR_STR_BLOCK: &str = r#"
+fn main() {
+    let foo: Option<i32> = Option::None;
+    // This is just a variable.
+    let _foo = match foo {
+        Option::Some(v) => {
+            Result::Ok(v)
+        },
+        Option::None => {
+            Result::Err('this is an err')
+        },
+    };
+}
+"#;
+
+const TEST_ERROR_STR_BLOCK_MORE_STATEMENTS: &str = r#"
+fn main() {
+    let foo: Option<i32> = Option::None;
+    // This is just a variable.
+    let _foo = match foo {
+        Option::Some(v) => {
+            Result::Ok(v)
+        },
+        Option::None => {
+            let _a = 23;
+            Result::Err('this is an err')
+        },
+    };
+}
+"#;
+
 #[test]
 fn test_error_str_diagnostics() {
     test_lint_diagnostics!(TEST_ERROR_STR, @r"
@@ -204,8 +235,15 @@ fn test_error_enum_fixer() {
 
 #[test]
 fn test_with_comment_in_none_diagnostics() {
-    test_lint_diagnostics!(TEST_WITH_COMMENT_IN_NONE, @r#"
-    "#);
+    test_lint_diagnostics!(TEST_WITH_COMMENT_IN_NONE, @r"
+    Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
+     --> lib.cairo:5:16-11:5
+          let _foo = match foo {
+     ________________^
+    | ...
+    |     };
+    |_____^
+    ");
 }
 
 #[test]
@@ -214,21 +252,22 @@ fn test_with_comment_in_none_fixer() {
     fn main() {
         let foo: Option<i32> = Option::None;
         // This is just a variable.
-        let _foo = match foo {
-            Option::Some(v) => Result::Ok(v),
-            Option::None => {
-                // do something
-                Result::Err('this is an err')
-            },
-        };
+        let _foo = foo.ok_or('this is an err');
     }
     ");
 }
 
 #[test]
 fn test_with_comment_in_some_diagnostics() {
-    test_lint_diagnostics!(TEST_WITH_COMMENT_IN_SOME, @r#"
-    "#);
+    test_lint_diagnostics!(TEST_WITH_COMMENT_IN_SOME, @r"
+    Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
+     --> lib.cairo:5:16-11:5
+          let _foo = match foo {
+     ________________^
+    | ...
+    |     };
+    |_____^
+    ");
 }
 
 #[test]
@@ -237,13 +276,7 @@ fn test_with_comment_in_some_fixer() {
     fn main() {
         let foo: Option<i32> = Option::None;
         // This is just a variable.
-        let _foo = match foo {
-            Option::Some(v) => {
-                // do something
-                Result::Ok(v)
-            },
-            Option::None => Result::Err('this is an err'),
-        };
+        let _foo = foo.ok_or('this is an err');
     }
     ");
 }
@@ -363,4 +396,50 @@ fn test_if_other_var_fixer() {
         };
     }
     ");
+}
+
+#[test]
+fn test_error_str_block_diagnostics() {
+    test_lint_diagnostics!(TEST_ERROR_STR_BLOCK, @r"
+    Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
+     --> lib.cairo:5:16-12:5
+          let _foo = match foo {
+     ________________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn test_error_str_block_fixer() {
+    test_lint_fixer!(TEST_ERROR_STR_BLOCK, @r"
+    fn main() {
+        let foo: Option<i32> = Option::None;
+        // This is just a variable.
+        let _foo = foo.ok_or('this is an err');
+    }
+    ");
+}
+
+#[test]
+fn test_error_str_block_more_statements_diagnostics() {
+    test_lint_diagnostics!(TEST_ERROR_STR_BLOCK_MORE_STATEMENTS, @r"")
+}
+
+#[test]
+fn test_error_str_block_more_statements_fixer() {
+    test_lint_fixer!(TEST_ERROR_STR_BLOCK_MORE_STATEMENTS, @r"
+    fn main() {
+        let foo: Option<i32> = Option::None;
+        // This is just a variable.
+        let _foo = match foo {
+            Option::Some(v) => { Result::Ok(v) },
+            Option::None => {
+                let _a = 23;
+                Result::Err('this is an err')
+            },
+        };
+    }
+    ")
 }

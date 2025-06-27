@@ -148,7 +148,10 @@ fn fix_manual_unwrap_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Intern
         }
 
         ast::Expr::If(expr_if) => {
-            let matched_expr = expr_if.condition(db);
+            let conditions = expr_if.conditions(db).elements(db);
+            let matched_expr = conditions
+                .first()
+                .expect("Expected an `if` with a condition.");
             let condition = match matched_expr {
                 ast::Condition::Let(condition_let) => condition_let.expr(db).as_syntax_node(),
                 _ => panic!("Expected an `if let` expression."),

@@ -89,6 +89,22 @@ fn main() {
 }
 "#;
 
+const TEST_BASIC_MATCH_EXPECT_ERR_BLOCK: &str = r#"
+fn main() {
+    let foo: Result<i32> = Result::Err('err');
+    let err = 'this is an err';
+    // This is just a variable.
+    let _foo = match foo {
+        Result::Ok(_) => {
+            core::panic_with_felt252(err)
+        },
+        Result::Err(x) => {
+            x
+        },
+    };
+}
+"#;
+
 #[test]
 fn test_basic_match_expect_err_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_MATCH_EXPECT_ERR, @r"
@@ -251,6 +267,31 @@ fn test_if_with_function_fixer() {
     fn main() {
         // This is just a variable.
         let _a = foo(0).expect_err('panic');
+    }
+    ");
+}
+
+#[test]
+fn test_basic_match_expect_err_block_diagnostics() {
+    test_lint_diagnostics!(TEST_BASIC_MATCH_EXPECT_ERR_BLOCK, @r"
+    Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead
+     --> lib.cairo:6:16-13:5
+          let _foo = match foo {
+     ________________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn test_basic_match_expect_err_block_fixer() {
+    test_lint_fixer!(TEST_BASIC_MATCH_EXPECT_ERR_BLOCK, @r"
+    fn main() {
+        let foo: Result<i32> = Result::Err('err');
+        let err = 'this is an err';
+        // This is just a variable.
+        let _foo = foo.expect_err(err);
     }
     ");
 }

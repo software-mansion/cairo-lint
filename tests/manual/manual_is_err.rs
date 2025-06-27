@@ -65,6 +65,21 @@ fn main() {
 }
 "#;
 
+const TEST_BASIC_IS_ERR_BLOCK: &str = r#"
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    // This is just a variable.
+    let _a = match res_val {
+        Result::Ok(_) => {
+            false
+        },
+        Result::Err(_) => {
+            true
+        },
+    };
+}
+"#;
+
 #[test]
 fn test_basic_is_err_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_IS_ERR, @r"
@@ -185,6 +200,30 @@ fn test_manual_if_expression_is_a_function_allowed_fixer() {
         } else {
             true
         };
+    }
+    ");
+}
+
+#[test]
+fn test_basic_is_err_block_diagnostics() {
+    test_lint_diagnostics!(TEST_BASIC_IS_ERR_BLOCK, @r"
+    Plugin diagnostic: Manual match for `is_err` detected. Consider using `is_err()` instead
+     --> lib.cairo:5:14-12:5
+          let _a = match res_val {
+     ______________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn test_basic_is_err_block_fixer() {
+    test_lint_fixer!(TEST_BASIC_IS_ERR_BLOCK, @r"
+    fn main() {
+        let res_val: Result<i32> = Result::Err('err');
+        // This is just a variable.
+        let _a = res_val.is_err();
     }
     ");
 }

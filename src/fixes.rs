@@ -30,18 +30,26 @@ use log::debug;
 use lsp_types::Url;
 use salsa::InternKey;
 
-use crate::context::{get_fix_for_diagnostic_message, get_name_for_fix_message};
+use crate::context::get_fix_for_diagnostic_message;
 use crate::db::FixerDatabase;
 use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 
-/// Represents a fix for a diagnostic, containing the span of code to be replaced,
-/// the suggested replacement, and a short description of the fix.
+/// Represents a suggestion for a fix, containing the span of code to be replaced,
+/// and the suggested code to replace it with.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct Fix {
+pub struct Suggestion {
     pub span: TextSpan,
-    pub suggestion: String,
+    pub code: String,
+}
+
+/// Represents a fix for a diagnostic, containing the span of diagnosed code,
+/// the suggested replacements, and a short description of the fix.
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub struct DiagnosticFixSuggestion {
+    pub diagnostic_span: TextSpan,
+    pub suggestions: Vec<Suggestion>,
     pub description: String,
 }
 
@@ -57,7 +65,7 @@ pub struct InternalFix {
 pub fn get_fixes_without_resolving_overlapping(
     db: &(dyn SemanticGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
-) -> HashMap<FileId, Vec<Fix>> {
+) -> HashMap<FileId, Vec<DiagnosticFixSuggestion>> {
     let (import_diagnostics, diags_without_imports): (Vec<_>, Vec<_>) = diagnostics
         .into_iter()
         .partition(|diag| matches!(diag.kind, SemanticDiagnosticKind::UnusedImport(_)));
@@ -68,7 +76,8 @@ pub fn get_fixes_without_resolving_overlapping(
         collect_unused_import_fixes(db, &import_diagnostics);
     let mut fixes = HashMap::new();
     unused_imports.keys().for_each(|file_id| {
-        let file_fixes: Vec<Fix> = apply_import_fixes(db, unused_imports.get(file_id).unwrap());
+        let file_fixes: Vec<DiagnosticFixSuggestion> =
+            apply_import_fixes(db, unused_imports.get(file_id).unwrap());
         fixes.insert(*file_id, file_fixes);
     });
 
@@ -80,22 +89,14 @@ pub fn get_fixes_without_resolving_overlapping(
             import_addition_paths,
         }) = fix_semantic_diagnostic(db, &diag)
         {
-            let lint_name = get_name_for_fix_message(&description);
-
             let location = diag.location(db);
-            fixes
-                .entry(location.file_id)
-                .or_insert_with(Vec::new)
-                .push(Fix {
+            let mut fix = DiagnosticFixSuggestion {
+                diagnostic_span: fix_node.span(db),
+                suggestions: vec![Suggestion {
                     span: fix_node.span(db),
-                    suggestion: fix,
-                    description,
-                });
-
-            let description = if let Some(lint_name) = lint_name {
-                format!("Add necessary import for `{}` fix", lint_name)
-            } else {
-                String::from("Add necessary import for lint fix")
+                    code: fix,
+                }],
+                description,
             };
 
             // If there are import addition paths, we add them as a suggestion.
@@ -106,18 +107,18 @@ pub fn get_fixes_without_resolving_overlapping(
                     .iter()
                     .map(|import_path| format!("use {};\n", import_path))
                     .join("");
-                fixes
-                    .entry(location.file_id)
-                    .or_insert_with(Vec::new)
-                    .push(Fix {
-                        span: TextSpan {
-                            start: TextOffset::START,
-                            end: TextOffset::START,
-                        },
-                        suggestion: imports_suggestion,
-                        description,
-                    });
+                fix.suggestions.push(Suggestion {
+                    span: TextSpan {
+                        start: TextOffset::START,
+                        end: TextOffset::START,
+                    },
+                    code: imports_suggestion,
+                });
             }
+            fixes
+                .entry(location.file_id)
+                .or_insert_with(Vec::new)
+                .push(fix);
         }
     }
     fixes
@@ -288,7 +289,7 @@ fn process_unused_import(
 pub fn apply_import_fixes(
     db: &dyn SyntaxGroup,
     fixes: &HashMap<SyntaxNode, ImportFix>,
-) -> Vec<Fix> {
+) -> Vec<DiagnosticFixSuggestion> {
     fixes
         .iter()
         .flat_map(|(_, import_fix)| {
@@ -296,9 +297,12 @@ pub fn apply_import_fixes(
 
             if import_fix.items_to_remove.is_empty() {
                 // Single import case: remove entire import
-                vec![Fix {
-                    span,
-                    suggestion: String::new(),
+                vec![DiagnosticFixSuggestion {
+                    diagnostic_span: span,
+                    suggestions: vec![Suggestion {
+                        span,
+                        code: String::new(),
+                    }],
                     description: String::from("Remove unused import"),
                 }]
             } else {
@@ -324,7 +328,7 @@ fn handle_multi_import(
     db: &dyn SyntaxGroup,
     node: &SyntaxNode,
     items_to_remove: &[String],
-) -> Vec<Fix> {
+) -> Vec<DiagnosticFixSuggestion> {
     if all_descendants_removed(db, node, items_to_remove) {
         remove_entire_import(db, node)
     } else {
@@ -366,7 +370,7 @@ fn all_descendants_removed(
 /// # Returns
 ///
 /// A vector of Fix objects for removing the entire import.
-fn remove_entire_import(db: &dyn SyntaxGroup, node: &SyntaxNode) -> Vec<Fix> {
+fn remove_entire_import(db: &dyn SyntaxGroup, node: &SyntaxNode) -> Vec<DiagnosticFixSuggestion> {
     let mut current_node = *node;
     while let Some(parent) = current_node.parent(db) {
         // Go up until we find a UsePathList on the path - then, we can remove the current node from that
@@ -386,9 +390,12 @@ fn remove_entire_import(db: &dyn SyntaxGroup, node: &SyntaxNode) -> Vec<Fix> {
         }
         current_node = parent;
     }
-    vec![Fix {
-        span: current_node.span(db),
-        suggestion: String::new(),
+    vec![DiagnosticFixSuggestion {
+        diagnostic_span: current_node.span(db),
+        suggestions: vec![Suggestion {
+            span: current_node.span(db),
+            code: String::new(),
+        }],
         description: String::from("Remove unused import"),
     }]
 }
@@ -408,7 +415,7 @@ fn remove_specific_items(
     db: &dyn SyntaxGroup,
     node: &SyntaxNode,
     items_to_remove: &[String],
-) -> Vec<Fix> {
+) -> Vec<DiagnosticFixSuggestion> {
     let use_path_list = find_use_path_list(db, node);
     let children = use_path_list.get_children(db);
     let children: Vec<SyntaxNode> = children
@@ -431,9 +438,12 @@ fn remove_specific_items(
         format!("{{{}}}", items.join(", "))
     };
 
-    vec![Fix {
-        span: node.span(db),
-        suggestion: text,
+    vec![DiagnosticFixSuggestion {
+        diagnostic_span: node.span(db),
+        suggestions: vec![Suggestion {
+            span: node.span(db),
+            code: text,
+        }],
         description: String::from("Remove unused import"),
     }]
 }
@@ -471,15 +481,15 @@ fn find_use_path_list(db: &dyn SyntaxGroup, node: &SyntaxNode) -> SyntaxNode {
 pub fn merge_overlapping_fixes(
     db: &mut FixerDatabase,
     file_id: FileId,
-    fixes: Vec<Fix>,
-) -> Vec<Fix> {
-    let mut current_fixes: Vec<Fix> = fixes.clone();
+    fixes: Vec<DiagnosticFixSuggestion>,
+) -> Vec<DiagnosticFixSuggestion> {
+    let mut current_fixes: Vec<DiagnosticFixSuggestion> = fixes.clone();
     let mut were_overlapped = false;
     let file_content = db.file_content(file_id).unwrap();
 
     while let Some(overlapping_fix) = get_first_overlapping_fix(&current_fixes) {
         were_overlapped = true;
-        apply_fix_for_file(db, file_id, overlapping_fix);
+        apply_suggestions_for_file(db, file_id, overlapping_fix.suggestions);
 
         let diags: Vec<SemanticDiagnostic> = db
             .file_modules(file_id)
@@ -497,42 +507,61 @@ pub fn merge_overlapping_fixes(
     }
 
     if were_overlapped {
-        // Those fixes MUST be sorted in reverse, so changes at the end of the file,
-        // doesn't affect the spans of the previous file fixes.
-        current_fixes.sort_by_key(|fix| Reverse(fix.span.start));
-        for fix in current_fixes.iter() {
-            apply_fix_for_file(db, file_id, fix.clone());
-        }
+        // Those suggestions MUST be sorted in reverse, so changes at the end of the file,
+        // doesn't affect the spans of the previous file suggestions.
+        let suggestions = current_fixes
+            .iter()
+            .flat_map(|fix| fix.suggestions.iter())
+            .cloned()
+            .collect::<Vec<_>>();
+        apply_suggestions_for_file(db, file_id, suggestions);
         let file_content_after = db.file_content(file_id).unwrap();
         // Currently we are just replacing the entire file content with the new fixed one.
         // This is not ideal, but as for now we don't need to worry about it.
-        current_fixes = vec![Fix {
-            span: TextSpan {
+        current_fixes = vec![DiagnosticFixSuggestion {
+            diagnostic_span: TextSpan {
                 start: TextOffset::START,
                 end: TextWidth::from_str(&file_content).as_offset(),
             },
-            suggestion: file_content_after.to_string(),
+            suggestions: vec![Suggestion {
+                span: TextSpan {
+                    start: TextOffset::START,
+                    end: TextWidth::from_str(&file_content).as_offset(),
+                },
+                code: file_content_after.to_string(),
+            }],
             description: String::from("Fix whole"),
         }];
     }
     current_fixes
 }
 
-fn get_first_overlapping_fix(fixes: &[Fix]) -> Option<Fix> {
+fn get_first_overlapping_fix(fixes: &[DiagnosticFixSuggestion]) -> Option<DiagnosticFixSuggestion> {
     for current_fix in fixes.iter() {
-        if fixes
-            .iter()
-            .any(|fix| spans_intersects(fix.span, current_fix.span) && fix != current_fix)
-        {
+        if fixes.iter().any(|fix| {
+            spans_intersects(fix.diagnostic_span, current_fix.diagnostic_span) && fix != current_fix
+        }) {
             return Some(current_fix.clone());
         }
     }
     None
 }
 
-fn apply_fix_for_file(db: &mut FixerDatabase, file_id: FileId, fix: Fix) {
+fn apply_suggestions_for_file(
+    db: &mut FixerDatabase,
+    file_id: FileId,
+    suggestions: Vec<Suggestion>,
+) {
     let mut content = db.file_content(file_id).unwrap().to_string();
-    content.replace_range(fix.span.to_str_range(), &fix.suggestion);
+    let suggestions = suggestions
+        .into_iter()
+        .sorted_by_key(|suggestion| Reverse(suggestion.span.start));
+
+    for suggestion in suggestions {
+        // Replace the content in the file with the suggestion.
+        content.replace_range(suggestion.span.to_str_range(), &suggestion.code);
+    }
+
     db.override_file_content(file_id, Some(Arc::from(content)));
 }
 

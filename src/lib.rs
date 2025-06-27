@@ -3,11 +3,12 @@ use cairo_lang_formatter::FormatterConfig;
 use db::FixerDatabase;
 use fixes::{
     file_for_url, get_fixes_without_resolving_overlapping, merge_overlapping_fixes, url_for_file,
-    Fix,
+    DiagnosticFixSuggestion,
 };
 
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use helper::format_fixed_file;
+use itertools::Itertools;
 
 use std::{cmp::Reverse, collections::HashMap};
 
@@ -51,7 +52,7 @@ pub trait CairoLintGroup: SemanticGroup + SyntaxGroup {}
 pub fn get_fixes(
     db: &(dyn SemanticGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
-) -> HashMap<FileId, Vec<Fix>> {
+) -> HashMap<FileId, Vec<DiagnosticFixSuggestion>> {
     // We need to create a new database to avoid modifying the original one.
     // This one is used to resolve the overlapping fixes.
     let mut new_db = FixerDatabase::new_from(db);
@@ -87,7 +88,7 @@ pub fn get_fixes(
 pub fn get_separated_fixes(
     db: &(dyn SemanticGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
-) -> HashMap<FileId, Vec<Fix>> {
+) -> HashMap<FileId, Vec<DiagnosticFixSuggestion>> {
     get_fixes_without_resolving_overlapping(db, diagnostics)
 }
 
@@ -100,14 +101,18 @@ pub fn get_separated_fixes(
 /// * `db` - The reference to the database that contains the file content.
 pub fn apply_file_fixes(
     file_id: FileId,
-    fixes: Vec<Fix>,
+    fixes: Vec<DiagnosticFixSuggestion>,
     db: &dyn SyntaxGroup,
     formatter_config: FormatterConfig,
 ) -> Result<()> {
-    let mut fixes = fixes;
-    // Those fixes MUST be sorted in reverse, so changes at the end of the file,
-    // doesn't affect the spans of the previous file fixes.
-    fixes.sort_by_key(|fix| Reverse(fix.span.start));
+    // Those suggestions MUST be sorted in reverse, so changes at the end of the file,
+    // doesn't affect the spans of the previous file suggestions.
+    let suggestions = fixes
+        .iter()
+        .flat_map(|fix| fix.suggestions.iter())
+        .sorted_by_key(|suggestion| Reverse(suggestion.span.start))
+        .collect::<Vec<_>>();
+
     // Get all the files that need to be fixed
     let mut files: HashMap<FileId, String> = HashMap::default();
     files.insert(
@@ -116,13 +121,13 @@ pub fn apply_file_fixes(
             .ok_or(anyhow!("{} not found", file_id.file_name(db)))?
             .to_string(),
     );
-    // Fix the files
-    for fix in fixes {
-        // Can't fail we just set the file value.
-        files
-            .entry(file_id)
-            .and_modify(|file| file.replace_range(fix.span.to_str_range(), &fix.suggestion));
-    }
+
+    // Can't fail we just set the file value.
+    files.entry(file_id).and_modify(|file| {
+        for suggestion in suggestions {
+            file.replace_range(suggestion.span.to_str_range(), &suggestion.code)
+        }
+    });
 
     // Dump them in place.
     std::fs::write(

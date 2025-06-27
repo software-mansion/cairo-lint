@@ -152,6 +152,21 @@ fn main() {
 }
 "#;
 
+const TEST_CORE_PANIC_WITH_FELT252_BLOCK: &str = r#"
+fn main() {
+    let foo: Option<i32> = Option::None;
+    // This is just a variable.
+    let _foo = match foo {
+        Option::Some(x) => {
+            x
+        },
+        Option::None => {
+            core::panic_with_felt252('err')
+        },
+    };
+}
+"#;
+
 #[test]
 fn test_core_panic_with_felt252_diagnostics() {
     test_lint_diagnostics!(TEST_CORE_PANIC_WITH_FELT252, @r"
@@ -230,8 +245,15 @@ fn test_with_enum_error_fixer() {
 
 #[test]
 fn test_with_comment_in_some_diagnostics() {
-    test_lint_diagnostics!(TEST_WITH_COMMENT_IN_SOME, @r#"
-    "#);
+    test_lint_diagnostics!(TEST_WITH_COMMENT_IN_SOME, @r"
+    Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+     --> lib.cairo:5:16-11:5
+          let _foo = match foo {
+     ________________^
+    | ...
+    |     };
+    |_____^
+    ");
 }
 
 #[test]
@@ -240,21 +262,22 @@ fn test_with_comment_in_some_fixer() {
     fn main() {
         let foo: Option<i32> = Option::None;
         // This is just a variable.
-        let _foo = match foo {
-            Option::Some(x) => {
-                // do something
-                x
-            },
-            Option::None => core::panic_with_felt252('err'),
-        };
+        let _foo = foo.expect('err');
     }
     ");
 }
 
 #[test]
 fn test_with_comment_in_none_diagnostics() {
-    test_lint_diagnostics!(TEST_WITH_COMMENT_IN_NONE, @r#"
-    "#);
+    test_lint_diagnostics!(TEST_WITH_COMMENT_IN_NONE, @r"
+    Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+     --> lib.cairo:5:16-12:5
+          let _foo = match foo {
+     ________________^
+    | ...
+    |     };
+    |_____^
+    ");
 }
 
 #[test]
@@ -263,13 +286,7 @@ fn test_with_comment_in_none_fixer() {
     fn main() {
         let foo: Option<i32> = Option::None;
         // This is just a variable.
-        let _foo = match foo {
-            Option::Some(x) => x,
-            Option::None => {
-                // do something
-                core::panic_with_felt252('err')
-            },
-        };
+        let _foo = foo.expect('err');
     }
     ");
 }
@@ -441,3 +458,27 @@ fn test_manual_match_result_with_unwrapped_error_diagnostics() {
 //     }
 //     ");
 // }
+
+#[test]
+fn test_core_panic_with_felt252_block_diagnostics() {
+    test_lint_diagnostics!(TEST_CORE_PANIC_WITH_FELT252_BLOCK, @r"
+    Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+     --> lib.cairo:5:16-12:5
+          let _foo = match foo {
+     ________________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn test_core_panic_with_felt252_block_fixer() {
+    test_lint_fixer!(TEST_CORE_PANIC_WITH_FELT252_BLOCK, @r"
+    fn main() {
+        let foo: Option<i32> = Option::None;
+        // This is just a variable.
+        let _foo = foo.expect('err');
+    }
+    ");
+}
