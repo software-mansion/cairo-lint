@@ -180,7 +180,7 @@ pub fn fix_collapsible_if_else(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option
     };
     if let BlockOrIf::Block(block_expr) = else_clause.else_block_or_if(db) {
         if let Some(AstStatement::Expr(statement_expr)) =
-            block_expr.statements(db).elements(db).first()
+            block_expr.statements(db).elements(db).next()
         {
             if let AstExpr::If(if_expr) = statement_expr.expr(db) {
                 // Construct the new "else if" expression

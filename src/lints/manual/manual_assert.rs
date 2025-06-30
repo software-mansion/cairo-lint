@@ -172,8 +172,8 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
     };
 
     // TODO (wawel37): Handle `if let` case as the `matches!` macro will be implemented inside the corelib.
-    let conditions = if_expr.conditions(db).elements(db);
-    let condition = conditions.first()?;
+    let mut conditions = if_expr.conditions(db).elements(db);
+    let condition = conditions.next()?;
     let Condition::Expr(condition_expr) = condition else {
         return None;
     };
@@ -188,6 +188,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
                 "assert!({}, {});\n",
                 contrary_condition,
                 panic_args
+                    .iter()
                     .map(|arg| {
                         let arg_text = arg.get_text(db).trim().to_string();
                         if arg_text == "," {
@@ -251,6 +252,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
                 "assert!({}, {});\n",
                 condition.trim(),
                 panic_args
+                    .iter()
                     .map(|arg| {
                         let arg_text = arg.get_text(db).trim().to_string();
                         if arg_text == "," {
@@ -291,10 +293,7 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
 fn get_panic_args_from_diagnosed_node(
     db: &dyn SyntaxGroup,
     node: SyntaxNode,
-) -> (
-    Option<impl Iterator<Item = SyntaxNode>>,
-    Option<impl Iterator<Item = SyntaxNode>>,
-) {
+) -> (Option<Vec<SyntaxNode>>, Option<Vec<SyntaxNode>>) {
     let if_expr = AstExprIf::from_syntax_node(db, node);
     let if_block = if_expr.if_block(db);
     let else_block_option = if_expr.else_clause(db);
@@ -311,13 +310,10 @@ fn get_panic_args_from_diagnosed_node(
     (get_panic_args_from_block(db, if_block), None)
 }
 
-fn get_panic_args_from_block(
-    db: &dyn SyntaxGroup,
-    block: AstExprBlock,
-) -> Option<impl Iterator<Item = SyntaxNode>> {
-    let statements = block.statements(db).elements(db);
+fn get_panic_args_from_block(db: &dyn SyntaxGroup, block: AstExprBlock) -> Option<Vec<SyntaxNode>> {
+    let mut statements = block.statements(db).elements(db);
     let statement = statements
-        .first()
+        .next()
         .expect("Expected at least one statement in the if block");
 
     let expr = match statement {
@@ -341,11 +337,7 @@ fn get_panic_args_from_block(
         WrappedTokenTree::Missing(_) => panic!("Expected arguments in the inline macro"),
     };
 
-    Some(
-        args.elements(db)
-            .into_iter()
-            .map(|arg| arg.as_syntax_node()),
-    )
+    Some(args.elements(db).map(|arg| arg.as_syntax_node()).collect())
 }
 
 // Checks if the given node is an `else if` expression.

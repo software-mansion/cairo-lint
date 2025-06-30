@@ -220,7 +220,7 @@ pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Internal
     };
 
     if let Some(AstStatement::Expr(expr_statement)) =
-        loop_expr.body(db).statements(db).elements(db).first()
+        loop_expr.body(db).statements(db).elements(db).next()
     {
         if let AstExpr::If(if_expr) = expr_statement.expr(db) {
             condition_text = invert_condition(
@@ -238,13 +238,7 @@ pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Internal
         }
     }
 
-    for statement in loop_expr
-        .body(db)
-        .statements(db)
-        .elements(db)
-        .iter()
-        .skip(1)
-    {
+    for statement in loop_expr.body(db).statements(db).elements(db).skip(1) {
         loop_body.push_str(&format!(
             "{}    {}\n",
             indent,

@@ -127,7 +127,7 @@ pub fn is_destructured_variable_used_and_expected_variant(
 pub fn if_expr_pattern_matches_tail_var(expr: &ExprIf, arenas: &Arenas) -> bool {
     // Checks if it's an `if-let`
     if_chain! {
-        if let Condition::Let(_condition_let, patterns) = &expr.condition;
+        if let Some(Condition::Let(_condition_let, patterns)) = &expr.conditions.first();
         // Checks if the pattern is an Enum pattern
         if let Pattern::EnumVariant(enum_pattern) = &arenas.patterns[patterns[0]];
         // Checks if the enum pattern has an inner pattern
@@ -186,7 +186,7 @@ pub fn if_expr_condition_and_block_match_enum_pattern(
     enum_name: &str,
 ) -> bool {
     if_chain! {
-        if let Condition::Let(_expr_id, patterns) = &expr.condition;
+        if let Some(Condition::Let(_expr_id, patterns)) = &expr.conditions.first();
         if let Pattern::EnumVariant(enum_pattern) = &arenas.patterns[patterns[0]];
         if let Some(inner_pattern) = enum_pattern.inner_pattern;
         if let Pattern::Variable(variable_pattern) = &arenas.patterns[inner_pattern];
@@ -293,8 +293,8 @@ pub fn fix_manual(func_name: &str, db: &dyn SyntaxGroup, node: SyntaxNode) -> St
         }
         SyntaxKind::ExprIf => {
             let expr_if = AstExprIf::from_syntax_node(db, node);
-            let conditions = expr_if.conditions(db).elements(db);
-            let condition = conditions.first().expect("Expected at least one condition");
+            let mut conditions = expr_if.conditions(db).elements(db);
+            let condition = conditions.next().expect("Expected at least one condition");
 
             let var_name = if let AstCondition::Let(condition_let) = condition {
                 condition_let.expr(db).as_syntax_node().get_text(db)
@@ -315,7 +315,7 @@ pub fn expr_match_get_var_name_and_err(
 ) -> (String, String) {
     let option_var_name = expr_match.expr(db).as_syntax_node().get_text(db);
 
-    let arms = expr_match.arms(db).elements(db);
+    let mut arms = expr_match.arms(db).elements(db);
     if arms.len() != 2 {
         panic!("Expected exactly two arms in the match expression");
     }
@@ -324,14 +324,16 @@ pub fn expr_match_get_var_name_and_err(
         panic!("Invalid arm index. Expected 0 for first arm or 1 for second arm.");
     }
 
-    let args = match &arms[arm_index].expression(db) {
+    let mut args = match &arms.nth(arm_index).unwrap().expression(db) {
         AstExpr::FunctionCall(func_call) => func_call.arguments(db).arguments(db).elements(db),
         AstExpr::Block(block) => {
             if block.statements(db).elements(db).len() != 1 {
                 panic!("Expected a single statement in the block");
             }
 
-            let AstStatement::Expr(statement_expr) = &block.statements(db).elements(db)[0] else {
+            let Some(AstStatement::Expr(statement_expr)) =
+                &block.statements(db).elements(db).next()
+            else {
                 panic!("Expected an expression statement in the block");
             };
 
@@ -344,7 +346,7 @@ pub fn expr_match_get_var_name_and_err(
         _ => panic!("Expected a function call or block expression"),
     };
 
-    let arg = args.first().expect("Should have arg");
+    let arg = args.next().expect("Should have arg");
 
     let none_arm_err = arg.as_syntax_node().get_text(db).to_string();
 
@@ -352,8 +354,8 @@ pub fn expr_match_get_var_name_and_err(
 }
 
 pub fn expr_if_get_var_name_and_err(expr_if: AstExprIf, db: &dyn SyntaxGroup) -> (String, String) {
-    let conditions = expr_if.conditions(db).elements(db);
-    let condition = conditions.first().expect("Expected at least one condition");
+    let mut conditions = expr_if.conditions(db).elements(db);
+    let condition = conditions.next().expect("Expected at least one condition");
     let AstCondition::Let(condition_let) = condition else {
         panic!("Expected a ConditionLet condition");
     };
@@ -367,7 +369,8 @@ pub fn expr_if_get_var_name_and_err(expr_if: AstExprIf, db: &dyn SyntaxGroup) ->
         panic!("Expected a BlockOrIf block in else clause");
     };
 
-    let AstStatement::Expr(statement_expr) = expr_block.statements(db).elements(db)[0].clone()
+    let Some(AstStatement::Expr(statement_expr)) =
+        expr_block.statements(db).elements(db).next().clone()
     else {
         panic!("Expected a StatementExpr statement");
     };
@@ -376,8 +379,8 @@ pub fn expr_if_get_var_name_and_err(expr_if: AstExprIf, db: &dyn SyntaxGroup) ->
         panic!("Expected a function call expression");
     };
 
-    let args = func_call.arguments(db).arguments(db).elements(db);
-    let arg = args.first().expect("Should have arg");
+    let mut args = func_call.arguments(db).arguments(db).elements(db);
+    let arg = args.next().expect("Should have arg");
     let err = arg.as_syntax_node().get_text(db).to_string();
 
     (option_var_name, err)

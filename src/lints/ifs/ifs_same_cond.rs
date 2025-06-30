@@ -75,9 +75,10 @@ fn check_single_duplicate_if_condition(
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    let cond_expr = match &if_expr.condition {
-        Condition::BoolExpr(expr_id) => &arenas.exprs[*expr_id],
-        Condition::Let(expr_id, _patterns) => &arenas.exprs[*expr_id],
+    let cond_expr = match &if_expr.conditions.first() {
+        Some(Condition::BoolExpr(expr_id)) => &arenas.exprs[*expr_id],
+        Some(Condition::Let(expr_id, _patterns)) => &arenas.exprs[*expr_id],
+        _ => return,
     };
 
     if_chain! {
@@ -98,9 +99,10 @@ fn check_single_duplicate_if_condition(
     while let Some(expr_id) = current_block {
         if let Expr::If(else_if_block) = &arenas.exprs[expr_id] {
             current_block = else_if_block.else_block;
-            let else_if_cond = match &else_if_block.condition {
-                Condition::BoolExpr(expr_id) => &arenas.exprs[*expr_id],
-                Condition::Let(expr_id, _patterns) => &arenas.exprs[*expr_id],
+            let else_if_cond = match &else_if_block.conditions.first() {
+                Some(Condition::BoolExpr(expr_id)) => &arenas.exprs[*expr_id],
+                Some(Condition::Let(expr_id, _patterns)) => &arenas.exprs[*expr_id],
+                _ => continue,
             };
 
             if_chain! {

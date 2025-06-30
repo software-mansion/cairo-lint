@@ -101,15 +101,15 @@ fn is_redundant_enum_brackets_call(expr: &Expr, db: &dyn SemanticGroup) -> bool 
         // Without the parentheses at the end, it would not be defined as a function call.
         if let ast::Expr::FunctionCall(func_call) = expr.stable_ptr().lookup(db);
 
-        let args = func_call.arguments(db).arguments(db).elements(db);
+        let mut args = func_call.arguments(db).arguments(db).elements(db);
 
         // There should be exactly one argument which is the `()`
         if args.len() == 1;
 
         // Verify the argument explicitly match unit syntax `()` (empty tuple) and not just semantically unit type.
-        if let ast::ArgClause::Unnamed(unnamed_clause) = args[0].arg_clause(db);
+        if let ast::ArgClause::Unnamed(unnamed_clause) = args.next().unwrap().arg_clause(db);
         if let ast::Expr::Tuple(tuple) = unnamed_clause.value(db);
-        if tuple.expressions(db).elements(db).is_empty();
+        if tuple.expressions(db).elements(db).len() == 0;
 
         // Check if the variant's type clause depends on the enum's generic parameters
         if match find_generic_param_with_index(&enum_expr.variant, db) {
@@ -152,7 +152,7 @@ fn find_generic_param_with_index(
     };
 
     // Iterates over path segments (e.g., `T` in `VariantName: T`) to find matches with enum generic parameters.
-    path.segments(db).elements(db).iter().find_map(|segment| {
+    path.segments(db).elements(db).find_map(|segment| {
         let ast::PathSegment::Simple(simple_segment) = segment else {
             return None;
         };
@@ -182,10 +182,10 @@ fn has_unit_generic_arg_at_index(
             continue;
         };
 
-        let args = path_segment.generic_args(db).generic_args(db).elements(db);
+        let mut args = path_segment.generic_args(db).generic_args(db).elements(db);
 
         if_chain! {
-            if let Some(arg) = args.get(index_to_match);
+            if let Some(arg) = args.nth(index_to_match);
 
             if let Some(ast::GenericArgValue::Expr(arg_val)) = match arg {
                 // Match named argument if it matches our target generic parameter
@@ -201,7 +201,7 @@ fn has_unit_generic_arg_at_index(
             if let ast::Expr::Tuple(unit) = arg_val.expr(db);
 
             // Check if the tuple is empty; if it is, it means it is a unit type
-            if unit.expressions(db).elements(db).is_empty();
+            if unit.expressions(db).elements(db).len() == 0;
 
             then {
                 return true;

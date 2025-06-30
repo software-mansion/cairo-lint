@@ -95,10 +95,7 @@ fn fix_enum_variant_names(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
     let source = enum_item.as_syntax_node().get_text(db);
     let variants = enum_item.variants(db).elements(db);
 
-    let variant_names: Vec<String> = variants
-        .iter()
-        .map(|v| v.name(db).text(db).to_string())
-        .collect();
+    let variant_names: Vec<String> = variants.map(|v| v.name(db).text(db).to_string()).collect();
 
     let (prefixes, suffixes) = get_prefix_and_suffix(&variant_names);
 
