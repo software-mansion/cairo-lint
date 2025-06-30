@@ -148,6 +148,20 @@ fn main() {
 }
 "#;
 
+const COLLAPSIBLE_IF_WITH_MULTIPLE_CONDITIONS: &str = r#"
+fn main() {
+    let x = true;
+    let y = true;
+    let z = false;
+
+    if (x || z) && (y && z) {
+        if (y && z) && (x || z) {
+            println!("Hello");
+        }
+    }
+}
+"#;
+
 const IF_LET_TO_IGNORE_WITH_ASSERT: &str = r#"
 fn main() {
     let x = Option::Some(true);
@@ -523,6 +537,33 @@ fn collapsible_if_with_independent_statement_fixer() {
                 println!("Hello");
             }
             println!("World");
+        }
+    }
+    "#);
+}
+
+#[test]
+fn collapsible_if_with_multiple_conditions_diagnostics() {
+    test_lint_diagnostics!(COLLAPSIBLE_IF_WITH_MULTIPLE_CONDITIONS, @r"
+    Plugin diagnostic: Each `if`-statement adds one level of nesting, which makes code look more complex than it really is.
+     --> lib.cairo:7:5-11:5
+          if (x || z) && (y && z) {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ");
+}
+
+#[test]
+fn collapsible_if_with_multiple_conditions_fixer() {
+    test_lint_fixer!(COLLAPSIBLE_IF_WITH_MULTIPLE_CONDITIONS, @r#"
+    fn main() {
+        let x = true;
+        let y = true;
+        let z = false;
+        if ((x || z) && (y && z)) && ((y && z) && (x || z)) {
+            println!("Hello");
         }
     }
     "#);
