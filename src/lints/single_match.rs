@@ -200,14 +200,14 @@ fn check_single_match(
 
 /// Is a tuple expression the unit type.
 fn is_expr_list_parenthesised_unit(expr: &ExprListParenthesized, db: &dyn SyntaxGroup) -> bool {
-    expr.expressions(db).elements(db).is_empty()
+    expr.expressions(db).elements(db).len() == 0
 }
 
 /// Is the block empty `{}` or `{ () }` but it shouldn't contain a comment.
 fn is_block_expr_unit_without_comment(block_expr: &ExprBlock, db: &dyn SyntaxGroup) -> bool {
-    let statements = block_expr.statements(db).elements(db);
+    let mut statements = block_expr.statements(db).elements(db);
     // Check if the block is empty and there's no comment in it
-    if statements.is_empty()
+    if statements.len() == 0
         && block_expr
             .rbrace(db)
             .leading_trivia(db)
@@ -222,7 +222,7 @@ fn is_block_expr_unit_without_comment(block_expr: &ExprBlock, db: &dyn SyntaxGro
     // If there's statement checks that it's `()` without comment
     if_chain! {
         if statements.len() == 1;
-        if let Statement::Expr(statement_expr) = &statements[0];
+        if let Some(Statement::Expr(statement_expr)) = &statements.next();
         if let AstExpr::Tuple(tuple_expr) = statement_expr.expr(db);
         then {
             let tuple_node = tuple_expr.as_syntax_node();
@@ -264,12 +264,22 @@ pub fn is_expr_unit(expr: AstExpr, db: &dyn SyntaxGroup) -> bool {
 /// Panics if the diagnostic is incorrect (i.e., the match doesn't have the expected structure).
 pub fn fix_destruct_match(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let match_expr = AstExprMatch::from_syntax_node(db, node);
-    let arms = match_expr.arms(db).elements(db);
-    let first_arm = &arms[0];
-    let second_arm = &arms[1];
+    let mut arms = match_expr.arms(db).elements(db);
+    let first_arm = &arms
+        .next()
+        .expect("Expected a `match` with at least one arm.");
+    let second_arm = &arms.next().expect("Expected a `match` with second arm.");
     let (pattern, first_expr) = match (
-        &first_arm.patterns(db).elements(db)[0],
-        &second_arm.patterns(db).elements(db)[0],
+        &first_arm
+            .patterns(db)
+            .elements(db)
+            .next()
+            .expect("Expected a pattern in the first arm."),
+        &second_arm
+            .patterns(db)
+            .elements(db)
+            .next()
+            .expect("Expected a pattern in the second arm."),
     ) {
         (AstPattern::Underscore(_), AstPattern::Enum(pat)) => (pat.as_syntax_node(), second_arm),
         (AstPattern::Enum(pat), AstPattern::Underscore(_)) => (pat.as_syntax_node(), first_arm),

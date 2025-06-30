@@ -70,7 +70,6 @@ pub fn check_manual(
     if !ast_expr_match
         .arms(db)
         .elements(db)
-        .iter()
         .all(|arm| match arm.expression(db) {
             ast::Expr::Block(block) => block.statements(db).elements(db).len() <= 1,
             _ => true,
@@ -281,7 +280,7 @@ pub fn check_manual_if(
     manual_lint: ManualLint,
 ) -> bool {
     if_chain! {
-        if let Condition::Let(_condition_let, patterns) = &expr.condition;
+        if let Some(Condition::Let(_condition_let, patterns)) = &expr.conditions.first();
         if let Pattern::EnumVariant(enum_pattern) = &arenas.patterns[patterns[0]];
         then {
             let enum_name = enum_pattern.variant.id.full_path(db.upcast());

@@ -113,7 +113,7 @@ fn check_single_collapsible_if(
         if let Expr::If(ref inner_if_expr) = arenas.exprs[inner_expr_stmt.expr];
 
         // Skip cases where the outer or inner `if` is an `if let`, as they aren't collapsible.
-        if !matches!(if_expr.condition, Condition::Let(..)) && !matches!(inner_if_expr.condition, Condition::Let(..));
+        if !matches!(if_expr.conditions.first(), Some(Condition::Let(..))) && !matches!(inner_if_expr.conditions.first(), Some(Condition::Let(..)));
 
         // We check whether the if inner `if` statement comes from an assert macro call.
         // If it does, we don't warn about collapsible ifs.
@@ -142,7 +142,7 @@ fn check_single_collapsible_if(
         if let Expr::If(ref inner_if_expr) = arenas.exprs[tail];
 
         // Skip cases where the outer or inner `if` is an `if let`, as they aren't collapsible.
-        if !matches!(if_expr.condition, Condition::Let(..)) && !matches!(inner_if_expr.condition, Condition::Let(..));
+        if !matches!(if_expr.conditions.first(), Some(Condition::Let(..))) && !matches!(inner_if_expr.conditions.first(), Some(Condition::Let(..)));
 
         // Check if any of the ifs (outer and inner) have an else block, if it's the case, don't return any diagnostics.
         if if_expr.else_block.is_none() && inner_if_expr.else_block.is_none();
@@ -177,12 +177,12 @@ pub fn fix_collapsible_if(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
     let outer_condition = expr_if.conditions(db).as_syntax_node().get_text(db);
     let if_block = expr_if.if_block(db);
 
-    let statements = if_block.statements(db).elements(db);
+    let mut statements = if_block.statements(db).elements(db);
     if statements.len() != 1 {
         return None;
     }
 
-    if let Some(AstStatement::Expr(inner_expr_stmt)) = statements.first() {
+    if let Some(AstStatement::Expr(inner_expr_stmt)) = statements.next() {
         if let AstExpr::If(inner_if_expr) = inner_expr_stmt.expr(db) {
             match inner_if_expr.else_clause(db) {
                 OptionElseClause::Empty(_) => {}

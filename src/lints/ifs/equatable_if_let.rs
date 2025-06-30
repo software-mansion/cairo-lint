@@ -81,7 +81,7 @@ fn check_single_equatable_if_let(
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    if let Condition::Let(condition_let, patterns) = &if_expr.condition {
+    if let Some(Condition::Let(condition_let, patterns)) = &if_expr.conditions.first() {
         // Simple literals and variables
         let expr_is_simple = matches!(
             arenas.exprs[*condition_let],
@@ -121,8 +121,8 @@ fn is_simple_equality_condition(patterns: &[PatternId], arenas: &Arenas) -> bool
 /// Rewrites a useless `if let` to a simple `if`
 pub fn fix_equatable_if_let(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let expr = AstExprIf::from_syntax_node(db, node);
-    let conditions = expr.conditions(db).elements(db);
-    let condition = conditions.first()?;
+    let mut conditions = expr.conditions(db).elements(db);
+    let condition = conditions.next()?;
 
     let fixed_condition = match condition {
         AstCondition::Let(condition_let) => {

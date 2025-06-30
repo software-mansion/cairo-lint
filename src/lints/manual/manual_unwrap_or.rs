@@ -100,9 +100,9 @@ fn fix_manual_unwrap_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Intern
 
     let (matched_expr, or_body) = match &expr {
         ast::Expr::Match(expr_match) => {
-            let arms = expr_match.arms(db).elements(db);
+            let mut arms = expr_match.arms(db).elements(db);
             let matched_expr = expr_match.expr(db).as_syntax_node();
-            let arm = arms.get(1).expect("Expected a `match` with second arm.");
+            let arm = arms.nth(1).expect("Expected a `match` with second arm.");
 
             let or_body = if let ast::Expr::Block(block) = arm.expression(db) {
                 let block_statements = block.statements(db).node.get_text(db);
@@ -112,7 +112,7 @@ fn fix_manual_unwrap_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Intern
                 if block_statements.lines().count() > 1
                     || block.as_syntax_node().get_text(db).contains("//")
                 {
-                    let (text, _) = get_adjusted_lines_and_indent(db, node, arm);
+                    let (text, _) = get_adjusted_lines_and_indent(db, node, &arm);
                     text
                 } else {
                     block_statements.trim().to_string()
@@ -133,7 +133,7 @@ fn fix_manual_unwrap_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Intern
                 // Otherwise, we can remove whitespaces.
                 if expression_text.lines().count() > 1 || arrow_trivia.contains("//") {
                     let (text, expression_bracket_indent) =
-                        get_adjusted_lines_and_indent(db, node, arm);
+                        get_adjusted_lines_and_indent(db, node, &arm);
                     format!(
                         "{arrow_trivia}\n{}\n{}",
                         text,
@@ -148,9 +148,9 @@ fn fix_manual_unwrap_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Intern
         }
 
         ast::Expr::If(expr_if) => {
-            let conditions = expr_if.conditions(db).elements(db);
+            let mut conditions = expr_if.conditions(db).elements(db);
             let matched_expr = conditions
-                .first()
+                .next()
                 .expect("Expected an `if` with a condition.");
             let condition = match matched_expr {
                 ast::Condition::Let(condition_let) => condition_let.expr(db).as_syntax_node(),

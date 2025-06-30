@@ -264,7 +264,7 @@ fn check_block_is_break(db: &dyn SemanticGroup, expr_block: &ExprBlock, arenas: 
 pub fn fix_loop_match_pop_front(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let expr_loop = AstExprLoop::from_syntax_node(db, node);
     let body = expr_loop.body(db);
-    let AstStatement::Expr(expr) = &body.statements(db).elements(db)[0] else {
+    let Some(AstStatement::Expr(expr)) = &body.statements(db).elements(db).next() else {
         panic!(
             "Wrong statement type. This is probably a bug in the lint detection. Please report it"
         )
@@ -276,7 +276,12 @@ pub fn fix_loop_match_pop_front(db: &dyn SyntaxGroup, node: SyntaxNode) -> Optio
     };
     let val = expr_match.expr(db);
     let span_name = match val {
-        AstExpr::FunctionCall(func_call) => func_call.arguments(db).arguments(db).elements(db)[0]
+        AstExpr::FunctionCall(func_call) => func_call
+            .arguments(db)
+            .arguments(db)
+            .elements(db)
+            .next()
+            .expect("Expected at least one argument for the function call")
             .arg_clause(db)
             .as_syntax_node()
             .get_text(db),
@@ -304,7 +309,7 @@ pub fn fix_loop_match_pop_front(db: &dyn SyntaxGroup, node: SyntaxNode) -> Optio
     };
     for arm in arms {
         if_chain! {
-            if let AstPattern::Enum(enum_pattern) = &arm.patterns(db).elements(db)[0];
+            if let Some(AstPattern::Enum(enum_pattern)) = &arm.patterns(db).elements(db).next();
             if let OptionPatternEnumInnerPattern::PatternEnumInnerPattern(var) = enum_pattern.pattern(db);
             then {
                 elt_name = var.pattern(db).as_syntax_node().get_text(db);
