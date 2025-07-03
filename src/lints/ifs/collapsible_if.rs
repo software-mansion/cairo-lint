@@ -75,6 +75,7 @@ impl Lint for CollapsibleIf {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_collapsible_if(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -172,6 +173,7 @@ fn check_single_collapsible_if(
 /// A `String` containing the fixed code with the combined conditions if a collapsible
 /// `if` is found. If no collapsible `if` is detected, the original text of the node is
 /// returned.
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_collapsible_if(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let expr_if = AstExprIf::from_syntax_node(db, node);
     let outer_condition = expr_if.conditions(db).as_syntax_node().get_text(db);

@@ -61,6 +61,7 @@ impl Lint for UnitReturnType {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_unit_return_type(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -88,6 +89,7 @@ pub fn check_unit_return_type(
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_unit_return_type(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let function_signature = FunctionSignature::from_syntax_node(db, node);
     let return_type_clause = function_signature.ret_ty(db);

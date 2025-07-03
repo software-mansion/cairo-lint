@@ -62,6 +62,7 @@ impl Lint for ManualUnwrapOr {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_unwrap_or(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -95,6 +96,7 @@ pub fn check_manual_unwrap_or(
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 fn fix_manual_unwrap_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let expr = ast::Expr::from_syntax_node(db, node);
 

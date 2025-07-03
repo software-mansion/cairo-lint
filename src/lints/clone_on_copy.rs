@@ -57,6 +57,7 @@ impl Lint for CloneOnCopy {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_clone_on_copy(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -88,6 +89,7 @@ fn check_clone_usage(
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 fn fix_clone_on_copy(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
     let ast_expr_binary = ast::ExprBinary::cast(db.upcast(), node)?;
 

@@ -229,6 +229,7 @@ impl Lint for LogicalEqualityOperation {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_eq_op(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,

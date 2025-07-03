@@ -95,6 +95,7 @@ impl Lint for CollapsibleIfElse {
 ///     ...
 /// }
 /// ```
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_collapsible_if_else(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -173,6 +174,7 @@ fn is_only_statement_if(block_expr: &ExprBlock, arenas: &Arenas) -> bool {
 /// # Returns
 ///
 /// A `String` with the refactored `if-else` structure.
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_collapsible_if_else(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let if_expr = AstExprIf::from_syntax_node(db, node);
     let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) else {

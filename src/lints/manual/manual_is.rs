@@ -220,6 +220,7 @@ impl Lint for ManualIsErr {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_is(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -302,6 +303,7 @@ pub fn check_manual_is(
 }
 
 /// Rewrites a manual implementation of is_some
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_is_some(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     Some(InternalFix {
         node,
@@ -311,7 +313,8 @@ pub fn fix_manual_is_some(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
     })
 }
 
-// Rewrites a manual implementation of is_none
+/// Rewrites a manual implementation of is_none
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_is_none(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     Some(InternalFix {
         node,
@@ -322,6 +325,7 @@ pub fn fix_manual_is_none(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
 }
 
 /// Rewrites a manual implementation of is_ok
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_is_ok(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     Some(InternalFix {
         node,
@@ -332,6 +336,7 @@ pub fn fix_manual_is_ok(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Intern
 }
 
 /// Rewrites a manual implementation of is_err
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_is_err(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     Some(InternalFix {
         node,

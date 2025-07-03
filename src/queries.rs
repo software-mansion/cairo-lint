@@ -14,6 +14,7 @@ use if_chain::if_chain;
 
 use crate::helper::{ASSERT_FORMATTER_NAME, ASSERT_PATH};
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_checkable_functions(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -40,6 +41,7 @@ pub fn get_all_checkable_functions(
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_function_bodies(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -50,6 +52,7 @@ pub fn get_all_function_bodies(
         .collect()
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_parenthesized_expressions(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -77,6 +80,7 @@ pub fn get_all_parenthesized_expressions(
         .collect()
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_match_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprMatch> {
     function_body
         .arenas
@@ -92,6 +96,7 @@ pub fn get_all_match_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprM
         .collect()
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_loop_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprLoop> {
     function_body
         .arenas
@@ -107,6 +112,7 @@ pub fn get_all_loop_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprLo
         .collect()
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_function_calls(
     function_body: &Arc<FunctionBody>,
 ) -> impl Iterator<Item = ExprFunctionCall> + '_ {
@@ -123,6 +129,7 @@ pub fn get_all_function_calls(
         })
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_logical_operator_expressions(
     function_body: &Arc<FunctionBody>,
 ) -> Vec<ExprLogicalOperator> {
@@ -140,6 +147,7 @@ pub fn get_all_logical_operator_expressions(
         .collect()
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_if_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprIf> {
     function_body
         .arenas
@@ -155,6 +163,7 @@ pub fn get_all_if_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprIf> 
         .collect()
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_while_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprWhile> {
     function_body
         .arenas
@@ -170,6 +179,7 @@ pub fn get_all_while_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprW
         .collect()
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_break_statements(function_body: &Arc<FunctionBody>) -> Vec<StatementBreak> {
     function_body
         .arenas

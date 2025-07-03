@@ -71,6 +71,7 @@ impl AnalyzerPlugin for CairoLint {
             .collect()
     }
 
+    #[tracing::instrument(level = "trace", skip(db))]
     fn diagnostics(&self, db: &dyn SemanticGroup, module_id: ModuleId) -> Vec<PluginDiagnostic> {
         let mut diags: Vec<(PluginDiagnostic, FileId)> = Vec::new();
         let Ok(items) = db.module_items(module_id) else {
@@ -139,6 +140,7 @@ impl AnalyzerPlugin for CairoLintAllow {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 fn node_has_ascendants_with_allow_name_attr(
     db: &dyn SyntaxGroup,
     node: SyntaxNode,

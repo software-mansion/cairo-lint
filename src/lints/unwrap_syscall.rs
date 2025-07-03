@@ -75,6 +75,7 @@ impl Lint for UnwrapSyscall {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_unwrap_syscall(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -141,6 +142,7 @@ fn check_single_unwrap_syscall(
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 fn fix_unwrap_syscall(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
     let ast_expr_binary = ast::ExprBinary::cast(db, node).unwrap_or_else(|| {
         panic!(

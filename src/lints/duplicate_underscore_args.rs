@@ -35,6 +35,7 @@ impl Lint for DuplicateUnderscoreArgs {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_duplicate_underscore_args(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,

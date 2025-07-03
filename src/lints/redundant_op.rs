@@ -47,6 +47,7 @@ impl Lint for RedundantOperation {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_redundant_operation(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,

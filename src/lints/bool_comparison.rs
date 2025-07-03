@@ -67,6 +67,7 @@ impl Lint for BoolComparison {
 }
 
 /// Checks for ` a == true`. Bool comparisons are useless and can be rewritten more clearly.
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_bool_comparison(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -118,6 +119,7 @@ fn check_single_bool_comparison(
 
 /// Rewrites a bool comparison to a simple bool. Ex: `some_bool == false` would be rewritten to
 /// `!some_bool`
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_bool_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let node = ExprBinary::from_syntax_node(db, node);
     let lhs = node.lhs(db).as_syntax_node().get_text(db);

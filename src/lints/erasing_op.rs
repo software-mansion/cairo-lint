@@ -53,6 +53,7 @@ impl Lint for ErasingOperation {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_erasing_operation(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,

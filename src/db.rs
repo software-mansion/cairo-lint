@@ -18,6 +18,7 @@ use cairo_lang_syntax::node::db::{SyntaxDatabase, SyntaxGroup};
 use cairo_lang_utils::Upcast;
 use cairo_lang_utils::{ordered_hash_map::OrderedHashMap, Intern};
 use cairo_lang_utils::{smol_str::SmolStr, LookupIntern};
+use tracing::instrument;
 
 #[salsa::database(
     SemanticDatabase,
