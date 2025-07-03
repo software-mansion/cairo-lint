@@ -1,18 +1,18 @@
 use std::sync::Arc;
 
+use crate::helper::{ASSERT_FORMATTER_NAME, ASSERT_PATH};
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleItemId};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
-    Arenas, Expr, ExprFunctionCall, ExprIf, ExprLogicalOperator, ExprLoop, ExprMatch, ExprWhile,
-    FunctionBody, Pattern, Statement, StatementBreak,
+    Arenas, Condition, Expr, ExprFunctionCall, ExprIf, ExprLogicalOperator, ExprLoop, ExprMatch,
+    ExprWhile, FunctionBody, Pattern, Statement, StatementBreak,
 };
 use cairo_lang_syntax::node::ast::Expr as AstExpr;
 use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_syntax::node::TypedStablePtr;
 use cairo_lang_syntax::node::TypedSyntaxNode;
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 use if_chain::if_chain;
-
-use crate::helper::{ASSERT_FORMATTER_NAME, ASSERT_PATH};
+use itertools::chain;
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_checkable_functions(
@@ -164,6 +164,17 @@ pub fn get_all_if_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprIf> 
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
+pub fn get_all_conditions(function_body: &Arc<FunctionBody>) -> Vec<Condition> {
+    let if_expr_conditions = get_all_if_expressions(function_body)
+        .into_iter()
+        .flat_map(|if_expr| if_expr.conditions.clone());
+    let while_expr_conditions = get_all_while_expressions(function_body)
+        .into_iter()
+        .map(|while_expr| while_expr.condition.clone());
+    chain!(if_expr_conditions, while_expr_conditions,).collect()
+}
+
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_while_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprWhile> {
     function_body
         .arenas
@@ -210,4 +221,18 @@ pub fn is_assert_macro_call(db: &dyn SemanticGroup, arenas: &Arenas, expr: &Expr
         }
     }
     false
+}
+
+/// Gets rid of all the trivia (whitespaces, newlines etc.)
+/// It makes predetermined token sequences easily comparable without counting in formatting caveats
+pub fn syntax_node_to_str_without_all_nested_trivia(
+    db: &dyn SemanticGroup,
+    syntax_node: &SyntaxNode,
+) -> String {
+    syntax_node
+        .tokens(db)
+        .fold(String::new(), |mut acc, terminal| {
+            acc.push_str(&terminal.get_text_without_trivia(db));
+            acc
+        })
 }

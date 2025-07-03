@@ -4,6 +4,7 @@ pub mod manual_err;
 pub mod manual_expect;
 pub mod manual_expect_err;
 pub mod manual_is;
+pub mod manual_is_empty;
 pub mod manual_ok;
 pub mod manual_ok_or;
 pub mod manual_unwrap_or;
@@ -42,6 +43,7 @@ pub enum ManualLint {
     ManualErr,
     ManualExpectErr,
     ManualUnwrapOr,
+    ManualIsEmpty,
 }
 
 /// Checks for all the manual lint written as `match`.
