@@ -64,6 +64,7 @@ impl Lint for ManualOk {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_ok(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -98,6 +99,7 @@ pub fn check_manual_ok(
 }
 
 /// Rewrites a manual implementation of ok
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_ok(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     Some(InternalFix {
         node,

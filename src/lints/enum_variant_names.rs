@@ -64,6 +64,7 @@ impl Lint for EnumVariantNames {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_enum_variant_names(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -89,6 +90,7 @@ pub fn check_enum_variant_names(
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 fn fix_enum_variant_names(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let enum_item = AstEnumItem::from_syntax_node(db, node);
 

@@ -101,6 +101,7 @@ impl Lint for EqualityMatch {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_single_matches(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -262,6 +263,7 @@ pub fn is_expr_unit(expr: AstExpr, db: &dyn SyntaxGroup) -> bool {
 /// # Panics
 ///
 /// Panics if the diagnostic is incorrect (i.e., the match doesn't have the expected structure).
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_destruct_match(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let match_expr = AstExprMatch::from_syntax_node(db, node);
     let mut arms = match_expr.arms(db).elements(db);

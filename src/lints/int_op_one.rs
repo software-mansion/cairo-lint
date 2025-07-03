@@ -216,6 +216,7 @@ impl Lint for IntegerLessEqualMinusOne {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_int_op_one(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -354,6 +355,7 @@ fn check_is_add_or_sub_one(
 }
 
 /// Rewrites a manual implementation of int ge plus one x >= y + 1
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_int_ge_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let node = ExprBinary::from_syntax_node(db, node);
     let lhs = node.lhs(db).as_syntax_node().get_text(db);
@@ -376,6 +378,7 @@ pub fn fix_int_ge_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Int
 }
 
 /// Rewrites a manual implementation of int ge min one x - 1 >= y
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_int_ge_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let node = ExprBinary::from_syntax_node(db, node);
     let AstExpr::Binary(lhs_exp) = node.lhs(db) else {
@@ -398,6 +401,7 @@ pub fn fix_int_ge_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
 }
 
 /// Rewrites a manual implementation of int le plus one x + 1 <= y
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_int_le_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let node = ExprBinary::from_syntax_node(db, node);
     let AstExpr::Binary(lhs_exp) = node.lhs(db) else {
@@ -417,6 +421,7 @@ pub fn fix_int_le_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Int
 }
 
 /// Rewrites a manual implementation of int le min one x <= y -1
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_int_le_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let node = ExprBinary::from_syntax_node(db, node);
     let lhs = node.lhs(db).as_syntax_node().get_text(db);

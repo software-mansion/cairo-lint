@@ -729,6 +729,7 @@ dependencies = [
  "scarb-metadata",
  "tempfile",
  "test-case",
+ "tracing",
  "which",
 ]
 

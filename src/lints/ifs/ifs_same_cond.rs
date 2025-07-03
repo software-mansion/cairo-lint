@@ -54,6 +54,7 @@ impl Lint for DuplicateIfCondition {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_duplicate_if_condition(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,

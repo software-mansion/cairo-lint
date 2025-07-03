@@ -76,6 +76,7 @@ impl Lint for LoopMatchPopFront {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_loop_match_pop_front(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -261,6 +262,7 @@ fn check_block_is_break(db: &dyn SemanticGroup, expr_block: &ExprBlock, arenas: 
 ///     do_smth(val);
 /// };
 /// ```
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_loop_match_pop_front(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let expr_loop = AstExprLoop::from_syntax_node(db, node);
     let body = expr_loop.body(db);

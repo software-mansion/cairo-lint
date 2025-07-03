@@ -40,6 +40,7 @@ impl Lint for BitwiseForParity {
 }
 
 /// Checks for `x & 1` which is unoptimized in cairo and can be replaced by `x % 1`
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_bitwise_for_parity(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,

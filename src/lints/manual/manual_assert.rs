@@ -71,6 +71,7 @@ impl Lint for ManualAssert {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_assert(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -146,6 +147,7 @@ fn check_single_condition_block(
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let if_expr = AstExprIf::from_syntax_node(db, node);
     let else_block_option = if_expr.else_clause(db);

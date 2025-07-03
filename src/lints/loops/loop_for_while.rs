@@ -88,6 +88,7 @@ impl Lint for LoopForWhile {
 ///     ...
 /// }
 /// ```
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_loop_for_while(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -200,6 +201,7 @@ fn check_if_contains_break_with_no_return_value(expr: &ExprId, arenas: &Arenas) 
 ///     x += 1;
 /// }
 /// ```
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let loop_expr = AstExprLoop::from_syntax_node(db, node);
     let indent = node

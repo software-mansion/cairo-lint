@@ -48,6 +48,7 @@ pub trait CairoLintGroup: SemanticGroup + SyntaxGroup {}
 /// A HashMap where:
 /// * keys are FileIds (that points to a file that the fixes might be applied to).
 /// * values are vectors of proposed Fixes.
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn get_fixes(
     db: &(dyn SemanticGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
@@ -84,6 +85,7 @@ pub fn get_fixes(
 /// A HashMap where:
 /// * keys are FileIds (that points to a file that the fixes might be applied to).
 /// * values are vectors of proposed Fixes.
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn get_separated_fixes(
     db: &(dyn SemanticGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
@@ -98,6 +100,7 @@ pub fn get_separated_fixes(
 /// * `file_id` - The FileId of the file that the fixes should be applied to.
 /// * `fixes` - The list of fixes that should be applied to the file.
 /// * `db` - The reference to the database that contains the file content.
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn apply_file_fixes(
     file_id: FileId,
     fixes: Vec<DiagnosticFixSuggestion>,

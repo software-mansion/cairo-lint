@@ -282,6 +282,7 @@ pub fn check_is_default(db: &dyn SemanticGroup, expr: &Expr, arenas: &Arenas) ->
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual(func_name: &str, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
     match node.kind(db) {
         SyntaxKind::ExprMatch => {

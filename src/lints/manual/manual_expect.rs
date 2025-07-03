@@ -69,6 +69,7 @@ impl Lint for ManualExpect {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_expect(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -121,6 +122,7 @@ pub fn check_manual_expect(
 }
 
 /// Rewrites a manual implementation of expect
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_expect(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let fix = match node.kind(db) {
         SyntaxKind::ExprMatch => {

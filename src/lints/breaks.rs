@@ -62,6 +62,7 @@ impl Lint for BreakUnit {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_break(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -97,6 +98,7 @@ fn check_single_break(
 }
 
 /// Rewrites `break ();` as `break;` given the node text contains it.
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_break_unit(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     Some(InternalFix {
         node,

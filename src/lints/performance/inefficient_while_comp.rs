@@ -61,6 +61,7 @@ const PARTIAL_ORD_PATTERNS: [&str; 4] = [
     "PartialOrd::ge\"",
 ];
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_inefficient_while_comp(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,

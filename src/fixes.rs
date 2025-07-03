@@ -62,6 +62,7 @@ pub struct InternalFix {
     pub import_addition_paths: Option<Vec<String>>,
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn get_fixes_without_resolving_overlapping(
     db: &(dyn SemanticGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
@@ -231,6 +232,7 @@ pub fn collect_unused_import_fixes(
 /// * `db` - The root database containing the project information.
 /// * `id` - The UseId of the unused import.
 /// * `fixes` - A mutable reference to the HashMap of fixes.
+#[tracing::instrument(skip_all, level = "trace")]
 fn process_unused_import(
     db: &dyn DefsGroup,
     id: &UseId,
@@ -475,6 +477,7 @@ fn find_use_path_list(db: &dyn SyntaxGroup, node: &SyntaxNode) -> SyntaxNode {
 /// # Returns
 ///
 /// A vector of merged Fix objects.
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn merge_overlapping_fixes(
     db: &mut FixerDatabase,
     file_id: FileId,

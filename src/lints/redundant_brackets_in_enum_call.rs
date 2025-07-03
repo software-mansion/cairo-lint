@@ -70,6 +70,7 @@ impl Lint for RedundantBracketsInEnumCall {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_redundant_brackets_in_enum_call(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -212,6 +213,7 @@ fn has_unit_generic_arg_at_index(
     false
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 fn fix_redundant_brackets_in_enum_call(
     db: &dyn SyntaxGroup,
     node: SyntaxNode,

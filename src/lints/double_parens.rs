@@ -58,6 +58,7 @@ impl Lint for DoubleParens {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_double_parens(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -111,6 +112,7 @@ fn check_single_double_parens(
 ///
 /// Input: `((x + y))`
 /// Output: `x + y`
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_double_parens(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let mut expr = Expr::from_syntax_node(db, node);
 

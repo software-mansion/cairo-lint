@@ -219,6 +219,7 @@ impl Lint for ContradictoryComparison {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_double_comparison(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -486,6 +487,7 @@ fn is_contradictory_double_comparison(
     )
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_simplifiable_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let lhs_text = fix_double_comparison(db, node)?;
 
@@ -497,6 +499,7 @@ pub fn fix_simplifiable_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Op
     })
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_redundant_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let lhs_text = fix_double_comparison(db, node)?;
 
@@ -508,6 +511,7 @@ pub fn fix_redundant_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Optio
     })
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_contradictory_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let lhs_text = fix_double_comparison(db, node)?;
 

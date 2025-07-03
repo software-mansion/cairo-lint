@@ -64,6 +64,7 @@ impl Lint for ManualErr {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_err(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -98,6 +99,7 @@ pub fn check_manual_err(
 }
 
 /// Rewrites a manual implementation of err
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_err(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     Some(InternalFix {
         node,

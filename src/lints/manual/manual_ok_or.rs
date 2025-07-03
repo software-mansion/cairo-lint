@@ -75,6 +75,7 @@ impl Lint for ManualOkOr {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_ok_or(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -109,6 +110,7 @@ pub fn check_manual_ok_or(
 }
 
 /// Rewrites a manual implementation of ok_or
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_ok_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let fix = match node.kind(db) {
         SyntaxKind::ExprMatch => {

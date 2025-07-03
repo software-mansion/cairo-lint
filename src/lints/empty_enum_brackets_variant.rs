@@ -61,6 +61,7 @@ impl Lint for EmptyEnumBracketsVariant {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_empty_enum_brackets_variant(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -96,6 +97,7 @@ pub fn check_empty_enum_brackets_variant(
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 fn fix_empty_enum_brackets_variant(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let ast_variant = ast::Variant::from_syntax_node(db, node);
 

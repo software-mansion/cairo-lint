@@ -55,6 +55,7 @@ num-bigint = "0.4.6"
 salsa = { package = "rust-analyzer-salsa", version = "0.17.0-pre.6" }
 scarb-metadata = "1.14.0"
 tempfile = "3"
+tracing = "0.1"
 which = "7"
 
 [dev-dependencies]

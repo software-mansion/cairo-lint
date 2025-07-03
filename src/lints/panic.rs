@@ -44,7 +44,7 @@ impl Lint for PanicInCode {
     }
 }
 
-/// Checks for panic usage.
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_panic_usage(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,

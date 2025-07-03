@@ -60,6 +60,7 @@ impl Lint for EquatableIfLet {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_equatable_if_let(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -119,6 +120,7 @@ fn is_simple_equality_condition(patterns: &[PatternId], arenas: &Arenas) -> bool
 }
 
 /// Rewrites a useless `if let` to a simple `if`
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_equatable_if_let(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let expr = AstExprIf::from_syntax_node(db, node);
     let mut conditions = expr.conditions(db).elements(db);

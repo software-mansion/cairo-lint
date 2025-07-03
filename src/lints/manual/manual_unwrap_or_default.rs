@@ -71,6 +71,7 @@ impl Lint for ManualUnwrapOrDefault {
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_unwrap_or_default(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
@@ -106,6 +107,7 @@ pub fn check_manual_unwrap_or_default(
     }
 }
 
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_unwrap_or_default(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
     let expr = ast::Expr::from_syntax_node(db, node);
 
