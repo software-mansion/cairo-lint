@@ -49,6 +49,9 @@ pub(crate) const PANIC_WITH_FELT252: &str = "core::panic_with_felt252";
 pub(crate) const DEFAULT: &str = "core::traits::Default::default";
 pub(crate) const ARRAY_NEW: &str = "core::array::ArrayTrait::new";
 pub(crate) const NEVER: &str = "core::never";
+pub(crate) const SPAN: &str = "core::array::Span";
+pub(crate) const ARRAY: &str = "core::array::Array";
+pub(crate) const U32: &str = "core::integer::u32";
 
 pub(crate) fn function_trait_name_from_fn_id(
     db: &dyn SemanticGroup,

@@ -58,6 +58,7 @@ use crate::lints::manual::manual_is::ManualIsErr;
 use crate::lints::manual::manual_is::ManualIsNone;
 use crate::lints::manual::manual_is::ManualIsOk;
 use crate::lints::manual::manual_is::ManualIsSome;
+use crate::lints::manual::manual_is_empty::{check_manual_is_empty, ManualIsEmpty};
 use crate::lints::manual::manual_ok::check_manual_ok;
 use crate::lints::manual::manual_ok::ManualOk;
 use crate::lints::manual::manual_ok_or::check_manual_ok_or;
@@ -118,6 +119,7 @@ pub enum CairoLintKind {
     ManualIsNone,
     ManualIsOk,
     ManualIsErr,
+    ManualIsEmpty,
     ManualExpect,
     ManualAssert,
     DuplicateIfCondition,
@@ -277,6 +279,10 @@ impl LintContext {
             LintRuleGroup {
                 lints: vec![Box::new(ManualOkOr)],
                 check_function: check_manual_ok_or,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(ManualIsEmpty)],
+                check_function: check_manual_is_empty,
             },
             LintRuleGroup {
                 lints: vec![Box::new(ManualOk)],
