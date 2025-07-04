@@ -1,4 +1,5 @@
 use crate::context::{CairoLintKind, Lint};
+use crate::fixes::InternalFix;
 use crate::lints::{ARRAY, SPAN, U32};
 use crate::mappings::get_originating_syntax_node_for;
 use crate::queries::{
@@ -11,8 +12,11 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
     Arenas, Condition, Expr, ExprFunctionCall, ExprFunctionCallArg, TypeLongId,
 };
+use cairo_lang_syntax::node::ast::Expr as SyntaxExpr;
+use cairo_lang_syntax::node::ast::ExprBinary;
+use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_syntax::node::TypedStablePtr;
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::smol_str::SmolStr;
 use cairo_lang_utils::LookupIntern;
 use if_chain::if_chain;
@@ -71,6 +75,18 @@ impl Lint for ManualIsEmpty {
     fn kind(&self) -> CairoLintKind {
         CairoLintKind::ManualIsEmpty
     }
+
+    fn has_fixer(&self) -> bool {
+        true
+    }
+
+    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+        fix_manual_is_empty(db, node)
+    }
+
+    fn fix_message(&self) -> Option<&'static str> {
+        Some("Replace condition with `is_empty()` method")
+    }
 }
 
 pub fn check_manual_is_empty(
@@ -101,6 +117,47 @@ pub fn check_manual_is_empty(
             }
         }
     }
+}
+
+/// Rewrites a manual implementation of is_empty
+#[tracing::instrument(skip_all, level = "trace")]
+pub fn fix_manual_is_empty(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+    let typed_node = ExprBinary::cast(db, node)?;
+    let node_for_wrapping: SyntaxNode = match (typed_node.lhs(db), typed_node.rhs(db)) {
+        (SyntaxExpr::Binary(expr_binary), SyntaxExpr::Literal(_))
+        | (SyntaxExpr::Literal(_), SyntaxExpr::Binary(expr_binary)) => {
+            expr_binary.lhs(db).as_syntax_node()
+        }
+        (SyntaxExpr::FunctionCall(call_lhs), SyntaxExpr::FunctionCall(call_rhs)) => {
+            // Disambiguate which call we want to wrap with `is_empty()` call - it could be either of them
+            let call_lhs_path = call_lhs
+                .path(db)
+                .as_syntax_node()
+                .get_text_without_trivia(db);
+            let call_to_replace = if call_lhs_path.contains(ARRAY_CONSTRUCTOR_FUNC_NAME) {
+                call_rhs
+            } else {
+                call_lhs
+            };
+
+            call_to_replace.as_syntax_node()
+        }
+        (SyntaxExpr::FunctionCall(_) | SyntaxExpr::InlineMacro(_), expr)
+        | (expr, SyntaxExpr::FunctionCall(_) | SyntaxExpr::InlineMacro(_)) => expr.as_syntax_node(),
+        _ => return None,
+    };
+
+    Some(InternalFix {
+        node,
+        suggestion: format!(
+            "{}.is_empty()",
+            node_for_wrapping.get_text_without_trivia(db)
+        )
+        .parse()
+        .unwrap(),
+        description: ManualIsEmpty.fix_message().unwrap().to_string(),
+        import_addition_paths: None,
+    })
 }
 
 fn extract_function_name(db: &dyn SemanticGroup, fn_call: &ExprFunctionCall) -> SmolStr {
