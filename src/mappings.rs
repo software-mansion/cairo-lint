@@ -18,6 +18,7 @@ use cairo_lang_utils::ordered_hash_set::OrderedHashSet;
 use cairo_lang_utils::LookupIntern;
 
 /// Copied from https://github.com/software-mansion/cairols/blob/0bb49e7d2f89ffe68ba20379c20b63fc49f82557/src/lang/db/semantic.rs#L326.
+#[tracing::instrument(level = "trace", skip(db))]
 pub fn get_node_resultants(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<Vec<SyntaxNode>> {
     let main_file = node.stable_ptr(db).file_id(db);
 
@@ -32,6 +33,7 @@ pub fn get_node_resultants(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<V
 }
 
 /// Returns the originating syntax node for a given stable pointer.
+#[tracing::instrument(level = "trace", skip(db))]
 pub fn get_origin_syntax_node(
     db: &dyn SemanticGroup,
     ptr: &SyntaxStablePtrId,
@@ -51,6 +53,7 @@ pub fn get_origin_syntax_node(
         .find(|node| node.get_text_without_trivia(db) == syntax_node.get_text_without_trivia(db));
 }
 
+#[tracing::instrument(level = "trace", skip(db))]
 pub fn get_origin_module_item_as_syntax_node(
     db: &dyn SemanticGroup,
     module_item_id: &ModuleItemId,
@@ -77,6 +80,7 @@ fn find_syntax_node_at_offset(
 }
 
 /// Copied from https://github.com/software-mansion/cairols/blob/0bb49e7d2f89ffe68ba20379c20b63fc49f82557/src/lang/db/semantic.rs#L290.
+#[tracing::instrument(level = "trace", skip(db))]
 fn file_and_subfiles_with_corresponding_modules(
     db: &dyn SemanticGroup,
     file: FileId,
@@ -114,6 +118,7 @@ fn file_and_subfiles_with_corresponding_modules(
 }
 
 /// Copied from https://github.com/software-mansion/cairols/blob/0bb49e7d2f89ffe68ba20379c20b63fc49f82557/src/lang/db/semantic.rs#L508.
+#[tracing::instrument(level = "trace", skip(db))]
 fn find_generated_nodes(
     db: &dyn SemanticGroup,
     node_descendant_files: &[FileId],
