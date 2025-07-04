@@ -1,4 +1,5 @@
 use crate::context::{CairoLintKind, Lint};
+use crate::lints::{ARRAY, SPAN, U32};
 use crate::mappings::get_originating_syntax_node_for;
 use crate::queries::{
     get_all_conditions, get_all_function_bodies, syntax_node_to_str_without_all_nested_trivia,
@@ -20,11 +21,7 @@ use num_bigint::BigInt;
 const ARRAY_LEN_EQ_FUNC_NAME: &str = "U32PartialEq::eq";
 const ARRAY_EQ_FUNC_NAME: &str = "ArrayPartialEq::eq";
 const ARRAY_CONSTRUCTOR_FUNC_NAME: &str = "ArrayImpl::new";
-const ARRAY_GENERIC_TYPE_NAME: &str = "core::array::Array";
 const ARRAY_EMPTY_CREATION_VIA_MACRO: &str = "array![]";
-
-const U32_TYPE_FULL_PATH: &str = "core::integer::u32";
-const SPAN_GENERIC_TYPE_NAME: &str = "core::array::Span";
 
 pub struct ManualIsEmpty;
 
@@ -107,7 +104,7 @@ pub fn check_manual_is_empty(
 }
 
 fn extract_function_name(db: &dyn SemanticGroup, fn_call: &ExprFunctionCall) -> SmolStr {
-    let generic_function = fn_call.function.lookup_intern(db).function.generic_function;
+    let generic_function = fn_call.function.get_concrete(db).generic_function;
     generic_function.name(db)
 }
 
@@ -180,7 +177,7 @@ fn expr_is_empty_collection(db: &dyn SemanticGroup, expr: &Expr) -> bool {
 fn expr_is_zero_literal(db: &dyn SemanticGroup, expr: &Expr) -> bool {
     if_chain! {
         if let Expr::Literal(literal) = expr;
-        if literal.ty.format(db) == U32_TYPE_FULL_PATH;
+        if literal.ty.format(db) == U32;
         if literal.value == BigInt::ZERO;
 
         then {
@@ -218,7 +215,7 @@ fn is_std_collection_type(db: &dyn SemanticGroup, type_long_id: &TypeLongId) -> 
         }
         TypeLongId::Concrete(concrete_type_id) => {
             let generic_type_name = concrete_type_id.generic_type(db).format(db);
-            [ARRAY_GENERIC_TYPE_NAME, SPAN_GENERIC_TYPE_NAME].contains(&generic_type_name.as_str())
+            [ARRAY, SPAN].contains(&generic_type_name.as_str())
         }
         _ => false,
     }
