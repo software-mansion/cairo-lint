@@ -95,7 +95,7 @@ impl AnalyzerPlugin for CairoLint {
 
                 if_chain! {
                     if let Some(node) = origin_node;
-                    if let Some(resultants) = get_node_resultants(db, node);
+                    if let Some(resultants) = db.node_resultants(node);
                     // Check if the item has only a single resultant, as if there is multiple resultants,
                     // we would generate different diagnostics for each of resultants.
                     // If we don't check this, we might generate different diagnostics for the same item,
