@@ -9,13 +9,11 @@ license-file.workspace = true
 
 [workspace]
 resolver = "2"
-members = [
-  "xtask"
-]
+members = ["xtask"]
 
 [workspace.package]
 version = "2.11.4"
-edition = "2021"
+edition = "2024"
 repository = "https://github.com/software-mansion/cairo-lint"
 license-file = "LICENSE"
 
