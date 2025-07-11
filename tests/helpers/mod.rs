@@ -104,7 +104,7 @@ macro_rules! test_lint_fixer {
     .unwrap();
 
     let after_diags = $crate::helpers::get_diags(
-      crate::helpers::setup::setup_test_crate_ex(&mut after_db, &after),
+      $crate::helpers::setup::setup_test_crate_ex(&mut after_db, &after),
       &mut after_db,
     );
     assert!(after_diags.iter().filter(|diag| diag.severity() == ::cairo_lang_diagnostics::Severity::Error).collect::<Vec<_>>().is_empty(), "Expected no diagnostics after fix, but found: {:?}", after_diags);

@@ -37,8 +37,8 @@ impl LintDoc {
         let struct_start_line = value.pointer("/span/begin/0").unwrap().as_u64().unwrap();
         let lint = find_lint_by_struct_name(&lint_struct_name).unwrap_or_else(|| {
             panic!(
-                "Could not find the lint inside the Lint Context: {}",
-                lint_struct_name
+                "Could not find the lint inside the Lint Context: {lint_struct_name}",
+
             )
         });
         LintDoc {
@@ -51,7 +51,7 @@ impl LintDoc {
                 }
             }),
             enabled: lint.is_enabled(),
-            source_link: format!("{}{}#L{}", LINT_REPO_BASE_URL, filename, struct_start_line),
+            source_link: format!("{LINT_REPO_BASE_URL}{filename}#L{struct_start_line}"),
         }
     }
 }
@@ -63,7 +63,7 @@ pub fn main(_: Args) -> Result<()> {
     let docs = match get_docs_as_json() {
         Ok(docs) => docs,
         Err(e) => {
-            eprintln!("Failed to get docs as json: {:?}", e);
+            eprintln!("Failed to get docs as json: {e:?}");
             return Err(e);
         }
     };
@@ -79,13 +79,12 @@ pub fn main(_: Args) -> Result<()> {
         String::from_utf8(buf).unwrap() + "\n",
     ) {
         Ok(_) => println!(
-            "Docs metadata successfully written to {}",
-            LINT_METADATA_OUTPUT_PATH
+            "Docs metadata successfully written to {LINT_METADATA_OUTPUT_PATH}",
+
         ),
         Err(e) => {
             eprintln!(
-                "Failed to write docs to {}: {:?}",
-                LINT_METADATA_OUTPUT_PATH, e
+                "Failed to write docs to {LINT_METADATA_OUTPUT_PATH}: {e:?}",
             );
             return Err(e.into());
         }
@@ -100,7 +99,7 @@ pub fn main(_: Args) -> Result<()> {
             )
         })
         .collect::<String>();
-    fs::write(DEFAULT_PROFILE_OUTPUT_PATH, format!("# Default Profile\n\nBy default, all lint rules are **enabled** with the exception of:\n\n{}", disabled_lints_list)).unwrap();
+    fs::write(DEFAULT_PROFILE_OUTPUT_PATH, format!("# Default Profile\n\nBy default, all lint rules are **enabled** with the exception of:\n\n{disabled_lints_list}", )).unwrap();
 
     // Write docs content inside the markdown file inside the website docs directory.
     for doc in docs.iter() {
@@ -115,7 +114,7 @@ pub fn main(_: Args) -> Result<()> {
             ),
         )
         .unwrap();
-        println!("Docs successfully written to {}", doc_path);
+        println!("Docs successfully written to {doc_path}");
     }
 
     Ok(())
