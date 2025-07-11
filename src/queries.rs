@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use crate::helper::{ASSERT_FORMATTER_NAME, ASSERT_PATH};
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleItemId};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
@@ -8,11 +7,13 @@ use cairo_lang_semantic::{
     ExprWhile, FunctionBody, Pattern, Statement, StatementBreak,
 };
 use cairo_lang_syntax::node::TypedSyntaxNode;
-use cairo_lang_syntax::node::ast::Expr as AstExpr;
+use cairo_lang_syntax::node::ast::ExprParenthesized;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 use if_chain::if_chain;
 use itertools::chain;
+
+use crate::helper::{ASSERT_FORMATTER_NAME, ASSERT_PATH};
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_checkable_functions(
@@ -56,7 +57,7 @@ pub fn get_all_function_bodies(
 pub fn get_all_parenthesized_expressions(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,
-) -> Vec<AstExpr> {
+) -> Vec<ExprParenthesized> {
     let function_nodes = match item {
         ModuleItemId::Constant(id) => id
             .stable_ptr(db.upcast())
@@ -70,13 +71,18 @@ pub fn get_all_parenthesized_expressions(
             .stable_ptr(db.upcast())
             .lookup(db.upcast())
             .as_syntax_node(),
+        // Trait can have a default function impl.
+        ModuleItemId::Trait(id) => id
+            .stable_ptr(db.upcast())
+            .lookup(db.upcast())
+            .as_syntax_node(),
         _ => return vec![],
     }
     .descendants(db.upcast());
 
     function_nodes
         .filter(|node| node.kind(db.upcast()) == SyntaxKind::ExprParenthesized)
-        .map(|node| AstExpr::from_syntax_node(db.upcast(), node))
+        .map(|node| ExprParenthesized::from_syntax_node(db.upcast(), node))
         .collect()
 }
 
