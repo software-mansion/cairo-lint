@@ -6,7 +6,7 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{
-    ast::ItemEnum as AstEnumItem, SyntaxNode, Terminal, TypedSyntaxNode,
+    SyntaxNode, Terminal, TypedSyntaxNode, ast::ItemEnum as AstEnumItem,
 };
 
 pub struct EnumVariantNames;

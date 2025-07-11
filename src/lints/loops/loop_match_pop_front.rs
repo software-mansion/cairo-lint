@@ -5,14 +5,14 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
     Arenas, Expr, ExprBlock, ExprId, ExprLoop, ExprMatch, Pattern, PatternEnumVariant, Statement,
 };
-use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::SyntaxNode;
+use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{
+    TypedStablePtr, TypedSyntaxNode,
     ast::{
         Expr as AstExpr, ExprLoop as AstExprLoop, OptionPatternEnumInnerPattern,
         Pattern as AstPattern, Statement as AstStatement,
     },
-    TypedStablePtr, TypedSyntaxNode,
 };
 use if_chain::if_chain;
 

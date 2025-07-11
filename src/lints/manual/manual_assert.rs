@@ -1,14 +1,14 @@
 use crate::{fixes::InternalFix, helper::indent_snippet};
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::{db::SemanticGroup, Arenas, Expr, ExprBlock, ExprIf, Statement};
+use cairo_lang_semantic::{Arenas, Expr, ExprBlock, ExprIf, Statement, db::SemanticGroup};
 use cairo_lang_syntax::node::{
+    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
     ast::{
         BlockOrIf, Condition, ElseClause, Expr as AstExpr, ExprBlock as AstExprBlock,
         ExprIf as AstExprIf, OptionElseClause, Statement as AstStatement, WrappedTokenTree,
     },
     db::SyntaxGroup,
-    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
 use cairo_lang_utils::LookupIntern;
 use if_chain::if_chain;

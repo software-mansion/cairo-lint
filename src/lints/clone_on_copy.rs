@@ -13,7 +13,7 @@ use cairo_lang_semantic::items::function_with_body::SemanticExprLookup;
 use cairo_lang_semantic::types::peel_snapshots;
 use cairo_lang_semantic::{Expr, ExprFunctionCall};
 use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_syntax::node::{ast, SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast};
 use cairo_lang_utils::Intern;
 use itertools::Itertools;
 

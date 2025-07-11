@@ -14,7 +14,7 @@
 use cairo_lang_defs::ids::{FileIndex, ModuleFileId, ModuleId, ModuleItemId};
 use cairo_lang_diagnostics::DiagnosticsBuilder;
 use cairo_lang_filesystem::ids::{FileKind, FileLongId, VirtualFile};
-use cairo_lang_formatter::{get_formatted_file, FormatterConfig};
+use cairo_lang_formatter::{FormatterConfig, get_formatted_file};
 use cairo_lang_parser::parser::Parser;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCallArg, ExprId};

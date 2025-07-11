@@ -1,14 +1,14 @@
 use cairo_lang_defs::ids::{GenericTypeId, ImportableId};
 use cairo_lang_semantic::{
+    GenericArgumentId, TypeId, TypeLongId,
     db::SemanticGroup,
     items::{
         constant::ConstValueId,
         imp::{ImplId, ImplLongId},
     },
-    GenericArgumentId, TypeId, TypeLongId,
 };
-use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use cairo_lang_utils::LookupIntern;
+use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use itertools::Itertools;
 
 enum InferredValue {

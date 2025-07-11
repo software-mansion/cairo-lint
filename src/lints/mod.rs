@@ -1,6 +1,6 @@
 use cairo_lang_defs::ids::{FunctionWithBodyId, TopLevelLanguageElementId};
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::FunctionId;
+use cairo_lang_semantic::db::SemanticGroup;
 
 pub mod bitwise_for_parity_check;
 pub mod bool_comparison;

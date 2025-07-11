@@ -1,20 +1,20 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::ids::{FileId, FileLongId};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
+use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_utils::LookupIntern;
 use std::sync::Arc;
 
+use crate::CairoLintToolMetadata;
 use crate::context::{
     get_all_checking_functions, get_name_for_diagnostic_message, get_unique_allowed_names,
     is_lint_enabled_by_default,
 };
-use crate::CairoLintToolMetadata;
 
 pub fn cairo_lint_plugin_suite(tool_metadata: CairoLintToolMetadata) -> Result<PluginSuite> {
     let mut suite = PluginSuite::default();

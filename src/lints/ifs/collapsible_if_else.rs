@@ -5,11 +5,11 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprBlock, ExprIf, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{
+    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
     ast::{
         BlockOrIf, Expr as AstExpr, ExprIf as AstExprIf, OptionElseClause,
         Statement as AstStatement,
     },
-    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
 use if_chain::if_chain;
 

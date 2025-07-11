@@ -5,8 +5,8 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprId, ExprLoop, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{
-    ast::{Expr as AstExpr, ExprLoop as AstExprLoop, OptionElseClause, Statement as AstStatement},
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
+    ast::{Expr as AstExpr, ExprLoop as AstExprLoop, OptionElseClause, Statement as AstStatement},
 };
 use if_chain::if_chain;
 
