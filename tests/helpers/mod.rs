@@ -138,7 +138,7 @@ macro_rules! test_lint_fixer {
 #[macro_export]
 macro_rules! test_lint_diagnostics {
   ($before:literal, @$expected_diagnostics:literal) => {{
-    let expected_value: &str = $before;
+    let expected_value = ::indoc::indoc!($before);
     test_lint_diagnostics!(expected_value, @$expected_diagnostics)
   }};
   ($before:ident, @$expected_diagnostics:literal) => {{

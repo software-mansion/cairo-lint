@@ -7,7 +7,7 @@ use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_syntax::node::ast::Expr;
+use cairo_lang_syntax::node::ast::{ArgListParenthesized, Expr, ExprParenthesized};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
@@ -67,28 +67,31 @@ pub fn check_double_parens(
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
     let parenthesized_exprs = get_all_parenthesized_expressions(db, item);
-    for parens_expr in parenthesized_exprs.iter() {
-        check_single_double_parens(db, parens_expr, diagnostics);
+    for parens_expr in parenthesized_exprs {
+        maybe_add_double_parens_diag(db, parens_expr, diagnostics);
     }
 }
 
-fn check_single_double_parens(
+fn maybe_add_double_parens_diag(
     db: &dyn SemanticGroup,
-    parens_expr: &Expr,
+    parens_expr: ExprParenthesized,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    let is_double_parens = if let Expr::Parenthesized(parenthesized_expr) = parens_expr {
-        matches!(
-            parenthesized_expr.expr(db.upcast()),
-            Expr::Parenthesized(_) | Expr::Tuple(_)
-        )
-    } else {
-        false
-    };
+    let is_inner_expr_with_parens = matches!(
+        parens_expr.expr(db.upcast()),
+        Expr::Parenthesized(_) | Expr::Tuple(_)
+    );
+    // Take cases such as `func((5))` into account.
+    let is_the_only_expr_in_function_call = parens_expr
+        .as_syntax_node()
+        .ancestor_of_type::<ArgListParenthesized>(db)
+        .is_some_and(|args_list_parenthesized| {
+            args_list_parenthesized.arguments(db).elements(db).len() == 1
+        });
 
-    if is_double_parens {
+    if is_inner_expr_with_parens || is_the_only_expr_in_function_call {
         diagnostics.push(PluginDiagnostic {
-            stable_ptr: parens_expr.stable_ptr(db.upcast()).untyped(),
+            stable_ptr: parens_expr.stable_ptr(db).untyped(),
             message: DoubleParens.diagnostic_message().to_string(),
             severity: Severity::Warning,
             inner_span: None,

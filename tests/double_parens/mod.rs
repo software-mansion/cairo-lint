@@ -516,3 +516,123 @@ fn double_parens_with_indexed_fixer() {
     }
     ")
 }
+
+#[test]
+fn double_parens_in_single_arg_function_call_diagnostics() {
+    test_lint_diagnostics!(r#"
+    fn func(c: u8) {}
+
+    fn main() {
+        func((5));
+    }
+    "#, @r"
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:4:10
+        func((5));
+             ^^^
+    ")
+}
+
+#[test]
+fn double_parens_in_single_arg_function_call_fixer() {
+    test_lint_fixer!(r#"
+    fn func(c: u8) {}
+
+    fn main() {
+        func((5));
+    }
+    "#, @r"
+    fn func(c: u8) {}
+
+    fn main() {
+        func(5);
+    }
+    ")
+}
+
+#[test]
+fn triple_parens_in_single_arg_tuple_function_call_diagnostics() {
+    test_lint_diagnostics!(r#"
+    fn func(a: (u8, felt252)) {}
+
+    fn main() {
+        func(((5, 6)));
+    }
+    "#, @r"
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:4:10
+        func(((5, 6)));
+             ^^^^^^^^
+    ")
+}
+
+#[test]
+fn triple_parens_in_single_arg_tuple_function_call_fixer() {
+    test_lint_fixer!(r#"
+    fn func(a: (u8, felt252)) {}
+
+    fn main() {
+        func(((5, 6)));
+    }
+    "#, @r"
+    fn func(a: (u8, felt252)) {}
+
+    fn main() {
+        func((5, 6));
+    }
+    ")
+}
+
+#[test]
+fn double_parens_in_single_arg_function_call_unit_type() {
+    test_lint_diagnostics!(r#"
+    fn func(c: ()) {}
+
+    fn main() {
+        func(());
+    }
+    "#, @"")
+}
+
+#[test]
+fn double_parens_in_function_call_around_multiple_args() {
+    test_lint_diagnostics!(r#"
+    fn func(a: u8, b: felt252) {}
+
+    fn main() {
+        func((5, 6));
+    }
+    "#, @r"
+    Wrong number of arguments. Expected 2, found: 1
+     --> lib.cairo:4:5
+        func((5, 6));
+        ^^^^^^^^^^^^
+    ")
+}
+
+#[test]
+fn double_parens_in_function_call_when_expecting_tuple() {
+    test_lint_diagnostics!(r#"
+    fn func(a: (u8, felt252)) {}
+
+    fn main() {
+        func((5, 6));
+    }
+    "#, @"")
+}
+
+#[test]
+fn double_parens_in_function_call_with_multiple_args_around_single_arg() {
+    test_lint_diagnostics!(r#"
+    fn func(a: (u8, felt252)) {}
+
+    fn main() {
+        func((5), 6);
+    }
+    "#, @r"
+    Wrong number of arguments. Expected 1, found: 2
+     --> lib.cairo:4:5
+        func((5), 6);
+        ^^^^^^^^^^^^
+    ")
+}
