@@ -2,9 +2,9 @@ use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::{
+    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
     ast::{self, OptionTypeClause},
     db::SyntaxGroup,
-    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
 
 use crate::{

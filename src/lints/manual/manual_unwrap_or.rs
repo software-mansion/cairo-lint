@@ -2,7 +2,7 @@ use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_syntax::node::{ast, db::SyntaxGroup, SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast, db::SyntaxGroup};
 
 use crate::{
     context::CairoLintKind,
@@ -11,7 +11,7 @@ use crate::{
 };
 use crate::{
     context::Lint,
-    lints::manual::{check_manual, check_manual_if, ManualLint},
+    lints::manual::{ManualLint, check_manual, check_manual_if},
 };
 
 pub struct ManualUnwrapOr;

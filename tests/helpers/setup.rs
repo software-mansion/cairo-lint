@@ -4,8 +4,8 @@ use cairo_lang_filesystem::{
     ids::{CrateId, CrateLongId, Directory, FileKind, FileLongId, VirtualFile},
 };
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use cairo_lang_utils::Intern;
+use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use std::{collections::BTreeMap, sync::Arc};
 
 use crate::CRATE_CONFIG;

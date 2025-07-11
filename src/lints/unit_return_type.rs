@@ -3,9 +3,9 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 use cairo_lang_syntax::node::{
+    SyntaxNode, TypedStablePtr,
     ast::{FunctionSignature, OptionReturnTypeClause},
     db::SyntaxGroup,
-    SyntaxNode, TypedStablePtr,
 };
 
 use crate::fixes::InternalFix;

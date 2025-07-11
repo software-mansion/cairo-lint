@@ -5,7 +5,7 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, ExprFunctionCall};
 use cairo_lang_syntax::node::TypedStablePtr;
 
-use super::{function_trait_name_from_fn_id, AND};
+use super::{AND, function_trait_name_from_fn_id};
 use crate::context::{CairoLintKind, Lint};
 use crate::helper::is_zero;
 use crate::lints::{DIV, MUL};

@@ -10,7 +10,7 @@ use if_chain::if_chain;
 use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
-use super::{function_trait_name_from_fn_id, AND, DIV, EQ, GE, GT, LE, LT, NE, NOT, OR, SUB, XOR};
+use super::{AND, DIV, EQ, GE, GT, LE, LT, NE, NOT, OR, SUB, XOR, function_trait_name_from_fn_id};
 
 pub struct DivisionEqualityOperation;
 

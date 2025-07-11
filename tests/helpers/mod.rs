@@ -1,12 +1,12 @@
 use cairo_lang_compiler::db::RootDatabase;
 use cairo_lang_defs::{db::DefsGroup, ids::ModuleId};
 use cairo_lang_filesystem::{
-    db::{init_dev_corelib, FilesGroup},
+    db::{FilesGroup, init_dev_corelib},
     ids::{CrateId, FileLongId},
 };
-use cairo_lang_semantic::{db::SemanticGroup, SemanticDiagnostic};
+use cairo_lang_semantic::{SemanticDiagnostic, db::SemanticGroup};
 use cairo_lang_utils::LookupIntern;
-use cairo_lint::{context::get_unique_allowed_names, CairoLintToolMetadata};
+use cairo_lint::{CairoLintToolMetadata, context::get_unique_allowed_names};
 use scarb::find_scarb_managed_core;
 use std::path::PathBuf;
 
