@@ -7,7 +7,7 @@ use cairo_lang_semantic::{
     ExprWhile, FunctionBody, Pattern, Statement, StatementBreak,
 };
 use cairo_lang_syntax::node::TypedSyntaxNode;
-use cairo_lang_syntax::node::ast::ExprParenthesized;
+use cairo_lang_syntax::node::ast::{ExprInlineMacro, ExprParenthesized};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 use if_chain::if_chain;
@@ -200,6 +200,25 @@ pub fn get_all_while_expressions<'db>(
                 None
             }
         })
+        .collect()
+}
+
+#[tracing::instrument(skip_all, level = "trace")]
+pub fn get_all_inline_macro_calls<'db>(
+    db: &'db dyn Database,
+    item: &ModuleItemId<'db>,
+) -> Vec<ExprInlineMacro<'db>> {
+    let function_nodes = match item {
+        ModuleItemId::Constant(id) => id.stable_ptr(db).lookup(db).as_syntax_node(),
+        ModuleItemId::FreeFunction(id) => id.stable_ptr(db).lookup(db).as_syntax_node(),
+        ModuleItemId::Impl(id) => id.stable_ptr(db).lookup(db).as_syntax_node(),
+        ModuleItemId::Trait(id) => id.stable_ptr(db).lookup(db).as_syntax_node(),
+        _ => return vec![],
+    }
+    .descendants(db);
+
+    function_nodes
+        .filter_map(|node| node.cast::<ExprInlineMacro>(db))
         .collect()
 }
 
