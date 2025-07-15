@@ -13,7 +13,7 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 
 use super::function_trait_name_from_fn_id;
 use crate::context::{CairoLintKind, Lint};
-use crate::fixes::InternalFix;
+use crate::fixer::InternalFix;
 use crate::lints::{EQ, GE, GT, LE, LT};
 use crate::queries::{get_all_function_bodies, get_all_logical_operator_expressions};
 

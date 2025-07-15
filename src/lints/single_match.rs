@@ -12,7 +12,7 @@ use cairo_lang_syntax::node::{
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
-use crate::fixes::InternalFix;
+use crate::fixer::InternalFix;
 use crate::helper::indent_snippet;
 use crate::queries::{get_all_function_bodies, get_all_match_expressions};
 

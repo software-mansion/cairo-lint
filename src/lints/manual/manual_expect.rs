@@ -10,7 +10,7 @@ use cairo_lang_syntax::node::{
 };
 
 use crate::context::{CairoLintKind, Lint};
-use crate::fixes::InternalFix;
+use crate::fixer::InternalFix;
 use crate::lints::manual::helpers::{
     expr_if_get_var_name_and_err, expr_match_get_var_name_and_err,
 };

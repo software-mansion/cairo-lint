@@ -10,7 +10,7 @@ use cairo_lang_syntax::node::{ast::ExprBinary, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
-use crate::fixes::InternalFix;
+use crate::fixer::InternalFix;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 pub struct BoolComparison;
