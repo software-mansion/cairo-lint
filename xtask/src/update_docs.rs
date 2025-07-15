@@ -36,10 +36,7 @@ impl LintDoc {
             .to_string();
         let struct_start_line = value.pointer("/span/begin/0").unwrap().as_u64().unwrap();
         let lint = find_lint_by_struct_name(&lint_struct_name).unwrap_or_else(|| {
-            panic!(
-                "Could not find the lint inside the Lint Context: {lint_struct_name}",
-
-            )
+            panic!("Could not find the lint inside the Lint Context: {lint_struct_name}")
         });
         LintDoc {
             name: lint.allowed_name().to_string(),
@@ -78,14 +75,9 @@ pub fn main(_: Args) -> Result<()> {
         LINT_METADATA_OUTPUT_PATH,
         String::from_utf8(buf).unwrap() + "\n",
     ) {
-        Ok(_) => println!(
-            "Docs metadata successfully written to {LINT_METADATA_OUTPUT_PATH}",
-
-        ),
+        Ok(_) => println!("Docs metadata successfully written to {LINT_METADATA_OUTPUT_PATH}"),
         Err(e) => {
-            eprintln!(
-                "Failed to write docs to {LINT_METADATA_OUTPUT_PATH}: {e:?}",
-            );
+            eprintln!("Failed to write docs to {LINT_METADATA_OUTPUT_PATH}: {e:?}");
             return Err(e.into());
         }
     };
@@ -99,7 +91,7 @@ pub fn main(_: Args) -> Result<()> {
             )
         })
         .collect::<String>();
-    fs::write(DEFAULT_PROFILE_OUTPUT_PATH, format!("# Default Profile\n\nBy default, all lint rules are **enabled** with the exception of:\n\n{disabled_lints_list}", )).unwrap();
+    fs::write(DEFAULT_PROFILE_OUTPUT_PATH, format!("# Default Profile\n\nBy default, all lint rules are **enabled** with the exception of:\n\n{disabled_lints_list}")).unwrap();
 
     // Write docs content inside the markdown file inside the website docs directory.
     for doc in docs.iter() {
