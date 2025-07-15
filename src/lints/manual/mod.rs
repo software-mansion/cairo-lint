@@ -47,7 +47,7 @@ pub enum ManualLint {
 }
 
 /// Checks for all the manual lint written as `match`.
-/// ```ignore
+/// ```text
 /// let res_val: Result<i32> = Result::Err('err');
 /// let _a = match res_val {
 ///     Result::Ok(x) => Option::Some(x),
