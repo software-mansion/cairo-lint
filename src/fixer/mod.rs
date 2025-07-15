@@ -31,10 +31,12 @@ use lsp_types::Url;
 use salsa::InternKey;
 
 use crate::context::get_fix_for_diagnostic_message;
-use crate::db::FixerDatabase;
 use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::db::SyntaxGroup;
+pub use db::FixerDatabase;
+
+mod db;
 
 /// Represents a suggestion for a fix, containing the span of code to be replaced,
 /// and the suggested code to replace it with.

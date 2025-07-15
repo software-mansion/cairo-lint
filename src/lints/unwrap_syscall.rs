@@ -1,6 +1,6 @@
 use crate::{
     context::{CairoLintKind, Lint},
-    fixes::InternalFix,
+    fixer::InternalFix,
     helper::find_module_file_containing_node,
     queries::{get_all_function_bodies, get_all_function_calls},
     types::format_type,

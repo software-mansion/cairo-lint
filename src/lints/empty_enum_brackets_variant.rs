@@ -9,7 +9,7 @@ use cairo_lang_syntax::node::{
 
 use crate::{
     context::{CairoLintKind, Lint},
-    fixes::InternalFix,
+    fixer::InternalFix,
 };
 
 pub struct EmptyEnumBracketsVariant;

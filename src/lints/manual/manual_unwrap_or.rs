@@ -6,7 +6,7 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast, 
 
 use crate::{
     context::CairoLintKind,
-    fixes::InternalFix,
+    fixer::InternalFix,
     queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions},
 };
 use crate::{

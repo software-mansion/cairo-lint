@@ -132,7 +132,7 @@ impl AnalyzerPlugin for CairoLint {
 
         diags
             .into_iter()
-            .filter(|diag| {
+            .filter(|diag: &(PluginDiagnostic, FileId)| {
                 let diagnostic = &diag.0;
                 let node = diagnostic.stable_ptr.lookup(db.upcast());
                 let allowed_name = get_name_for_diagnostic_message(&diagnostic.message).unwrap();

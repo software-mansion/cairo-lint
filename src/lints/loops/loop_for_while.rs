@@ -11,7 +11,7 @@ use cairo_lang_syntax::node::{
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
-use crate::fixes::InternalFix;
+use crate::fixer::InternalFix;
 use crate::helper::{invert_condition, remove_break_from_block, remove_break_from_else_clause};
 use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
 

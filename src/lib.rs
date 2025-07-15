@@ -1,16 +1,15 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_formatter::FormatterConfig;
-use db::FixerDatabase;
-use fixes::{
-    DiagnosticFixSuggestion, file_for_url, get_fixes_without_resolving_overlapping,
-    merge_overlapping_fixes, url_for_file,
+use fixer::{
+    file_for_url, get_fixes_without_resolving_overlapping, merge_overlapping_fixes, url_for_file,
+    DiagnosticFixSuggestion, FixerDatabase,
 };
 
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use helper::format_fixed_file;
 use itertools::Itertools;
 
-use std::{cmp::Reverse, collections::HashMap};
+use std::{cmp::Reverse, collections::{BTreeMap, HashMap}};
 
 use anyhow::{Result, anyhow};
 use cairo_lang_filesystem::ids::FileId;
@@ -21,12 +20,13 @@ pub static CAIRO_LINT_TOOL_NAME: &str = "cairo-lint";
 /// Describes tool metadata for the Cairo lint.
 /// IMPORTANT: This one is a public type, so watch out when modifying it,
 /// as it might break the backwards compatibility.
-pub type CairoLintToolMetadata = HashMap<String, bool>;
+pub type CairoLintToolMetadata = BTreeMap<String, bool>;
 
 pub mod context;
+
 mod db;
 pub mod diagnostics;
-pub mod fixes;
+mod fixer;
 mod helper;
 pub mod lints;
 mod mappings;

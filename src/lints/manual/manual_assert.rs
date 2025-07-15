@@ -1,4 +1,4 @@
-use crate::{fixes::InternalFix, helper::indent_snippet};
+use crate::{fixer::InternalFix, helper::indent_snippet};
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::{Arenas, Expr, ExprBlock, ExprIf, Statement, db::SemanticGroup};
