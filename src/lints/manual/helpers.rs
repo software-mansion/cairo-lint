@@ -14,7 +14,7 @@ use if_chain::if_chain;
 use num_bigint::BigInt;
 
 use super::is_expected_variant;
-use crate::lints::{function_trait_name_from_fn_id, ARRAY_NEW, DEFAULT, FALSE, NEVER};
+use crate::lints::{ARRAY_NEW, DEFAULT, FALSE, NEVER, function_trait_name_from_fn_id};
 
 /// Checks if the input statement is a `FunctionCall` then checks if the function name is the
 /// expected function name

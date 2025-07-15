@@ -17,8 +17,8 @@ use cairo_lang_syntax::node::ast::ExprBinary;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
-use cairo_lang_utils::smol_str::SmolStr;
 use cairo_lang_utils::LookupIntern;
+use cairo_lang_utils::smol_str::SmolStr;
 use if_chain::if_chain;
 use num_bigint::BigInt;
 

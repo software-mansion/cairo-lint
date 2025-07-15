@@ -4,7 +4,7 @@ use cairo_lang_diagnostics::ToOption;
 use cairo_lang_filesystem::{db::get_originating_location, ids::FileId, span::TextOffset};
 use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_semantic::db::SemanticGroup;
-use cairo_lang_syntax::node::{ids::SyntaxStablePtrId, SyntaxNode};
+use cairo_lang_syntax::node::{SyntaxNode, ids::SyntaxStablePtrId};
 
 fn find_syntax_node_at_offset(
     db: &dyn ParserGroup,

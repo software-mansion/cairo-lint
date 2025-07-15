@@ -2,8 +2,8 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_formatter::FormatterConfig;
 use db::FixerDatabase;
 use fixes::{
-    file_for_url, get_fixes_without_resolving_overlapping, merge_overlapping_fixes, url_for_file,
-    DiagnosticFixSuggestion,
+    DiagnosticFixSuggestion, file_for_url, get_fixes_without_resolving_overlapping,
+    merge_overlapping_fixes, url_for_file,
 };
 
 use cairo_lang_syntax::node::db::SyntaxGroup;
@@ -12,9 +12,9 @@ use itertools::Itertools;
 
 use std::{cmp::Reverse, collections::HashMap};
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use cairo_lang_filesystem::ids::FileId;
-use cairo_lang_semantic::{db::SemanticGroup, SemanticDiagnostic};
+use cairo_lang_semantic::{SemanticDiagnostic, db::SemanticGroup};
 
 pub static CAIRO_LINT_TOOL_NAME: &str = "cairo-lint";
 
@@ -34,7 +34,7 @@ pub mod plugin;
 mod queries;
 mod types;
 
-use context::{get_lint_type_from_diagnostic_message, CairoLintKind};
+use context::{CairoLintKind, get_lint_type_from_diagnostic_message};
 
 pub trait CairoLintGroup: SemanticGroup + SyntaxGroup {}
 

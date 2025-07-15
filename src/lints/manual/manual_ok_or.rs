@@ -3,10 +3,10 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::{
+    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
     ast::{ExprIf, ExprMatch},
     db::SyntaxGroup,
     kind::SyntaxKind,
-    SyntaxNode, TypedStablePtr, TypedSyntaxNode,
 };
 
 use crate::{
@@ -17,9 +17,8 @@ use crate::{
 use crate::{
     context::Lint,
     lints::manual::{
-        check_manual, check_manual_if,
+        ManualLint, check_manual, check_manual_if,
         helpers::{expr_if_get_var_name_and_err, expr_match_get_var_name_and_err},
-        ManualLint,
     },
 };
 

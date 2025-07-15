@@ -6,8 +6,8 @@ use cairo_lang_semantic::{Arenas, ExprMatch, Pattern};
 use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBlock, ExprListParenthesized, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{
-    ast::{ExprMatch as AstExprMatch, Pattern as AstPattern},
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
+    ast::{ExprMatch as AstExprMatch, Pattern as AstPattern},
 };
 use if_chain::if_chain;
 

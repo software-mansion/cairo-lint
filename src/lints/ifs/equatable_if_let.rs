@@ -5,8 +5,8 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprIf, Pattern, PatternId};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{
-    ast::{Condition as AstCondition, ExprIf as AstExprIf},
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
+    ast::{Condition as AstCondition, ExprIf as AstExprIf},
 };
 
 use crate::context::{CairoLintKind, Lint};
@@ -111,7 +111,7 @@ fn is_simple_equality_condition(patterns: &[PatternId], arenas: &Arenas) -> bool
                         arenas.patterns[pat_id],
                         Pattern::Literal(_) | Pattern::StringLiteral(_)
                     )
-                })
+                });
             }
             _ => continue,
         }

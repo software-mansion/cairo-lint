@@ -5,8 +5,8 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{
-    ast::{ExprIf, ExprMatch},
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
+    ast::{ExprIf, ExprMatch},
 };
 
 use crate::context::{CairoLintKind, Lint};
@@ -14,7 +14,7 @@ use crate::fixes::InternalFix;
 use crate::lints::manual::helpers::{
     expr_if_get_var_name_and_err, expr_match_get_var_name_and_err,
 };
-use crate::lints::manual::{check_manual, check_manual_if, ManualLint};
+use crate::lints::manual::{ManualLint, check_manual, check_manual_if};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions};
 
 pub struct ManualExpect;

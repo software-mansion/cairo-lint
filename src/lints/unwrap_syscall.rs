@@ -7,8 +7,8 @@ use crate::{
 };
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::{db::SemanticGroup, Arenas, ExprFunctionCall, ExprFunctionCallArg};
-use cairo_lang_syntax::node::{ast, SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_semantic::{Arenas, ExprFunctionCall, ExprFunctionCallArg, db::SemanticGroup};
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast};
 use itertools::Itertools;
 
 pub struct UnwrapSyscall;

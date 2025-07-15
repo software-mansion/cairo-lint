@@ -7,9 +7,9 @@ use cairo_lang_semantic::{
     Arenas, Condition, Expr, ExprFunctionCall, ExprIf, ExprLogicalOperator, ExprLoop, ExprMatch,
     ExprWhile, FunctionBody, Pattern, Statement, StatementBreak,
 };
+use cairo_lang_syntax::node::TypedSyntaxNode;
 use cairo_lang_syntax::node::ast::Expr as AstExpr;
 use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_syntax::node::TypedSyntaxNode;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 use if_chain::if_chain;
 use itertools::chain;

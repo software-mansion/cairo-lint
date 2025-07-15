@@ -15,7 +15,7 @@ use std::fmt::Debug;
 use cairo_lang_defs::ids::TopLevelLanguageElementId;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprIf, ExprMatch, Pattern};
-use cairo_lang_syntax::node::{ast, TypedStablePtr};
+use cairo_lang_syntax::node::{TypedStablePtr, ast};
 use helpers::{
     check_is_default, func_call_or_block_returns_never,
     if_expr_condition_and_block_match_enum_pattern, if_expr_pattern_matches_tail_var,

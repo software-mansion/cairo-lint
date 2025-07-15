@@ -5,11 +5,11 @@ use crate::{
 };
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::{db::SemanticGroup, ConcreteVariant, Expr};
+use cairo_lang_semantic::{ConcreteVariant, Expr, db::SemanticGroup};
 use cairo_lang_syntax::node::{
+    SyntaxNode, Terminal, TypedStablePtr, TypedSyntaxNode,
     ast::{self, OptionTypeClause},
     db::SyntaxGroup,
-    SyntaxNode, Terminal, TypedStablePtr, TypedSyntaxNode,
 };
 use if_chain::if_chain;
 
