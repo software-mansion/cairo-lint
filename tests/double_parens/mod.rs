@@ -140,6 +140,22 @@ fn main() {
 }
 "#;
 
+const PARENS_EXPR_FOR_SINGLE_ARG_FUNCTION_CALL: &str = r#"
+fn func(c: u8) {}
+
+fn main() {
+    func((5));
+}
+"#;
+
+const PARENS_EXPR_FOR_SINGLE_ARG_FUNCTION_CALL_UNIT_TYPE: &str = r#"
+fn func(c: ()) {}
+
+fn main() {
+    func(());
+}
+"#;
+
 #[test]
 fn simple_double_parens_diagnostics() {
     test_lint_diagnostics!(SIMPLE_DOUBLE_PARENS, @r"
@@ -515,4 +531,30 @@ fn double_parens_with_indexed_fixer() {
         let _c = *fun(b)[1] + 2;
     }
     ")
+}
+
+#[test]
+fn parens_expr_for_single_arg_function_call_diagnostics() {
+    test_lint_diagnostics!(PARENS_EXPR_FOR_SINGLE_ARG_FUNCTION_CALL, @r"
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:5:10
+        func((5));
+             ^^^
+    ")
+}
+
+#[test]
+fn parens_expr_for_single_arg_function_call_fixer() {
+    test_lint_fixer!(PARENS_EXPR_FOR_SINGLE_ARG_FUNCTION_CALL, @r"
+    fn func(c: u8) {}
+
+    fn main() {
+        func(5);
+    }
+    ")
+}
+
+#[test]
+fn parens_expr_for_single_arg_function_call_unit_type() {
+    test_lint_diagnostics!(PARENS_EXPR_FOR_SINGLE_ARG_FUNCTION_CALL_UNIT_TYPE, @r"")
 }
