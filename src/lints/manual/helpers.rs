@@ -1,7 +1,8 @@
 use cairo_lang_defs::ids::TopLevelLanguageElementId;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
-    Arenas, Condition, Expr, ExprIf, FixedSizeArrayItems, Pattern, Statement, VarId,
+    Arenas, Condition, Expr, ExprIf, FixedSizeArrayItems, Pattern, PatternVariable, Statement,
+    VarId,
 };
 use cairo_lang_syntax::node::ast::{
     BlockOrIf, Condition as AstCondition, Expr as AstExpr, ExprIf as AstExprIf,
@@ -35,19 +36,29 @@ pub fn is_expected_function(expr: &Expr, db: &dyn SemanticGroup, func_name: &str
 /// # Returns
 /// * `true` if the argument name matches, otherwise `false`.
 pub fn pattern_check_enum_arg(pattern: &Pattern, arg: &VarId, arenas: &Arenas) -> bool {
-    let Pattern::EnumVariant(enum_var_pattern) = pattern else {
-        return false;
-    };
-    let Some(inner_pattern) = enum_var_pattern.inner_pattern else {
-        return false;
-    };
-    let Pattern::Variable(enum_destruct_var) = &arenas.patterns[inner_pattern] else {
+    let Some(enum_destruct_var) = extract_pattern_variable(pattern, arenas) else {
         return false;
     };
     let VarId::Local(expected_var) = arg else {
         return false;
     };
     expected_var == &enum_destruct_var.var.id
+}
+
+/// Extracts pattern variable from `Pattern` if it's a destructured enum.
+/// i.e. given `Pattern` of `Result::Err(x)` would return the pattern variable `x`
+pub fn extract_pattern_variable<'a>(
+    pattern: &Pattern,
+    arenas: &'a Arenas,
+) -> Option<&'a PatternVariable> {
+    let Pattern::EnumVariant(enum_var_pattern) = pattern else {
+        return None;
+    };
+
+    let Pattern::Variable(pattern_variable) = &arenas.patterns[enum_var_pattern.inner_pattern?] else {
+        return None;
+    };
+    Some(pattern_variable)
 }
 
 /// Checks if the enum variant in the expression has the expected name and if the destructured

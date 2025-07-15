@@ -57,7 +57,7 @@ fn main() {
     // This is just a variable.
     let _foo = match foo {
         Option::Some(x) => x,
-        Option::None => 
+        Option::None =>
         {
             // do something
             core::panic_with_felt252('err')
@@ -69,9 +69,9 @@ fn main() {
 const TEST_MATCH_EXPRESSION_IS_A_FUNCTION: &str = r#"
 fn foo(a: u256) -> Option<u256> {
     Option::Some(a)
-} 
+}
 fn main() {
-    let a: u256 = 0; 
+    let a: u256 = 0;
     // This is just a variable.
     let _a = match foo(a) {
         Option::Some(value) => value,
@@ -148,6 +148,18 @@ fn main() {
     let _a = match res_val {
         Result::Ok(val) => val,
         Result::Err(err) => core::panic_with_felt252(err)
+    };
+}
+"#;
+
+const TEST_MANUAL_MATCH_RESULT_WITH_UNWRAPPED_AND_IGNORED_ERROR: &str = r#"
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    // This is just a variable.
+    let panic_value = 'abc';
+    let _a = match res_val {
+        Result::Ok(val) => val,
+        Result::Err(_err) => core::panic_with_felt252(panic_value)
     };
 }
 "#;
@@ -436,9 +448,14 @@ fn test_manual_match_result_fixer() {
 
 #[test]
 fn test_manual_match_result_with_unwrapped_error_diagnostics() {
-    test_lint_diagnostics!(TEST_MANUAL_MATCH_RESULT_WITH_UNWRAPPED_ERROR, @r"
+    test_lint_diagnostics!(TEST_MANUAL_MATCH_RESULT_WITH_UNWRAPPED_ERROR, @r"");
+}
+
+#[test]
+fn test_manual_match_result_with_unwrapped_and_ignored_error_diagnostics() {
+    test_lint_diagnostics!(TEST_MANUAL_MATCH_RESULT_WITH_UNWRAPPED_AND_IGNORED_ERROR, @r"
     Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
-     --> lib.cairo:5:14-8:5
+     --> lib.cairo:6:14-9:5
           let _a = match res_val {
      ______________^
     | ...
@@ -447,17 +464,17 @@ fn test_manual_match_result_with_unwrapped_error_diagnostics() {
     ");
 }
 
-// TODO: https://github.com/software-mansion/cairo-lint/issues/365.
-// #[test]
-// fn test_manual_match_result_with_unwrapped_error_fixer() {
-//     test_lint_fixer!(TEST_MANUAL_MATCH_RESULT_WITH_UNWRAPPED_ERROR, @r"
-//     fn main() {
-//         let res_val: Result<i32> = Result::Err('err');
-//         // This is just a variable.
-//         let _a = res_val.expect(err);
-//     }
-//     ");
-// }
+#[test]
+fn test_manual_match_result_with_unwrapped_and_ignored_error_fixer() {
+    test_lint_fixer!(TEST_MANUAL_MATCH_RESULT_WITH_UNWRAPPED_AND_IGNORED_ERROR, @r"
+    fn main() {
+        let res_val: Result<i32> = Result::Err('err');
+        // This is just a variable.
+        let panic_value = 'abc';
+        let _a = res_val.expect(panic_value);
+    }
+    ");
+}
 
 #[test]
 fn test_core_panic_with_felt252_block_diagnostics() {
