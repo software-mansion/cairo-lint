@@ -236,10 +236,10 @@ impl LintContext {
                 lints: vec![Box::new(BreakUnit)],
                 check_function: check_break,
             },
-            LintRuleGroup {
-                lints: vec![Box::new(BoolComparison)],
-                check_function: check_bool_comparison,
-            },
+            // LintRuleGroup {
+            //     lints: vec![Box::new(BoolComparison)],
+            //     check_function: check_bool_comparison,
+            // },
             LintRuleGroup {
                 lints: vec![Box::new(CollapsibleIfElse)],
                 check_function: check_collapsible_if_else,
@@ -268,10 +268,10 @@ impl LintContext {
                 lints: vec![Box::new(LoopForWhile)],
                 check_function: check_loop_for_while,
             },
-            LintRuleGroup {
-                lints: vec![Box::new(PanicInCode)],
-                check_function: check_panic_usage,
-            },
+            // LintRuleGroup {
+            //     lints: vec![Box::new(PanicInCode)],
+            //     check_function: check_panic_usage,
+            // },
             LintRuleGroup {
                 lints: vec![Box::new(ErasingOperation)],
                 check_function: check_erasing_operation,
@@ -313,15 +313,15 @@ impl LintContext {
                 lints: vec![Box::new(ManualExpectErr)],
                 check_function: check_manual_expect_err,
             },
-            LintRuleGroup {
-                lints: vec![
-                    Box::new(IntegerGreaterEqualPlusOne),
-                    Box::new(IntegerGreaterEqualMinusOne),
-                    Box::new(IntegerLessEqualPlusOne),
-                    Box::new(IntegerLessEqualMinusOne),
-                ],
-                check_function: check_int_op_one,
-            },
+            // LintRuleGroup {
+            //     lints: vec![
+            //         Box::new(IntegerGreaterEqualPlusOne),
+            //         Box::new(IntegerGreaterEqualMinusOne),
+            //         Box::new(IntegerLessEqualPlusOne),
+            //         Box::new(IntegerLessEqualMinusOne),
+            //     ],
+            //     check_function: check_int_op_one,
+            // },
             LintRuleGroup {
                 lints: vec![
                     Box::new(DivisionEqualityOperation),
@@ -345,10 +345,10 @@ impl LintContext {
                 lints: vec![Box::new(EnumVariantNames)],
                 check_function: check_enum_variant_names,
             },
-            LintRuleGroup {
-                lints: vec![Box::new(CloneOnCopy)],
-                check_function: check_clone_on_copy,
-            },
+            // LintRuleGroup {
+            //     lints: vec![Box::new(CloneOnCopy)],
+            //     check_function: check_clone_on_copy,
+            // },
             LintRuleGroup {
                 lints: vec![Box::new(EmptyEnumBracketsVariant)],
                 check_function: check_empty_enum_brackets_variant,

@@ -97,34 +97,44 @@ fn check_single_unwrap_syscall(
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
+    // eprintln!("1");
     let function_name = expr.function.get_concrete(db).generic_function.format(db);
-
+    // eprintln!("2");
     if !function_name.starts_with(UNWRAP_PATH_BEGINNING)
         || !function_name.ends_with(UNWRAP_PATH_END)
     {
         return;
     }
+    // eprintln!("3");
 
     if expr.args.is_empty() {
         return;
     }
 
+    // eprintln!("4");
+
     match expr.args.first().unwrap() {
         ExprFunctionCallArg::Reference(_) => (),
         ExprFunctionCallArg::Value(id) => {
+            // eprintln!("5");
             let expr = &arenas.exprs[*id];
             let type_name = expr.ty().short_name(db).split("::").take(3).join("::");
             let node = expr.stable_ptr().lookup(db).as_syntax_node();
+            // eprintln!("6");
             let module_file_id = match find_module_file_containing_node(db, &node) {
                 Some(id) => id,
                 None => return,
             };
+            // eprintln!("7");
             let importables = db
                 .visible_importables_from_module(module_file_id)
                 .unwrap_or_else(|| panic!("Couldn't find importables for {node:?}"));
+            eprintln!("przed format_type: {}", expr.ty().short_name(db));
 
             let formatted_type = format_type(db, expr.ty(), &importables);
+            eprintln!("9");
             if formatted_type == SYSCALL_RESULT_TYPE && type_name == RESULT_CORE_PATH {
+                eprintln!("10");
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: expr
                         .stable_ptr()

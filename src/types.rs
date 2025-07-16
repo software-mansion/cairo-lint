@@ -40,13 +40,86 @@ impl InferredValue {
     }
 }
 
+// pub fn format_type(
+//     db: &dyn SemanticGroup,
+//     ty: TypeId,
+//     importables: &OrderedHashMap<ImportableId, String>,
+// ) -> String {
+//     match ty.lookup_intern(db) {
+//         TypeLongId::Concrete(concrete_type) => {
+//             let importable = match concrete_type.generic_type(db) {
+//                 GenericTypeId::Enum(enum_id) => ImportableId::Enum(enum_id),
+//                 GenericTypeId::Struct(struct_id) => ImportableId::Struct(struct_id),
+//                 GenericTypeId::Extern(extern_id) => ImportableId::ExternType(extern_id),
+//             };
+//             let path = importables
+//                 .get(&importable)
+//                 .cloned()
+//                 .unwrap_or_else(|| concrete_type.generic_type(db).format(db));
+//             let generics = concrete_type.generic_args(db);
+
+//             if generics.is_empty() {
+//                 path
+//             } else {
+//                 let generics_list = generics
+//                     .into_iter()
+//                     .map(|generic| {
+//                         InferredValue::try_from_generic_arg_id(generic)
+//                             .map(|value| value.format(db, importables))
+//                             .unwrap_or_else(|| generic.format(db))
+//                     })
+//                     .join(", ");
+
+//                 format!("{path}<{generics_list}>",)
+//             }
+//         }
+//         TypeLongId::Tuple(types) => {
+//             format!(
+//                 "({})",
+//                 types
+//                     .into_iter()
+//                     .map(|ty| format_type(db, ty, importables))
+//                     .join(", ")
+//             )
+//         }
+//         TypeLongId::Snapshot(ty) => {
+//             format!("@{}", format_type(db, ty, importables))
+//         }
+//         TypeLongId::FixedSizeArray { type_id, size } => {
+//             format!(
+//                 "[{}; {}]",
+//                 format_type(db, type_id, importables),
+//                 size.format(db)
+//             )
+//         }
+//         TypeLongId::Closure(closure) => {
+//             format!(
+//                 "fn ({}) -> {}",
+//                 closure
+//                     .param_tys
+//                     .into_iter()
+//                     .map(|ty| format_type(db, ty, importables))
+//                     .join(", "),
+//                 format_type(db, closure.ret_ty, importables)
+//             )
+//         }
+//         _ => ty.format(db),
+//     }
+// }
+
 pub fn format_type(
     db: &dyn SemanticGroup,
     ty: TypeId,
     importables: &OrderedHashMap<ImportableId, String>,
 ) -> String {
+    // eprintln!("format_type: {ty:?}");
+    // eprintln!("importables: {importables:?}");
     match ty.lookup_intern(db) {
         TypeLongId::Concrete(concrete_type) => {
+            // eprintln!(
+            //     "Concrete type: {}",
+            //     concrete_type.generic_type(db).format(db)
+            // );
             let importable = match concrete_type.generic_type(db) {
                 GenericTypeId::Enum(enum_id) => ImportableId::Enum(enum_id),
                 GenericTypeId::Struct(struct_id) => ImportableId::Struct(struct_id),
@@ -61,6 +134,7 @@ pub fn format_type(
             if generics.is_empty() {
                 path
             } else {
+                eprintln!("Generics: {:?}", generics.iter().map(|generic| generic.format(db)).join(", "));
                 let generics_list = generics
                     .into_iter()
                     .map(|generic| {
@@ -74,6 +148,15 @@ pub fn format_type(
             }
         }
         TypeLongId::Tuple(types) => {
+            eprint!("Tuple types: ");
+            types.iter().for_each(|ty| {
+                eprint!("{} ", ty.short_name(db));
+            });
+            eprintln!("");
+            // eprintln!("format_type: {ty:?}");
+            // eprintln!("importables: {importables:?}");
+            // eprintln!("types: {types:?}");
+            // types.iter().for
             format!(
                 "({})",
                 types
@@ -83,9 +166,11 @@ pub fn format_type(
             )
         }
         TypeLongId::Snapshot(ty) => {
+            eprintln!("Snapshot type: {}", ty.short_name(db));
             format!("@{}", format_type(db, ty, importables))
         }
         TypeLongId::FixedSizeArray { type_id, size } => {
+            eprintln!("FixedSizeArray type: {}", type_id.short_name(db));
             format!(
                 "[{}; {}]",
                 format_type(db, type_id, importables),
@@ -93,6 +178,7 @@ pub fn format_type(
             )
         }
         TypeLongId::Closure(closure) => {
+            eprintln!("Closure type: {:?}", closure.ret_ty.short_name(db));
             format!(
                 "fn ({}) -> {}",
                 closure
@@ -103,7 +189,11 @@ pub fn format_type(
                 format_type(db, closure.ret_ty, importables)
             )
         }
-        _ => ty.format(db),
+        TypeLongId::Missing(_) => "?".to_string(),
+        _ => {
+            eprintln!("fsdfsd");
+            ty.format(db)
+        }
     }
 }
 
