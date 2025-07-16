@@ -19,7 +19,6 @@ use crate::context::{
 use crate::mappings::{
     get_node_resultants, get_origin_module_item_as_syntax_node, get_origin_syntax_node,
 };
-use crate::CairoLintToolMetadata;
 
 pub fn cairo_lint_plugin_suite(tool_metadata: CairoLintToolMetadata) -> Result<PluginSuite> {
     let mut suite = PluginSuite::default();
@@ -90,33 +89,33 @@ impl AnalyzerPlugin for CairoLint {
                 matches!(item_file, FileLongId::Virtual(_) | FileLongId::External(_));
 
             if is_generated_item && !self.only_generated_files {
-                let item_syntax_node = item.stable_location(db).stable_ptr().lookup(db.upcast());
-                let origin_node = get_origin_module_item_as_syntax_node(db, item);
+                // let item_syntax_node = item.stable_location(db).stable_ptr().lookup(db.upcast());
+                // let origin_node = get_origin_module_item_as_syntax_node(db, item);
 
-                if_chain! {
-                    if let Some(node) = origin_node;
-                    if let Some(resultants) = db.node_resultants(node);
-                    // Check if the item has only a single resultant, as if there is multiple resultants,
-                    // we would generate different diagnostics for each of resultants.
-                    // If we don't check this, we might generate different diagnostics for the same item,
-                    // which is a very unpredictable behavior.
-                    if resultants.len() == 1;
-                    // We don't do the `==` check here, as the origin node always has the proc macro attributes.
-                    // It also means that if the macro changed anything in the original item code,
-                    // we won't be processing it, as it might lead to unexpected behavior.
-                    if node.get_text_without_trivia(db).contains(&item_syntax_node.get_text_without_trivia(db));
-                    then {
-                        let checking_functions = get_all_checking_functions();
-                        for checking_function in checking_functions {
-                            checking_function(db, item, &mut item_diagnostics);
-                        }
+                // if_chain! {
+                //     if let Some(node) = origin_node;
+                //     if let Some(resultants) = db.node_resultants(node);
+                //     // Check if the item has only a single resultant, as if there is multiple resultants,
+                //     // we would generate different diagnostics for each of resultants.
+                //     // If we don't check this, we might generate different diagnostics for the same item,
+                //     // which is a very unpredictable behavior.
+                //     if resultants.len() == 1;
+                //     // We don't do the `==` check here, as the origin node always has the proc macro attributes.
+                //     // It also means that if the macro changed anything in the original item code,
+                //     // we won't be processing it, as it might lead to unexpected behavior.
+                //     if node.get_text_without_trivia(db).contains(&item_syntax_node.get_text_without_trivia(db));
+                //     then {
+                //         let checking_functions = get_all_checking_functions();
+                //         for checking_function in checking_functions {
+                //             checking_function(db, item, &mut item_diagnostics);
+                //         }
 
-                        diags.extend(item_diagnostics.into_iter().filter_map(|mut diag| {
-                          let ptr = diag.stable_ptr;
-                          diag.stable_ptr = get_origin_syntax_node(db, &ptr)?.stable_ptr(db);
-                          Some((diag, module_file))}));
-                    }
-                }
+                //         diags.extend(item_diagnostics.into_iter().filter_map(|mut diag| {
+                //           let ptr = diag.stable_ptr;
+                //           diag.stable_ptr = get_origin_syntax_node(db, &ptr)?.stable_ptr(db);
+                //           Some((diag, module_file))}));
+                //     }
+                // }
             } else if !is_generated_item || self.only_generated_files {
                 let checking_functions = get_all_checking_functions();
                 for checking_function in checking_functions {

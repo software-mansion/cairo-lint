@@ -1,15 +1,18 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_formatter::FormatterConfig;
 use fixer::{
-    file_for_url, get_fixes_without_resolving_overlapping, merge_overlapping_fixes, url_for_file,
-    DiagnosticFixSuggestion, FixerDatabase,
+    DiagnosticFixSuggestion, FixerDatabase, file_for_url, get_fixes_without_resolving_overlapping,
+    merge_overlapping_fixes, url_for_file,
 };
 
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use helper::format_fixed_file;
 use itertools::Itertools;
 
-use std::{cmp::Reverse, collections::{BTreeMap, HashMap}};
+use std::{
+    cmp::Reverse,
+    collections::{BTreeMap, HashMap},
+};
 
 use anyhow::{Result, anyhow};
 use cairo_lang_filesystem::ids::FileId;
@@ -33,6 +36,8 @@ mod mappings;
 pub mod plugin;
 mod queries;
 mod types;
+
+pub use db::{LinterDatabase, LinterDiagnosticParams, LinterGroup};
 
 use context::{CairoLintKind, get_lint_type_from_diagnostic_message};
 

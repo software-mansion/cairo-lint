@@ -13,9 +13,9 @@ use cairo_lang_filesystem::{db::get_originating_location, ids::FileId, span::Tex
 use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_syntax::node::{ast::ModuleItem, ids::SyntaxStablePtrId, SyntaxNode};
-use cairo_lang_utils::ordered_hash_set::OrderedHashSet;
+use cairo_lang_syntax::node::{SyntaxNode, ast::ModuleItem, ids::SyntaxStablePtrId};
 use cairo_lang_utils::LookupIntern;
+use cairo_lang_utils::ordered_hash_set::OrderedHashSet;
 
 /// Copied from https://github.com/software-mansion/cairols/blob/0bb49e7d2f89ffe68ba20379c20b63fc49f82557/src/lang/db/semantic.rs#L326.
 #[tracing::instrument(level = "trace", skip(db))]
@@ -77,6 +77,20 @@ fn find_syntax_node_at_offset(
     offset: TextOffset,
 ) -> Option<SyntaxNode> {
     Some(db.file_syntax(file).to_option()?.lookup_offset(db, offset))
+}
+
+pub fn get_originating_syntax_node_for(
+    db: &dyn SemanticGroup,
+    ptr: &SyntaxStablePtrId,
+) -> Option<SyntaxNode> {
+    let (file, span) = get_originating_location(
+        db,
+        ptr.file_id(db),
+        ptr.lookup(db).span_without_trivia(db),
+        None,
+    );
+
+    find_syntax_node_at_offset(db.upcast(), file, span.start)
 }
 
 /// Copied from https://github.com/software-mansion/cairols/blob/0bb49e7d2f89ffe68ba20379c20b63fc49f82557/src/lang/db/semantic.rs#L290.
