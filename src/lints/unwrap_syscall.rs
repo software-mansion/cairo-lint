@@ -1,22 +1,22 @@
 use crate::{
     context::{CairoLintKind, Lint},
     fixes::InternalFix,
-    helper::find_module_file_containing_node,
     queries::{get_all_function_bodies, get_all_function_calls},
-    types::format_type,
 };
+use cairo_lang_defs::ids::{NamedLanguageElementId, TopLevelLanguageElementId};
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::{Arenas, ExprFunctionCall, ExprFunctionCallArg, db::SemanticGroup};
-use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast};
-use itertools::Itertools;
+use cairo_lang_semantic::items::functions::{GenericFunctionId, ImplGenericFunctionId};
+use cairo_lang_semantic::items::imp::ImplHead;
+use cairo_lang_semantic::{
+    db::SemanticGroup, Arenas, ExprFunctionCall, ExprFunctionCallArg, GenericArgumentId, TypeId,
+    TypeLongId,
+};
+use cairo_lang_syntax::node::{ast, SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_utils::LookupIntern;
 
 pub struct UnwrapSyscall;
 
-const SYSCALL_RESULT_TYPE: &str = "Result<felt252, Array<felt252>>";
-const RESULT_CORE_PATH: &str = "core::result::Result";
-const UNWRAP_PATH_BEGINNING: &str = "core::result::ResultTraitImpl::<";
-const UNWRAP_PATH_END: &str = ">::unwrap";
 const UNWRAP_SYSCALL_TRAIT_PATH: &str = "starknet::SyscallResultTrait";
 
 /// ## What it does
@@ -97,48 +97,88 @@ fn check_single_unwrap_syscall(
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    let function_name = expr.function.get_concrete(db).generic_function.format(db);
-
-    if !function_name.starts_with(UNWRAP_PATH_BEGINNING)
-        || !function_name.ends_with(UNWRAP_PATH_END)
+    if is_result_trait_impl_unwrap_call(db, expr)
+        && let Some(ExprFunctionCallArg::Value(expr_id)) = expr.args.first()
+        && let receiver_expr = &arenas.exprs[*expr_id]
+        && is_syscall_result_type(db, receiver_expr.ty())
     {
-        return;
+        diagnostics.push(PluginDiagnostic {
+            stable_ptr: receiver_expr
+                .stable_ptr()
+                .lookup(db)
+                .as_syntax_node()
+                .parent(db)
+                .unwrap()
+                .stable_ptr(db),
+            message: UnwrapSyscall.diagnostic_message().to_string(),
+            severity: Severity::Warning,
+            inner_span: None,
+        });
     }
+}
 
-    if expr.args.is_empty() {
-        return;
+/// Check if this function call expression calls `core::result::ResultTraitImpl<_>::unwrap`.
+fn is_result_trait_impl_unwrap_call(db: &dyn SemanticGroup, expr: &ExprFunctionCall) -> bool {
+    if let GenericFunctionId::Impl(ImplGenericFunctionId { impl_id, function }) =
+        expr.function.get_concrete(db).generic_function
+        && function.name(db) == "unwrap"
+        && let Some(ImplHead::Concrete(impl_def_id)) = impl_id.head(db)
+        && impl_def_id.full_path(db) == "core::result::ResultTraitImpl"
+    {
+        true
+    } else {
+        false
     }
+}
 
-    match expr.args.first().unwrap() {
-        ExprFunctionCallArg::Reference(_) => (),
-        ExprFunctionCallArg::Value(id) => {
-            let expr = &arenas.exprs[*id];
-            let type_name = expr.ty().short_name(db).split("::").take(3).join("::");
-            let node = expr.stable_ptr().lookup(db).as_syntax_node();
-            let module_file_id = match find_module_file_containing_node(db, &node) {
-                Some(id) => id,
-                None => return,
-            };
-            let importables = db
-                .visible_importables_from_module(module_file_id)
-                .unwrap_or_else(|| panic!("Couldn't find importables for {node:?}"));
-
-            let formatted_type = format_type(db, expr.ty(), &importables);
-            if formatted_type == SYSCALL_RESULT_TYPE && type_name == RESULT_CORE_PATH {
-                diagnostics.push(PluginDiagnostic {
-                    stable_ptr: expr
-                        .stable_ptr()
-                        .lookup(db)
-                        .as_syntax_node()
-                        .parent(db)
-                        .unwrap()
-                        .stable_ptr(db),
-                    message: UnwrapSyscall.diagnostic_message().to_string(),
-                    severity: Severity::Warning,
-                    inner_span: None,
-                })
-            }
+// Check if this type is a `Result<felt252, Array<felt252>>`.
+fn is_syscall_result_type(db: &dyn SemanticGroup, ty: TypeId) -> bool {
+    is_specific_concrete_generic_type(db, ty, "core::result::Result", |[arg_t, arg_e]| {
+        if let GenericArgumentId::Type(arg_t) = arg_t
+            && is_specific_concrete_type(db, arg_t, "core::felt252")
+            && let GenericArgumentId::Type(arg_e) = arg_e
+            && is_specific_concrete_generic_type(db, arg_e, "core::array::Array", |[arg]| {
+                if let GenericArgumentId::Type(arg) = arg
+                    && is_specific_concrete_type(db, arg, "core::felt252")
+                {
+                    true
+                } else {
+                    false
+                }
+            })
+        {
+            true
+        } else {
+            false
         }
+    })
+}
+
+fn is_specific_concrete_type(db: &dyn SemanticGroup, ty: TypeId, full_path: &str) -> bool {
+    if let TypeLongId::Concrete(concrete_type_long_id) = ty.lookup_intern(db)
+        && concrete_type_long_id.generic_type(db).full_path(db) == full_path
+    {
+        true
+    } else {
+        false
+    }
+}
+
+fn is_specific_concrete_generic_type<const N: usize>(
+    db: &dyn SemanticGroup,
+    ty: TypeId,
+    full_path: &str,
+    generic_args_matcher: impl FnOnce([GenericArgumentId; N]) -> bool,
+) -> bool {
+    if let TypeLongId::Concrete(concrete_type_long_id) = ty.lookup_intern(db)
+        && concrete_type_long_id.generic_type(db).full_path(db) == full_path
+        && let Ok(generic_args) =
+            <[GenericArgumentId; N]>::try_from(concrete_type_long_id.generic_args(db))
+        && generic_args_matcher(generic_args)
+    {
+        true
+    } else {
+        false
     }
 }
 

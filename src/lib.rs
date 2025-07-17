@@ -32,7 +32,6 @@ pub mod lints;
 mod mappings;
 pub mod plugin;
 mod queries;
-mod types;
 
 use context::{CairoLintKind, get_lint_type_from_diagnostic_message};
 
