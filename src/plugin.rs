@@ -1,7 +1,9 @@
 use anyhow::{Result, anyhow};
-use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
+use cairo_lang_defs::ids::{
+    LanguageElementId, ModuleId, NamedLanguageElementId, TopLevelLanguageElementId,
+};
 use cairo_lang_defs::plugin::PluginDiagnostic;
-use cairo_lang_filesystem::ids::{FileId, FileLongId};
+use cairo_lang_filesystem::ids::{CrateId, FileId, FileLongId};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_syntax::node::SyntaxNode;
@@ -15,6 +17,7 @@ use crate::context::{
     get_all_checking_functions, get_name_for_diagnostic_message, get_unique_allowed_names,
     is_lint_enabled_by_default,
 };
+use crate::corelib::CorelibContext;
 
 pub fn cairo_lint_plugin_suite(tool_metadata: CairoLintToolMetadata) -> Result<PluginSuite> {
     let mut suite = PluginSuite::default();
@@ -77,6 +80,12 @@ impl AnalyzerPlugin for CairoLint {
         let Ok(items) = db.module_items(module_id) else {
             return Vec::default();
         };
+        // eprintln!("module_id: {}", module_id.name(db));
+        let core_id = CrateId::core(db);
+        // eprintln!("core_id: {:?}", core_id);
+        
+        let corelib_context = CorelibContext::new(db);
+        // eprintln!("bool_partial_eq_item_id: {:?}", abc);
         for item in &*items {
             let module_file = db.module_main_file(module_id).unwrap();
             let item_file = item.stable_location(db).file_id(db).lookup_intern(db);
@@ -92,7 +101,7 @@ impl AnalyzerPlugin for CairoLint {
             let mut item_diagnostics = Vec::new();
 
             for checking_function in checking_functions {
-                checking_function(db, item, &mut item_diagnostics);
+                checking_function(db, &corelib_context, item, &mut item_diagnostics);
             }
 
             diags.extend(item_diagnostics.into_iter().map(|diag| (diag, module_file)));

@@ -8,6 +8,7 @@ use cairo_lang_syntax::node::{
     db::SyntaxGroup,
 };
 
+use crate::corelib::CorelibContext;
 use crate::fixes::InternalFix;
 use crate::{
     context::{CairoLintKind, Lint},
@@ -64,6 +65,7 @@ impl Lint for UnitReturnType {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_unit_return_type(
     db: &dyn SemanticGroup,
+    corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

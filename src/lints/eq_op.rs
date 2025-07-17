@@ -8,6 +8,7 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 use super::{AND, DIV, EQ, GE, GT, LE, LT, NE, NOT, OR, SUB, XOR, function_trait_name_from_fn_id};
@@ -232,6 +233,7 @@ impl Lint for LogicalEqualityOperation {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_eq_op(
     db: &dyn SemanticGroup,
+    corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

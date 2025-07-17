@@ -5,11 +5,13 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_filesystem::db::get_originating_location;
 use cairo_lang_semantic::ExprFunctionCall;
 use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::items::functions::GenericFunctionId;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 use itertools::Itertools;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::helper::{ASSERT_FORMATTER_NAME, PANIC_PATH, PANIC_WITH_BYTE_ARRAY_PATH};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
@@ -47,6 +49,7 @@ impl Lint for PanicInCode {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_panic_usage(
     db: &dyn SemanticGroup,
+    corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
@@ -54,13 +57,14 @@ pub fn check_panic_usage(
     for function_body in function_bodies.iter() {
         let function_call_exprs = get_all_function_calls(function_body);
         for function_call_expr in function_call_exprs.unique() {
-            check_single_panic_usage(db, &function_call_expr, diagnostics);
+            check_single_panic_usage(db, corelib_context, &function_call_expr, diagnostics);
         }
     }
 }
 
 fn check_single_panic_usage(
     db: &dyn SemanticGroup,
+    corelib_context: &CorelibContext,
     function_call_expr: &ExprFunctionCall,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
@@ -68,6 +72,20 @@ fn check_single_panic_usage(
         .stable_ptr
         .lookup(db.upcast())
         .as_syntax_node();
+
+    // let concrete_function_id = function_call_expr
+    //     .function
+    //     .get_concrete(db)
+    //     .generic_function;
+
+    // let is_panic = if let GenericFunctionId::Free(id) = concrete_function_id
+    //     && (id == corelib_context.get_panic_function_id()
+    //         || id == corelib_context.get_panic_with_byte_array_function_id())
+    // {
+    //     true
+    // } else {
+    //     false
+    // };
 
     // If the function is the panic function from the corelib.
     let is_panic = function_call_expr.function.full_path(db) == PANIC_PATH

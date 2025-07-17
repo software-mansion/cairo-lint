@@ -9,6 +9,7 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::fixes::InternalFix;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
@@ -219,6 +220,7 @@ impl Lint for IntegerLessEqualMinusOne {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_int_op_one(
     db: &dyn SemanticGroup,
+    corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

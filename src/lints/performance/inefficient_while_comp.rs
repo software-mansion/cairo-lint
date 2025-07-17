@@ -5,6 +5,7 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprWhile};
 
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::queries::{get_all_function_bodies, get_all_while_expressions};
 
 pub struct InefficientWhileComparison;
@@ -64,6 +65,7 @@ const PARTIAL_ORD_PATTERNS: [&str; 4] = [
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_inefficient_while_comp(
     db: &dyn SemanticGroup,
+    corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

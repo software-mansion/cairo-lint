@@ -5,6 +5,7 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::queries::get_all_checkable_functions;
 
 pub struct DuplicateUnderscoreArgs;
@@ -38,6 +39,7 @@ impl Lint for DuplicateUnderscoreArgs {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_duplicate_underscore_args(
     db: &dyn SemanticGroup,
+    corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

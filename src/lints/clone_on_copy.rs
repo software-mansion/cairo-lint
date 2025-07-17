@@ -1,4 +1,5 @@
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::fixes::InternalFix;
 use crate::helper::find_module_file_containing_node;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
@@ -60,6 +61,7 @@ impl Lint for CloneOnCopy {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_clone_on_copy(
     db: &dyn SemanticGroup,
+    corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

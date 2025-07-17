@@ -2,6 +2,8 @@ use cairo_lang_defs::ids::{ModuleItemId, TopLevelLanguageElementId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::items::functions::{GenericFunctionId, ImplGenericFunctionId};
+use cairo_lang_semantic::items::imp::ImplHead;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_syntax::node::db::SyntaxGroup;
@@ -10,6 +12,7 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode, ast::ExprBinary};
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::fixes::InternalFix;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
@@ -70,6 +73,7 @@ impl Lint for BoolComparison {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_bool_comparison(
     db: &dyn SemanticGroup,
+    corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
@@ -78,25 +82,42 @@ pub fn check_bool_comparison(
         let function_call_exprs = get_all_function_calls(function_body);
         let arenas = &function_body.arenas;
         for function_call_expr in function_call_exprs {
-            check_single_bool_comparison(db, &function_call_expr, arenas, diagnostics);
+            check_single_bool_comparison(
+                db,
+                corelib_context,
+                &function_call_expr,
+                arenas,
+                diagnostics,
+            );
         }
     }
 }
 
 fn check_single_bool_comparison(
     db: &dyn SemanticGroup,
+    corelib_context: &CorelibContext,
     function_call_expr: &ExprFunctionCall,
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
     // Check if the function call is the bool partial eq function (==).
-    if !function_call_expr
+    match function_call_expr
         .function
-        .full_path(db)
-        .contains("core::BoolPartialEq::")
+        .get_concrete(db)
+        .generic_function
     {
-        return;
+        GenericFunctionId::Impl(ImplGenericFunctionId { impl_id, .. }) => {
+            if let Some(ImplHead::Concrete(impl_def_id)) = impl_id.head(db) {
+                if impl_def_id != corelib_context.get_bool_partial_eq_trait_id() {
+                    return;
+                }
+            } else {
+                return;
+            }
+        }
+        _ => return,
     }
+
     // Extract the args of the function call. This function expects snapshots hence we need to
     // destructure that. Also the boolean type in cairo is an enum hence the enum ctor.
     for arg in &function_call_expr.args {
