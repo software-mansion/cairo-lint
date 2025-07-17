@@ -1,8 +1,13 @@
-use cairo_lang_defs::ids::TopLevelLanguageElementId;
+use super::is_expected_variant;
+use crate::helper::find_module_file_containing_node;
+use crate::lints::{ARRAY_NEW, DEFAULT, FALSE, NEVER, function_trait_name_from_fn_id};
+use cairo_lang_defs::ids::{ModuleId, ModuleItemId, TopLevelLanguageElementId};
+use cairo_lang_diagnostics::{Diagnostics, DiagnosticsBuilder};
 use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::{
-    Arenas, Condition, Expr, ExprIf, FixedSizeArrayItems, Pattern, PatternVariable, Statement,
-    VarId,
+    Arenas, Condition, Expr, ExprIf, FixedSizeArrayItems, LocalVariable, Pattern, PatternVariable,
+    SemanticDiagnostic, Statement, VarId,
 };
 use cairo_lang_syntax::node::ast::{
     BlockOrIf, Condition as AstCondition, Expr as AstExpr, ExprIf as AstExprIf,
@@ -13,9 +18,6 @@ use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 use if_chain::if_chain;
 use num_bigint::BigInt;
-
-use super::is_expected_variant;
-use crate::lints::{ARRAY_NEW, DEFAULT, FALSE, NEVER, function_trait_name_from_fn_id};
 
 /// Checks if the input statement is a `FunctionCall` then checks if the function name is the
 /// expected function name
@@ -55,7 +57,8 @@ pub fn extract_pattern_variable<'a>(
         return None;
     };
 
-    let Pattern::Variable(pattern_variable) = &arenas.patterns[enum_var_pattern.inner_pattern?] else {
+    let Pattern::Variable(pattern_variable) = &arenas.patterns[enum_var_pattern.inner_pattern?]
+    else {
         return None;
     };
     Some(pattern_variable)
@@ -445,4 +448,46 @@ pub fn extract_tail_or_preserve_expr<'a>(expr: &'a Expr, arenas: &'a Arenas) -> 
     }
 
     expr
+}
+
+pub fn is_variable_unused(db: &dyn SemanticGroup, variable: &LocalVariable) -> bool {
+    let variable_syntax_stable_ptr = variable.stable_ptr(db).0;
+    let Some(module_file_id) =
+        find_module_file_containing_node(db, &variable_syntax_stable_ptr.lookup(db))
+    else {
+        return false;
+    };
+    let Some(diags) = get_semantic_diagnostics(db, module_file_id.0) else {
+        return false;
+    };
+    diags.get_all().iter().any(|diagnostic| {
+        diagnostic.stable_location.stable_ptr() == variable_syntax_stable_ptr
+            && diagnostic.kind == SemanticDiagnosticKind::UnusedVariable
+    })
+}
+
+// TODO: Re-write this to use `get_semantic_diagnostics` once linting is performed from within a query group
+/// It is stripped-down version of `get_semantic_diagnostics` from the compiler,
+/// designed to correctly find only `SemanticDiagnosticKind::UnusedVariable`
+/// and is tested for only that
+pub fn get_semantic_diagnostics(
+    db: &dyn SemanticGroup,
+    module_id: ModuleId,
+) -> Option<Diagnostics<SemanticDiagnostic>> {
+    let mut diagnostics = DiagnosticsBuilder::default();
+    for item in db.module_items(module_id).ok()?.iter() {
+        match item {
+            ModuleItemId::FreeFunction(free_function) => {
+                diagnostics.extend(db.free_function_body_diagnostics(*free_function));
+            }
+            ModuleItemId::Trait(trait_id) => {
+                diagnostics.extend(db.trait_semantic_definition_diagnostics(*trait_id));
+            }
+            ModuleItemId::Impl(impl_def_id) => {
+                diagnostics.extend(db.impl_semantic_definition_diagnostics(*impl_def_id));
+            }
+            _ => {}
+        }
+    }
+    Some(diagnostics.build())
 }

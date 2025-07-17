@@ -164,6 +164,18 @@ fn main() {
 }
 "#;
 
+const TEST_MANUAL_MATCH_RESULT_WITH_UNWRAPPED_AND_UNUSED_ERROR: &str = r#"
+fn main() {
+    let res_val: Result<i32> = Result::Err('err');
+    // This is just a variable.
+    let panic_value = 'abc';
+    let _a = match res_val {
+        Result::Ok(val) => val,
+        Result::Err(err) => core::panic_with_felt252(panic_value)
+    };
+}
+"#;
+
 const TEST_CORE_PANIC_WITH_FELT252_BLOCK: &str = r#"
 fn main() {
     let foo: Option<i32> = Option::None;
@@ -461,6 +473,23 @@ fn test_manual_match_result_with_unwrapped_and_ignored_error_diagnostics() {
     | ...
     |     };
     |_____^
+    ");
+}
+
+#[test]
+fn test_manual_match_result_with_unwrapped_and_unused_error_diagnostics() {
+    test_lint_diagnostics!(TEST_MANUAL_MATCH_RESULT_WITH_UNWRAPPED_AND_UNUSED_ERROR, @r"
+    Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+     --> lib.cairo:6:14-9:5
+          let _a = match res_val {
+     ______________^
+    | ...
+    |     };
+    |_____^
+    Unused variable. Consider ignoring by prefixing with `_`.
+     --> lib.cairo:8:21
+            Result::Err(err) => core::panic_with_felt252(panic_value)
+                        ^^^
     ");
 }
 

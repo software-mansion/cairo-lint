@@ -25,7 +25,9 @@ use helpers::{
 use if_chain::if_chain;
 
 use super::{FALSE, OK, PANIC_WITH_FELT252, TRUE};
-use crate::lints::manual::helpers::{extract_pattern_variable, extract_tail_or_preserve_expr};
+use crate::lints::manual::helpers::{
+    extract_pattern_variable, extract_tail_or_preserve_expr, is_variable_unused,
+};
 use crate::lints::{ERR, NONE, SOME};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -255,14 +257,12 @@ fn check_syntax_err_arm(
                 if func_name != PANIC_WITH_FELT252 {
                     return false;
                 }
-
                 let Some(error_pattern_variable) = extract_pattern_variable(pattern, arenas) else {
                     return true;
                 };
 
-                // A simplistic approach to detecting if user intends to use the destructured error
-                // TODO(#393): Fix when `manual_unwrap_or_else` has its' logic implemented - reuse it here
-                return error_pattern_variable.name.starts_with("_");
+                return is_variable_unused(db, &error_pattern_variable.var)
+                    || error_pattern_variable.name.starts_with("_");
             }
             false
         }
