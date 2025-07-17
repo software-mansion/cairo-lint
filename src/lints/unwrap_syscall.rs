@@ -9,10 +9,10 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::items::functions::{GenericFunctionId, ImplGenericFunctionId};
 use cairo_lang_semantic::items::imp::ImplHead;
 use cairo_lang_semantic::{
-    db::SemanticGroup, Arenas, ExprFunctionCall, ExprFunctionCallArg, GenericArgumentId, TypeId,
-    TypeLongId,
+    Arenas, ExprFunctionCall, ExprFunctionCallArg, GenericArgumentId, TypeId, TypeLongId,
+    db::SemanticGroup,
 };
-use cairo_lang_syntax::node::{ast, SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast};
 use cairo_lang_utils::LookupIntern;
 
 pub struct UnwrapSyscall;
