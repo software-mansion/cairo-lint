@@ -229,19 +229,28 @@ pub fn check_int_op_one(
         let function_call_exprs = get_all_function_calls(function_body);
         let arenas = &function_body.arenas;
         for function_call_expr in function_call_exprs {
-            check_single_int_op_one(db, &function_call_expr, arenas, diagnostics);
+            check_single_int_op_one(
+                db,
+                corelib_context,
+                &function_call_expr,
+                arenas,
+                diagnostics,
+            );
         }
     }
 }
 
 fn check_single_int_op_one(
     db: &dyn SemanticGroup,
+    corelib_context: &CorelibContext,
     function_call_expr: &ExprFunctionCall,
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
     // Check if the function call is the bool greater or equal (>=) or lower or equal (<=).
     let full_name = function_call_expr.function.full_path(db);
+    // let module = function_call_expr.function.get_concrete(db)
+    // eprintln!("Checking function call: {}", full_name);
     if !full_name.contains("core::integer::")
         || (!full_name.contains("PartialOrd::ge") && !full_name.contains("PartialOrd::le"))
     {

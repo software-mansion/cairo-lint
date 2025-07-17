@@ -9,9 +9,14 @@ use cairo_lang_semantic::db::SemanticGroup;
 pub const BOOL_PARTIAL_EQ_PATH: &str = "core::BoolPartialEq";
 pub const PANIC_PATH: &str = "core::panics::panic";
 pub const PANIC_WITH_BYTE_ARRAY_PATH: &str = "core::panics::panic_with_byte_array";
+pub const T_COPY_CLONE_PATH: &str = "core::clone::TCopyClone";
 
-static CORELIB_ITEM_PATHS: [&'static str; 3] =
-    [BOOL_PARTIAL_EQ_PATH, PANIC_PATH, PANIC_WITH_BYTE_ARRAY_PATH];
+static CORELIB_ITEM_PATHS: [&'static str; 4] = [
+    BOOL_PARTIAL_EQ_PATH,
+    PANIC_PATH,
+    PANIC_WITH_BYTE_ARRAY_PATH,
+    T_COPY_CLONE_PATH,
+];
 
 pub struct CorelibContext {
     corelib_items: HashMap<String, Option<ModuleItemId>>,
@@ -39,7 +44,7 @@ impl CorelibContext {
         }
     }
 
-    pub fn get_bool_partial_eq_trait_id(&self) -> ImplDefId {
+    pub fn get_bool_partial_eq_impl_id(&self) -> ImplDefId {
         let item = self
             .corelib_items
             .get(BOOL_PARTIAL_EQ_PATH)
@@ -70,6 +75,15 @@ impl CorelibContext {
         match item {
             ModuleItemId::FreeFunction(id) => id,
             _ => unreachable!("Expected panic_with_byte_array to be a FreeFunction"),
+        }
+    }
+
+    pub fn get_t_copy_clone_impl_id(&self) -> ImplDefId {
+        let item = self.corelib_items.get(T_COPY_CLONE_PATH).unwrap().unwrap();
+        // eprintln!("TCopyClone function ID: {:?}", item);
+        match item {
+            ModuleItemId::Impl(id) => id,
+            _ => unreachable!("Expected TCopyClone to be an ImplDefId"),
         }
     }
 }

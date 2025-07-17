@@ -91,7 +91,8 @@ use std::collections::HashMap;
 use std::sync::LazyLock;
 
 /// Type describing a linter group's rule checking function.
-type CheckingFunction = fn(&dyn SemanticGroup, &CorelibContext, &ModuleItemId, &mut Vec<PluginDiagnostic>);
+type CheckingFunction =
+    fn(&dyn SemanticGroup, &CorelibContext, &ModuleItemId, &mut Vec<PluginDiagnostic>);
 
 /// Enum representing the kind of a linter. Some lint rules might have the same kind.
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -346,10 +347,10 @@ impl LintContext {
                 lints: vec![Box::new(EnumVariantNames)],
                 check_function: check_enum_variant_names,
             },
-            // LintRuleGroup {
-            //     lints: vec![Box::new(CloneOnCopy)],
-            //     check_function: check_clone_on_copy,
-            // },
+            LintRuleGroup {
+                lints: vec![Box::new(CloneOnCopy)],
+                check_function: check_clone_on_copy,
+            },
             LintRuleGroup {
                 lints: vec![Box::new(EmptyEnumBracketsVariant)],
                 check_function: check_empty_enum_brackets_variant,

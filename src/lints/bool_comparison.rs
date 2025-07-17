@@ -108,7 +108,7 @@ fn check_single_bool_comparison(
     {
         GenericFunctionId::Impl(ImplGenericFunctionId { impl_id, .. }) => {
             if let Some(ImplHead::Concrete(impl_def_id)) = impl_id.head(db) {
-                if impl_def_id != corelib_context.get_bool_partial_eq_trait_id() {
+                if impl_def_id != corelib_context.get_bool_partial_eq_impl_id() {
                     return;
                 }
             } else {

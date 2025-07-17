@@ -11,6 +11,8 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::function_with_body::SemanticExprLookup;
+use cairo_lang_semantic::items::functions::{GenericFunctionId, ImplGenericFunctionId};
+use cairo_lang_semantic::items::imp::ImplHead;
 use cairo_lang_semantic::types::peel_snapshots;
 use cairo_lang_semantic::{Expr, ExprFunctionCall};
 use cairo_lang_syntax::node::kind::SyntaxKind;
@@ -69,26 +71,43 @@ pub fn check_clone_on_copy(
     for function_body in function_bodies.iter() {
         let function_call_exprs = get_all_function_calls(function_body);
         for function_call_expr in function_call_exprs {
-            check_clone_usage(db, &function_call_expr, diagnostics);
+            check_clone_usage(db, corelib_context, &function_call_expr, diagnostics);
         }
     }
 }
 
 fn check_clone_usage(
     db: &dyn SemanticGroup,
-    expr: &ExprFunctionCall,
+    corelib_context: &CorelibContext,
+    function_call_expr: &ExprFunctionCall,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    let function_name = expr.function.full_path(db).split("::").take(3).join("::");
-
-    if function_name == T_COPY_CLONE {
-        diagnostics.push(PluginDiagnostic {
-            stable_ptr: expr.stable_ptr.untyped(),
-            message: CloneOnCopy.diagnostic_message().to_string(),
-            severity: Severity::Warning,
-            inner_span: None,
-        });
+    // let function_name = expr.function.full_path(db).split("::").take(3).join("::");
+    if let GenericFunctionId::Impl(ImplGenericFunctionId { impl_id, .. }) = function_call_expr
+        .function
+        .get_concrete(db)
+        .generic_function
+    {
+        if let Some(ImplHead::Concrete(impl_def_id)) = impl_id.head(db) {
+            if impl_def_id == corelib_context.get_t_copy_clone_impl_id() {
+                diagnostics.push(PluginDiagnostic {
+                    stable_ptr: function_call_expr.stable_ptr.untyped(),
+                    message: CloneOnCopy.diagnostic_message().to_string(),
+                    severity: Severity::Warning,
+                    inner_span: None,
+                });
+            }
+        }
     }
+
+    // if function_name == T_COPY_CLONE {
+    //     diagnostics.push(PluginDiagnostic {
+    //         stable_ptr: function_call_expr.stable_ptr.untyped(),
+    //         message: CloneOnCopy.diagnostic_message().to_string(),
+    //         severity: Severity::Warning,
+    //         inner_span: None,
+    //     });
+    // }
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
