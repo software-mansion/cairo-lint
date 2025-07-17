@@ -314,15 +314,15 @@ impl LintContext {
                 lints: vec![Box::new(ManualExpectErr)],
                 check_function: check_manual_expect_err,
             },
-            LintRuleGroup {
-                lints: vec![
-                    Box::new(IntegerGreaterEqualPlusOne),
-                    Box::new(IntegerGreaterEqualMinusOne),
-                    Box::new(IntegerLessEqualPlusOne),
-                    Box::new(IntegerLessEqualMinusOne),
-                ],
-                check_function: check_int_op_one,
-            },
+            // LintRuleGroup {
+            //     lints: vec![
+            //         Box::new(IntegerGreaterEqualPlusOne),
+            //         Box::new(IntegerGreaterEqualMinusOne),
+            //         Box::new(IntegerLessEqualPlusOne),
+            //         Box::new(IntegerLessEqualMinusOne),
+            //     ],
+            //     check_function: check_int_op_one,
+            // },
             LintRuleGroup {
                 lints: vec![
                     Box::new(DivisionEqualityOperation),
@@ -346,10 +346,10 @@ impl LintContext {
                 lints: vec![Box::new(EnumVariantNames)],
                 check_function: check_enum_variant_names,
             },
-            LintRuleGroup {
-                lints: vec![Box::new(CloneOnCopy)],
-                check_function: check_clone_on_copy,
-            },
+            // LintRuleGroup {
+            //     lints: vec![Box::new(CloneOnCopy)],
+            //     check_function: check_clone_on_copy,
+            // },
             LintRuleGroup {
                 lints: vec![Box::new(EmptyEnumBracketsVariant)],
                 check_function: check_empty_enum_brackets_variant,
@@ -370,10 +370,10 @@ impl LintContext {
                 lints: vec![Box::new(UnitReturnType)],
                 check_function: check_unit_return_type,
             },
-            LintRuleGroup {
-                lints: vec![Box::new(UnwrapSyscall)],
-                check_function: check_unwrap_syscall,
-            },
+            // LintRuleGroup {
+            //     lints: vec![Box::new(UnwrapSyscall)],
+            //     check_function: check_unwrap_syscall,
+            // },
         ]
     }
 

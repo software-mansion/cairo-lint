@@ -1,7 +1,7 @@
 use std::{collections::HashMap, f64::consts::E};
 
 use cairo_lang_defs::ids::{
-    FreeFunctionId, ImplDefId, ModuleId, ModuleItemId, TopLevelLanguageElementId,
+    ExternFunctionId, FreeFunctionId, ImplDefId, ModuleId, ModuleItemId, TopLevelLanguageElementId,
 };
 use cairo_lang_filesystem::ids::CrateId;
 use cairo_lang_semantic::db::SemanticGroup;
@@ -51,11 +51,12 @@ impl CorelibContext {
         }
     }
 
-    pub fn get_panic_function_id(&self) -> FreeFunctionId {
+    pub fn get_panic_function_id(&self) -> ExternFunctionId {
         let item = self.corelib_items.get(PANIC_PATH).unwrap().unwrap();
+        // eprintln!("Panic function ID: {:?}", item);
         match item {
-            ModuleItemId::FreeFunction(id) => id,
-            _ => unreachable!("Expected panic to be a FreeFunction"),
+            ModuleItemId::ExternFunction(id) => id,
+            _ => unreachable!("Expected panic to be a ExternFunction"),
         }
     }
 
@@ -65,6 +66,7 @@ impl CorelibContext {
             .get(PANIC_WITH_BYTE_ARRAY_PATH)
             .unwrap()
             .unwrap();
+        // eprintln!("Panic with byte array function ID: {:?}", item);
         match item {
             ModuleItemId::FreeFunction(id) => id,
             _ => unreachable!("Expected panic_with_byte_array to be a FreeFunction"),

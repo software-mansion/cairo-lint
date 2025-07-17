@@ -73,26 +73,31 @@ fn check_single_panic_usage(
         .lookup(db.upcast())
         .as_syntax_node();
 
-    // let concrete_function_id = function_call_expr
-    //     .function
-    //     .get_concrete(db)
-    //     .generic_function;
-
-    // let is_panic = if let GenericFunctionId::Free(id) = concrete_function_id
-    //     && (id == corelib_context.get_panic_function_id()
-    //         || id == corelib_context.get_panic_with_byte_array_function_id())
-    // {
-    //     true
-    // } else {
-    //     false
-    // };
+    let concrete_function_id = function_call_expr
+        .function
+        .get_concrete(db)
+        .generic_function;
 
     // If the function is the panic function from the corelib.
-    let is_panic = function_call_expr.function.full_path(db) == PANIC_PATH
-        || function_call_expr.function.full_path(db) == PANIC_WITH_BYTE_ARRAY_PATH;
+    let is_panic = if let GenericFunctionId::Extern(id) = concrete_function_id
+        && id == corelib_context.get_panic_function_id()
+    {
+        true
+    } else {
+        false
+    };
+
+    // If the function is the panic_with_byte_array function from the corelib.
+    let is_panic_with_byte_array = if let GenericFunctionId::Free(id) = concrete_function_id
+        && id == corelib_context.get_panic_with_byte_array_function_id()
+    {
+        true
+    } else {
+        false
+    };
 
     // We check if the panic comes from the `assert!` macro.
-    let is_assert_panic = function_call_expr.function.full_path(db) == PANIC_WITH_BYTE_ARRAY_PATH
+    let is_assert_panic = is_panic_with_byte_array
         && function_call_expr
             .stable_ptr
             .lookup(db.upcast())
@@ -100,7 +105,8 @@ fn check_single_panic_usage(
             .get_text(db.upcast())
             .contains(ASSERT_FORMATTER_NAME);
 
-    if !is_panic || is_assert_panic {
+    // We skip non panic calls, and panic calls in assert macros.
+    if !(is_panic || is_panic_with_byte_array) || is_assert_panic {
         return;
     }
 
