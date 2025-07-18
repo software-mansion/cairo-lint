@@ -36,7 +36,6 @@ pub struct CorelibContext {
 impl CorelibContext {
     pub fn new(db: &dyn SemanticGroup) -> Self {
         let core_crate_id = CrateId::core(db);
-        // eprintln!("Core crate ID: {:?}", core_crate_id);
         let modules = db.crate_modules(core_crate_id);
         Self {
             corelib_items: CORELIB_ITEM_PATHS
@@ -69,7 +68,6 @@ impl CorelibContext {
 
     pub fn get_panic_function_id(&self) -> ExternFunctionId {
         let item = self.corelib_items.get(PANIC_PATH).unwrap().unwrap();
-        // eprintln!("Panic function ID: {:?}", item);
         match item {
             LookupItemId::ModuleItem(ModuleItemId::ExternFunction(id)) => id,
             _ => unreachable!("Expected panic to be a ExternFunction"),
@@ -82,7 +80,6 @@ impl CorelibContext {
             .get(PANIC_WITH_BYTE_ARRAY_PATH)
             .unwrap()
             .unwrap();
-        // eprintln!("Panic with byte array function ID: {:?}", item);
         match item {
             LookupItemId::ModuleItem(ModuleItemId::FreeFunction(id)) => id,
             _ => unreachable!("Expected panic_with_byte_array to be a FreeFunction"),
@@ -91,7 +88,6 @@ impl CorelibContext {
 
     pub fn get_t_copy_clone_impl_id(&self) -> ImplDefId {
         let item = self.corelib_items.get(T_COPY_CLONE_PATH).unwrap().unwrap();
-        // eprintln!("TCopyClone function ID: {:?}", item);
         match item {
             LookupItemId::ModuleItem(ModuleItemId::Impl(id)) => id,
             _ => unreachable!("Expected TCopyClone to be an ImplDefId"),
@@ -166,7 +162,6 @@ fn find_item_with_path(
 ) -> Option<LookupItemId> {
     let items = db.module_items(module_id).ok()?;
     for item in items.iter() {
-        // eprintln!("Found item with path: {}", item.full_path(db));
         if item.full_path(db) == path {
             return Some(LookupItemId::ModuleItem(*item));
         }
@@ -178,7 +173,6 @@ fn find_item_with_path(
         }
 
         if let ModuleItemId::Impl(impl_id) = item {
-            
             if let Ok(functions) = db.impl_functions(*impl_id) {
                 for (_, impl_fn_id) in functions.iter() {
                     if impl_fn_id.full_path(db) == path {
