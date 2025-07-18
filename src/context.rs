@@ -1,3 +1,4 @@
+use crate::corelib::CorelibContext;
 use crate::fixes::InternalFix;
 use crate::lints::bitwise_for_parity_check::BitwiseForParity;
 use crate::lints::bitwise_for_parity_check::check_bitwise_for_parity;
@@ -90,7 +91,8 @@ use std::collections::HashMap;
 use std::sync::LazyLock;
 
 /// Type describing a linter group's rule checking function.
-type CheckingFunction = fn(&dyn SemanticGroup, &ModuleItemId, &mut Vec<PluginDiagnostic>);
+type CheckingFunction =
+    fn(&dyn SemanticGroup, &CorelibContext, &ModuleItemId, &mut Vec<PluginDiagnostic>);
 
 /// Enum representing the kind of a linter. Some lint rules might have the same kind.
 #[derive(Debug, PartialEq, Clone, Copy)]

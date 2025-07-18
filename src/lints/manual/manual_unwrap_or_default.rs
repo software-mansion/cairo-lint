@@ -10,6 +10,7 @@ use cairo_lang_syntax::node::{
 
 use crate::{
     context::CairoLintKind,
+    corelib::CorelibContext,
     fixes::InternalFix,
     queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions},
 };
@@ -74,6 +75,7 @@ impl Lint for ManualUnwrapOrDefault {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_unwrap_or_default(
     db: &dyn SemanticGroup,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

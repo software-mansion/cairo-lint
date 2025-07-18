@@ -11,7 +11,9 @@
 //!
 //! These helper functions can be reused in various parts of the Cairo Lint codebase to maintain
 //! consistency and modularity when working with blocks and conditions.
-use cairo_lang_defs::ids::{FileIndex, ModuleFileId, ModuleId, ModuleItemId};
+use cairo_lang_defs::ids::{
+    FileIndex, ImplItemId, LookupItemId, ModuleFileId, ModuleId, ModuleItemId, TraitItemId,
+};
 use cairo_lang_diagnostics::DiagnosticsBuilder;
 use cairo_lang_filesystem::ids::{FileKind, FileLongId, VirtualFile};
 use cairo_lang_formatter::{FormatterConfig, get_formatted_file};
@@ -373,4 +375,100 @@ pub fn format_fixed_file(
     let syntax_root =
         Parser::parse_file(db, &mut diagnostics, virtual_file, content.as_str()).as_syntax_node();
     get_formatted_file(db, &syntax_root, formatter_config)
+}
+
+pub fn is_item_ancestor_of_module(
+    db: &dyn SemanticGroup,
+    searched_item: &LookupItemId,
+    module_id: ModuleId,
+) -> bool {
+    let Ok(items) = db.module_items(module_id) else {
+        return false;
+    };
+
+    for item in items.iter() {
+        match item {
+            ModuleItemId::Submodule(submodule_id) => {
+                if is_item_ancestor_of_module(db, searched_item, ModuleId::Submodule(*submodule_id))
+                {
+                    return true;
+                }
+            }
+            ModuleItemId::Impl(impl_id) => {
+                if LookupItemId::ModuleItem(ModuleItemId::Impl(*impl_id)) == *searched_item {
+                    return true;
+                }
+
+                if let Ok(functions) = db.impl_functions(*impl_id) {
+                    for (_, impl_fn_id) in functions.iter() {
+                        if LookupItemId::ImplItem(ImplItemId::Function(*impl_fn_id))
+                            == *searched_item
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                if let Ok(types) = db.impl_types(*impl_id) {
+                    for (impl_type_id, _) in types.iter() {
+                        if LookupItemId::ImplItem(ImplItemId::Type(*impl_type_id)) == *searched_item
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                if let Ok(consts) = db.impl_constants(*impl_id) {
+                    for (impl_const_id, _) in consts.iter() {
+                        if LookupItemId::ImplItem(ImplItemId::Constant(*impl_const_id))
+                            == *searched_item
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            ModuleItemId::Trait(trait_id) => {
+                if LookupItemId::ModuleItem(ModuleItemId::Trait(*trait_id)) == *searched_item {
+                    return true;
+                }
+
+                if let Ok(functions) = db.trait_functions(*trait_id) {
+                    for (_, trait_fn_id) in functions.iter() {
+                        if LookupItemId::TraitItem(TraitItemId::Function(*trait_fn_id))
+                            == *searched_item
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                if let Ok(types) = db.trait_types(*trait_id) {
+                    for (_, trait_type_id) in types.iter() {
+                        if LookupItemId::TraitItem(TraitItemId::Type(*trait_type_id))
+                            == *searched_item
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                if let Ok(consts) = db.trait_constants(*trait_id) {
+                    for (_, trait_const_id) in consts.iter() {
+                        if LookupItemId::TraitItem(TraitItemId::Constant(*trait_const_id))
+                            == *searched_item
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            _ => {
+                if LookupItemId::ModuleItem(*item) == *searched_item {
+                    return true;
+                }
+            }
+        }
+    }
+    false
 }

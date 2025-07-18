@@ -8,6 +8,7 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::fixes::InternalFix;
 use crate::queries::{get_all_break_statements, get_all_function_bodies};
 
@@ -65,6 +66,7 @@ impl Lint for BreakUnit {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_break(
     db: &dyn SemanticGroup,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

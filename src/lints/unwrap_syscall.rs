@@ -1,5 +1,6 @@
 use crate::{
     context::{CairoLintKind, Lint},
+    corelib::CorelibContext,
     fixes::InternalFix,
     queries::{get_all_function_bodies, get_all_function_calls},
 };
@@ -78,6 +79,7 @@ impl Lint for UnwrapSyscall {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_unwrap_syscall(
     db: &dyn SemanticGroup,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

@@ -1,4 +1,5 @@
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::fixes::InternalFix;
 use crate::lints::{ARRAY, SPAN, U32};
 use crate::mappings::get_originating_syntax_node_for;
@@ -91,6 +92,7 @@ impl Lint for ManualIsEmpty {
 
 pub fn check_manual_is_empty(
     db: &dyn SemanticGroup,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

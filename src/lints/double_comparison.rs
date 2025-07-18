@@ -13,6 +13,7 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 
 use super::function_trait_name_from_fn_id;
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::fixes::InternalFix;
 use crate::lints::{EQ, GE, GT, LE, LT};
 use crate::queries::{get_all_function_bodies, get_all_logical_operator_expressions};
@@ -222,6 +223,7 @@ impl Lint for ContradictoryComparison {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_double_comparison(
     db: &dyn SemanticGroup,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

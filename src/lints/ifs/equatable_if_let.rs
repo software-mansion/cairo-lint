@@ -10,6 +10,7 @@ use cairo_lang_syntax::node::{
 };
 
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::fixes::InternalFix;
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
@@ -63,6 +64,7 @@ impl Lint for EquatableIfLet {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_equatable_if_let(
     db: &dyn SemanticGroup,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

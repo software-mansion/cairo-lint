@@ -24,6 +24,7 @@ pub static CAIRO_LINT_TOOL_NAME: &str = "cairo-lint";
 pub type CairoLintToolMetadata = HashMap<String, bool>;
 
 pub mod context;
+mod corelib;
 mod db;
 pub mod diagnostics;
 pub mod fixes;

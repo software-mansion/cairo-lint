@@ -7,6 +7,7 @@ use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
 pub struct DuplicateIfCondition;
@@ -57,6 +58,7 @@ impl Lint for DuplicateIfCondition {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_duplicate_if_condition(
     db: &dyn SemanticGroup,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

@@ -10,6 +10,7 @@ use cairo_lang_syntax::node::{
 };
 
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::fixes::InternalFix;
 use crate::lints::manual::helpers::{
     expr_if_get_var_name_and_err, expr_match_get_var_name_and_err,
@@ -72,6 +73,7 @@ impl Lint for ManualExpect {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_expect(
     db: &dyn SemanticGroup,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
