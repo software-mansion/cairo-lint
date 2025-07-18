@@ -83,17 +83,15 @@ fn check_clone_usage(
         .function
         .get_concrete(db)
         .generic_function
+        && let Some(ImplHead::Concrete(impl_def_id)) = impl_id.head(db)
+        && impl_def_id == corelib_context.get_t_copy_clone_impl_id()
     {
-        if let Some(ImplHead::Concrete(impl_def_id)) = impl_id.head(db) {
-            if impl_def_id == corelib_context.get_t_copy_clone_impl_id() {
-                diagnostics.push(PluginDiagnostic {
-                    stable_ptr: function_call_expr.stable_ptr.untyped(),
-                    message: CloneOnCopy.diagnostic_message().to_string(),
-                    severity: Severity::Warning,
-                    inner_span: None,
-                });
-            }
-        }
+        diagnostics.push(PluginDiagnostic {
+            stable_ptr: function_call_expr.stable_ptr.untyped(),
+            message: CloneOnCopy.diagnostic_message().to_string(),
+            severity: Severity::Warning,
+            inner_span: None,
+        });
     }
 }
 

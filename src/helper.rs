@@ -382,9 +382,8 @@ pub fn is_item_ancestor_of_module(
     searched_item: &LookupItemId,
     module_id: ModuleId,
 ) -> bool {
-    let items = match db.module_items(module_id) {
-        Ok(items) => items,
-        Err(_) => return false,
+    let Ok(items) = db.module_items(module_id) else {
+        return false;
     };
 
     for item in items.iter() {
