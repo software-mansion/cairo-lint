@@ -80,12 +80,8 @@ impl AnalyzerPlugin for CairoLint {
         let Ok(items) = db.module_items(module_id) else {
             return Vec::default();
         };
-        // eprintln!("module_id: {}", module_id.name(db));
-        let core_id = CrateId::core(db);
-        // eprintln!("core_id: {:?}", core_id);
         
         let corelib_context = CorelibContext::new(db);
-        // eprintln!("bool_partial_eq_item_id: {:?}", abc);
         for item in &*items {
             let module_file = db.module_main_file(module_id).unwrap();
             let item_file = item.stable_location(db).file_id(db).lookup_intern(db);

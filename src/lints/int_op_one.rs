@@ -1,7 +1,12 @@
-use cairo_lang_defs::ids::ModuleItemId;
+use cairo_lang_defs::ids::{
+    LookupItemId, ModuleId, ModuleItemId, NamedLanguageElementId, TopLevelLanguageElementId,
+    TraitFunctionId,
+};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::items::functions::GenericFunctionId;
+use cairo_lang_semantic::items::imp::ImplHead;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBinary};
 use cairo_lang_syntax::node::db::SyntaxGroup;
@@ -11,6 +16,7 @@ use if_chain::if_chain;
 use crate::context::{CairoLintKind, Lint};
 use crate::corelib::CorelibContext;
 use crate::fixes::InternalFix;
+use crate::helper::is_item_ancestor_of_module;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 pub struct IntegerGreaterEqualPlusOne;
@@ -247,23 +253,56 @@ fn check_single_int_op_one(
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
+    // Check if the function call is part of the implementation.
+    let GenericFunctionId::Impl(impl_generic_func_id) = function_call_expr
+        .function
+        .get_concrete(db)
+        .generic_function
+    else {
+        return;
+    };
+
     // Check if the function call is the bool greater or equal (>=) or lower or equal (<=).
-    let full_name = function_call_expr.function.full_path(db);
-    // let module = function_call_expr.function.get_concrete(db)
-    // eprintln!("Checking function call: {}", full_name);
-    if !full_name.contains("core::integer::")
-        || (!full_name.contains("PartialOrd::ge") && !full_name.contains("PartialOrd::le"))
+    if impl_generic_func_id.function != corelib_context.get_partial_ord_ge_trait_function_id()
+        && impl_generic_func_id.function != corelib_context.get_partial_ord_le_trait_function_id()
     {
+        return;
+    }
+
+    // Check if the function call is part of the corelib integer module.
+    let is_part_of_corelib_integer =
+        if let Some(ImplHead::Concrete(impl_def_id)) = impl_generic_func_id.impl_id.head(db) {
+            is_item_ancestor_of_module(
+                db,
+                &LookupItemId::ModuleItem(ModuleItemId::Impl(impl_def_id)),
+                ModuleId::Submodule(corelib_context.get_integer_module_id()),
+            )
+        } else {
+            false
+        };
+
+    if !is_part_of_corelib_integer {
         return;
     }
 
     let lhs = &function_call_expr.args[0];
     let rhs = &function_call_expr.args[1];
 
+    let add_trait_function_id = corelib_context.get_add_trait_function_id();
+    let sub_trait_function_id = corelib_context.get_sub_trait_function_id();
+    let partial_ord_ge_trait_function_id = corelib_context.get_partial_ord_ge_trait_function_id();
+    let partial_ord_le_trait_function_id = corelib_context.get_partial_ord_le_trait_function_id();
+
     // x >= y + 1
     if check_is_variable(lhs, arenas)
-        && check_is_add_or_sub_one(db, rhs, arenas, "::add")
-        && function_call_expr.function.full_path(db).contains("::ge")
+        && check_is_add_or_sub_one(
+            db,
+            rhs,
+            arenas,
+            is_part_of_corelib_integer,
+            add_trait_function_id,
+        )
+        && impl_generic_func_id.function == partial_ord_ge_trait_function_id
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: function_call_expr.stable_ptr.untyped(),
@@ -274,9 +313,14 @@ fn check_single_int_op_one(
     }
 
     // x - 1 >= y
-    if check_is_add_or_sub_one(db, lhs, arenas, "::sub")
-        && check_is_variable(rhs, arenas)
-        && function_call_expr.function.full_path(db).contains("::ge")
+    if check_is_add_or_sub_one(
+        db,
+        lhs,
+        arenas,
+        is_part_of_corelib_integer,
+        sub_trait_function_id,
+    ) && check_is_variable(rhs, arenas)
+        && impl_generic_func_id.function == partial_ord_ge_trait_function_id
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: function_call_expr.stable_ptr.untyped(),
@@ -287,9 +331,14 @@ fn check_single_int_op_one(
     }
 
     // x + 1 <= y
-    if check_is_add_or_sub_one(db, lhs, arenas, "::add")
-        && check_is_variable(rhs, arenas)
-        && function_call_expr.function.full_path(db).contains("::le")
+    if check_is_add_or_sub_one(
+        db,
+        lhs,
+        arenas,
+        is_part_of_corelib_integer,
+        add_trait_function_id,
+    ) && check_is_variable(rhs, arenas)
+        && impl_generic_func_id.function == partial_ord_le_trait_function_id
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: function_call_expr.stable_ptr.untyped(),
@@ -301,8 +350,14 @@ fn check_single_int_op_one(
 
     // x <= y - 1
     if check_is_variable(lhs, arenas)
-        && check_is_add_or_sub_one(db, rhs, arenas, "::sub")
-        && function_call_expr.function.full_path(db).contains("::le")
+        && check_is_add_or_sub_one(
+            db,
+            rhs,
+            arenas,
+            is_part_of_corelib_integer,
+            sub_trait_function_id,
+        )
+        && impl_generic_func_id.function == partial_ord_le_trait_function_id
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: function_call_expr.stable_ptr.untyped(),
@@ -325,7 +380,8 @@ fn check_is_add_or_sub_one(
     db: &dyn SemanticGroup,
     arg: &ExprFunctionCallArg,
     arenas: &Arenas,
-    operation: &str,
+    is_part_of_corelib_integer: bool,
+    operation_function_trait_id: TraitFunctionId,
 ) -> bool {
     let ExprFunctionCallArg::Value(v) = arg else {
         return false;
@@ -334,9 +390,14 @@ fn check_is_add_or_sub_one(
         return false;
     };
 
+    let GenericFunctionId::Impl(impl_generic_func_id) =
+        func_call.function.get_concrete(db).generic_function
+    else {
+        return false;
+    };
+
     // Check is addition or substraction
-    let full_name = func_call.function.full_path(db);
-    if !full_name.contains("core::integer::") && !full_name.contains(operation)
+    if !is_part_of_corelib_integer && impl_generic_func_id.function != operation_function_trait_id
         || func_call.args.len() != 2
     {
         return false;
