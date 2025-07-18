@@ -54,7 +54,7 @@ impl CorelibContext {
         }
     }
 
-    // TODO: Write a macro for these getters to avoid boilerplate.
+    // TODO (https://github.com/software-mansion/cairo-lint/issues/398): Write a macro for these getters to avoid boilerplate.
     pub fn get_bool_partial_eq_impl_id(&self) -> ImplDefId {
         let item = self
             .corelib_items

@@ -92,11 +92,10 @@ impl Lint for ManualIsEmpty {
 
 pub fn check_manual_is_empty(
     db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    let _ = corelib_context;
     let functions_bodies = get_all_function_bodies(db, item);
     for function_body in functions_bodies.iter() {
         let arenas = &function_body.arenas;
