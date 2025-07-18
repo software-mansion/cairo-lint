@@ -25,7 +25,9 @@ use helpers::{
 use if_chain::if_chain;
 
 use super::{FALSE, OK, PANIC_WITH_FELT252, TRUE};
-use crate::lints::manual::helpers::extract_tail_or_preserve_expr;
+use crate::lints::manual::helpers::{
+    extract_pattern_variable, extract_tail_or_preserve_expr, is_variable_unused,
+};
 use crate::lints::{ERR, NONE, SOME};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -252,10 +254,17 @@ fn check_syntax_err_arm(
         ManualLint::ManualResExpect => {
             if let Expr::FunctionCall(func_call) = &expr {
                 let func_name = func_call.function.full_path(db);
-                func_name == PANIC_WITH_FELT252
-            } else {
-                false
+                if func_name != PANIC_WITH_FELT252 {
+                    return false;
+                }
+                let Some(error_pattern_variable) = extract_pattern_variable(pattern, arenas) else {
+                    return true;
+                };
+
+                return is_variable_unused(db, &error_pattern_variable.var)
+                    || error_pattern_variable.name.starts_with("_");
             }
+            false
         }
         ManualLint::ManualExpectErr => match_arm_returns_extracted_var(expr, pattern, arenas),
         ManualLint::ManualUnwrapOrDefault => check_is_default(db, expr, arenas),
