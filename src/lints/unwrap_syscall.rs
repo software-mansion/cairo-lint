@@ -79,7 +79,7 @@ impl Lint for UnwrapSyscall {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_unwrap_syscall(
     db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

@@ -65,7 +65,7 @@ impl Lint for EmptyEnumBracketsVariant {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_empty_enum_brackets_variant(
     db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

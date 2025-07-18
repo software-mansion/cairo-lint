@@ -11,10 +11,8 @@
 //!
 //! These helper functions can be reused in various parts of the Cairo Lint codebase to maintain
 //! consistency and modularity when working with blocks and conditions.
-use cairo_lang_compiler::db;
 use cairo_lang_defs::ids::{
-    FileIndex, ImplItemId, LookupItemId, ModuleFileId, ModuleId, ModuleItemId,
-    NamedLanguageElementId, TraitItemId,
+    FileIndex, ImplItemId, LookupItemId, ModuleFileId, ModuleId, ModuleItemId, TraitItemId,
 };
 use cairo_lang_diagnostics::DiagnosticsBuilder;
 use cairo_lang_filesystem::ids::{FileKind, FileLongId, VirtualFile};

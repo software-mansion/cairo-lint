@@ -64,7 +64,7 @@ impl Lint for EquatableIfLet {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_equatable_if_let(
     db: &dyn SemanticGroup,
-corelib_context: &CorelibContext,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

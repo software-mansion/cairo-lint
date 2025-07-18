@@ -223,7 +223,7 @@ impl Lint for ContradictoryComparison {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_double_comparison(
     db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

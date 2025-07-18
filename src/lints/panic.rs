@@ -12,7 +12,7 @@ use itertools::Itertools;
 
 use crate::context::{CairoLintKind, Lint};
 use crate::corelib::CorelibContext;
-use crate::helper::{ASSERT_FORMATTER_NAME, PANIC_PATH, PANIC_WITH_BYTE_ARRAY_PATH};
+use crate::helper::ASSERT_FORMATTER_NAME;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 pub struct PanicInCode;

@@ -24,6 +24,7 @@ pub static CAIRO_LINT_TOOL_NAME: &str = "cairo-lint";
 pub type CairoLintToolMetadata = HashMap<String, bool>;
 
 pub mod context;
+mod corelib;
 mod db;
 pub mod diagnostics;
 pub mod fixes;
@@ -33,7 +34,6 @@ mod mappings;
 pub mod plugin;
 mod queries;
 mod types;
-mod corelib;
 
 use context::{CairoLintKind, get_lint_type_from_diagnostic_message};
 

@@ -1,8 +1,8 @@
-use std::{collections::HashMap, f64::consts::E};
+use std::collections::HashMap;
 
 use cairo_lang_defs::ids::{
-    ExternFunctionId, FreeFunctionId, ImplDefId, ImplFunctionId, ImplItemId, LookupItemId,
-    ModuleId, ModuleItemId, SubmoduleId, TopLevelLanguageElementId, TraitFunctionId, TraitItemId,
+    ExternFunctionId, FreeFunctionId, ImplDefId, ImplItemId, LookupItemId, ModuleId, ModuleItemId,
+    SubmoduleId, TopLevelLanguageElementId, TraitFunctionId, TraitItemId,
 };
 use cairo_lang_filesystem::ids::CrateId;
 use cairo_lang_semantic::db::SemanticGroup;
@@ -17,7 +17,7 @@ pub const ADD_TRAIT_FUNCTION_PATH: &str = "core::traits::Add::add";
 pub const SUB_TRAIT_FUNCTION_PATH: &str = "core::traits::Sub::sub";
 pub const INTEGER_MODULE_PATH: &str = "core::integer";
 
-static CORELIB_ITEM_PATHS: [&'static str; 9] = [
+static CORELIB_ITEM_PATHS: [&str; 9] = [
     BOOL_PARTIAL_EQ_PATH,
     PANIC_PATH,
     PANIC_WITH_BYTE_ARRAY_PATH,

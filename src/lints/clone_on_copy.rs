@@ -18,9 +18,6 @@ use cairo_lang_semantic::{Expr, ExprFunctionCall};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast};
 use cairo_lang_utils::Intern;
-use itertools::Itertools;
-
-const T_COPY_CLONE: &str = "core::clone::TCopyClone";
 
 pub struct CloneOnCopy;
 
@@ -82,7 +79,6 @@ fn check_clone_usage(
     function_call_expr: &ExprFunctionCall,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    // let function_name = expr.function.full_path(db).split("::").take(3).join("::");
     if let GenericFunctionId::Impl(ImplGenericFunctionId { impl_id, .. }) = function_call_expr
         .function
         .get_concrete(db)
@@ -99,15 +95,6 @@ fn check_clone_usage(
             }
         }
     }
-
-    // if function_name == T_COPY_CLONE {
-    //     diagnostics.push(PluginDiagnostic {
-    //         stable_ptr: function_call_expr.stable_ptr.untyped(),
-    //         message: CloneOnCopy.diagnostic_message().to_string(),
-    //         severity: Severity::Warning,
-    //         inner_span: None,
-    //     });
-    // }
 }
 
 #[tracing::instrument(skip_all, level = "trace")]

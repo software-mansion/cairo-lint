@@ -1,7 +1,4 @@
-use cairo_lang_defs::ids::{
-    LookupItemId, ModuleId, ModuleItemId, NamedLanguageElementId, TopLevelLanguageElementId,
-    TraitFunctionId,
-};
+use cairo_lang_defs::ids::{LookupItemId, ModuleId, ModuleItemId, TraitFunctionId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;

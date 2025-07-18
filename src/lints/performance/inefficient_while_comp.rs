@@ -65,7 +65,7 @@ const PARTIAL_ORD_PATTERNS: [&str; 4] = [
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_inefficient_while_comp(
     db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

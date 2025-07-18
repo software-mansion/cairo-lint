@@ -1,9 +1,7 @@
 use anyhow::{Result, anyhow};
-use cairo_lang_defs::ids::{
-    LanguageElementId, ModuleId, NamedLanguageElementId, TopLevelLanguageElementId,
-};
+use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
-use cairo_lang_filesystem::ids::{CrateId, FileId, FileLongId};
+use cairo_lang_filesystem::ids::{FileId, FileLongId};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use cairo_lang_syntax::node::SyntaxNode;
@@ -80,7 +78,7 @@ impl AnalyzerPlugin for CairoLint {
         let Ok(items) = db.module_items(module_id) else {
             return Vec::default();
         };
-        
+
         let corelib_context = CorelibContext::new(db);
         for item in &*items {
             let module_file = db.module_main_file(module_id).unwrap();

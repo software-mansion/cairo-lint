@@ -80,7 +80,7 @@ impl Lint for ManualExpectErr {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_expect_err(
     db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

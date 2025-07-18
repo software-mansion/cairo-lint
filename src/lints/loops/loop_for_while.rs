@@ -92,7 +92,7 @@ impl Lint for LoopForWhile {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_loop_for_while(
     db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
