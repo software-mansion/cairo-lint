@@ -2,6 +2,7 @@ use cairo_lang_defs::ids::{FunctionWithBodyId, TopLevelLanguageElementId};
 use cairo_lang_semantic::FunctionId;
 use cairo_lang_semantic::db::SemanticGroup;
 
+pub mod assert_on_const;
 pub mod bitwise_for_parity_check;
 pub mod bool_comparison;
 pub mod breaks;
