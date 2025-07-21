@@ -1,4 +1,5 @@
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::fixer::InternalFix;
 use cairo_lang_defs::ids::{LanguageElementId, ModuleItemId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
@@ -67,6 +68,7 @@ impl Lint for EnumVariantNames {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_enum_variant_names(
     db: &dyn SemanticGroup,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

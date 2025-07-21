@@ -6,6 +6,7 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast, 
 
 use crate::{
     context::CairoLintKind,
+    corelib::CorelibContext,
     fixer::InternalFix,
     queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions},
 };
@@ -65,6 +66,7 @@ impl Lint for ManualUnwrapOr {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_unwrap_or(
     db: &dyn SemanticGroup,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

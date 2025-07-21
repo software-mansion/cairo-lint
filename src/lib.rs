@@ -27,6 +27,7 @@ pub type CairoLintToolMetadata = BTreeMap<String, bool>;
 
 pub mod context;
 
+mod corelib;
 mod db;
 pub mod diagnostics;
 mod fixer;
@@ -35,8 +36,8 @@ pub mod lints;
 mod mappings;
 pub mod plugin;
 mod queries;
-mod types;
 
+pub use corelib::CorelibContext;
 pub use db::{LinterDatabase, LinterDiagnosticParams, LinterGroup};
 
 use context::{CairoLintKind, get_lint_type_from_diagnostic_message};

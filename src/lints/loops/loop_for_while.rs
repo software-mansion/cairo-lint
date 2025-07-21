@@ -11,6 +11,7 @@ use cairo_lang_syntax::node::{
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::fixer::InternalFix;
 use crate::helper::{invert_condition, remove_break_from_block, remove_break_from_else_clause};
 use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
@@ -91,6 +92,7 @@ impl Lint for LoopForWhile {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_loop_for_while(
     db: &dyn SemanticGroup,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

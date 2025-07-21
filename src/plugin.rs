@@ -16,9 +16,7 @@ use crate::context::{
     get_all_checking_functions, get_name_for_diagnostic_message, get_unique_allowed_names,
     is_lint_enabled_by_default,
 };
-use crate::mappings::{
-    get_node_resultants, get_origin_module_item_as_syntax_node, get_origin_syntax_node,
-};
+use crate::corelib::CorelibContext;
 
 pub fn cairo_lint_plugin_suite(tool_metadata: CairoLintToolMetadata) -> Result<PluginSuite> {
     let mut suite = PluginSuite::default();
@@ -81,6 +79,8 @@ impl AnalyzerPlugin for CairoLint {
         let Ok(items) = db.module_items(module_id) else {
             return Vec::default();
         };
+
+        let corelib_context = CorelibContext::new(db);
         for item in &*items {
             let mut item_diagnostics = Vec::new();
             let module_file = db.module_main_file(module_id).unwrap();
@@ -119,7 +119,7 @@ impl AnalyzerPlugin for CairoLint {
             } else if !is_generated_item || self.only_generated_files {
                 let checking_functions = get_all_checking_functions();
                 for checking_function in checking_functions {
-                    checking_function(db, item, &mut item_diagnostics);
+                    checking_function(db, &corelib_context, item, &mut item_diagnostics);
                 }
 
                 diags.extend(item_diagnostics.into_iter().filter_map(|diag| {

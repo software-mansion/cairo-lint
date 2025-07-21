@@ -1,4 +1,5 @@
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::fixer::InternalFix;
 use crate::helper::find_module_file_containing_node;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
@@ -10,14 +11,13 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::function_with_body::SemanticExprLookup;
+use cairo_lang_semantic::items::functions::{GenericFunctionId, ImplGenericFunctionId};
+use cairo_lang_semantic::items::imp::ImplHead;
 use cairo_lang_semantic::types::peel_snapshots;
 use cairo_lang_semantic::{Expr, ExprFunctionCall};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast};
 use cairo_lang_utils::Intern;
-use itertools::Itertools;
-
-const T_COPY_CLONE: &str = "core::clone::TCopyClone";
 
 pub struct CloneOnCopy;
 
@@ -60,6 +60,7 @@ impl Lint for CloneOnCopy {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_clone_on_copy(
     db: &dyn SemanticGroup,
+    corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
@@ -67,21 +68,26 @@ pub fn check_clone_on_copy(
     for function_body in function_bodies.iter() {
         let function_call_exprs = get_all_function_calls(function_body);
         for function_call_expr in function_call_exprs {
-            check_clone_usage(db, &function_call_expr, diagnostics);
+            check_clone_usage(db, corelib_context, &function_call_expr, diagnostics);
         }
     }
 }
 
 fn check_clone_usage(
     db: &dyn SemanticGroup,
-    expr: &ExprFunctionCall,
+    corelib_context: &CorelibContext,
+    function_call_expr: &ExprFunctionCall,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    let function_name = expr.function.full_path(db).split("::").take(3).join("::");
-
-    if function_name == T_COPY_CLONE {
+    if let GenericFunctionId::Impl(ImplGenericFunctionId { impl_id, .. }) = function_call_expr
+        .function
+        .get_concrete(db)
+        .generic_function
+        && let Some(ImplHead::Concrete(impl_def_id)) = impl_id.head(db)
+        && impl_def_id == corelib_context.get_t_copy_clone_impl_id()
+    {
         diagnostics.push(PluginDiagnostic {
-            stable_ptr: expr.stable_ptr.untyped(),
+            stable_ptr: function_call_expr.stable_ptr.untyped(),
             message: CloneOnCopy.diagnostic_message().to_string(),
             severity: Severity::Warning,
             inner_span: None,

@@ -8,6 +8,7 @@ use if_chain::if_chain;
 use num_bigint::BigInt;
 
 use crate::context::{CairoLintKind, Lint};
+use crate::corelib::CorelibContext;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 use super::AND;
@@ -43,6 +44,7 @@ impl Lint for BitwiseForParity {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_bitwise_for_parity(
     db: &dyn SemanticGroup,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

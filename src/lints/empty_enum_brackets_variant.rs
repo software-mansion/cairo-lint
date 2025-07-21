@@ -9,6 +9,7 @@ use cairo_lang_syntax::node::{
 
 use crate::{
     context::{CairoLintKind, Lint},
+    corelib::CorelibContext,
     fixer::InternalFix,
 };
 
@@ -64,6 +65,7 @@ impl Lint for EmptyEnumBracketsVariant {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_empty_enum_brackets_variant(
     db: &dyn SemanticGroup,
+    _corelib_context: &CorelibContext,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

@@ -3,7 +3,7 @@ use std::collections::{HashSet, VecDeque};
 use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_filesystem::db::{get_parent_and_mapping, translate_location};
-use cairo_lang_filesystem::ids::{FileId, FileLongId};
+use cairo_lang_filesystem::ids::{CodeOrigin, FileId, FileLongId};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_syntax::node::db::SyntaxGroup;
@@ -18,7 +18,7 @@ use crate::CairoLintToolMetadata;
 use crate::context::{
     get_all_checking_functions, get_name_for_diagnostic_message, is_lint_enabled_by_default,
 };
-use crate::mappings::{get_origin_module_item_as_syntax_node, get_origin_syntax_node};
+use crate::corelib::CorelibContext;
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
 pub struct LinterDiagnosticParams {
@@ -30,6 +30,7 @@ pub struct LinterDiagnosticParams {
 pub trait LinterGroup: SemanticGroup + Upcast<dyn SemanticGroup> {
     fn linter_diagnostics(
         &self,
+        corelib_context: CorelibContext,
         params: LinterDiagnosticParams,
         module_id: ModuleId,
     ) -> Vec<PluginDiagnostic>;
@@ -51,6 +52,7 @@ pub trait LinterGroup: SemanticGroup + Upcast<dyn SemanticGroup> {
 #[tracing::instrument(skip_all, level = "trace")]
 fn linter_diagnostics(
     db: &dyn LinterGroup,
+    corelib_context: CorelibContext,
     params: LinterDiagnosticParams,
     module_id: ModuleId,
 ) -> Vec<PluginDiagnostic> {
@@ -68,6 +70,10 @@ fn linter_diagnostics(
         if is_generated_item && !params.only_generated_files {
             let item_syntax_node = item.stable_location(db).stable_ptr().lookup(db.upcast());
             let origin_node = get_origin_module_item_as_syntax_node(db, item);
+            // eprintln!("swiry 1 {origin_node:?}");
+            // if let Some(origin_node) = origin_node {
+            //     eprintln!("resulntants: {:?}", db.node_resultants(origin_node))
+            // }
 
             if_chain! {
                 if let Some(node) = origin_node;
@@ -82,9 +88,10 @@ fn linter_diagnostics(
                 // we won't be processing it, as it might lead to unexpected behavior.
                 if node.get_text_without_trivia(db).contains(&item_syntax_node.get_text_without_trivia(db));
                 then {
+                    // eprintln!("swiry 2");
                     let checking_functions = get_all_checking_functions();
                     for checking_function in checking_functions {
-                        checking_function(db, item, &mut item_diagnostics);
+                        checking_function(db, &corelib_context, item, &mut item_diagnostics);
                     }
 
                     diags.extend(item_diagnostics.into_iter().filter_map(|mut diag| {
@@ -94,9 +101,10 @@ fn linter_diagnostics(
                 }
             }
         } else if !is_generated_item || params.only_generated_files {
+            // eprintln!("swiry 3");
             let checking_functions = get_all_checking_functions();
             for checking_function in checking_functions {
-                checking_function(db, item, &mut item_diagnostics);
+                checking_function(db, &corelib_context, item, &mut item_diagnostics);
             }
 
             diags.extend(item_diagnostics.into_iter().filter_map(|diag| {
@@ -187,67 +195,83 @@ pub fn find_generated_nodes(
 
     let mut is_replaced = false;
 
-    for file in node_descendant_files.iter().copied() {
-        // let Some((parent, mappings)) = get_parent_and_mapping(db, file) else {
-        //     continue;
-        // };
+    for file in node_descendant_files.iter().cloned() {
+        let Some((parent, mappings)) = get_parent_and_mapping(db, file) else {
+            continue;
+        };
 
-        // if parent != start_file {
-        //     continue;
-        // }
+        if parent != start_file {
+            continue;
+        }
 
-        // let Ok(file_syntax) = db.file_syntax(file) else {
-        //     continue;
-        // };
+        let Ok(file_syntax) = db.file_syntax(file) else {
+            continue;
+        };
 
-        // let is_replacing_og_item = match file.lookup_intern(db) {
-        //     FileLongId::Virtual(vfs) => vfs.original_item_removed,
-        //     FileLongId::External(id) => db.ext_as_virtual(id).original_item_removed,
-        //     _ => unreachable!(),
-        // };
+        let mappings: Vec<_> = mappings
+            .iter()
+            .filter(|mapping| match mapping.origin {
+                CodeOrigin::CallSite(_) => true,
+                CodeOrigin::Start(start) => start == node.span(db).start,
+                CodeOrigin::Span(span) => node.span(db).contains(span),
+            })
+            .cloned()
+            .collect();
+        if mappings.is_empty() {
+            continue;
+        }
 
-        // let mut new_nodes: OrderedHashSet<_> = Default::default();
+        let is_replacing_og_item = match file.lookup_intern(db) {
+            FileLongId::Virtual(vfs) => vfs.original_item_removed,
+            FileLongId::External(id) => db.ext_as_virtual(id).original_item_removed,
+            _ => unreachable!(),
+        };
 
-        // for token in file_syntax.tokens(db) {
-        //     // Skip end of the file terminal, which is also a syntax tree leaf.
-        //     // As `ModuleItemList` and `TerminalEndOfFile` have the same parent,
-        //     // which is the `SyntaxFile`, so we don't want to take the `SyntaxFile`
-        //     // as an additional resultant.
-        //     if token.kind(db) == SyntaxKind::TerminalEndOfFile {
-        //         continue;
-        //     }
-        //     let nodes: Vec<_> = token
-        //         .ancestors_with_self(db)
-        //         .map_while(|new_node| {
-        //             translate_location(&mappings, new_node.span(db))
-        //                 .map(|span_in_parent| (new_node, span_in_parent))
-        //         })
-        //         .take_while(|(_, span_in_parent)| node.span(db).contains(*span_in_parent))
-        //         .collect();
+        let mut new_nodes: OrderedHashSet<_> = Default::default();
 
-        //     if let Some((last_node, _)) = nodes.last().cloned() {
-        //         let (new_node, _) = nodes
-        //             .into_iter()
-        //             .rev()
-        //             .take_while(|(node, _)| node.span(db) == last_node.span(db))
-        //             .last()
-        //             .unwrap();
+        for mapping in &mappings {
+            for token in file_syntax.lookup_offset(db, mapping.span.start).tokens(db) {
+                // Skip end of the file terminal, which is also a syntax tree leaf.
+                // As `ModuleItemList` and `TerminalEndOfFile` have the same parent,
+                // which is the `SyntaxFile`, so we don't want to take the `SyntaxFile`
+                // as an additional resultant.
+                if token.kind(db) == SyntaxKind::TerminalEndOfFile {
+                    continue;
+                }
+                let nodes: Vec<_> = token
+                    .ancestors_with_self(db)
+                    .map_while(|new_node| {
+                        translate_location(&mappings, new_node.span(db))
+                            .map(|span_in_parent| (new_node, span_in_parent))
+                    })
+                    .take_while(|(_, span_in_parent)| node.span(db).contains(*span_in_parent))
+                    .collect();
 
-        //         new_nodes.insert(new_node);
-        //     }
-        // }
+                if let Some((last_node, _)) = nodes.last().cloned() {
+                    let (new_node, _) = nodes
+                        .into_iter()
+                        .rev()
+                        .take_while(|(node, _)| node.span(db) == last_node.span(db))
+                        .last()
+                        .unwrap();
 
-        // // If there is no node found, don't mark it as potentially replaced.
-        // if !new_nodes.is_empty() {
-        //     is_replaced = is_replaced || is_replacing_og_item;
-        // }
+                    new_nodes.insert(new_node);
+                }
+            }
+        }
 
-        let (was_replaced, new_nodes) =
-            process_file(db, node, node_descendant_files.clone(), start_file, file);
-        is_replaced = is_replaced || was_replaced;
-        // for new_node in new_nodes {
-        result.extend(new_nodes);
-        // }
+        // If there is no node found, don't mark it as potentially replaced.
+        if !new_nodes.is_empty() {
+            is_replaced = is_replaced || is_replacing_og_item;
+        }
+
+        for new_node in new_nodes {
+            result.extend(find_generated_nodes(
+                db,
+                node_descendant_files.clone(),
+                new_node,
+            ));
+        }
     }
 
     if !is_replaced {
@@ -269,74 +293,4 @@ fn node_has_ascendants_with_allow_name_attr(
         }
     }
     false
-}
-
-#[tracing::instrument(level = "trace", skip(db))]
-pub fn process_file(
-    db: &dyn LinterGroup,
-    node: SyntaxNode,
-    node_descendant_files: Vec<FileId>,
-    start_file: FileId,
-    file: FileId,
-) -> (bool, OrderedHashSet<SyntaxNode>) {
-    let mut is_replaced = false;
-    let mut result = OrderedHashSet::default();
-    let Some((parent, mappings)) = get_parent_and_mapping(db, file) else {
-        return (is_replaced, result);
-    };
-
-    if parent != start_file {
-        return (is_replaced, result);
-    }
-
-    let Ok(file_syntax) = db.file_syntax(file) else {
-        return (is_replaced, result);
-    };
-
-    let is_replacing_og_item = match file.lookup_intern(db) {
-        FileLongId::Virtual(vfs) => vfs.original_item_removed,
-        FileLongId::External(id) => db.ext_as_virtual(id).original_item_removed,
-        _ => unreachable!(),
-    };
-
-    let mut new_nodes: OrderedHashSet<_> = Default::default();
-
-    for token in file_syntax.tokens(db) {
-        // Skip end of the file terminal, which is also a syntax tree leaf.
-        // As `ModuleItemList` and `TerminalEndOfFile` have the same parent,
-        // which is the `SyntaxFile`, so we don't want to take the `SyntaxFile`
-        // as an additional resultant.
-        if token.kind(db) == SyntaxKind::TerminalEndOfFile {
-            continue;
-        }
-        let nodes: Vec<_> = token
-            .ancestors_with_self(db)
-            .map_while(|new_node| {
-                translate_location(&mappings, new_node.span(db))
-                    .map(|span_in_parent| (new_node, span_in_parent))
-            })
-            .take_while(|(_, span_in_parent)| node.span(db).contains(*span_in_parent))
-            .collect();
-
-        if let Some((last_node, _)) = nodes.last().cloned() {
-            let (new_node, _) = nodes
-                .into_iter()
-                .rev()
-                .take_while(|(node, _)| node.span(db) == last_node.span(db))
-                .last()
-                .unwrap();
-
-            new_nodes.insert(new_node);
-        }
-    }
-
-    // If there is no node found, don't mark it as potentially replaced.
-    if !new_nodes.is_empty() {
-        is_replaced = is_replaced || is_replacing_og_item;
-    }
-
-    for new_node in new_nodes {
-        result.extend(db.find_generated_nodes(node_descendant_files.clone(), new_node));
-    }
-    (is_replaced, result)
 }
