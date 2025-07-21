@@ -53,6 +53,20 @@ pub fn get_all_function_bodies(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
+pub fn get_all_function_bodies_with_ids(
+    db: &dyn SemanticGroup,
+    item: &ModuleItemId,
+) -> Vec<(FunctionWithBodyId, Arc<FunctionBody>)> {
+    get_all_checkable_functions(db, item)
+        .iter()
+        .filter_map(|&id| {
+            let body = db.function_body(id).ok()?;
+            Some((id, body))
+        })
+        .collect()
+}
+
+#[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_parenthesized_expressions(
     db: &dyn SemanticGroup,
     item: &ModuleItemId,

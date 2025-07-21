@@ -234,7 +234,7 @@ fn main() {
     #[allow(collapsible_if_else)]
     if let Option::Some(v) = x {
         v
-    } else { 
+    } else {
         if true {
             10
         } else {
@@ -267,7 +267,7 @@ fn main() {
         Result::Ok(v) => {
             v
         },
-        Result::Err(_) => 
+        Result::Err(_) =>
             // comment
             [1, 2]
     };
@@ -436,6 +436,72 @@ fn main() {
         v
     } else {
         array![9, 9, 9]
+    };
+}
+"#;
+
+const IF_LET_WITH_NON_DROPPABLE_TYPE: &str = r#"
+// This type cannot be dropped => lint will not trigger.
+struct Struct {
+    x: felt252,
+}
+
+fn main() {
+    let a: Option<Struct> = Option::Some(Struct { x: 0x0 });
+
+    if let Option::Some(v) = a {
+        v
+    } else {
+        Struct { x: 0x1 }
+    };
+}
+"#;
+
+const MATCH_WITH_NON_DROPPABLE_TYPE: &str = r#"
+// This type cannot be dropped => lint will not trigger.
+struct Struct {
+    x: felt252,
+}
+
+fn main() {
+    let a: Option<Struct> = Option::Some(Struct { x: 0x0 });
+
+    match a {
+        Option::Some(v) => v,
+        Option::None => Struct { x: 0x1 }
+    };
+}
+"#;
+
+const IF_LET_WITH_DERIVE_DROP_TYPE: &str = r#"
+#[derive(Drop)]
+struct Struct {
+    x: felt252,
+}
+
+fn main() {
+    let a: Option<Struct> = Option::Some(Struct { x: 0x0 });
+
+    if let Option::Some(v) = a {
+        v
+    } else {
+        Struct { x: 0x1 }
+    };
+}
+"#;
+
+const MATCH_WITH_DERIVE_DROP_TYPE: &str = r#"
+#[derive(Drop)]
+struct Struct {
+    x: felt252,
+}
+
+fn main() {
+    let a: Option<Struct> = Option::Some(Struct { x: 0x0 });
+
+    match a {
+        Option::Some(v) => v,
+        Option::None => Struct { x: 0x1 }
     };
 }
 "#;
@@ -1144,4 +1210,72 @@ fn allow_match_with_tuple_option_diagnostics() {
 #[test]
 fn allow_if_let_with_array_macro_result_diagnostics() {
     test_lint_diagnostics!(ALLOW_IF_LET_WITH_ARRAY_MACRO_RESULT, @r"");
+}
+
+#[test]
+fn if_let_with_non_droppable_type_diagnostics() {
+    test_lint_diagnostics!(IF_LET_WITH_NON_DROPPABLE_TYPE, @r"");
+}
+
+#[test]
+fn match_with_non_droppable_type_diagnostics() {
+    test_lint_diagnostics!(MATCH_WITH_NON_DROPPABLE_TYPE, @r"");
+}
+
+#[test]
+fn if_let_derive_drop_type_diagnostics() {
+    test_lint_diagnostics!(IF_LET_WITH_DERIVE_DROP_TYPE, @r"
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
+     --> lib.cairo:10:5-14:5
+          if let Option::Some(v) = a {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn if_let_derive_drop_type_fixer() {
+    test_lint_fixer!(IF_LET_WITH_DERIVE_DROP_TYPE, @r"
+    #[derive(Drop)]
+    struct Struct {
+        x: felt252,
+    }
+
+    fn main() {
+        let a: Option<Struct> = Option::Some(Struct { x: 0x0 });
+
+        a.unwrap_or(Struct { x: 0x1 });
+    }
+    ");
+}
+
+#[test]
+fn match_with_derive_drop_type_diagnostics() {
+    test_lint_diagnostics!(MATCH_WITH_DERIVE_DROP_TYPE, @r"
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
+     --> lib.cairo:10:5-13:5
+          match a {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn match_with_derive_drop_type_fixer() {
+    test_lint_fixer!(MATCH_WITH_DERIVE_DROP_TYPE, @r"
+    #[derive(Drop)]
+    struct Struct {
+        x: felt252,
+    }
+
+    fn main() {
+        let a: Option<Struct> = Option::Some(Struct { x: 0x0 });
+
+        a.unwrap_or(Struct { x: 0x1 });
+    }
+    ");
 }

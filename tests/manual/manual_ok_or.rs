@@ -71,7 +71,7 @@ enum Error {
     Error,
 }
 fn main() {
-    let self: u256 = 0; 
+    let self: u256 = 0;
     // This is just a variable.
     let _self_result: Result<u8, Error> = match self.try_into() {
         Option::Some(value) => Result::Ok(value),

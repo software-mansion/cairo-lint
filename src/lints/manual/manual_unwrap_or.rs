@@ -1,14 +1,16 @@
-use cairo_lang_defs::ids::ModuleItemId;
+use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleItemId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::{Arenas, ExprIf, ExprMatch, db::SemanticGroup};
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast, db::SyntaxGroup};
 
 use crate::{
     context::CairoLintKind,
     corelib::CorelibContext,
     fixer::InternalFix,
-    queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions},
+    queries::{
+        get_all_function_bodies_with_ids, get_all_if_expressions, get_all_match_expressions,
+    },
 };
 use crate::{
     context::Lint,
@@ -70,13 +72,13 @@ pub fn check_manual_unwrap_or(
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
-    let function_bodies = get_all_function_bodies(db, item);
-    for function_body in function_bodies {
+    let function_bodies = get_all_function_bodies_with_ids(db, item);
+    for (function_id, function_body) in function_bodies {
         let if_exprs = get_all_if_expressions(&function_body);
         let match_exprs = get_all_match_expressions(&function_body);
         let arenas = &function_body.arenas;
         for match_expr in match_exprs {
-            if check_manual(db, &match_expr, arenas, ManualLint::ManualUnwrapOr) {
+            if check_manual_unwrap_or_with_match(db, &match_expr, function_id, arenas) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: match_expr.stable_ptr.untyped(),
                     message: ManualUnwrapOr.diagnostic_message().to_owned(),
@@ -86,7 +88,7 @@ pub fn check_manual_unwrap_or(
             }
         }
         for if_expr in if_exprs {
-            if check_manual_if(db, &if_expr, arenas, ManualLint::ManualUnwrapOr) {
+            if check_manual_unwrap_or_with_if(db, &if_expr, function_id, arenas) {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
                     message: ManualUnwrapOr.diagnostic_message().to_owned(),
@@ -96,6 +98,30 @@ pub fn check_manual_unwrap_or(
             }
         }
     }
+}
+
+fn check_manual_unwrap_or_with_match(
+    db: &dyn SemanticGroup,
+    match_expr: &ExprMatch,
+    function_id: FunctionWithBodyId,
+    arenas: &Arenas,
+) -> bool {
+    let matched_expr = db.expr_semantic(function_id, match_expr.matched_expr);
+    let is_droppable = db.droppable(matched_expr.ty()).is_ok();
+    let is_manual_unwrap_or = check_manual(db, match_expr, arenas, ManualLint::ManualUnwrapOr);
+    is_manual_unwrap_or && is_droppable
+}
+
+fn check_manual_unwrap_or_with_if(
+    db: &dyn SemanticGroup,
+    if_expr: &ExprIf,
+    function_id: FunctionWithBodyId,
+    arenas: &Arenas,
+) -> bool {
+    let condition_expr = db.expr_semantic(function_id, if_expr.if_block);
+    let is_droppable = db.droppable(condition_expr.ty()).is_ok();
+    let is_manual_unwrap_or = check_manual_if(db, if_expr, arenas, ManualLint::ManualUnwrapOr);
+    is_manual_unwrap_or && is_droppable
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
