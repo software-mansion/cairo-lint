@@ -11,7 +11,7 @@ pub fn cairo_lint_allow_plugin_suite() -> PluginSuite {
     suite
 }
 
-/// Plugin with `declared_allows` matching these of [`CairoLint`] that does not emit diagnostics.
+/// Plugin with `declared_allows` that does not emit diagnostics.
 /// Add it to avoid compiler warnings on unsupported `allow` attribute arguments.
 #[derive(Debug, Default)]
 pub struct CairoLintAllow;
