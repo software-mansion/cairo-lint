@@ -28,17 +28,20 @@ pub type CairoLintToolMetadata = BTreeMap<String, bool>;
 pub mod context;
 
 mod corelib;
-mod db;
 pub mod diagnostics;
 mod fixer;
 mod helper;
+mod lang;
 pub mod lints;
 mod mappings;
 pub mod plugin;
 mod queries;
 
 pub use corelib::CorelibContext;
-pub use db::{LinterDatabase, LinterDiagnosticParams, LinterGroup};
+pub use lang::{
+    LinterAnalysisDatabase, LinterAnalysisDatabaseBuilder, LinterDatabase, LinterDiagnosticParams,
+    LinterGroup,
+};
 
 use context::{CairoLintKind, get_lint_type_from_diagnostic_message};
 
@@ -58,6 +61,8 @@ pub trait CairoLintGroup: SemanticGroup + SyntaxGroup {}
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_fixes(
     db: &(dyn SemanticGroup + 'static),
+    corelib_context: &CorelibContext,
+    linter_params: &LinterDiagnosticParams,
     diagnostics: Vec<SemanticDiagnostic>,
 ) -> HashMap<FileId, Vec<DiagnosticFixSuggestion>> {
     // We need to create a new database to avoid modifying the original one.
@@ -72,7 +77,13 @@ pub fn get_fixes(
             let new_db_file_id = file_for_url(&new_db, &file_url).unwrap_or_else(|| {
                 panic!("FileUrl {file_url:?} should have a corresponding FileId")
             });
-            let new_fixes = merge_overlapping_fixes(&mut new_db, new_db_file_id, fixes);
+            let new_fixes = merge_overlapping_fixes(
+                &mut new_db,
+                corelib_context,
+                linter_params,
+                new_db_file_id,
+                fixes,
+            );
             (file_id, new_fixes)
         })
         .collect()

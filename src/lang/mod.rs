@@ -1,7 +1,7 @@
 use std::collections::{HashSet, VecDeque};
 
 use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
-use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
+use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::db::{get_parent_and_mapping, translate_location};
 use cairo_lang_filesystem::ids::{CodeOrigin, FileId, FileLongId};
 use cairo_lang_semantic::db::SemanticGroup;
@@ -19,6 +19,10 @@ use crate::context::{
     get_all_checking_functions, get_name_for_diagnostic_message, is_lint_enabled_by_default,
 };
 use crate::corelib::CorelibContext;
+use crate::mappings::{get_origin_module_item_as_syntax_node, get_origin_syntax_node};
+
+mod db;
+pub use db::{LinterAnalysisDatabase, LinterAnalysisDatabaseBuilder};
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
 pub struct LinterDiagnosticParams {
@@ -70,10 +74,6 @@ fn linter_diagnostics(
         if is_generated_item && !params.only_generated_files {
             let item_syntax_node = item.stable_location(db).stable_ptr().lookup(db.upcast());
             let origin_node = get_origin_module_item_as_syntax_node(db, item);
-            // eprintln!("swiry 1 {origin_node:?}");
-            // if let Some(origin_node) = origin_node {
-            //     eprintln!("resulntants: {:?}", db.node_resultants(origin_node))
-            // }
 
             if_chain! {
                 if let Some(node) = origin_node;
@@ -88,7 +88,6 @@ fn linter_diagnostics(
                 // we won't be processing it, as it might lead to unexpected behavior.
                 if node.get_text_without_trivia(db).contains(&item_syntax_node.get_text_without_trivia(db));
                 then {
-                    // eprintln!("swiry 2");
                     let checking_functions = get_all_checking_functions();
                     for checking_function in checking_functions {
                         checking_function(db, &corelib_context, item, &mut item_diagnostics);
@@ -101,7 +100,6 @@ fn linter_diagnostics(
                 }
             }
         } else if !is_generated_item || params.only_generated_files {
-            // eprintln!("swiry 3");
             let checking_functions = get_all_checking_functions();
             for checking_function in checking_functions {
                 checking_function(db, &corelib_context, item, &mut item_diagnostics);

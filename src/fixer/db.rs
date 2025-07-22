@@ -1,7 +1,7 @@
 use std::{collections::BTreeMap, sync::Arc};
 
 use cairo_lang_defs::{
-    db::{try_ext_as_virtual_impl, DefsDatabase, DefsGroup},
+    db::{DefsDatabase, DefsGroup, try_ext_as_virtual_impl},
     ids::{InlineMacroExprPluginId, MacroPluginId},
 };
 use cairo_lang_filesystem::{
@@ -16,10 +16,13 @@ use cairo_lang_semantic::{
 };
 use cairo_lang_syntax::node::db::{SyntaxDatabase, SyntaxGroup};
 use cairo_lang_utils::Upcast;
-use cairo_lang_utils::{ordered_hash_map::OrderedHashMap, Intern};
-use cairo_lang_utils::{smol_str::SmolStr, LookupIntern};
+use cairo_lang_utils::{Intern, ordered_hash_map::OrderedHashMap};
+use cairo_lang_utils::{LookupIntern, smol_str::SmolStr};
+
+use crate::{LinterDatabase, LinterGroup};
 
 #[salsa::database(
+    LinterDatabase,
     SemanticDatabase,
     DefsDatabase,
     SyntaxDatabase,
@@ -275,6 +278,12 @@ impl Upcast<dyn SemanticGroup> for FixerDatabase {
 
 impl Upcast<dyn ParserGroup> for FixerDatabase {
     fn upcast(&self) -> &(dyn ParserGroup + 'static) {
+        self
+    }
+}
+
+impl Upcast<dyn LinterGroup> for FixerDatabase {
+    fn upcast(&self) -> &(dyn LinterGroup + 'static) {
         self
     }
 }

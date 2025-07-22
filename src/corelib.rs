@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 
 use cairo_lang_defs::ids::{
     ExternFunctionId, FreeFunctionId, ImplDefId, ImplItemId, LookupItemId, ModuleId, ModuleItemId,

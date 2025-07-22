@@ -1,37 +1,9 @@
-use anyhow::{Result, anyhow};
-use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
+use cairo_lang_defs::ids::ModuleId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
-use cairo_lang_filesystem::ids::{FileId, FileLongId};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
-use cairo_lang_syntax::node::SyntaxNode;
-use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_lang_utils::LookupIntern;
-use if_chain::if_chain;
-use std::sync::Arc;
 
-use crate::CairoLintToolMetadata;
-use crate::context::{
-    get_all_checking_functions, get_name_for_diagnostic_message, get_unique_allowed_names,
-    is_lint_enabled_by_default,
-};
-use crate::corelib::CorelibContext;
-
-pub fn cairo_lint_plugin_suite(tool_metadata: CairoLintToolMetadata) -> Result<PluginSuite> {
-    let mut suite = PluginSuite::default();
-    validate_cairo_lint_metadata(&tool_metadata)?;
-    suite.add_analyzer_plugin_ex(Arc::new(CairoLint::new(false, tool_metadata)));
-    Ok(suite)
-}
-
-pub fn cairo_lint_plugin_suite_without_metadata_validation(
-    tool_metadata: CairoLintToolMetadata,
-) -> PluginSuite {
-    let mut suite = PluginSuite::default();
-    suite.add_analyzer_plugin_ex(Arc::new(CairoLint::new(false, tool_metadata)));
-    suite
-}
+use crate::context::get_unique_allowed_names;
 
 pub fn cairo_lint_allow_plugin_suite() -> PluginSuite {
     let mut suite = PluginSuite::default();
@@ -39,118 +11,8 @@ pub fn cairo_lint_allow_plugin_suite() -> PluginSuite {
     suite
 }
 
-#[derive(Debug, Default)]
-pub struct CairoLint {
-    only_generated_files: bool,
-    tool_metadata: CairoLintToolMetadata,
-}
-
-impl CairoLint {
-    pub fn new(
-        include_compiler_generated_files: bool,
-        tool_metadata: CairoLintToolMetadata,
-    ) -> Self {
-        Self {
-            only_generated_files: include_compiler_generated_files,
-            tool_metadata,
-        }
-    }
-
-    pub fn include_compiler_generated_files(&self) -> bool {
-        self.only_generated_files
-    }
-
-    pub fn tool_metadata(&self) -> &CairoLintToolMetadata {
-        &self.tool_metadata
-    }
-}
-
-impl AnalyzerPlugin for CairoLint {
-    fn declared_allows(&self) -> Vec<String> {
-        get_unique_allowed_names()
-            .iter()
-            .map(ToString::to_string)
-            .collect()
-    }
-
-    #[tracing::instrument(level = "trace", skip(db))]
-    fn diagnostics(&self, db: &dyn SemanticGroup, module_id: ModuleId) -> Vec<PluginDiagnostic> {
-        let mut diags: Vec<(PluginDiagnostic, FileId)> = Vec::new();
-        let Ok(items) = db.module_items(module_id) else {
-            return Vec::default();
-        };
-
-        let corelib_context = CorelibContext::new(db);
-        for item in &*items {
-            let mut item_diagnostics = Vec::new();
-            let module_file = db.module_main_file(module_id).unwrap();
-            let item_file = item.stable_location(db).file_id(db).lookup_intern(db);
-            let is_generated_item =
-                matches!(item_file, FileLongId::Virtual(_) | FileLongId::External(_));
-
-            if is_generated_item && !self.only_generated_files {
-                // let item_syntax_node = item.stable_location(db).stable_ptr().lookup(db.upcast());
-                // let origin_node = get_origin_module_item_as_syntax_node(db, item);
-
-                // if_chain! {
-                //     if let Some(node) = origin_node;
-                //     if let Some(resultants) = db.node_resultants(node);
-                //     // Check if the item has only a single resultant, as if there is multiple resultants,
-                //     // we would generate different diagnostics for each of resultants.
-                //     // If we don't check this, we might generate different diagnostics for the same item,
-                //     // which is a very unpredictable behavior.
-                //     if resultants.len() == 1;
-                //     // We don't do the `==` check here, as the origin node always has the proc macro attributes.
-                //     // It also means that if the macro changed anything in the original item code,
-                //     // we won't be processing it, as it might lead to unexpected behavior.
-                //     if node.get_text_without_trivia(db).contains(&item_syntax_node.get_text_without_trivia(db));
-                //     then {
-                //         let checking_functions = get_all_checking_functions();
-                //         for checking_function in checking_functions {
-                //             checking_function(db, item, &mut item_diagnostics);
-                //         }
-
-                //         diags.extend(item_diagnostics.into_iter().filter_map(|mut diag| {
-                //           let ptr = diag.stable_ptr;
-                //           diag.stable_ptr = get_origin_syntax_node(db, &ptr)?.stable_ptr(db);
-                //           Some((diag, module_file))}));
-                //     }
-                // }
-            } else if !is_generated_item || self.only_generated_files {
-                let checking_functions = get_all_checking_functions();
-                for checking_function in checking_functions {
-                    checking_function(db, &corelib_context, item, &mut item_diagnostics);
-                }
-
-                diags.extend(item_diagnostics.into_iter().filter_map(|diag| {
-                    // If the diagnostic is not mapped to an on-disk file, it mean that it's an inline macro diagnostic.
-                    get_origin_syntax_node(db, &diag.stable_ptr).map(|_| (diag, module_file))
-                }));
-            }
-        }
-
-        diags
-            .into_iter()
-            .filter(|diag: &(PluginDiagnostic, FileId)| {
-                let diagnostic = &diag.0;
-                let node = diagnostic.stable_ptr.lookup(db.upcast());
-                let allowed_name = get_name_for_diagnostic_message(&diagnostic.message).unwrap();
-                let default_allowed = is_lint_enabled_by_default(&diagnostic.message).unwrap();
-                let is_rule_allowed_globally = *self
-                    .tool_metadata
-                    .get(allowed_name)
-                    .unwrap_or(&default_allowed);
-                !node_has_ascendants_with_allow_name_attr(db.upcast(), node, allowed_name)
-                    && is_rule_allowed_globally
-            })
-            .map(|diag| diag.0)
-            .collect()
-    }
-}
-
 /// Plugin with `declared_allows` matching these of [`CairoLint`] that does not emit diagnostics.
-/// Add it when `CairoLint` is not present to avoid compiler warnings on unsupported
-/// `allow` attribute arguments.
+/// Add it to avoid compiler warnings on unsupported `allow` attribute arguments.
 #[derive(Debug, Default)]
 pub struct CairoLintAllow;
 
@@ -165,30 +27,4 @@ impl AnalyzerPlugin for CairoLintAllow {
             .map(ToString::to_string)
             .collect()
     }
-}
-
-#[tracing::instrument(skip_all, level = "trace")]
-fn node_has_ascendants_with_allow_name_attr(
-    db: &dyn SyntaxGroup,
-    node: SyntaxNode,
-    allowed_name: &'static str,
-) -> bool {
-    for node in node.ancestors_with_self(db) {
-        if node.has_attr_with_arg(db, "allow", allowed_name) {
-            return true;
-        }
-    }
-    false
-}
-
-fn validate_cairo_lint_metadata(tool_metadata: &CairoLintToolMetadata) -> Result<()> {
-    for (name, _) in tool_metadata.iter() {
-        if !get_unique_allowed_names().contains(&name.as_str()) {
-            return Err(anyhow!(
-                "The lint '{}' specified in `Scarb.toml` is not supported by the Cairo lint.",
-                name
-            ));
-        }
-    }
-    Ok(())
 }

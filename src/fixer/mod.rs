@@ -14,6 +14,7 @@ use std::cmp::Reverse;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use cairo_lang_defs::diagnostic_utils::StableLocation;
 use cairo_lang_defs::ids::UseId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::DiagnosticEntry;
@@ -31,6 +32,7 @@ use lsp_types::Url;
 use salsa::InternKey;
 
 use crate::context::get_fix_for_diagnostic_message;
+use crate::{CorelibContext, LinterDiagnosticParams, LinterGroup};
 use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::db::SyntaxGroup;
@@ -91,6 +93,9 @@ pub fn get_fixes_without_resolving_overlapping(
             description,
             import_addition_paths,
         }) = fix_semantic_diagnostic(db, &diag)
+        // If the fix is not None, we create a DiagnosticFixSuggestion.
+        // The span of the fix is the span of the node to be replaced.
+        // The code is the suggested replacement.
         {
             let location = diag.location(db);
             let mut fix = DiagnosticFixSuggestion {
@@ -482,6 +487,8 @@ fn find_use_path_list(db: &dyn SyntaxGroup, node: &SyntaxNode) -> SyntaxNode {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn merge_overlapping_fixes(
     db: &mut FixerDatabase,
+    corelib_context: &CorelibContext,
+    linter_query_params: &LinterDiagnosticParams,
     file_id: FileId,
     fixes: Vec<DiagnosticFixSuggestion>,
 ) -> Vec<DiagnosticFixSuggestion> {
@@ -497,8 +504,30 @@ pub fn merge_overlapping_fixes(
             .file_modules(file_id)
             .unwrap()
             .iter()
-            .filter_map(|module_id| db.module_semantic_diagnostics(*module_id).ok())
-            .flat_map(|diag| diag.get_all())
+            .flat_map(|module_id| {
+                let linter_diags = db
+                    .linter_diagnostics(
+                        corelib_context.clone(),
+                        linter_query_params.clone(),
+                        *module_id,
+                    )
+                    .into_iter()
+                    .map(|diag| {
+                        SemanticDiagnostic::new(
+                            StableLocation::new(diag.stable_ptr),
+                            SemanticDiagnosticKind::PluginDiagnostic(diag),
+                        )
+                    });
+
+                let semantic_diags = db
+                    .module_semantic_diagnostics(*module_id)
+                    .ok()
+                    .map(|diags| diags.get_all())
+                    .into_iter()
+                    .flatten();
+
+                linter_diags.chain(semantic_diags).collect::<Vec<_>>()
+            })
             .filter(|diag| diag.stable_location.diagnostic_location(db).file_id == file_id)
             .collect();
 

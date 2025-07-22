@@ -2,17 +2,13 @@ use crate::context::{CairoLintKind, Lint};
 use crate::corelib::CorelibContext;
 use crate::fixer::InternalFix;
 use crate::lints::{ARRAY, SPAN, U32};
+use crate::mappings::get_originating_syntax_node_for;
 use crate::queries::{
     get_all_conditions, get_all_function_bodies, syntax_node_to_str_without_all_nested_trivia,
 };
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_diagnostics::ToOption;
-use cairo_lang_filesystem::db::get_originating_location;
-use cairo_lang_filesystem::ids::FileId;
-use cairo_lang_filesystem::span::TextOffset;
-use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
     Arenas, Condition, Expr, ExprFunctionCall, ExprFunctionCallArg, TypeLongId,
@@ -20,7 +16,6 @@ use cairo_lang_semantic::{
 use cairo_lang_syntax::node::ast::Expr as SyntaxExpr;
 use cairo_lang_syntax::node::ast::ExprBinary;
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_syntax::node::ids::SyntaxStablePtrId;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use cairo_lang_utils::LookupIntern;
@@ -283,26 +278,4 @@ fn is_std_collection_type(db: &dyn SemanticGroup, type_long_id: &TypeLongId) -> 
         }
         _ => false,
     }
-}
-
-fn get_originating_syntax_node_for(
-    db: &dyn SemanticGroup,
-    ptr: &SyntaxStablePtrId,
-) -> Option<SyntaxNode> {
-    let (file, span) = get_originating_location(
-        db,
-        ptr.file_id(db),
-        ptr.lookup(db).span_without_trivia(db),
-        None,
-    );
-
-    find_syntax_node_at_offset(db.upcast(), file, span.start)
-}
-
-fn find_syntax_node_at_offset(
-    db: &dyn ParserGroup,
-    file: FileId,
-    offset: TextOffset,
-) -> Option<SyntaxNode> {
-    Some(db.file_syntax(file).to_option()?.lookup_offset(db, offset))
 }
