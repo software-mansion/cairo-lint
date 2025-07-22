@@ -201,8 +201,8 @@ impl LinterAnalysisDatabaseBuilder {
 
     pub fn build(&mut self) -> Result<LinterAnalysisDatabase> {
         // NOTE: Order of operations matters here!
-        //   Errors if something is not OK are very subtle, mostly this results in missing
-        //   identifier diagnostics, or panics regarding lack of corelib items.
+        // Errors if something is not OK are very subtle, mostly this results in missing
+        // identifier diagnostics, or panics regarding lack of corelib items.
 
         let mut db =
             LinterAnalysisDatabase::new(self.default_plugin_suite.clone(), self.inlining_strategy);
