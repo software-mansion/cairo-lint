@@ -1,4 +1,5 @@
 use std::collections::{HashSet, VecDeque};
+use std::sync::Arc;
 
 use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
@@ -48,7 +49,7 @@ pub trait LinterGroup: SemanticGroup + Upcast<dyn SemanticGroup> {
 
     fn find_generated_nodes(
         &self,
-        node_descendant_files: Vec<FileId>,
+        node_descendant_files: Arc<[FileId]>,
         node: SyntaxNode,
     ) -> OrderedHashSet<SyntaxNode>;
 }
@@ -138,7 +139,7 @@ fn node_resultants(db: &dyn LinterGroup, node: SyntaxNode) -> Option<Vec<SyntaxN
 
     files.remove(&main_file);
 
-    let files: Vec<_> = files.into_iter().collect();
+    let files: Arc<[FileId]> = files.into_iter().collect();
     let resultants = db.find_generated_nodes(files, node);
 
     Some(resultants.into_iter().collect())
@@ -184,7 +185,7 @@ pub fn file_and_subfiles_with_corresponding_modules(
 #[tracing::instrument(level = "trace", skip(db))]
 pub fn find_generated_nodes(
     db: &dyn LinterGroup,
-    node_descendant_files: Vec<FileId>,
+    node_descendant_files: Arc<[FileId]>,
     node: SyntaxNode,
 ) -> OrderedHashSet<SyntaxNode> {
     let start_file = node.stable_ptr(db).file_id(db);
@@ -266,7 +267,7 @@ pub fn find_generated_nodes(
         for new_node in new_nodes {
             result.extend(find_generated_nodes(
                 db,
-                node_descendant_files.clone(),
+                Arc::clone(&node_descendant_files),
                 new_node,
             ));
         }
