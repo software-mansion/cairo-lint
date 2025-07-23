@@ -11,7 +11,7 @@ use cairo_lang_syntax::node::{
 
 use crate::context::{CairoLintKind, Lint};
 use crate::corelib::CorelibContext;
-use crate::fixes::InternalFix;
+use crate::fixer::InternalFix;
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
 pub struct EquatableIfLet;

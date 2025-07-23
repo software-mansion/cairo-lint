@@ -1,6 +1,6 @@
 use crate::context::{CairoLintKind, Lint};
 use crate::corelib::CorelibContext;
-use crate::fixes::InternalFix;
+use crate::fixer::InternalFix;
 use cairo_lang_defs::ids::{LanguageElementId, ModuleItemId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;

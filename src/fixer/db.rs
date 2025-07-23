@@ -19,7 +19,10 @@ use cairo_lang_utils::Upcast;
 use cairo_lang_utils::{Intern, ordered_hash_map::OrderedHashMap};
 use cairo_lang_utils::{LookupIntern, smol_str::SmolStr};
 
+use crate::{LinterDatabase, LinterGroup};
+
 #[salsa::database(
+    LinterDatabase,
     SemanticDatabase,
     DefsDatabase,
     SyntaxDatabase,
@@ -275,6 +278,12 @@ impl Upcast<dyn SemanticGroup> for FixerDatabase {
 
 impl Upcast<dyn ParserGroup> for FixerDatabase {
     fn upcast(&self) -> &(dyn ParserGroup + 'static) {
+        self
+    }
+}
+
+impl Upcast<dyn LinterGroup> for FixerDatabase {
+    fn upcast(&self) -> &(dyn LinterGroup + 'static) {
         self
     }
 }

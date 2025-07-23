@@ -9,7 +9,7 @@ use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
 use crate::corelib::CorelibContext;
-use crate::fixes::InternalFix;
+use crate::fixer::InternalFix;
 use crate::queries::{get_all_break_statements, get_all_function_bodies};
 
 pub struct BreakUnit;

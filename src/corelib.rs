@@ -1,11 +1,10 @@
-use std::collections::HashMap;
-
 use cairo_lang_defs::ids::{
     ExternFunctionId, FreeFunctionId, ImplDefId, ImplItemId, LookupItemId, ModuleId, ModuleItemId,
     SubmoduleId, TopLevelLanguageElementId, TraitFunctionId, TraitItemId,
 };
 use cairo_lang_filesystem::ids::CrateId;
 use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 
 pub const BOOL_PARTIAL_EQ_PATH: &str = "core::BoolPartialEq";
 pub const PANIC_PATH: &str = "core::panics::panic";
@@ -29,8 +28,9 @@ static CORELIB_ITEM_PATHS: [&str; 9] = [
     INTEGER_MODULE_PATH,
 ];
 
+#[derive(PartialEq, Eq, Hash, Debug, Clone)]
 pub struct CorelibContext {
-    corelib_items: HashMap<String, Option<LookupItemId>>,
+    corelib_items: OrderedHashMap<String, Option<LookupItemId>>,
 }
 
 impl CorelibContext {
