@@ -140,6 +140,46 @@ fn main() {
 }
 "#;
 
+const PARENS_EXPR_FOR_SINGLE_ARG_FUNCTION_CALL: &str = r#"
+fn func(c: u8) {}
+
+fn main() {
+    func((5));
+}
+"#;
+
+const PARENS_EXPR_FOR_SINGLE_ARG_FUNCTION_CALL_UNIT_TYPE: &str = r#"
+fn func(c: ()) {}
+
+fn main() {
+    func(());
+}
+"#;
+
+const PARENS_EXPR_AROUND_MULTIPLE_ARGS_FUNCTION_CALL: &str = r#"
+fn func(a: u8, b: felt252) {}
+
+fn main() {
+    func((5, 6));
+}
+"#;
+
+const PARENS_EXPR_FOR_FUNCTION_CALL_WHEN_EXPECTING_TUPLE: &str = r#"
+fn func(a: (u8, felt252)) {}
+
+fn main() {
+    func((5, 6));
+}
+"#;
+
+const PARENS_EXPR_FOR_FUNCTION_CALL_AROUND_SINGLE_ARG_WITH_MULTIPLE_ARGS: &str = r#"
+fn func(a: (u8, felt252)) {}
+
+fn main() {
+    func((5), 6);
+}
+"#;
+
 #[test]
 fn simple_double_parens_diagnostics() {
     test_lint_diagnostics!(SIMPLE_DOUBLE_PARENS, @r"
@@ -514,5 +554,56 @@ fn double_parens_with_indexed_fixer() {
 
         let _c = *fun(b)[1] + 2;
     }
+    ")
+}
+
+#[test]
+fn parens_expr_for_single_arg_function_call_diagnostics() {
+    test_lint_diagnostics!(PARENS_EXPR_FOR_SINGLE_ARG_FUNCTION_CALL, @r"
+    Plugin diagnostic: unnecessary double parentheses found. Consider removing them.
+     --> lib.cairo:5:10
+        func((5));
+             ^^^
+    ")
+}
+
+#[test]
+fn parens_expr_for_single_arg_function_call_fixer() {
+    test_lint_fixer!(PARENS_EXPR_FOR_SINGLE_ARG_FUNCTION_CALL, @r"
+    fn func(c: u8) {}
+
+    fn main() {
+        func(5);
+    }
+    ")
+}
+
+#[test]
+fn parens_expr_for_single_arg_function_call_unit_type() {
+    test_lint_diagnostics!(PARENS_EXPR_FOR_SINGLE_ARG_FUNCTION_CALL_UNIT_TYPE, @r"")
+}
+
+#[test]
+fn parens_expr_around_multiple_args_function_call_diagnostics() {
+    test_lint_diagnostics!(PARENS_EXPR_AROUND_MULTIPLE_ARGS_FUNCTION_CALL, @r"
+    Wrong number of arguments. Expected 2, found: 1
+     --> lib.cairo:5:5
+        func((5, 6));
+        ^^^^^^^^^^^^
+    ")
+}
+
+#[test]
+fn parens_expr_for_function_call_when_expecting_tuple_diagnostics() {
+    test_lint_diagnostics!(PARENS_EXPR_FOR_FUNCTION_CALL_WHEN_EXPECTING_TUPLE, @"")
+}
+
+#[test]
+fn parens_expr_for_function_call_around_single_arg_with_multiple_args_diagnostics() {
+    test_lint_diagnostics!(PARENS_EXPR_FOR_FUNCTION_CALL_AROUND_SINGLE_ARG_WITH_MULTIPLE_ARGS, @r"
+    Wrong number of arguments. Expected 1, found: 2
+     --> lib.cairo:5:5
+        func((5), 6);
+        ^^^^^^^^^^^^
     ")
 }
