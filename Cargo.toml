@@ -12,7 +12,7 @@ resolver = "2"
 members = ["xtask"]
 
 [workspace.package]
-version = "2.11.4"
+version = "2.12.0-rc.3"
 edition = "2024"
 repository = "https://github.com/software-mansion/cairo-lint"
 license-file = "LICENSE"
@@ -34,18 +34,18 @@ license-file = "LICENSE"
 # for manipulating these dependencies.
 [dependencies]
 anyhow = "1.0.96"
-cairo-lang-compiler = "*"
-cairo-lang-defs = "*"
-cairo-lang-diagnostics = "*"
-cairo-lang-filesystem = "*"
-cairo-lang-formatter = "*"
-cairo-lang-lowering = "*"
-cairo-lang-parser = "*"
-cairo-lang-semantic = "*"
-cairo-lang-sierra-generator = "*"
-cairo-lang-syntax = "*"
-cairo-lang-test-plugin = "*"
-cairo-lang-utils = "*"
+cairo-lang-compiler = "2.12.0-rc.3"
+cairo-lang-defs = "2.12.0-rc.3"
+cairo-lang-diagnostics = "2.12.0-rc.3"
+cairo-lang-filesystem = "2.12.0-rc.3"
+cairo-lang-formatter = "2.12.0-rc.3"
+cairo-lang-lowering = "2.12.0-rc.3"
+cairo-lang-parser = "2.12.0-rc.3"
+cairo-lang-semantic = "2.12.0-rc.3"
+cairo-lang-sierra-generator = "2.12.0-rc.3"
+cairo-lang-syntax = "2.12.0-rc.3"
+cairo-lang-test-plugin = "2.12.0-rc.3"
+cairo-lang-utils = "2.12.0-rc.3"
 if_chain = "1.0.2"
 indoc = "2"
 itertools = "0.14.0"
@@ -70,34 +70,6 @@ test-case = "3.0"
 # on some of them directly.
 # This ensures no duplicate instances of Cairo crates are pulled in by mistake.
 [patch.crates-io]
-cairo-lang-casm = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-compiler = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-debug = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-defs = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-diagnostics = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-eq-solver = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-filesystem = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-formatter = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-lowering = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-parser = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-plugins = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-proc-macros = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-project = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-runnable-utils = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-semantic = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-sierra = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-sierra-ap-change = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-sierra-gas = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-sierra-generator = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-sierra-to-casm = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-sierra-type-size = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-starknet = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-starknet-classes = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-syntax = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-syntax-codegen = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-test-plugin = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-test-utils = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
-cairo-lang-utils = { git = "https://github.com/starkware-libs/cairo", rev = "ee645ed8a46f4d6139c5bc7e8528ef74073433e6" }
 
 [profile.ci]
 inherits = "test"
