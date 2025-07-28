@@ -12,7 +12,7 @@ use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
 use crate::corelib::CorelibContext;
-use crate::fixer::InternalFix;
+use crate::fixes::InternalFix;
 use crate::helper::is_item_ancestor_of_module;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 

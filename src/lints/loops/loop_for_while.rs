@@ -12,7 +12,7 @@ use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
 use crate::corelib::CorelibContext;
-use crate::fixer::InternalFix;
+use crate::fixes::InternalFix;
 use crate::helper::{invert_condition, remove_break_from_block, remove_break_from_else_clause};
 use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
 

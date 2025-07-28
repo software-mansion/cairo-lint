@@ -9,7 +9,7 @@ use cairo_lang_syntax::node::{
 };
 
 use crate::corelib::CorelibContext;
-use crate::fixer::InternalFix;
+use crate::fixes::InternalFix;
 use crate::{
     context::{CairoLintKind, Lint},
     queries::get_all_checkable_functions,

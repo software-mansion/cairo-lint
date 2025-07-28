@@ -1,7 +1,7 @@
 use crate::{
     context::{CairoLintKind, Lint},
     corelib::CorelibContext,
-    fixer::InternalFix,
+    fixes::InternalFix,
     queries::{get_all_function_bodies, get_all_function_calls},
 };
 use cairo_lang_defs::ids::{NamedLanguageElementId, TopLevelLanguageElementId};

@@ -1,7 +1,7 @@
 use crate::{
     context::{CairoLintKind, Lint},
     corelib::CorelibContext,
-    fixer::InternalFix,
+    fixes::InternalFix,
     queries::get_all_function_bodies,
 };
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};

@@ -1,8 +1,8 @@
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_formatter::FormatterConfig;
-use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
-use fixer::{
-    DiagnosticFixSuggestion, FixerDatabase, file_for_url, get_fixes_without_resolving_overlapping,
+use db::FixerDatabase;
+use fixes::{
+    DiagnosticFixSuggestion, file_for_url, get_fixes_without_resolving_overlapping,
     merge_overlapping_fixes, url_for_file,
 };
 
@@ -21,25 +21,18 @@ pub static CAIRO_LINT_TOOL_NAME: &str = "cairo-lint";
 /// Describes tool metadata for the Cairo lint.
 /// IMPORTANT: This one is a public type, so watch out when modifying it,
 /// as it might break the backwards compatibility.
-pub type CairoLintToolMetadata = OrderedHashMap<String, bool>;
+pub type CairoLintToolMetadata = HashMap<String, bool>;
 
 pub mod context;
-
 mod corelib;
+mod db;
 pub mod diagnostics;
-mod fixer;
+pub mod fixes;
 mod helper;
-mod lang;
 pub mod lints;
 mod mappings;
 pub mod plugin;
 mod queries;
-
-pub use corelib::CorelibContext;
-pub use lang::{
-    LinterAnalysisDatabase, LinterAnalysisDatabaseBuilder, LinterDatabase, LinterDiagnosticParams,
-    LinterGroup,
-};
 
 use context::{CairoLintKind, get_lint_type_from_diagnostic_message};
 
@@ -59,8 +52,6 @@ pub trait CairoLintGroup: SemanticGroup + SyntaxGroup {}
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_fixes(
     db: &(dyn SemanticGroup + 'static),
-    corelib_context: &CorelibContext,
-    linter_params: &LinterDiagnosticParams,
     diagnostics: Vec<SemanticDiagnostic>,
 ) -> HashMap<FileId, Vec<DiagnosticFixSuggestion>> {
     // We need to create a new database to avoid modifying the original one.
@@ -75,13 +66,7 @@ pub fn get_fixes(
             let new_db_file_id = file_for_url(&new_db, &file_url).unwrap_or_else(|| {
                 panic!("FileUrl {file_url:?} should have a corresponding FileId")
             });
-            let new_fixes = merge_overlapping_fixes(
-                &mut new_db,
-                corelib_context,
-                linter_params,
-                new_db_file_id,
-                fixes,
-            );
+            let new_fixes = merge_overlapping_fixes(&mut new_db, new_db_file_id, fixes);
             (file_id, new_fixes)
         })
         .collect()

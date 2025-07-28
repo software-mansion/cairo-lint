@@ -1,5 +1,5 @@
 use crate::corelib::CorelibContext;
-use crate::fixer::InternalFix;
+use crate::fixes::InternalFix;
 use crate::lints::bitwise_for_parity_check::BitwiseForParity;
 use crate::lints::bitwise_for_parity_check::check_bitwise_for_parity;
 use crate::lints::bool_comparison::BoolComparison;

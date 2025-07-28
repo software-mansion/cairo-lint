@@ -7,7 +7,7 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 
 use crate::context::{CairoLintKind, Lint};
 use crate::corelib::CorelibContext;
-use crate::fixer::InternalFix;
+use crate::fixes::InternalFix;
 use crate::lints::manual::{ManualLint, check_manual, check_manual_if};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions};
 

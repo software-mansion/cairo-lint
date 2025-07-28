@@ -1,6 +1,6 @@
 use crate::context::{CairoLintKind, Lint};
 use crate::corelib::CorelibContext;
-use crate::fixer::InternalFix;
+use crate::fixes::InternalFix;
 use crate::helper::find_module_file_containing_node;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 use cairo_lang_defs::ids::{

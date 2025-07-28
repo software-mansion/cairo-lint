@@ -489,10 +489,6 @@ fn simple_destructuring_match_with_comment_in_scope_fixer() {
 #[test]
 fn comprehensive_match_diagnostics() {
     test_lint_diagnostics!(COMPREHENSIVE_MATCH, @r"
-    Pattern missing subpattern for the payload of variant. Consider using `Option::Some(_)`
-     --> lib.cairo:6:9
-            Option::Some => (),
-            ^^^^^^^^^^^^
     Plugin diagnostic: you seem to be trying to use `match` for an equality check. Consider using `if`
      --> lib.cairo:4:5-7:5
           match variable {
@@ -500,6 +496,10 @@ fn comprehensive_match_diagnostics() {
     | ...
     |     };
     |_____^
+    Pattern missing subpattern for the payload of variant. Consider using `Option::Some(_)`
+     --> lib.cairo:6:9
+            Option::Some => (),
+            ^^^^^^^^^^^^
     ");
 }
 

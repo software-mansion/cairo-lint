@@ -479,10 +479,6 @@ fn test_manual_match_result_with_unwrapped_and_ignored_error_diagnostics() {
 #[test]
 fn test_manual_match_result_with_unwrapped_and_unused_error_diagnostics() {
     test_lint_diagnostics!(TEST_MANUAL_MATCH_RESULT_WITH_UNWRAPPED_AND_UNUSED_ERROR, @r"
-    Unused variable. Consider ignoring by prefixing with `_`.
-     --> lib.cairo:8:21
-            Result::Err(err) => core::panic_with_felt252(panic_value)
-                        ^^^
     Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
      --> lib.cairo:6:14-9:5
           let _a = match res_val {
@@ -490,6 +486,10 @@ fn test_manual_match_result_with_unwrapped_and_unused_error_diagnostics() {
     | ...
     |     };
     |_____^
+    Unused variable. Consider ignoring by prefixing with `_`.
+     --> lib.cairo:8:21
+            Result::Err(err) => core::panic_with_felt252(panic_value)
+                        ^^^
     ");
 }
 

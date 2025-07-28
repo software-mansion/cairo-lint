@@ -1,6 +1,6 @@
 use crate::context::{CairoLintKind, Lint};
 use crate::corelib::CorelibContext;
-use crate::fixer::InternalFix;
+use crate::fixes::InternalFix;
 use crate::helper::indent_snippet;
 use crate::queries::get_all_parenthesized_expressions;
 use cairo_lang_defs::ids::ModuleItemId;
