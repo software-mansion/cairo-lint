@@ -51,7 +51,10 @@ pub fn setup_test_crate_ex(db: &mut dyn SemanticGroup, content: &str) -> CrateId
     }
     .intern(db);
 
-    db.set_crate_configs(Arc::new(OrderedHashMap::from([(crate_id, crate_config)])));
+    db.set_crate_configs_input(Arc::new(OrderedHashMap::from([(
+        db.crate_input(crate_id),
+        db.crate_configuration_input(crate_config),
+    )])));
 
     crate_id
 }
