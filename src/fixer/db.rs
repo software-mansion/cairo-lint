@@ -65,9 +65,9 @@ impl FixerDatabase {
     }
 
     fn migrate_default_analyzer_plugins(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
-        let new_ids = self.lookup_analyzer_plugin_ids(old_db, &old_db.default_analyzer_plugins());
+        let longs_ids = self.lookup_analyzer_plugin_ids(old_db, &old_db.default_analyzer_plugins());
 
-        self.set_default_analyzer_plugins_input(Arc::from(new_ids));
+        self.set_default_analyzer_plugins_input(Arc::from(longs_ids));
     }
 
     fn migrate_analyzer_plugin_overrides(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
@@ -79,20 +79,20 @@ impl FixerDatabase {
             .analyzer_plugin_overrides()
             .iter()
             .for_each(|(crate_id, analyzer_plugin_ids)| {
-                let new_ids = self.lookup_analyzer_plugin_ids(old_db, analyzer_plugin_ids);
+                let long_ids = self.lookup_analyzer_plugin_ids(old_db, analyzer_plugin_ids);
                 let new_crate_id = crate_id.lookup_intern(old_db).intern(self);
                 new_analyzer_plugin_overrides.insert(
                     self.crate_input(new_crate_id),
-                    Arc::<[AnalyzerPluginLongId]>::from(new_ids),
+                    Arc::<[AnalyzerPluginLongId]>::from(long_ids),
                 );
             });
         self.set_analyzer_plugin_overrides_input(Arc::from(new_analyzer_plugin_overrides));
     }
 
     fn migrate_default_macro_plugins(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
-        let new_ids = self.lookup_macro_plugin_ids(old_db, &old_db.default_macro_plugins());
+        let long_ids = self.lookup_macro_plugin_ids(old_db, &old_db.default_macro_plugins());
 
-        self.set_default_macro_plugins_input(Arc::from(new_ids));
+        self.set_default_macro_plugins_input(Arc::from(long_ids));
     }
 
     fn migrate_macro_plugin_overrides(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
@@ -102,11 +102,11 @@ impl FixerDatabase {
             .macro_plugin_overrides()
             .iter()
             .for_each(|(crate_id, macro_plugin_ids)| {
-                let new_ids = self.lookup_macro_plugin_ids(old_db, macro_plugin_ids);
+                let long_ids = self.lookup_macro_plugin_ids(old_db, macro_plugin_ids);
                 let new_crate_id = crate_id.lookup_intern(old_db).intern(self);
                 new_macro_plugin_overrides.insert(
                     self.crate_input(new_crate_id),
-                    Arc::<[MacroPluginLongId]>::from(new_ids),
+                    Arc::<[MacroPluginLongId]>::from(long_ids),
                 );
             });
         self.set_macro_plugin_overrides_input(Arc::from(new_macro_plugin_overrides));
