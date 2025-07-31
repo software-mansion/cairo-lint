@@ -65,11 +65,7 @@ impl FixerDatabase {
     }
 
     fn migrate_default_analyzer_plugins(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
-        let new_ids = self
-            .intern_analyzer_plugin_ids(old_db, &old_db.default_analyzer_plugins())
-            .iter()
-            .map(|plugin| self.lookup_intern_analyzer_plugin(*plugin))
-            .collect_vec();
+        let new_ids = self.lookup_analyzer_plugin_ids(old_db, &old_db.default_analyzer_plugins());
 
         self.set_default_analyzer_plugins_input(Arc::from(new_ids));
     }
@@ -83,11 +79,7 @@ impl FixerDatabase {
             .analyzer_plugin_overrides()
             .iter()
             .for_each(|(crate_id, analyzer_plugin_ids)| {
-                let new_ids = self
-                    .intern_analyzer_plugin_ids(old_db, analyzer_plugin_ids)
-                    .iter()
-                    .map(|plugin| self.lookup_intern_analyzer_plugin(*plugin))
-                    .collect_vec();
+                let new_ids = self.lookup_analyzer_plugin_ids(old_db, analyzer_plugin_ids);
                 let new_crate_id = crate_id.lookup_intern(old_db).intern(self);
                 new_analyzer_plugin_overrides.insert(
                     self.crate_input(new_crate_id),
@@ -98,11 +90,7 @@ impl FixerDatabase {
     }
 
     fn migrate_default_macro_plugins(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
-        let new_ids = self
-            .intern_macro_plugin_ids(old_db, &old_db.default_macro_plugins())
-            .iter()
-            .map(|plugin| self.lookup_intern_macro_plugin(*plugin))
-            .collect::<Vec<_>>();
+        let new_ids = self.lookup_macro_plugin_ids(old_db, &old_db.default_macro_plugins());
 
         self.set_default_macro_plugins_input(Arc::from(new_ids));
     }
@@ -114,11 +102,7 @@ impl FixerDatabase {
             .macro_plugin_overrides()
             .iter()
             .for_each(|(crate_id, macro_plugin_ids)| {
-                let new_ids = self
-                    .intern_macro_plugin_ids(old_db, macro_plugin_ids)
-                    .iter()
-                    .map(|plugin| self.lookup_intern_macro_plugin(*plugin))
-                    .collect_vec();
+                let new_ids = self.lookup_macro_plugin_ids(old_db, macro_plugin_ids);
                 let new_crate_id = crate_id.lookup_intern(old_db).intern(self);
                 new_macro_plugin_overrides.insert(
                     self.crate_input(new_crate_id),
@@ -130,15 +114,7 @@ impl FixerDatabase {
 
     fn migrate_default_inline_macro_plugins(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
         let new_default_inline_macro_plugins: OrderedHashMap<String, InlineMacroExprPluginLongId> =
-            self.intern_inline_macro_plugin_ids(old_db, &old_db.default_inline_macro_plugins())
-                .iter()
-                .map(|(name, plugin)| {
-                    (
-                        name.clone(),
-                        self.lookup_intern_inline_macro_plugin(*plugin),
-                    )
-                })
-                .collect();
+            self.lookup_inline_macro_plugin_ids(old_db, &old_db.default_inline_macro_plugins());
 
         self.set_default_inline_macro_plugins_input(Arc::from(new_default_inline_macro_plugins));
     }
@@ -153,16 +129,7 @@ impl FixerDatabase {
                 let new_inline_macro_plugin_ids: OrderedHashMap<
                     String,
                     InlineMacroExprPluginLongId,
-                > = self
-                    .intern_inline_macro_plugin_ids(old_db, inline_macro_plugins)
-                    .iter()
-                    .map(|(name, plugin)| {
-                        (
-                            name.clone(),
-                            self.lookup_intern_inline_macro_plugin(*plugin),
-                        )
-                    })
-                    .collect();
+                > = self.lookup_inline_macro_plugin_ids(old_db, inline_macro_plugins);
                 let new_crate_id = crate_id.lookup_intern(old_db).intern(self);
                 new_inline_macro_plugin_overrides.insert(
                     self.crate_input(new_crate_id),
@@ -248,37 +215,37 @@ impl FixerDatabase {
         }
     }
 
-    fn intern_analyzer_plugin_ids(
+    fn lookup_analyzer_plugin_ids(
         &mut self,
         old_db: &(dyn SemanticGroup + 'static),
         analyzer_plugins_ids: &Arc<[AnalyzerPluginId]>,
-    ) -> Vec<AnalyzerPluginId> {
+    ) -> Vec<AnalyzerPluginLongId> {
         analyzer_plugins_ids
             .iter()
-            .map(|plugin_id| plugin_id.lookup_intern(old_db).intern(self))
-            .collect()
+            .map(|plugin_id| plugin_id.lookup_intern(old_db))
+            .collect_vec()
     }
 
-    fn intern_macro_plugin_ids(
+    fn lookup_macro_plugin_ids(
         &mut self,
         old_db: &(dyn DefsGroup + 'static),
         macro_plugins_ids: &Arc<[MacroPluginId]>,
-    ) -> Vec<MacroPluginId> {
+    ) -> Vec<MacroPluginLongId> {
         macro_plugins_ids
             .iter()
-            .map(|plugin_id| plugin_id.lookup_intern(old_db).intern(self))
-            .collect()
+            .map(|plugin_id| plugin_id.lookup_intern(old_db))
+            .collect_vec()
     }
 
-    fn intern_inline_macro_plugin_ids(
+    fn lookup_inline_macro_plugin_ids(
         &mut self,
         old_db: &(dyn DefsGroup + 'static),
         inline_macro_plugins_ids: &Arc<OrderedHashMap<String, InlineMacroExprPluginId>>,
-    ) -> OrderedHashMap<String, InlineMacroExprPluginId> {
+    ) -> OrderedHashMap<String, InlineMacroExprPluginLongId> {
         inline_macro_plugins_ids
             .iter()
             .map(|(key, plugin_id)| {
-                let new_plugin_id = plugin_id.lookup_intern(old_db).intern(self);
+                let new_plugin_id = plugin_id.lookup_intern(old_db);
                 (key.clone(), new_plugin_id)
             })
             .collect()
