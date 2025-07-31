@@ -54,8 +54,12 @@ impl Lint for BreakUnit {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_break_unit(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_break_unit(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -64,11 +68,11 @@ impl Lint for BreakUnit {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_break(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_break<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -79,11 +83,11 @@ pub fn check_break(
     }
 }
 
-fn check_single_break(
-    db: &dyn SemanticGroup,
-    break_expr: &StatementBreak,
-    arenas: &Arenas,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_single_break<'db>(
+    db: &'db dyn SemanticGroup,
+    break_expr: &StatementBreak<'db>,
+    arenas: &Arenas<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     if_chain! {
         if let Some(expr) = break_expr.expr_option;
@@ -101,7 +105,10 @@ fn check_single_break(
 
 /// Rewrites `break ();` as `break;` given the node text contains it.
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_break_unit(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_break_unit<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     Some(InternalFix {
         node,
         suggestion: node.get_text(db).replace("break ();", "break;").to_string(),

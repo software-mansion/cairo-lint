@@ -53,8 +53,12 @@ impl Lint for EmptyEnumBracketsVariant {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_empty_enum_brackets_variant(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_empty_enum_brackets_variant(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -63,11 +67,11 @@ impl Lint for EmptyEnumBracketsVariant {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_empty_enum_brackets_variant(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_empty_enum_brackets_variant<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let ModuleItemId::Enum(enum_id) = item else {
         return;
@@ -84,12 +88,12 @@ pub fn check_empty_enum_brackets_variant(
 
         // Check if the variant is of unit type `()`
         if semantic_variant.ty.is_unit(db) {
-            let ast_variant = variant.stable_ptr(db.upcast()).lookup(db.upcast());
+            let ast_variant = variant.stable_ptr(db).lookup(db);
 
             // Determine if the variant includes a type clause, or if the type clause is empty
-            if let OptionTypeClause::TypeClause(_) = ast_variant.type_clause(db.upcast()) {
+            if let OptionTypeClause::TypeClause(_) = ast_variant.type_clause(db) {
                 diagnostics.push(PluginDiagnostic {
-                    stable_ptr: variant.stable_ptr(db.upcast()).untyped(),
+                    stable_ptr: variant.stable_ptr(db).untyped(),
                     message: EmptyEnumBracketsVariant.diagnostic_message().to_string(),
                     severity: Severity::Warning,
                     inner_span: None,
@@ -100,7 +104,10 @@ pub fn check_empty_enum_brackets_variant(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-fn fix_empty_enum_brackets_variant(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+fn fix_empty_enum_brackets_variant<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let ast_variant = ast::Variant::from_syntax_node(db, node);
 
     // Extract a clean type definition, to remove
@@ -110,7 +117,7 @@ fn fix_empty_enum_brackets_variant(db: &dyn SyntaxGroup, node: SyntaxNode) -> Op
         .get_text_without_trivia(db);
 
     let variant_text = node.get_text(db);
-    let fixed = variant_text.replace(&type_clause, "");
+    let fixed = variant_text.replace(type_clause, "");
 
     Some(InternalFix {
         node,

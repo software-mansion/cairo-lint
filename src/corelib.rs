@@ -29,12 +29,12 @@ static CORELIB_ITEM_PATHS: [&str; 9] = [
 ];
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
-pub struct CorelibContext {
-    corelib_items: OrderedHashMap<String, Option<LookupItemId>>,
+pub struct CorelibContext<'db> {
+    corelib_items: OrderedHashMap<String, Option<LookupItemId<'db>>>,
 }
 
-impl CorelibContext {
-    pub fn new(db: &dyn SemanticGroup) -> Self {
+impl<'db> CorelibContext<'db> {
+    pub fn new(db: &'db dyn SemanticGroup) -> Self {
         let core_crate_id = CrateId::core(db);
         let modules = db.crate_modules(core_crate_id);
         Self {
@@ -55,7 +55,7 @@ impl CorelibContext {
     }
 
     // TODO (https://github.com/software-mansion/cairo-lint/issues/398): Write a macro for these getters to avoid boilerplate.
-    pub fn get_bool_partial_eq_impl_id(&self) -> ImplDefId {
+    pub fn get_bool_partial_eq_impl_id(&self) -> ImplDefId<'db> {
         let item = self
             .corelib_items
             .get(BOOL_PARTIAL_EQ_PATH)
@@ -67,7 +67,7 @@ impl CorelibContext {
         }
     }
 
-    pub fn get_panic_function_id(&self) -> ExternFunctionId {
+    pub fn get_panic_function_id(&self) -> ExternFunctionId<'db> {
         let item = self
             .corelib_items
             .get(PANIC_PATH)
@@ -79,7 +79,7 @@ impl CorelibContext {
         }
     }
 
-    pub fn get_panic_with_byte_array_function_id(&self) -> FreeFunctionId {
+    pub fn get_panic_with_byte_array_function_id(&self) -> FreeFunctionId<'db> {
         let item = self
             .corelib_items
             .get(PANIC_WITH_BYTE_ARRAY_PATH)
@@ -91,7 +91,7 @@ impl CorelibContext {
         }
     }
 
-    pub fn get_t_copy_clone_impl_id(&self) -> ImplDefId {
+    pub fn get_t_copy_clone_impl_id(&self) -> ImplDefId<'db> {
         let item = self
             .corelib_items
             .get(T_COPY_CLONE_PATH)
@@ -103,7 +103,7 @@ impl CorelibContext {
         }
     }
 
-    pub fn get_partial_ord_le_trait_function_id(&self) -> TraitFunctionId {
+    pub fn get_partial_ord_le_trait_function_id(&self) -> TraitFunctionId<'db> {
         let item = self
             .corelib_items
             .get(PARTIAL_ORD_LE_PATH)
@@ -115,7 +115,7 @@ impl CorelibContext {
         }
     }
 
-    pub fn get_partial_ord_ge_trait_function_id(&self) -> TraitFunctionId {
+    pub fn get_partial_ord_ge_trait_function_id(&self) -> TraitFunctionId<'db> {
         let item = self
             .corelib_items
             .get(PARTIAL_ORD_GE_PATH)
@@ -127,7 +127,7 @@ impl CorelibContext {
         }
     }
 
-    pub fn get_add_trait_function_id(&self) -> TraitFunctionId {
+    pub fn get_add_trait_function_id(&self) -> TraitFunctionId<'db> {
         let item = self
             .corelib_items
             .get(ADD_TRAIT_FUNCTION_PATH)
@@ -139,7 +139,7 @@ impl CorelibContext {
         }
     }
 
-    pub fn get_sub_trait_function_id(&self) -> TraitFunctionId {
+    pub fn get_sub_trait_function_id(&self) -> TraitFunctionId<'db> {
         let item = self
             .corelib_items
             .get(SUB_TRAIT_FUNCTION_PATH)
@@ -151,7 +151,7 @@ impl CorelibContext {
         }
     }
 
-    pub fn get_integer_module_id(&self) -> SubmoduleId {
+    pub fn get_integer_module_id(&self) -> SubmoduleId<'db> {
         let item = self
             .corelib_items
             .get(INTEGER_MODULE_PATH)
@@ -164,11 +164,11 @@ impl CorelibContext {
     }
 }
 
-fn find_item_with_path(
-    db: &dyn SemanticGroup,
-    module_id: ModuleId,
+fn find_item_with_path<'db>(
+    db: &'db dyn SemanticGroup,
+    module_id: ModuleId<'db>,
     path: &str,
-) -> Option<LookupItemId> {
+) -> Option<LookupItemId<'db>> {
     let items = db.module_items(module_id).ok()?;
     for item in items.iter() {
         if item.full_path(db) == path {

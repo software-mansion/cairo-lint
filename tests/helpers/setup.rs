@@ -1,26 +1,21 @@
-use cairo_lang_filesystem::db::CrateSettings;
+use cairo_lang_filesystem::db::{CrateConfigurationInput, CrateSettings, FilesGroup};
 use cairo_lang_filesystem::{
-    db::{CrateConfiguration, Edition, ExperimentalFeaturesConfig},
-    ids::{CrateId, CrateLongId, Directory, FileKind, FileLongId, VirtualFile},
+    db::{Edition, ExperimentalFeaturesConfig},
+    ids::{CrateId, FileKind},
 };
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_utils::Intern;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use std::{collections::BTreeMap, sync::Arc};
 
 use crate::CRATE_CONFIG;
+use cairo_lang_filesystem::ids::{CrateInput, DirectoryInput, FileInput, VirtualFileInput};
+use cairo_lang_utils::smol_str::ToSmolStr;
+use cairo_lint::LinterAnalysisDatabase;
 
-pub fn setup_test_crate_ex(db: &mut dyn SemanticGroup, content: &str) -> CrateId {
-    let file_id = FileLongId::Virtual(VirtualFile {
-        parent: None,
-        name: "lib.cairo".into(),
-        content: content.into(),
-        code_mappings: [].into(),
-        kind: FileKind::Module,
-        original_item_removed: false,
-    })
-    .intern(db);
-
+pub fn setup_test_crate_ex<'db>(
+    db: &'db mut LinterAnalysisDatabase,
+    content: &str,
+) -> CrateId<'db> {
     let settings = CrateSettings {
         name: None,
         edition: Edition::latest(),
@@ -34,27 +29,33 @@ pub fn setup_test_crate_ex(db: &mut dyn SemanticGroup, content: &str) -> CrateId
         },
         cfg_set: Default::default(),
     };
-    let crate_config = CrateConfiguration {
-        root: Directory::Virtual {
-            files: BTreeMap::from([("lib.cairo".into(), file_id)]),
-            dirs: Default::default(),
-        },
-        settings,
+    let file = FileInput::Virtual(VirtualFileInput {
+        parent: None,
+        name: "lib.cairo".into(),
+        content: content.into(),
+        code_mappings: [].into(),
+        kind: FileKind::Module,
+        original_item_removed: false,
+    });
+
+    let cr = CrateInput::Virtual {
+        name: "test".into(),
+        file_long_id: file.clone(),
+        settings: CRATE_CONFIG.to_string(),
         cache_file: None,
     };
 
-    let crate_id = CrateLongId::Virtual {
-        name: "test".into(),
-        file_id,
-        settings: CRATE_CONFIG.to_string(),
-        cache_file: None,
-    }
-    .intern(db);
-
     db.set_crate_configs_input(Arc::new(OrderedHashMap::from([(
-        db.crate_input(crate_id),
-        db.crate_configuration_input(crate_config),
+        cr.clone(),
+        CrateConfigurationInput {
+            root: DirectoryInput::Virtual {
+                files: BTreeMap::from([("lib.cairo".to_smolstr(), file)]),
+                dirs: Default::default(),
+            },
+            settings,
+            cache_file: None,
+        },
     )])));
 
-    crate_id
+    cr.into_crate_long_id(db).intern(db)
 }

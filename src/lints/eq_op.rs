@@ -231,11 +231,11 @@ impl Lint for LogicalEqualityOperation {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_eq_op(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_eq_op<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -247,11 +247,11 @@ pub fn check_eq_op(
     }
 }
 
-fn check_single_eq_op(
-    db: &dyn SemanticGroup,
-    expr_func: &ExprFunctionCall,
-    arenas: &Arenas,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_single_eq_op<'db>(
+    db: &'db dyn SemanticGroup,
+    expr_func: &ExprFunctionCall<'db>,
+    arenas: &Arenas<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     // We're looking for binary operations
     if expr_func.args.len() != 2 {
@@ -278,7 +278,7 @@ fn check_single_eq_op(
             expr.stable_ptr()
         }
     }
-    .lookup(db.upcast())
+    .lookup(db)
     .as_syntax_node();
 
     // Get rhs syntax node to check the text
@@ -302,12 +302,12 @@ fn check_single_eq_op(
             expr.stable_ptr()
         }
     }
-    .lookup(db.upcast())
+    .lookup(db)
     .as_syntax_node();
 
     let op = function_trait_name_from_fn_id(db, &expr_func.function);
 
-    if are_operands_equal(db.upcast(), lhs, rhs) {
+    if are_operands_equal(db, lhs, rhs) {
         if let Some(message) = get_diagnostic_message(&op) {
             diagnostics.push(PluginDiagnostic {
                 stable_ptr: expr_func.stable_ptr.untyped(),
@@ -319,7 +319,11 @@ fn check_single_eq_op(
     }
 }
 
-fn are_operands_equal(db: &dyn SyntaxGroup, lhs: SyntaxNode, rhs: SyntaxNode) -> bool {
+fn are_operands_equal<'db>(
+    db: &'db dyn SyntaxGroup,
+    lhs: SyntaxNode<'db>,
+    rhs: SyntaxNode<'db>,
+) -> bool {
     lhs.get_text_without_trivia(db) == rhs.get_text_without_trivia(db)
 }
 

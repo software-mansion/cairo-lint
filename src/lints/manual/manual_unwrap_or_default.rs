@@ -63,8 +63,12 @@ impl Lint for ManualUnwrapOrDefault {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_manual_unwrap_or_default(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_manual_unwrap_or_default(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -73,11 +77,11 @@ impl Lint for ManualUnwrapOrDefault {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_manual_unwrap_or_default(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_manual_unwrap_or_default<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -110,7 +114,10 @@ pub fn check_manual_unwrap_or_default(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_manual_unwrap_or_default(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_manual_unwrap_or_default<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let expr = ast::Expr::from_syntax_node(db, node);
 
     let matched_expr = match &expr {
@@ -137,7 +144,7 @@ pub fn fix_manual_unwrap_or_default(db: &dyn SyntaxGroup, node: SyntaxNode) -> O
             .as_syntax_node()
             .get_text_without_trivia(db)
             .replace(
-                parent_node.rhs(db).as_syntax_node().get_text(db).as_str(),
+                parent_node.rhs(db).as_syntax_node().get_text(db),
                 &format!("{}.unwrap_or_default()", matched_expr.get_text(db).trim()),
             );
 
@@ -159,7 +166,7 @@ pub fn fix_manual_unwrap_or_default(db: &dyn SyntaxGroup, node: SyntaxNode) -> O
         .take_while(|c| c.is_whitespace())
         .collect::<String>();
 
-    let comments = extract_comments(db, &target_node, &indent);
+    let comments = extract_comments(db, target_node, &indent);
 
     Some(InternalFix {
         node: target_node,
@@ -170,7 +177,7 @@ pub fn fix_manual_unwrap_or_default(db: &dyn SyntaxGroup, node: SyntaxNode) -> O
 }
 
 // Extracts comments from the node's text and formats them with the given indentation.
-fn extract_comments(db: &dyn SyntaxGroup, node: &SyntaxNode, indent: &str) -> String {
+fn extract_comments<'db>(db: &'db dyn SyntaxGroup, node: SyntaxNode<'db>, indent: &str) -> String {
     let text = node.get_text(db);
     let comments_lines = text
         .lines()

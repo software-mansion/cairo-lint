@@ -1,35 +1,17 @@
-use std::{collections::BTreeMap, sync::Arc};
-
-use cairo_lang_defs::{
-    db::{DefsDatabase, DefsGroup, try_ext_as_virtual_impl},
-    ids::{InlineMacroExprPluginId, InlineMacroExprPluginLongId, MacroPluginId, MacroPluginLongId},
-};
+use cairo_lang_defs::db::{DefsGroup, try_ext_as_virtual_impl};
 use cairo_lang_filesystem::{
-    db::{CrateConfigurationInput, ExternalFiles, FilesDatabase, FilesGroup},
-    flag::Flag,
-    ids::{CrateInput, Directory, FileId, FileInput, FlagLongId, VirtualFile},
+    db::{ExternalFiles, FilesGroup},
+    ids::VirtualFile,
 };
-use cairo_lang_parser::db::{ParserDatabase, ParserGroup};
-use cairo_lang_semantic::{
-    db::{SemanticDatabase, SemanticGroup},
-    ids::{AnalyzerPluginId, AnalyzerPluginLongId},
-};
-use cairo_lang_syntax::node::db::{SyntaxDatabase, SyntaxGroup};
+use cairo_lang_parser::db::ParserGroup;
+use cairo_lang_semantic::db::{Elongate, SemanticGroup};
+use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_utils::Upcast;
-use cairo_lang_utils::{Intern, ordered_hash_map::OrderedHashMap};
-use cairo_lang_utils::{LookupIntern, smol_str::SmolStr};
-use itertools::Itertools;
 
-use crate::{LinterDatabase, LinterGroup};
+use crate::LinterGroup;
 
-#[salsa::database(
-    LinterDatabase,
-    SemanticDatabase,
-    DefsDatabase,
-    SyntaxDatabase,
-    FilesDatabase,
-    ParserDatabase
-)]
+#[salsa::db]
+#[derive(Clone)]
 pub struct FixerDatabase {
     storage: salsa::Storage<Self>,
 }
@@ -41,19 +23,19 @@ impl FixerDatabase {
         let mut new_db = Self::new();
 
         // SemanticGroup salsa inputs.
-        new_db.migrate_default_analyzer_plugins(db);
-        new_db.migrate_analyzer_plugin_overrides(db);
+        new_db.set_default_analyzer_plugins_input(db.default_analyzer_plugins_input());
+        new_db.set_analyzer_plugin_overrides_input(db.analyzer_plugin_overrides_input());
 
         // DefsGroup salsa inputs.
-        new_db.migrate_default_macro_plugins(db);
-        new_db.migrate_macro_plugin_overrides(db);
-        new_db.migrate_default_inline_macro_plugins(db);
-        new_db.migrate_inline_macro_plugin_overrides(db);
+        new_db.set_default_macro_plugins_input(db.default_macro_plugins_input());
+        new_db.set_macro_plugin_overrides_input(db.macro_plugin_overrides_input());
+        new_db.set_default_inline_macro_plugins_input(db.default_inline_macro_plugins_input());
+        new_db.set_inline_macro_plugin_overrides_input(db.inline_macro_plugin_overrides_input());
 
         // FilesGroup salsa inputs.
-        new_db.migrate_crate_configs(db);
-        new_db.migrate_file_overrides(db);
-        new_db.migrate_flags(db);
+        new_db.set_crate_configs_input(db.crate_configs_input());
+        new_db.set_file_overrides_input(db.file_overrides_input());
+        new_db.set_flags_input(db.flags_input());
         new_db.set_cfg_set(db.cfg_set());
         new_db
     }
@@ -63,241 +45,52 @@ impl FixerDatabase {
             storage: Default::default(),
         }
     }
-
-    fn migrate_default_analyzer_plugins(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
-        let longs_ids = self.lookup_analyzer_plugin_ids(old_db, &old_db.default_analyzer_plugins());
-
-        self.set_default_analyzer_plugins_input(Arc::from(longs_ids));
-    }
-
-    fn migrate_analyzer_plugin_overrides(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
-        let mut new_analyzer_plugin_overrides: OrderedHashMap<
-            CrateInput,
-            Arc<[AnalyzerPluginLongId]>,
-        > = OrderedHashMap::default();
-        old_db
-            .analyzer_plugin_overrides()
-            .iter()
-            .for_each(|(crate_id, analyzer_plugin_ids)| {
-                let long_ids = self.lookup_analyzer_plugin_ids(old_db, analyzer_plugin_ids);
-                let new_crate_id = crate_id.lookup_intern(old_db).intern(self);
-                new_analyzer_plugin_overrides.insert(
-                    self.crate_input(new_crate_id),
-                    Arc::<[AnalyzerPluginLongId]>::from(long_ids),
-                );
-            });
-        self.set_analyzer_plugin_overrides_input(Arc::from(new_analyzer_plugin_overrides));
-    }
-
-    fn migrate_default_macro_plugins(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
-        let long_ids = self.lookup_macro_plugin_ids(old_db, &old_db.default_macro_plugins());
-
-        self.set_default_macro_plugins_input(Arc::from(long_ids));
-    }
-
-    fn migrate_macro_plugin_overrides(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
-        let mut new_macro_plugin_overrides: OrderedHashMap<CrateInput, Arc<[MacroPluginLongId]>> =
-            OrderedHashMap::default();
-        old_db
-            .macro_plugin_overrides()
-            .iter()
-            .for_each(|(crate_id, macro_plugin_ids)| {
-                let long_ids = self.lookup_macro_plugin_ids(old_db, macro_plugin_ids);
-                let new_crate_id = crate_id.lookup_intern(old_db).intern(self);
-                new_macro_plugin_overrides.insert(
-                    self.crate_input(new_crate_id),
-                    Arc::<[MacroPluginLongId]>::from(long_ids),
-                );
-            });
-        self.set_macro_plugin_overrides_input(Arc::from(new_macro_plugin_overrides));
-    }
-
-    fn migrate_default_inline_macro_plugins(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
-        let new_default_inline_macro_plugins: OrderedHashMap<String, InlineMacroExprPluginLongId> =
-            self.lookup_inline_macro_plugin_ids(old_db, &old_db.default_inline_macro_plugins());
-
-        self.set_default_inline_macro_plugins_input(Arc::from(new_default_inline_macro_plugins));
-    }
-
-    fn migrate_inline_macro_plugin_overrides(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
-        let mut new_inline_macro_plugin_overrides: OrderedHashMap<
-            CrateInput,
-            Arc<OrderedHashMap<String, InlineMacroExprPluginLongId>>,
-        > = OrderedHashMap::default();
-        old_db.inline_macro_plugin_overrides().iter().for_each(
-            |(crate_id, inline_macro_plugins)| {
-                let new_inline_macro_plugin_ids: OrderedHashMap<
-                    String,
-                    InlineMacroExprPluginLongId,
-                > = self.lookup_inline_macro_plugin_ids(old_db, inline_macro_plugins);
-                let new_crate_id = crate_id.lookup_intern(old_db).intern(self);
-                new_inline_macro_plugin_overrides.insert(
-                    self.crate_input(new_crate_id),
-                    Arc::from(new_inline_macro_plugin_ids),
-                );
-            },
-        );
-        self.set_inline_macro_plugin_overrides_input(Arc::from(new_inline_macro_plugin_overrides));
-    }
-
-    fn migrate_crate_configs(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
-        let mut new_crate_configs: OrderedHashMap<CrateInput, CrateConfigurationInput> =
-            OrderedHashMap::default();
-        old_db
-            .crate_configs()
-            .iter()
-            .for_each(|(crate_id, crate_config)| {
-                let new_crate_id = crate_id.lookup_intern(old_db).intern(self);
-                let mut new_crate_config = crate_config.clone();
-
-                if let Some(blob_id) = crate_config.cache_file {
-                    new_crate_config.cache_file = Some(blob_id.lookup_intern(old_db).intern(self));
-                }
-
-                if matches!(crate_config.root, Directory::Virtual { .. }) {
-                    new_crate_config.root =
-                        self.get_migrated_root_directory(old_db, &mut new_crate_config.root)
-                }
-
-                new_crate_configs.insert(
-                    self.crate_input(new_crate_id),
-                    self.crate_configuration_input(crate_config.clone()),
-                );
-            });
-        self.set_crate_configs_input(Arc::from(new_crate_configs));
-    }
-
-    fn migrate_file_overrides(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
-        let mut new_file_overrides: OrderedHashMap<FileInput, Arc<str>> = OrderedHashMap::default();
-        old_db
-            .file_overrides()
-            .iter()
-            .for_each(|(file_id, content)| {
-                let new_file_id = file_id.lookup_intern(old_db).intern(self);
-                new_file_overrides.insert(self.file_input(new_file_id), content.clone());
-            });
-        self.set_file_overrides_input(Arc::from(new_file_overrides));
-    }
-
-    fn migrate_flags(&mut self, old_db: &(dyn SemanticGroup + 'static)) {
-        let mut new_flags: OrderedHashMap<FlagLongId, Arc<Flag>> = OrderedHashMap::default();
-        old_db.flags().iter().for_each(|(flag_id, flag)| {
-            let new_flag_id = flag_id.lookup_intern(old_db).intern(self);
-            new_flags.insert(self.lookup_intern_flag(new_flag_id), flag.clone());
-        });
-        self.set_flags_input(Arc::from(new_flags));
-    }
-
-    fn get_migrated_root_directory(
-        &mut self,
-        old_db: &(dyn SemanticGroup + 'static),
-        dir: &mut Directory,
-    ) -> Directory {
-        match dir {
-            Directory::Real(_) => dir.clone(),
-            Directory::Virtual { files, dirs } => {
-                let mut new_files: BTreeMap<SmolStr, FileId> = BTreeMap::default();
-                let mut new_dirs: BTreeMap<SmolStr, Box<Directory>> = BTreeMap::default();
-                for (name, file_id) in files.iter() {
-                    let new_file_id = file_id.lookup_intern(old_db).intern(self);
-                    new_files.insert(name.clone(), new_file_id);
-                }
-                for (name, subdir) in dirs.iter() {
-                    let mut subdir_clone = (**subdir).clone();
-                    let new_subdir = self.get_migrated_root_directory(old_db, &mut subdir_clone);
-                    new_dirs.insert(name.clone(), Box::new(new_subdir));
-                }
-                Directory::Virtual {
-                    files: new_files,
-                    dirs: new_dirs,
-                }
-            }
-        }
-    }
-
-    fn lookup_analyzer_plugin_ids(
-        &mut self,
-        old_db: &(dyn SemanticGroup + 'static),
-        analyzer_plugins_ids: &Arc<[AnalyzerPluginId]>,
-    ) -> Vec<AnalyzerPluginLongId> {
-        analyzer_plugins_ids
-            .iter()
-            .map(|plugin_id| plugin_id.lookup_intern(old_db))
-            .collect_vec()
-    }
-
-    fn lookup_macro_plugin_ids(
-        &mut self,
-        old_db: &(dyn DefsGroup + 'static),
-        macro_plugins_ids: &Arc<[MacroPluginId]>,
-    ) -> Vec<MacroPluginLongId> {
-        macro_plugins_ids
-            .iter()
-            .map(|plugin_id| plugin_id.lookup_intern(old_db))
-            .collect_vec()
-    }
-
-    fn lookup_inline_macro_plugin_ids(
-        &mut self,
-        old_db: &(dyn DefsGroup + 'static),
-        inline_macro_plugins_ids: &Arc<OrderedHashMap<String, InlineMacroExprPluginId>>,
-    ) -> OrderedHashMap<String, InlineMacroExprPluginLongId> {
-        inline_macro_plugins_ids
-            .iter()
-            .map(|(key, plugin_id)| {
-                let new_plugin_id = plugin_id.lookup_intern(old_db);
-                (key.clone(), new_plugin_id)
-            })
-            .collect()
-    }
 }
 
 impl ExternalFiles for FixerDatabase {
-    fn try_ext_as_virtual(&self, external_id: salsa::InternId) -> Option<VirtualFile> {
-        try_ext_as_virtual_impl(self.upcast(), external_id)
+    fn try_ext_as_virtual(&self, external_id: salsa::Id) -> Option<VirtualFile> {
+        try_ext_as_virtual_impl(self, external_id)
     }
 }
 
-impl salsa::ParallelDatabase for FixerDatabase {
-    fn snapshot(&self) -> salsa::Snapshot<Self> {
-        salsa::Snapshot::new(FixerDatabase {
-            storage: self.storage.snapshot(),
-        })
-    }
-}
-
-impl Upcast<dyn FilesGroup> for FixerDatabase {
+impl<'db> Upcast<'db, dyn FilesGroup> for FixerDatabase {
     fn upcast(&self) -> &(dyn FilesGroup + 'static) {
         self
     }
 }
 
-impl Upcast<dyn SyntaxGroup> for FixerDatabase {
+impl<'db> Upcast<'db, dyn SyntaxGroup> for FixerDatabase {
     fn upcast(&self) -> &(dyn SyntaxGroup + 'static) {
         self
     }
 }
 
-impl Upcast<dyn DefsGroup> for FixerDatabase {
+impl<'db> Upcast<'db, dyn DefsGroup> for FixerDatabase {
     fn upcast(&self) -> &(dyn DefsGroup + 'static) {
         self
     }
 }
 
-impl Upcast<dyn SemanticGroup> for FixerDatabase {
+impl<'db> Upcast<'db, dyn SemanticGroup> for FixerDatabase {
     fn upcast(&self) -> &(dyn SemanticGroup + 'static) {
         self
     }
 }
 
-impl Upcast<dyn ParserGroup> for FixerDatabase {
+impl<'db> Upcast<'db, dyn ParserGroup> for FixerDatabase {
     fn upcast(&self) -> &(dyn ParserGroup + 'static) {
         self
     }
 }
 
-impl Upcast<dyn LinterGroup> for FixerDatabase {
+impl<'db> Upcast<'db, dyn LinterGroup> for FixerDatabase {
     fn upcast(&self) -> &(dyn LinterGroup + 'static) {
+        self
+    }
+}
+
+impl Elongate for FixerDatabase {
+    fn elongate(&self) -> &(dyn SemanticGroup + 'static) {
         self
     }
 }

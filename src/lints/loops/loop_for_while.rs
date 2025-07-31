@@ -65,8 +65,12 @@ impl Lint for LoopForWhile {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_loop_break(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_loop_break(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -90,11 +94,11 @@ impl Lint for LoopForWhile {
 /// }
 /// ```
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_loop_for_while(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_loop_for_while<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -106,10 +110,10 @@ pub fn check_loop_for_while(
     }
 }
 
-fn check_single_loop_for_while(
-    loop_expr: &ExprLoop,
-    arenas: &Arenas,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_single_loop_for_while<'db>(
+    loop_expr: &ExprLoop<'db>,
+    arenas: &Arenas<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     // Get the else block  expression
     let Expr::Block(block_expr) = &arenas.exprs[loop_expr.body] else {
@@ -204,7 +208,10 @@ fn check_if_contains_break_with_no_return_value(expr: &ExprId, arenas: &Arenas) 
 /// }
 /// ```
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_loop_break<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let loop_expr = AstExprLoop::from_syntax_node(db, node);
     let indent = node
         .get_text(db)
@@ -228,7 +235,7 @@ pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Internal
     {
         if let AstExpr::If(if_expr) = expr_statement.expr(db) {
             condition_text = invert_condition(
-                &if_expr
+                if_expr
                     .conditions(db)
                     .as_syntax_node()
                     .get_text_without_trivia(db),

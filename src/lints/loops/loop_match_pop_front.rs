@@ -68,8 +68,12 @@ impl Lint for LoopMatchPopFront {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_loop_match_pop_front(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_loop_match_pop_front(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -78,11 +82,11 @@ impl Lint for LoopMatchPopFront {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_loop_match_pop_front(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_loop_match_pop_front<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -94,11 +98,11 @@ pub fn check_loop_match_pop_front(
     }
 }
 
-fn check_single_loop_match_pop_front(
-    db: &dyn SemanticGroup,
-    loop_expr: &ExprLoop,
-    diagnostics: &mut Vec<PluginDiagnostic>,
-    arenas: &Arenas,
+fn check_single_loop_match_pop_front<'db>(
+    db: &'db dyn SemanticGroup,
+    loop_expr: &ExprLoop<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
+    arenas: &Arenas<'db>,
 ) {
     // Checks that the loop doesn't return anything
     if !loop_expr.ty.is_unit(db) {
@@ -159,7 +163,11 @@ fn check_single_loop_match_pop_front(
 
 const OPTION_TYPE: &str = "core::option::Option::<";
 
-fn check_single_match(db: &dyn SemanticGroup, match_expr: &ExprMatch, arenas: &Arenas) -> bool {
+fn check_single_match<'db>(
+    db: &dyn SemanticGroup,
+    match_expr: &ExprMatch<'db>,
+    arenas: &Arenas<'db>,
+) -> bool {
     let arms = &match_expr.arms;
 
     // Check that we're in a setup with 2 arms that return unit
@@ -205,20 +213,20 @@ fn check_single_match(db: &dyn SemanticGroup, match_expr: &ExprMatch, arenas: &A
         false
     }
 }
-fn check_enum_pattern(
-    db: &dyn SemanticGroup,
-    enum_pat: &PatternEnumVariant,
-    arenas: &Arenas,
+fn check_enum_pattern<'db>(
+    db: &'db dyn SemanticGroup,
+    enum_pat: &PatternEnumVariant<'db>,
+    arenas: &Arenas<'db>,
     arm_expression: ExprId,
 ) -> bool {
     // Checks that the variant is from the option type.
-    if !enum_pat.ty.format(db.upcast()).starts_with(OPTION_TYPE) {
+    if !enum_pat.ty.format(db).starts_with(OPTION_TYPE) {
         return false;
     }
 
     // Check if the variant is the None variant
     if_chain! {
-        if enum_pat.variant.id.full_path(db.upcast()) == NONE;
+        if enum_pat.variant.id.full_path(db) == NONE;
         // Get the expression of the None variant and checks if it's a block expression.
         if let Expr::Block(expr_block) = &arenas.exprs[arm_expression];
         // If it's a block expression checks that it only contains `break;`
@@ -227,7 +235,7 @@ fn check_enum_pattern(
           return true;
       }
     }
-    enum_pat.variant.id.full_path(db.upcast()) == SOME
+    enum_pat.variant.id.full_path(db) == SOME
 }
 /// Checks that the block only contains `break;` without comments
 fn check_block_is_break(db: &dyn SemanticGroup, expr_block: &ExprBlock, arenas: &Arenas) -> bool {
@@ -235,10 +243,10 @@ fn check_block_is_break(db: &dyn SemanticGroup, expr_block: &ExprBlock, arenas: 
         if expr_block.statements.len() == 1;
         if let Statement::Break(break_stmt) = &arenas.statements[expr_block.statements[0]];
         then {
-            let break_node = break_stmt.stable_ptr.lookup(db.upcast()).as_syntax_node();
+            let break_node = break_stmt.stable_ptr.lookup(db).as_syntax_node();
             // Checks that the trimmed text == the text without trivia which would mean that there is no comment
-            let break_text = break_node.get_text(db.upcast()).trim().to_string();
-            if break_text == break_node.get_text_without_trivia(db.upcast())
+            let break_text = break_node.get_text(db).trim().to_string();
+            if break_text == break_node.get_text_without_trivia(db)
                 && (break_text == "break;" || break_text == "break ();")
             {
                 return true;
@@ -265,7 +273,10 @@ fn check_block_is_break(db: &dyn SemanticGroup, expr_block: &ExprBlock, arenas: 
 /// };
 /// ```
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_loop_match_pop_front(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_loop_match_pop_front<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let expr_loop = AstExprLoop::from_syntax_node(db, node);
     let body = expr_loop.body(db);
     let Some(AstStatement::Expr(expr)) = &body.statements(db).elements(db).next() else {
@@ -294,8 +305,8 @@ pub fn fix_loop_match_pop_front(db: &dyn SyntaxGroup, node: SyntaxNode) -> Optio
             "Wrong expression type. This is probably a bug in the lint detection. Please report it"
         ),
     };
-    let mut elt_name = "".to_owned();
-    let mut some_arm = "".to_owned();
+    let mut elt_name = "";
+    let mut some_arm = "";
     let arms = expr_match.arms(db).elements(db);
 
     let mut loop_span = node.span(db);

@@ -6,7 +6,6 @@ use cairo_lang_filesystem::{
 use cairo_lang_semantic::{
     SemanticDiagnostic, db::SemanticGroup, diagnostic::SemanticDiagnosticKind,
 };
-use cairo_lang_utils::LookupIntern;
 use cairo_lint::{
     CairoLintToolMetadata, CorelibContext, LinterAnalysisDatabase, LinterDiagnosticParams,
     LinterGroup, context::get_unique_allowed_names,
@@ -17,7 +16,10 @@ use std::path::PathBuf;
 mod scarb;
 pub mod setup;
 
-pub fn get_diags(crate_id: CrateId, db: &mut LinterAnalysisDatabase) -> Vec<SemanticDiagnostic> {
+pub fn get_diags<'db>(
+    crate_id: CrateId<'db>,
+    db: &'db mut LinterAnalysisDatabase,
+) -> Vec<SemanticDiagnostic<'db>> {
     if let Ok(path) = std::env::var("CORELIB_PATH") {
         init_dev_corelib(db, PathBuf::from(path));
     } else if let Some(path) = find_scarb_managed_core() {
@@ -28,7 +30,7 @@ pub fn get_diags(crate_id: CrateId, db: &mut LinterAnalysisDatabase) -> Vec<Sema
     let mut diagnostics = Vec::new();
     let module_file = db.module_main_file(ModuleId::CrateRoot(crate_id)).unwrap();
     if db.file_content(module_file).is_none() {
-        match module_file.lookup_intern(db) {
+        match module_file.long(db) {
             FileLongId::OnDisk(_path) => {}
             FileLongId::Virtual(_) => panic!("Missing virtual file."),
             FileLongId::External(_) => (),
@@ -89,26 +91,25 @@ macro_rules! test_lint_fixer {
     test_lint_fixer!(expected_value, @$expected_fix, $is_nested)
   }};
   ($before:ident, @$expected_fix:literal, $is_nested:literal) => {{
-    use ::cairo_lang_utils::Upcast;
     use ::cairo_lang_diagnostics::DiagnosticEntry;
     use ::itertools::Itertools;
     let mut code = String::from($before);
-    let mut db = ::cairo_lint::LinterAnalysisDatabase::builder()
+    let db = ::cairo_lint::LinterAnalysisDatabase::builder()
       .with_default_plugin_suite(::cairo_lang_semantic::inline_macros::get_default_plugin_suite())
       .with_default_plugin_suite(::cairo_lang_test_plugin::test_plugin_suite())
       .build()
       .unwrap();
     let diags = $crate::helpers::get_diags(
-      $crate::helpers::setup::setup_test_crate_ex(&mut db, $before),
-      &mut db,
+      $crate::helpers::setup::setup_test_crate_ex(db.get_mut(), $before),
+      db.get_mut(),
     );
     let mut fixes = Vec::new();
-    let corelib_context = ::cairo_lint::CorelibContext::new(&db);
+    let corelib_context = ::cairo_lint::CorelibContext::new(&*db);
     let linter_params = ::cairo_lint::LinterDiagnosticParams {
         only_generated_files: true,
         tool_metadata: $crate::helpers::get_cairo_lint_tool_metadata_with_all_lints_enabled(),
     };
-    fixes.extend(::cairo_lint::get_fixes(db.upcast(), &corelib_context, &linter_params, diags).values().flatten().cloned());
+    fixes.extend(::cairo_lint::get_fixes(&*db, &corelib_context, &linter_params, diags).values().flatten().cloned());
     let suggestions = fixes.iter().flat_map(|fix| fix.suggestions.iter()).sorted_by_key(|s| std::cmp::Reverse(s.span.start));
     if !$is_nested {
       for suggestion in suggestions {
@@ -117,19 +118,19 @@ macro_rules! test_lint_fixer {
     } else {
       code = "Contains nested diagnostics can't fix it".to_string();
     }
-    let after = ::cairo_lang_formatter::format_string(db.upcast(), code);
+    let after = ::cairo_lang_formatter::format_string(&*db, code);
 
     ::insta::assert_snapshot!(after, @$expected_fix);
 
-    let mut after_db = ::cairo_lint::LinterAnalysisDatabase::builder()
+    let after_db = ::cairo_lint::LinterAnalysisDatabase::builder()
       .with_default_plugin_suite(::cairo_lang_semantic::inline_macros::get_default_plugin_suite())
       .with_default_plugin_suite(::cairo_lang_test_plugin::test_plugin_suite())
       .build()
       .unwrap();
 
     let after_diags = $crate::helpers::get_diags(
-      $crate::helpers::setup::setup_test_crate_ex(&mut after_db, &after),
-      &mut after_db,
+      $crate::helpers::setup::setup_test_crate_ex(after_db.get_mut(), &after),
+      after_db.get_mut(),
     );
     assert!(after_diags.iter().filter(|diag| diag.severity() == ::cairo_lang_diagnostics::Severity::Error).collect::<Vec<_>>().is_empty(), "Expected no diagnostics after fix, but found: {:?}", after_diags);
   }};
@@ -142,18 +143,18 @@ macro_rules! test_lint_diagnostics {
     test_lint_diagnostics!(expected_value, @$expected_diagnostics)
   }};
   ($before:ident, @$expected_diagnostics:literal) => {{
-    let mut db = ::cairo_lint::LinterAnalysisDatabase::builder()
+    let db = ::cairo_lint::LinterAnalysisDatabase::builder()
       .with_default_plugin_suite(::cairo_lang_semantic::inline_macros::get_default_plugin_suite())
       .with_default_plugin_suite(::cairo_lang_test_plugin::test_plugin_suite())
       .build()
       .unwrap();
     let diags = $crate::helpers::get_diags(
-      $crate::helpers::setup::setup_test_crate_ex(&mut db, $before),
-      &mut db,
+      $crate::helpers::setup::setup_test_crate_ex(db.get_mut(), $before),
+      db.get_mut(),
     );
     let formatted_diags = diags
       .into_iter()
-      .map(|diag| ::cairo_lint::diagnostics::format_diagnostic(&diag, &db))
+      .map(|diag| ::cairo_lint::diagnostics::format_diagnostic(&diag, &*db))
       .collect::<String>()
       .trim()
       .to_string();

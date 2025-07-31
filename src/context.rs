@@ -91,8 +91,12 @@ use std::collections::HashMap;
 use std::sync::LazyLock;
 
 /// Type describing a linter group's rule checking function.
-type CheckingFunction =
-    fn(&dyn SemanticGroup, &CorelibContext, &ModuleItemId, &mut Vec<PluginDiagnostic>);
+type CheckingFunction = for<'db> fn(
+    &'db dyn SemanticGroup,
+    &CorelibContext<'db>,
+    &ModuleItemId<'db>,
+    &mut Vec<PluginDiagnostic<'db>>,
+);
 
 /// Enum representing the kind of a linter. Some lint rules might have the same kind.
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -180,7 +184,11 @@ pub trait Lint: Sync + Send {
     ///
     /// By default there is no fixing procedure for a Lint.
     #[expect(unused_variables)]
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
         unreachable!("fix() has been called for a lint which has_fixer() returned false")
     }
 
@@ -416,11 +424,11 @@ pub fn get_lint_type_from_diagnostic_message(message: &str) -> CairoLintKind {
 
 /// Get the fixing function based on the diagnostic message.
 /// For some of the rules there is no fixing function, so it returns `None`.
-pub fn get_fix_for_diagnostic_message(
-    db: &dyn SemanticGroup,
-    node: SyntaxNode,
+pub fn get_fix_for_diagnostic_message<'db>(
+    db: &'db dyn SemanticGroup,
+    node: SyntaxNode<'db>,
     message: &str,
-) -> Option<InternalFix> {
+) -> Option<InternalFix<'db>> {
     LINT_CONTEXT
         .lint_groups
         .iter()

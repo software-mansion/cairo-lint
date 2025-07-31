@@ -60,8 +60,12 @@ impl Lint for BoolComparison {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_bool_comparison(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_bool_comparison(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -71,11 +75,11 @@ impl Lint for BoolComparison {
 
 /// Checks for ` a == true`. Bool comparisons are useless and can be rewritten more clearly.
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_bool_comparison(
-    db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_bool_comparison<'db>(
+    db: &'db dyn SemanticGroup,
+    corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -93,12 +97,12 @@ pub fn check_bool_comparison(
     }
 }
 
-fn check_single_bool_comparison(
-    db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
-    function_call_expr: &ExprFunctionCall,
-    arenas: &Arenas,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_single_bool_comparison<'db>(
+    db: &'db dyn SemanticGroup,
+    corelib_context: &CorelibContext<'db>,
+    function_call_expr: &ExprFunctionCall<'db>,
+    arenas: &Arenas<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     // Check if the function call is the bool partial eq function (==).
     match function_call_expr
@@ -125,7 +129,7 @@ fn check_single_bool_comparison(
             if let ExprFunctionCallArg::Value(expr) = arg;
             if let Expr::Snapshot(snap) = &arenas.exprs[*expr];
             if let Expr::EnumVariantCtor(enum_var) = &arenas.exprs[snap.inner];
-            if enum_var.variant.concrete_enum_id.enum_id(db).full_path(db.upcast()) == "core::bool";
+            if enum_var.variant.concrete_enum_id.enum_id(db).full_path(db) == "core::bool";
             then {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: function_call_expr.stable_ptr.untyped(),
@@ -141,12 +145,15 @@ fn check_single_bool_comparison(
 /// Rewrites a bool comparison to a simple bool. Ex: `some_bool == false` would be rewritten to
 /// `!some_bool`
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_bool_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_bool_comparison<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let node = ExprBinary::from_syntax_node(db, node);
     let lhs = node.lhs(db).as_syntax_node().get_text(db);
     let rhs = node.rhs(db).as_syntax_node().get_text(db);
 
-    let result = generate_fixed_text_for_comparison(db, lhs.as_str(), rhs.as_str(), node.clone());
+    let result = generate_fixed_text_for_comparison(db, lhs, rhs, node.clone());
     Some(InternalFix {
         node: node.as_syntax_node(),
         suggestion: result,
@@ -156,11 +163,11 @@ pub fn fix_bool_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Int
 }
 
 /// Generates the fixed boolean for a boolean comparison. It will transform `x == false` to `!x`
-fn generate_fixed_text_for_comparison(
-    db: &dyn SyntaxGroup,
+fn generate_fixed_text_for_comparison<'db>(
+    db: &'db dyn SyntaxGroup,
     lhs: &str,
     rhs: &str,
-    node: ExprBinary,
+    node: ExprBinary<'db>,
 ) -> String {
     let op_kind = node.op(db).as_syntax_node().kind(db);
     let lhs = lhs.trim();

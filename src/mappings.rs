@@ -6,10 +6,10 @@ use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::{SyntaxNode, ast::ModuleItem, ids::SyntaxStablePtrId};
 
 #[tracing::instrument(level = "trace", skip(db))]
-pub fn get_origin_module_item_as_syntax_node(
-    db: &dyn SemanticGroup,
-    module_item_id: &ModuleItemId,
-) -> Option<SyntaxNode> {
+pub fn get_origin_module_item_as_syntax_node<'db>(
+    db: &'db dyn SemanticGroup,
+    module_item_id: &ModuleItemId<'db>,
+) -> Option<SyntaxNode<'db>> {
     let ptr = module_item_id.stable_location(db).stable_ptr();
     let (file, span) = get_originating_location(
         db,
@@ -18,18 +18,18 @@ pub fn get_origin_module_item_as_syntax_node(
         None,
     );
 
-    find_syntax_node_at_offset(db.upcast(), file, span.start)?
+    find_syntax_node_at_offset(db, file, span.start)?
         .ancestors_with_self(db)
         .find(|n| ModuleItem::is_variant(n.kind(db)))
 }
 
 /// Returns the originating syntax node for a given stable pointer.
 #[tracing::instrument(level = "trace", skip(db))]
-pub fn get_origin_syntax_node(
-    db: &dyn SemanticGroup,
-    ptr: &SyntaxStablePtrId,
-) -> Option<SyntaxNode> {
-    let syntax_node = ptr.lookup(db.upcast());
+pub fn get_origin_syntax_node<'db>(
+    db: &'db dyn SemanticGroup,
+    ptr: &SyntaxStablePtrId<'db>,
+) -> Option<SyntaxNode<'db>> {
+    let syntax_node = ptr.lookup(db);
     let (file, span) = get_originating_location(
         db,
         ptr.file_id(db),
@@ -39,16 +39,16 @@ pub fn get_origin_syntax_node(
 
     // Heuristically find the syntax node at the given offset.
     // We match the ancestors with node text to ensure we get the whole node.
-    return find_syntax_node_at_offset(db.upcast(), file, span.start)?
+    return find_syntax_node_at_offset(db, file, span.start)?
         .ancestors_with_self(db)
         .find(|node| node.get_text_without_trivia(db) == syntax_node.get_text_without_trivia(db));
 }
 
 #[tracing::instrument(level = "trace", skip(db))]
-pub fn get_originating_syntax_node_for(
-    db: &dyn SemanticGroup,
-    ptr: &SyntaxStablePtrId,
-) -> Option<SyntaxNode> {
+pub fn get_originating_syntax_node_for<'db>(
+    db: &'db dyn SemanticGroup,
+    ptr: &SyntaxStablePtrId<'db>,
+) -> Option<SyntaxNode<'db>> {
     let (file, span) = get_originating_location(
         db,
         ptr.file_id(db),
@@ -56,13 +56,13 @@ pub fn get_originating_syntax_node_for(
         None,
     );
 
-    find_syntax_node_at_offset(db.upcast(), file, span.start)
+    find_syntax_node_at_offset(db, file, span.start)
 }
 
-fn find_syntax_node_at_offset(
-    db: &dyn ParserGroup,
-    file: FileId,
+fn find_syntax_node_at_offset<'db>(
+    db: &'db dyn ParserGroup,
+    file: FileId<'db>,
     offset: TextOffset,
-) -> Option<SyntaxNode> {
+) -> Option<SyntaxNode<'db>> {
     Some(db.file_syntax(file).to_option()?.lookup_offset(db, offset))
 }

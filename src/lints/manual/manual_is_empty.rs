@@ -18,7 +18,6 @@ use cairo_lang_syntax::node::ast::ExprBinary;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
-use cairo_lang_utils::LookupIntern;
 use cairo_lang_utils::smol_str::SmolStr;
 use if_chain::if_chain;
 use num_bigint::BigInt;
@@ -81,7 +80,11 @@ impl Lint for ManualIsEmpty {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
         fix_manual_is_empty(db, node)
     }
 
@@ -90,11 +93,11 @@ impl Lint for ManualIsEmpty {
     }
 }
 
-pub fn check_manual_is_empty(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_manual_is_empty<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let functions_bodies = get_all_function_bodies(db, item);
     for function_body in functions_bodies.iter() {
@@ -123,7 +126,10 @@ pub fn check_manual_is_empty(
 
 /// Rewrites a manual implementation of is_empty
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_manual_is_empty(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_manual_is_empty<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let typed_node = ExprBinary::cast(db, node)?;
     let node_for_wrapping: SyntaxNode = match (typed_node.lhs(db), typed_node.rhs(db)) {
         (SyntaxExpr::Binary(expr_binary), SyntaxExpr::Literal(_))
@@ -167,10 +173,10 @@ fn extract_function_name(db: &dyn SemanticGroup, fn_call: &ExprFunctionCall) -> 
     generic_function.name(db)
 }
 
-fn check_if_comparison_args_are_incorrect(
-    db: &dyn SemanticGroup,
-    comparison: &ExprFunctionCall,
-    arenas: &Arenas,
+fn check_if_comparison_args_are_incorrect<'db>(
+    db: &'db dyn SemanticGroup,
+    comparison: &ExprFunctionCall<'db>,
+    arenas: &Arenas<'db>,
 ) -> bool {
     assert_eq!(comparison.args.len(), 2); // Sanity check
     let (lhs, rhs) = (&comparison.args[0], &comparison.args[1]);
@@ -221,7 +227,7 @@ fn expr_is_empty_collection(db: &dyn SemanticGroup, expr: &Expr) -> bool {
         if origin_node.ancestors_with_self(db).any(|node|
             {
                 node.kind(db) == SyntaxKind::ExprInlineMacro
-                && syntax_node_to_str_without_all_nested_trivia(db, &node) == ARRAY_EMPTY_CREATION_VIA_MACRO
+                && syntax_node_to_str_without_all_nested_trivia(db, node) == ARRAY_EMPTY_CREATION_VIA_MACRO
             }
         );
 
@@ -255,7 +261,7 @@ fn expr_is_collection_length_call(db: &dyn SemanticGroup, expr: &Expr, arenas: &
         if func_name.ends_with("::len\"");
         if let ExprFunctionCallArg::Value(expr) = &func_call.args[0];
 
-        let arg_type = &arenas.exprs[*expr].ty().lookup_intern(db);
+        let arg_type = &arenas.exprs[*expr].ty().long(db);
         if is_std_collection_type(db, arg_type);
 
         then {
@@ -269,8 +275,8 @@ fn expr_is_collection_length_call(db: &dyn SemanticGroup, expr: &Expr, arenas: &
 fn is_std_collection_type(db: &dyn SemanticGroup, type_long_id: &TypeLongId) -> bool {
     match type_long_id {
         TypeLongId::Snapshot(type_id) => {
-            let underlying_type = type_id.lookup_intern(db);
-            is_std_collection_type(db, &underlying_type)
+            let underlying_type = type_id.long(db);
+            is_std_collection_type(db, underlying_type)
         }
         TypeLongId::Concrete(concrete_type_id) => {
             let generic_type_name = concrete_type_id.generic_type(db).format(db);

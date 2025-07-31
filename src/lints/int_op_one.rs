@@ -58,8 +58,12 @@ impl Lint for IntegerGreaterEqualPlusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_int_ge_plus_one(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_int_ge_plus_one(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -109,8 +113,12 @@ impl Lint for IntegerGreaterEqualMinusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_int_ge_min_one(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_int_ge_min_one(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -160,8 +168,12 @@ impl Lint for IntegerLessEqualPlusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_int_le_plus_one(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_int_le_plus_one(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -211,8 +223,12 @@ impl Lint for IntegerLessEqualMinusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_int_le_min_one(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_int_le_min_one(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -221,11 +237,11 @@ impl Lint for IntegerLessEqualMinusOne {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_int_op_one(
-    db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_int_op_one<'db>(
+    db: &'db dyn SemanticGroup,
+    corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -243,12 +259,12 @@ pub fn check_int_op_one(
     }
 }
 
-fn check_single_int_op_one(
-    db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
-    function_call_expr: &ExprFunctionCall,
-    arenas: &Arenas,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_single_int_op_one<'db>(
+    db: &'db dyn SemanticGroup,
+    corelib_context: &CorelibContext<'db>,
+    function_call_expr: &ExprFunctionCall<'db>,
+    arenas: &Arenas<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     // Check if the function call is part of the implementation.
     let GenericFunctionId::Impl(impl_generic_func_id) = function_call_expr
@@ -365,7 +381,7 @@ fn check_single_int_op_one(
     }
 }
 
-fn check_is_variable(arg: &ExprFunctionCallArg, arenas: &Arenas) -> bool {
+fn check_is_variable<'db>(arg: &ExprFunctionCallArg<'db>, arenas: &Arenas<'db>) -> bool {
     if let ExprFunctionCallArg::Value(val_expr) = arg {
         matches!(arenas.exprs[*val_expr], Expr::Var(_))
     } else {
@@ -373,12 +389,12 @@ fn check_is_variable(arg: &ExprFunctionCallArg, arenas: &Arenas) -> bool {
     }
 }
 
-fn check_is_add_or_sub_one(
-    db: &dyn SemanticGroup,
-    arg: &ExprFunctionCallArg,
-    arenas: &Arenas,
+fn check_is_add_or_sub_one<'db>(
+    db: &'db dyn SemanticGroup,
+    arg: &ExprFunctionCallArg<'db>,
+    arenas: &Arenas<'db>,
     is_part_of_corelib_integer: bool,
-    operation_function_trait_id: TraitFunctionId,
+    operation_function_trait_id: TraitFunctionId<'db>,
 ) -> bool {
     let ExprFunctionCallArg::Value(v) = arg else {
         return false;
@@ -425,7 +441,10 @@ fn check_is_add_or_sub_one(
 
 /// Rewrites a manual implementation of int ge plus one x >= y + 1
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_int_ge_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_int_ge_plus_one<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let node = ExprBinary::from_syntax_node(db, node);
     let lhs = node.lhs(db).as_syntax_node().get_text(db);
 
@@ -448,7 +467,10 @@ pub fn fix_int_ge_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Int
 
 /// Rewrites a manual implementation of int ge min one x - 1 >= y
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_int_ge_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_int_ge_min_one<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let node = ExprBinary::from_syntax_node(db, node);
     let AstExpr::Binary(lhs_exp) = node.lhs(db) else {
         panic!("should be substraction")
@@ -471,7 +493,10 @@ pub fn fix_int_ge_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
 
 /// Rewrites a manual implementation of int le plus one x + 1 <= y
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_int_le_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_int_le_plus_one<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let node = ExprBinary::from_syntax_node(db, node);
     let AstExpr::Binary(lhs_exp) = node.lhs(db) else {
         panic!("should be addition")
@@ -491,7 +516,10 @@ pub fn fix_int_le_plus_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Int
 
 /// Rewrites a manual implementation of int le min one x <= y -1
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_int_le_min_one(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_int_le_min_one<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let node = ExprBinary::from_syntax_node(db, node);
     let lhs = node.lhs(db).as_syntax_node().get_text(db);
 

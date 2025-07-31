@@ -56,7 +56,11 @@ impl Lint for ManualUnwrapOr {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
         fix_manual_unwrap_or(db, node)
     }
 
@@ -66,11 +70,11 @@ impl Lint for ManualUnwrapOr {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_manual_unwrap_or(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_manual_unwrap_or<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies_with_ids(db, item);
     for (function_id, function_body) in function_bodies {
@@ -100,11 +104,11 @@ pub fn check_manual_unwrap_or(
     }
 }
 
-fn check_manual_unwrap_or_with_match(
-    db: &dyn SemanticGroup,
-    match_expr: &ExprMatch,
-    function_id: FunctionWithBodyId,
-    arenas: &Arenas,
+fn check_manual_unwrap_or_with_match<'db>(
+    db: &'db dyn SemanticGroup,
+    match_expr: &ExprMatch<'db>,
+    function_id: FunctionWithBodyId<'db>,
+    arenas: &Arenas<'db>,
 ) -> bool {
     let matched_expr = db.expr_semantic(function_id, match_expr.matched_expr);
     let is_droppable = db.droppable(matched_expr.ty()).is_ok();
@@ -112,11 +116,11 @@ fn check_manual_unwrap_or_with_match(
     is_manual_unwrap_or && is_droppable
 }
 
-fn check_manual_unwrap_or_with_if(
-    db: &dyn SemanticGroup,
+fn check_manual_unwrap_or_with_if<'db>(
+    db: &'db dyn SemanticGroup,
     if_expr: &ExprIf,
-    function_id: FunctionWithBodyId,
-    arenas: &Arenas,
+    function_id: FunctionWithBodyId<'db>,
+    arenas: &Arenas<'db>,
 ) -> bool {
     let condition_expr = db.expr_semantic(function_id, if_expr.if_block);
     let is_droppable = db.droppable(condition_expr.ty()).is_ok();
@@ -125,7 +129,10 @@ fn check_manual_unwrap_or_with_if(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-fn fix_manual_unwrap_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+fn fix_manual_unwrap_or<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let expr = ast::Expr::from_syntax_node(db, node);
 
     let (matched_expr, or_body) = match &expr {
@@ -267,7 +274,7 @@ fn get_adjusted_lines_and_indent(
 
     // If the arm has unusual indentation, do not adjust it.
     if difference == 0 {
-        return (arm_body_text, expression_bracket_indent);
+        return (arm_body_text.to_string(), expression_bracket_indent);
     }
 
     let mut adjusted_lines = vec![];

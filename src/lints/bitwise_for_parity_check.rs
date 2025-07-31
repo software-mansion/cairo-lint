@@ -42,11 +42,11 @@ impl Lint for BitwiseForParity {
 
 /// Checks for `x & 1` which is unoptimized in cairo and can be replaced by `x % 1`
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_bitwise_for_parity(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_bitwise_for_parity<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -58,11 +58,11 @@ pub fn check_bitwise_for_parity(
     }
 }
 
-fn check_single_bitwise_for_parity(
-    db: &dyn SemanticGroup,
-    function_call_expr: &ExprFunctionCall,
-    arenas: &Arenas,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_single_bitwise_for_parity<'db>(
+    db: &'db dyn SemanticGroup,
+    function_call_expr: &ExprFunctionCall<'db>,
+    arenas: &Arenas<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let Ok(Some(func_id)) = function_call_expr.function.get_concrete(db).body(db) else {
         return;
@@ -77,7 +77,7 @@ fn check_single_bitwise_for_parity(
 
     // From the trait function id get the trait name and check if it's the corelib `BitAnd`
     if_chain! {
-        if trait_fn_id.full_path(db.upcast()) == AND;
+        if trait_fn_id.full_path(db) == AND;
         if let ExprFunctionCallArg::Value(val) = function_call_expr.args[1];
         // Checks if the rhs is 1
         if let Expr::Literal(lit) = &arenas.exprs[val];

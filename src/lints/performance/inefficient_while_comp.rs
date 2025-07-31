@@ -63,11 +63,11 @@ const PARTIAL_ORD_PATTERNS: [&str; 4] = [
 ];
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_inefficient_while_comp(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_inefficient_while_comp<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -79,11 +79,11 @@ pub fn check_inefficient_while_comp(
     }
 }
 
-fn check_single_inefficient_while_comp(
-    db: &dyn SemanticGroup,
-    while_expr: &ExprWhile,
-    diagnostics: &mut Vec<PluginDiagnostic>,
-    arenas: &Arenas,
+fn check_single_inefficient_while_comp<'db>(
+    db: &'db dyn SemanticGroup,
+    while_expr: &ExprWhile<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
+    arenas: &Arenas<'db>,
 ) {
     // It might be a false positive, because there can be cases when:
     //  - The rhs arguments is changed in the loop body
@@ -93,11 +93,11 @@ fn check_single_inefficient_while_comp(
     }
 }
 
-fn check_expression(
-    db: &dyn SemanticGroup,
-    expr: &Expr,
-    diagnostics: &mut Vec<PluginDiagnostic>,
-    arenas: &Arenas,
+fn check_expression<'db>(
+    db: &'db dyn SemanticGroup,
+    expr: &Expr<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
+    arenas: &Arenas<'db>,
 ) {
     match expr {
         Expr::FunctionCall(func_call) => {

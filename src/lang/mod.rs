@@ -10,7 +10,6 @@ use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_utils::LookupIntern;
 use cairo_lang_utils::Upcast;
 use cairo_lang_utils::ordered_hash_set::OrderedHashSet;
 use if_chain::if_chain;
@@ -31,36 +30,36 @@ pub struct LinterDiagnosticParams {
     pub tool_metadata: CairoLintToolMetadata,
 }
 
-#[salsa::query_group(LinterDatabase)]
-pub trait LinterGroup: SemanticGroup + Upcast<dyn SemanticGroup> {
-    fn linter_diagnostics(
-        &self,
-        corelib_context: CorelibContext,
+#[cairo_lang_proc_macros::query_group]
+pub trait LinterGroup: SemanticGroup + for<'db> Upcast<'db, dyn SemanticGroup> {
+    fn linter_diagnostics<'db>(
+        &'db self,
+        corelib_context: CorelibContext<'db>,
         params: LinterDiagnosticParams,
-        module_id: ModuleId,
-    ) -> Vec<PluginDiagnostic>;
+        module_id: ModuleId<'db>,
+    ) -> Vec<PluginDiagnostic<'db>>;
 
-    fn node_resultants(&self, node: SyntaxNode) -> Option<Vec<SyntaxNode>>;
+    fn node_resultants<'db>(&'db self, node: SyntaxNode<'db>) -> Option<Vec<SyntaxNode<'db>>>;
 
-    fn file_and_subfiles_with_corresponding_modules(
-        &self,
-        file: FileId,
-    ) -> Option<(HashSet<FileId>, HashSet<ModuleId>)>;
+    fn file_and_subfiles_with_corresponding_modules<'db>(
+        &'db self,
+        file: FileId<'db>,
+    ) -> Option<(HashSet<FileId<'db>>, HashSet<ModuleId<'db>>)>;
 
-    fn find_generated_nodes(
-        &self,
-        node_descendant_files: Arc<[FileId]>,
-        node: SyntaxNode,
-    ) -> OrderedHashSet<SyntaxNode>;
+    fn find_generated_nodes<'db>(
+        &'db self,
+        node_descendant_files: Arc<[FileId<'db>]>,
+        node: SyntaxNode<'db>,
+    ) -> OrderedHashSet<SyntaxNode<'db>>;
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-fn linter_diagnostics(
-    db: &dyn LinterGroup,
-    corelib_context: CorelibContext,
+fn linter_diagnostics<'db>(
+    db: &'db dyn LinterGroup,
+    corelib_context: CorelibContext<'db>,
     params: LinterDiagnosticParams,
-    module_id: ModuleId,
-) -> Vec<PluginDiagnostic> {
+    module_id: ModuleId<'db>,
+) -> Vec<PluginDiagnostic<'db>> {
     let mut diags: Vec<(PluginDiagnostic, FileId)> = Vec::new();
     let Ok(items) = db.module_items(module_id) else {
         return Vec::default();
@@ -68,12 +67,12 @@ fn linter_diagnostics(
     for item in &*items {
         let mut item_diagnostics = Vec::new();
         let module_file = db.module_main_file(module_id).unwrap();
-        let item_file = item.stable_location(db).file_id(db).lookup_intern(db);
+        let item_file = item.stable_location(db).file_id(db).long(db);
         let is_generated_item =
             matches!(item_file, FileLongId::Virtual(_) | FileLongId::External(_));
 
         if is_generated_item && !params.only_generated_files {
-            let item_syntax_node = item.stable_location(db).stable_ptr().lookup(db.upcast());
+            let item_syntax_node = item.stable_location(db).stable_ptr().lookup(db);
             let origin_node = get_origin_module_item_as_syntax_node(db, item);
 
             if_chain! {
@@ -87,7 +86,7 @@ fn linter_diagnostics(
                 // We don't do the `==` check here, as the origin node always has the proc macro attributes.
                 // It also means that if the macro changed anything in the original item code,
                 // we won't be processing it, as it might lead to unexpected behavior.
-                if node.get_text_without_trivia(db).contains(&item_syntax_node.get_text_without_trivia(db));
+                if node.get_text_without_trivia(db).contains(item_syntax_node.get_text_without_trivia(db));
                 then {
                     let checking_functions = get_all_checking_functions();
                     for checking_function in checking_functions {
@@ -117,14 +116,14 @@ fn linter_diagnostics(
         .into_iter()
         .filter(|diag: &(PluginDiagnostic, FileId)| {
             let diagnostic = &diag.0;
-            let node = diagnostic.stable_ptr.lookup(db.upcast());
+            let node = diagnostic.stable_ptr.lookup(db);
             let allowed_name = get_name_for_diagnostic_message(&diagnostic.message).unwrap();
             let default_allowed = is_lint_enabled_by_default(&diagnostic.message).unwrap();
             let is_rule_allowed_globally = *params
                 .tool_metadata
                 .get(allowed_name)
                 .unwrap_or(&default_allowed);
-            !node_has_ascendants_with_allow_name_attr(db.upcast(), node, allowed_name)
+            !node_has_ascendants_with_allow_name_attr(db, node, allowed_name)
                 && is_rule_allowed_globally
         })
         .map(|diag| diag.0)
@@ -132,7 +131,10 @@ fn linter_diagnostics(
 }
 
 #[tracing::instrument(level = "trace", skip(db))]
-fn node_resultants(db: &dyn LinterGroup, node: SyntaxNode) -> Option<Vec<SyntaxNode>> {
+fn node_resultants<'db>(
+    db: &'db dyn LinterGroup,
+    node: SyntaxNode<'db>,
+) -> Option<Vec<SyntaxNode<'db>>> {
     let main_file = node.stable_ptr(db).file_id(db);
 
     let (mut files, _) = db.file_and_subfiles_with_corresponding_modules(main_file)?;
@@ -146,10 +148,10 @@ fn node_resultants(db: &dyn LinterGroup, node: SyntaxNode) -> Option<Vec<SyntaxN
 }
 
 #[tracing::instrument(level = "trace", skip(db))]
-pub fn file_and_subfiles_with_corresponding_modules(
-    db: &dyn LinterGroup,
-    file: FileId,
-) -> Option<(HashSet<FileId>, HashSet<ModuleId>)> {
+pub fn file_and_subfiles_with_corresponding_modules<'db>(
+    db: &'db dyn LinterGroup,
+    file: FileId<'db>,
+) -> Option<(HashSet<FileId<'db>>, HashSet<ModuleId<'db>>)> {
     let mut modules: HashSet<_> = db.file_modules(file).ok()?.iter().copied().collect();
     let mut files = HashSet::from([file]);
     // Collect descendants of `file`
@@ -183,11 +185,11 @@ pub fn file_and_subfiles_with_corresponding_modules(
 }
 
 #[tracing::instrument(level = "trace", skip(db))]
-pub fn find_generated_nodes(
-    db: &dyn LinterGroup,
-    node_descendant_files: Arc<[FileId]>,
-    node: SyntaxNode,
-) -> OrderedHashSet<SyntaxNode> {
+pub fn find_generated_nodes<'db>(
+    db: &'db dyn LinterGroup,
+    node_descendant_files: Arc<[FileId<'db>]>,
+    node: SyntaxNode<'db>,
+) -> OrderedHashSet<SyntaxNode<'db>> {
     let start_file = node.stable_ptr(db).file_id(db);
 
     let mut result = OrderedHashSet::default();
@@ -220,9 +222,9 @@ pub fn find_generated_nodes(
             continue;
         }
 
-        let is_replacing_og_item = match file.lookup_intern(db) {
+        let is_replacing_og_item = match file.long(db) {
             FileLongId::Virtual(vfs) => vfs.original_item_removed,
-            FileLongId::External(id) => db.ext_as_virtual(id).original_item_removed,
+            FileLongId::External(id) => db.ext_as_virtual(*id).original_item_removed,
             _ => unreachable!(),
         };
 
@@ -281,9 +283,9 @@ pub fn find_generated_nodes(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-fn node_has_ascendants_with_allow_name_attr(
-    db: &dyn SyntaxGroup,
-    node: SyntaxNode,
+fn node_has_ascendants_with_allow_name_attr<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
     allowed_name: &'static str,
 ) -> bool {
     for node in node.ancestors_with_self(db) {

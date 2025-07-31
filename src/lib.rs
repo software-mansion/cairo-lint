@@ -2,8 +2,8 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_formatter::FormatterConfig;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use fixer::{
-    DiagnosticFixSuggestion, FixerDatabase, file_for_url, get_fixes_without_resolving_overlapping,
-    merge_overlapping_fixes, url_for_file,
+    DiagnosticFixSuggestion, FixerDatabase, get_fixes_without_resolving_overlapping,
+    merge_overlapping_fixes,
 };
 
 use cairo_lang_syntax::node::db::SyntaxGroup;
@@ -37,8 +37,7 @@ mod queries;
 
 pub use corelib::CorelibContext;
 pub use lang::{
-    LinterAnalysisDatabase, LinterAnalysisDatabaseBuilder, LinterDatabase, LinterDiagnosticParams,
-    LinterGroup,
+    LinterAnalysisDatabase, LinterAnalysisDatabaseBuilder, LinterDiagnosticParams, LinterGroup,
 };
 
 use context::{CairoLintKind, get_lint_type_from_diagnostic_message};
@@ -57,12 +56,12 @@ pub trait CairoLintGroup: SemanticGroup + SyntaxGroup {}
 /// * keys are FileIds (that points to a file that the fixes might be applied to).
 /// * values are vectors of proposed Fixes.
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_fixes(
-    db: &(dyn SemanticGroup + 'static),
-    corelib_context: &CorelibContext,
+pub fn get_fixes<'db>(
+    db: &'db (dyn SemanticGroup + 'static),
+    corelib_context: &CorelibContext<'db>,
     linter_params: &LinterDiagnosticParams,
-    diagnostics: Vec<SemanticDiagnostic>,
-) -> HashMap<FileId, Vec<DiagnosticFixSuggestion>> {
+    diagnostics: Vec<SemanticDiagnostic<'db>>,
+) -> HashMap<FileId<'db>, Vec<DiagnosticFixSuggestion>> {
     // We need to create a new database to avoid modifying the original one.
     // This one is used to resolve the overlapping fixes.
     let mut new_db = FixerDatabase::new_from(db);
@@ -70,16 +69,11 @@ pub fn get_fixes(
     fixes
         .into_iter()
         .map(|(file_id, fixes)| {
-            let file_url = url_for_file(db, file_id)
-                .unwrap_or_else(|| panic!("FileId {file_id:?} should have a URL"));
-            let new_db_file_id = file_for_url(&new_db, &file_url).unwrap_or_else(|| {
-                panic!("FileUrl {file_url:?} should have a corresponding FileId")
-            });
             let new_fixes = merge_overlapping_fixes(
                 &mut new_db,
                 corelib_context,
                 linter_params,
-                new_db_file_id,
+                file_id.long(db).into_file_input(db),
                 fixes,
             );
             (file_id, new_fixes)
@@ -102,10 +96,10 @@ pub fn get_fixes(
 /// * keys are FileIds (that points to a file that the fixes might be applied to).
 /// * values are vectors of proposed Fixes.
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_separated_fixes(
-    db: &(dyn SemanticGroup + 'static),
-    diagnostics: Vec<SemanticDiagnostic>,
-) -> HashMap<FileId, Vec<DiagnosticFixSuggestion>> {
+pub fn get_separated_fixes<'db>(
+    db: &'db (dyn SemanticGroup + 'static),
+    diagnostics: Vec<SemanticDiagnostic<'db>>,
+) -> HashMap<FileId<'db>, Vec<DiagnosticFixSuggestion>> {
     get_fixes_without_resolving_overlapping(db, diagnostics)
 }
 
@@ -117,10 +111,10 @@ pub fn get_separated_fixes(
 /// * `fixes` - The list of fixes that should be applied to the file.
 /// * `db` - The reference to the database that contains the file content.
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn apply_file_fixes(
-    file_id: FileId,
+pub fn apply_file_fixes<'db>(
+    file_id: FileId<'db>,
     fixes: Vec<DiagnosticFixSuggestion>,
-    db: &dyn SyntaxGroup,
+    db: &'db dyn SyntaxGroup,
     formatter_config: FormatterConfig,
 ) -> Result<()> {
     // Those suggestions MUST be sorted in reverse, so changes at the end of the file,
@@ -137,6 +131,7 @@ pub fn apply_file_fixes(
         file_id,
         db.file_content(file_id)
             .ok_or(anyhow!("{} not found", file_id.file_name(db)))?
+            .long(db)
             .to_string(),
     );
 

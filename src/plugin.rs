@@ -17,7 +17,11 @@ pub fn cairo_lint_allow_plugin_suite() -> PluginSuite {
 pub struct CairoLintAllow;
 
 impl AnalyzerPlugin for CairoLintAllow {
-    fn diagnostics(&self, _db: &dyn SemanticGroup, _module_id: ModuleId) -> Vec<PluginDiagnostic> {
+    fn diagnostics<'db>(
+        &self,
+        _db: &'db dyn SemanticGroup,
+        _module_id: ModuleId<'db>,
+    ) -> Vec<PluginDiagnostic<'db>> {
         Vec::new()
     }
 

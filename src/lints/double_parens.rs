@@ -50,8 +50,12 @@ impl Lint for DoubleParens {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_double_parens(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_double_parens(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -60,11 +64,11 @@ impl Lint for DoubleParens {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_double_parens(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_double_parens<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let parenthesized_exprs = get_all_parenthesized_expressions(db, item);
     for parens_expr in parenthesized_exprs {
@@ -72,13 +76,13 @@ pub fn check_double_parens(
     }
 }
 
-fn maybe_add_double_parens_diag(
-    db: &dyn SemanticGroup,
-    parens_expr: ExprParenthesized,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn maybe_add_double_parens_diag<'db>(
+    db: &'db dyn SemanticGroup,
+    parens_expr: ExprParenthesized<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let is_inner_expr_with_parens = matches!(
-        parens_expr.expr(db.upcast()),
+        parens_expr.expr(db),
         Expr::Parenthesized(_) | Expr::Tuple(_)
     );
     // Take cases such as `func((5))` into account.
@@ -118,7 +122,10 @@ fn maybe_add_double_parens_diag(
 /// Input: `((x + y))`
 /// Output: `x + y`
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_double_parens(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_double_parens<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let mut expr = Expr::from_syntax_node(db, node);
 
     // When the parent expression is binary or unary, we may want to keep the last parenthesis,
@@ -145,7 +152,7 @@ pub fn fix_double_parens(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
     }
 
     let indented_snippet = indent_snippet(
-        &expr.as_syntax_node().get_text(db),
+        expr.as_syntax_node().get_text(db),
         node.get_text(db)
             .chars()
             .take_while(|c| c.is_whitespace())
