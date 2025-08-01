@@ -8,6 +8,6 @@ publish = false
 anyhow = "1.0.96"
 cairo-toolchain-xtasks = "1"
 cairo-lint = { path = "../" }
-clap = { version = "4.5.37", features = ["derive"]}
+clap = { version = "4.5.42", features = ["derive"]}
 serde = { version = "1", features = ["serde_derive"] }
 serde_json = { version = "1" }

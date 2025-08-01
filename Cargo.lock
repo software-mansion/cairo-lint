@@ -238,7 +238,7 @@ dependencies = [
  "cairo-lang-utils",
  "indoc",
  "rayon",
- "salsa",
+ "salsa 0.22.0",
  "semver",
  "smol_str",
  "thiserror",
@@ -251,7 +251,7 @@ source = "git+https://github.com/starkware-libs/cairo?rev=44eed82c5a0b2e57e4f76a
 dependencies = [
  "cairo-lang-utils",
  "id-arena",
- "salsa",
+ "salsa 0.22.0",
 ]
 
 [[package]]
@@ -268,7 +268,7 @@ dependencies = [
  "cairo-lang-syntax",
  "cairo-lang-utils",
  "itertools",
- "salsa",
+ "salsa 0.22.0",
  "serde",
  "smol_str",
  "typetag",
@@ -284,7 +284,7 @@ dependencies = [
  "cairo-lang-filesystem",
  "cairo-lang-utils",
  "itertools",
- "salsa",
+ "salsa 0.22.0",
 ]
 
 [[package]]
@@ -305,7 +305,7 @@ dependencies = [
  "cairo-lang-proc-macros",
  "cairo-lang-utils",
  "path-clean",
- "salsa",
+ "salsa 0.22.0",
  "semver",
  "serde",
  "smol_str",
@@ -353,7 +353,7 @@ dependencies = [
  "num-bigint",
  "num-integer",
  "num-traits",
- "salsa",
+ "salsa 0.22.0",
  "serde",
 ]
 
@@ -373,7 +373,7 @@ dependencies = [
  "itertools",
  "num-bigint",
  "num-traits",
- "salsa",
+ "salsa 0.22.0",
  "smol_str",
  "unescaper",
 ]
@@ -392,7 +392,7 @@ dependencies = [
  "indent",
  "indoc",
  "itertools",
- "salsa",
+ "salsa 0.22.0",
  "smol_str",
 ]
 
@@ -411,7 +411,7 @@ dependencies = [
  "cairo-lang-utils",
  "proc-macro2",
  "quote",
- "salsa",
+ "salsa 0.22.0",
  "syn 2.0.101",
 ]
 
@@ -464,7 +464,7 @@ dependencies = [
  "itertools",
  "num-bigint",
  "num-traits",
- "salsa",
+ "salsa 0.22.0",
  "sha3",
  "smol_str",
  "toml",
@@ -544,7 +544,7 @@ dependencies = [
  "cairo-lang-utils",
  "itertools",
  "num-traits",
- "salsa",
+ "salsa 0.22.0",
  "serde",
  "serde_json",
  "smol_str",
@@ -645,7 +645,7 @@ dependencies = [
  "cairo-lang-utils",
  "num-bigint",
  "num-traits",
- "salsa",
+ "salsa 0.22.0",
  "serde",
  "smol_str",
  "unescaper",
@@ -709,7 +709,7 @@ dependencies = [
  "itertools",
  "num-bigint",
  "num-traits",
- "salsa",
+ "salsa 0.22.0",
  "schemars",
  "serde",
  "smol_str",
@@ -740,7 +740,7 @@ dependencies = [
  "log",
  "num-bigint",
  "pretty_assertions",
- "salsa",
+ "salsa 0.23.0",
  "scarb-metadata",
  "tempfile",
  "test-case",
@@ -816,9 +816,9 @@ checksum = "613afe47fcd5fac7ccf1db93babcb082c5994d996f20b8b159f2ad1658eb5724"
 
 [[package]]
 name = "clap"
-version = "4.5.38"
+version = "4.5.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed93b9805f8ba930df42c2590f05453d5ec36cbb85d018868a5b24d31f6ac000"
+checksum = "ed87a9d530bb41a67537289bafcac159cb3ee28460e0a4571123d2a778a6a882"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -826,9 +826,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.38"
+version = "4.5.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "379026ff283facf611b0ea629334361c4211d1b12ee01024eec1591133b04120"
+checksum = "64f4f3f3c77c94aff3c7e9aac9a2ca1974a5adf392a8bb751e827d6d127ab966"
 dependencies = [
  "anstream",
  "anstyle",
@@ -838,9 +838,9 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "4.5.32"
+version = "4.5.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09176aae279615badda0765c0c0b3f6ed53f4709118af73cf4655d85d1530cd7"
+checksum = "ef4f52386a59ca4c860f7393bcf8abd8dfd91ecccc0f774635ff68e92eeef491"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -991,9 +991,9 @@ dependencies = [
 
 [[package]]
 name = "ctor"
-version = "0.4.2"
+version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4735f265ba6a1188052ca32d461028a7d1125868be18e287e756019da7607b5"
+checksum = "ec09e802f5081de6157da9a75701d6c713d8dc3ba52571fd4bd25f412644e8a6"
 dependencies = [
  "ctor-proc-macro",
  "dtor",
@@ -1001,9 +1001,9 @@ dependencies = [
 
 [[package]]
 name = "ctor-proc-macro"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f211af61d8efdd104f96e57adf5e426ba1bc3ed7a4ead616e15e5881fd79c4d"
+checksum = "e2931af7e13dc045d8e9d26afccc6fa115d64e115c9c84b1166288b46f6782c2"
 
 [[package]]
 name = "dashmap"
@@ -1396,6 +1396,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "intrusive-collections"
+version = "0.9.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "189d0897e4cbe8c75efedf3502c18c887b05046e59d28404d4d8e46cbc4d1e86"
+dependencies = [
+ "memoffset",
+]
+
+[[package]]
 name = "inventory"
 version = "0.3.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1551,6 +1560,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 
 [[package]]
+name = "memoffset"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "488016bfae457b036d996092f6cb448677611ce4449e970ceaf42695203f218a"
+dependencies = [
+ "autocfg",
+]
+
+[[package]]
 name = "microlp"
 version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1686,6 +1704,16 @@ name = "once_cell"
 version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
+
+[[package]]
+name = "papaya"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f92dd0b07c53a0a0c764db2ace8c541dc47320dad97c2200c2a637ab9dd2328f"
+dependencies = [
+ "equivalent",
+ "seize",
+]
 
 [[package]]
 name = "parity-scale-codec"
@@ -2021,8 +2049,33 @@ dependencies = [
  "portable-atomic",
  "rayon",
  "rustc-hash",
- "salsa-macro-rules",
- "salsa-macros",
+ "salsa-macro-rules 0.22.0",
+ "salsa-macros 0.22.0",
+ "smallvec",
+ "thin-vec",
+ "tracing",
+]
+
+[[package]]
+name = "salsa"
+version = "0.23.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2e235afdb8e510f38a07138fbe5a0b64691894358a9c0cbd813b1aade110efc9"
+dependencies = [
+ "boxcar",
+ "crossbeam-queue",
+ "crossbeam-utils",
+ "hashbrown 0.15.3",
+ "hashlink",
+ "indexmap 2.9.0",
+ "intrusive-collections",
+ "papaya",
+ "parking_lot",
+ "portable-atomic",
+ "rayon",
+ "rustc-hash",
+ "salsa-macro-rules 0.23.0",
+ "salsa-macros 0.23.0",
  "smallvec",
  "thin-vec",
  "tracing",
@@ -2035,12 +2088,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ea72b3c06f2ce6350fe3a0eeb7aaaf842d1d8352b706973c19c4f02e298a87c"
 
 [[package]]
+name = "salsa-macro-rules"
+version = "0.23.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2edb86a7e9c91f6d30c9ce054312721dbe773a162db27bbfae834d16177b30ce"
+
+[[package]]
 name = "salsa-macros"
 version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ce92025bc160b27814a207cb78d680973af17f863c7f4fc56cf3a535e22f378"
 dependencies = [
  "heck",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.101",
+ "synstructure",
+]
+
+[[package]]
+name = "salsa-macros"
+version = "0.23.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d0778d6e209051bc4e75acfe83bcd7848601ec3dbe9c3dbb982829020e9128af"
+dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.101",
@@ -2058,9 +2129,9 @@ dependencies = [
 
 [[package]]
 name = "scarb-metadata"
-version = "1.14.0"
+version = "1.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f580d215bb85d42e9a1489aa869cae7878aff343384b73e235753334e8fb72b4"
+checksum = "e0a1448d2575cf5f127867379edeb64d0565a69207996a1310a7280c10314064"
 dependencies = [
  "camino",
  "semver",
@@ -2099,6 +2170,16 @@ name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
+
+[[package]]
+name = "seize"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e4b8d813387d566f627f3ea1b914c068aac94c40ae27ec43f5f33bde65abefe7"
+dependencies = [
+ "libc",
+ "windows-sys 0.52.0",
+]
 
 [[package]]
 name = "semver"
@@ -2142,9 +2223,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.140"
+version = "1.0.142"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "20068b6e96dc6c9bd23e01df8827e6c7e1f2fddd43c21810382803c136b99373"
+checksum = "030fedb782600dcbd6f02d479bf0d817ac3bb40d644745b769d6a96bc3afc5a7"
 dependencies = [
  "itoa",
  "memchr",
@@ -2639,11 +2720,10 @@ dependencies = [
 
 [[package]]
 name = "which"
-version = "7.0.3"
+version = "8.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24d643ce3fd3e5b54854602a080f34fb10ab75e0b813ee32d00ca2b44fa74762"
+checksum = "d3fabb953106c3c8eea8306e4393700d7657561cb43122571b172bbfb7c7ba1d"
 dependencies = [
- "either",
  "env_home",
  "rustix",
  "winsafe",
