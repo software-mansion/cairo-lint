@@ -53,7 +53,11 @@ impl Lint for UnitReturnType {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
         fix_unit_return_type(db, node)
     }
 
@@ -63,11 +67,11 @@ impl Lint for UnitReturnType {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_unit_return_type(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_unit_return_type<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let functions = get_all_checkable_functions(db, item);
     for function in functions {
@@ -92,13 +96,16 @@ pub fn check_unit_return_type(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_unit_return_type(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_unit_return_type<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let function_signature = FunctionSignature::from_syntax_node(db, node);
     let return_type_clause = function_signature.ret_ty(db);
     if let OptionReturnTypeClause::ReturnTypeClause(type_clause) = return_type_clause {
         let fixed = node.get_text(db);
         let type_clause_text = type_clause.as_syntax_node().get_text(db);
-        let fixed = fixed.replace(&type_clause_text, "");
+        let fixed = fixed.replace(type_clause_text, "");
 
         if type_clause_text.ends_with(" ") {
             return Some(InternalFix {

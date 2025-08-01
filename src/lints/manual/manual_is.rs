@@ -56,8 +56,12 @@ impl Lint for ManualIsSome {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_manual_is_some(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_manual_is_some(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -108,8 +112,12 @@ impl Lint for ManualIsNone {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_manual_is_none(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_manual_is_none(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -160,8 +168,12 @@ impl Lint for ManualIsOk {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_manual_is_ok(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_manual_is_ok(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -212,8 +224,12 @@ impl Lint for ManualIsErr {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_manual_is_err(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_manual_is_err(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -222,11 +238,11 @@ impl Lint for ManualIsErr {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_manual_is(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_manual_is<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -306,7 +322,10 @@ pub fn check_manual_is(
 
 /// Rewrites a manual implementation of is_some
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_manual_is_some(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_manual_is_some<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     Some(InternalFix {
         node,
         suggestion: fix_manual("is_some", db, node),
@@ -317,7 +336,10 @@ pub fn fix_manual_is_some(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
 
 /// Rewrites a manual implementation of is_none
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_manual_is_none(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_manual_is_none<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     Some(InternalFix {
         node,
         suggestion: fix_manual("is_none", db, node),
@@ -328,7 +350,10 @@ pub fn fix_manual_is_none(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
 
 /// Rewrites a manual implementation of is_ok
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_manual_is_ok(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_manual_is_ok<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     Some(InternalFix {
         node,
         suggestion: fix_manual("is_ok", db, node),
@@ -339,7 +364,10 @@ pub fn fix_manual_is_ok(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Intern
 
 /// Rewrites a manual implementation of is_err
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_manual_is_err(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_manual_is_err<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     Some(InternalFix {
         node,
         suggestion: fix_manual("is_err", db, node),

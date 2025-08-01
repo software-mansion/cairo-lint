@@ -10,7 +10,6 @@ use cairo_lang_syntax::node::{
     },
     db::SyntaxGroup,
 };
-use cairo_lang_utils::LookupIntern;
 use if_chain::if_chain;
 use itertools::Itertools;
 
@@ -62,8 +61,12 @@ impl Lint for ManualAssert {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_manual_assert(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_manual_assert(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -72,11 +75,11 @@ impl Lint for ManualAssert {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_manual_assert(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_manual_assert<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -88,11 +91,11 @@ pub fn check_manual_assert(
     }
 }
 
-fn check_single_manual_assert(
-    db: &dyn SemanticGroup,
-    if_expr: &ExprIf,
-    arenas: &Arenas,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_single_manual_assert<'db>(
+    db: &'db dyn SemanticGroup,
+    if_expr: &ExprIf<'db>,
+    arenas: &Arenas<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let Expr::Block(ref if_block) = arenas.exprs[if_expr.if_block] else {
         return;
@@ -109,12 +112,12 @@ fn check_single_manual_assert(
     }
 }
 
-fn check_single_condition_block(
-    db: &dyn SemanticGroup,
-    condition_block_expr: &ExprBlock,
-    if_expr: &ExprIf,
-    arenas: &Arenas,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_single_condition_block<'db>(
+    db: &'db dyn SemanticGroup,
+    condition_block_expr: &ExprBlock<'db>,
+    if_expr: &ExprIf<'db>,
+    arenas: &Arenas<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     // Without tail.
     if_chain! {
@@ -149,7 +152,10 @@ fn check_single_condition_block(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_manual_assert<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let if_expr = AstExprIf::from_syntax_node(db, node);
     let else_block_option = if_expr.else_clause(db);
     let is_else_if = is_else_if_expr(db, node);
@@ -293,10 +299,10 @@ pub fn fix_manual_assert(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inter
 // Function that returns a tuple where:
 // - The first element is an iterator over the panic arguments from the `if` block.
 // - The second element is an iterator over the panic arguments from the `else` block.
-fn get_panic_args_from_diagnosed_node(
-    db: &dyn SyntaxGroup,
-    node: SyntaxNode,
-) -> (Option<Vec<SyntaxNode>>, Option<Vec<SyntaxNode>>) {
+fn get_panic_args_from_diagnosed_node<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> (Option<Vec<SyntaxNode<'db>>>, Option<Vec<SyntaxNode<'db>>>) {
     let if_expr = AstExprIf::from_syntax_node(db, node);
     let if_block = if_expr.if_block(db);
     let else_block_option = if_expr.else_clause(db);
@@ -313,7 +319,10 @@ fn get_panic_args_from_diagnosed_node(
     (get_panic_args_from_block(db, if_block), None)
 }
 
-fn get_panic_args_from_block(db: &dyn SyntaxGroup, block: AstExprBlock) -> Option<Vec<SyntaxNode>> {
+fn get_panic_args_from_block<'db>(
+    db: &'db dyn SyntaxGroup,
+    block: AstExprBlock<'db>,
+) -> Option<Vec<SyntaxNode<'db>>> {
     let mut statements = block.statements(db).elements(db);
     let statement = statements
         .next()
@@ -344,11 +353,11 @@ fn get_panic_args_from_block(db: &dyn SyntaxGroup, block: AstExprBlock) -> Optio
 }
 
 // Checks if the given node is an `else if` expression.
-fn is_else_if_expr(db: &dyn SyntaxGroup, node: SyntaxNode) -> bool {
+fn is_else_if_expr<'db>(db: &'db dyn SyntaxGroup, node: SyntaxNode<'db>) -> bool {
     if_chain! {
         if let Some(else_clause) = node.parent_of_type::<ElseClause>(db);
         if let BlockOrIf::If(child_if) = else_clause.else_block_or_if(db);
-        if child_if.as_syntax_node().lookup_intern(db) == node.lookup_intern(db);
+        if child_if.as_syntax_node().long(db) == node.long(db);
         then {
             return true;
         }

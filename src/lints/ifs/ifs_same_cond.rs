@@ -56,11 +56,11 @@ impl Lint for DuplicateIfCondition {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_duplicate_if_condition(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_duplicate_if_condition<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -72,11 +72,11 @@ pub fn check_duplicate_if_condition(
     }
 }
 
-fn check_single_duplicate_if_condition(
-    db: &dyn SemanticGroup,
-    if_expr: &ExprIf,
-    arenas: &Arenas,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_single_duplicate_if_condition<'db>(
+    db: &'db dyn SemanticGroup,
+    if_expr: &ExprIf<'db>,
+    arenas: &Arenas<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let cond_expr = match &if_expr.conditions.first() {
         Some(Condition::BoolExpr(expr_id)) => &arenas.exprs[*expr_id],
@@ -95,9 +95,9 @@ fn check_single_duplicate_if_condition(
     let mut current_block = if_expr.else_block;
     let if_condition_text = cond_expr
         .stable_ptr()
-        .lookup(db.upcast())
+        .lookup(db)
         .as_syntax_node()
-        .get_text(db.upcast());
+        .get_text(db);
 
     while let Some(expr_id) = current_block {
         if let Expr::If(else_if_block) = &arenas.exprs[expr_id] {
@@ -118,9 +118,9 @@ fn check_single_duplicate_if_condition(
 
             let else_if_condition_text = else_if_cond
                 .stable_ptr()
-                .lookup(db.upcast())
+                .lookup(db)
                 .as_syntax_node()
-                .get_text(db.upcast());
+                .get_text(db);
 
             if if_condition_text == else_if_condition_text {
                 diagnostics.push(PluginDiagnostic {
@@ -137,7 +137,7 @@ fn check_single_duplicate_if_condition(
     }
 }
 
-fn ensure_no_ref_arg(arenas: &Arenas, func_call: &ExprFunctionCall) -> bool {
+fn ensure_no_ref_arg<'db>(arenas: &Arenas<'db>, func_call: &ExprFunctionCall<'db>) -> bool {
     func_call.args.iter().any(|arg| match arg {
         ExprFunctionCallArg::Reference(_) => true,
         ExprFunctionCallArg::Value(expr_id) => match &arenas.exprs[*expr_id] {

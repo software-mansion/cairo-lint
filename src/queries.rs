@@ -16,10 +16,10 @@ use itertools::chain;
 use crate::helper::{ASSERT_FORMATTER_NAME, ASSERT_PATH};
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_checkable_functions(
-    db: &dyn SemanticGroup,
-    item: &ModuleItemId,
-) -> Vec<FunctionWithBodyId> {
+pub fn get_all_checkable_functions<'db>(
+    db: &'db dyn SemanticGroup,
+    item: &ModuleItemId<'db>,
+) -> Vec<FunctionWithBodyId<'db>> {
     match item {
         ModuleItemId::FreeFunction(free_function_id) => {
             vec![FunctionWithBodyId::Free(*free_function_id)]
@@ -43,10 +43,10 @@ pub fn get_all_checkable_functions(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_function_bodies(
-    db: &dyn SemanticGroup,
-    item: &ModuleItemId,
-) -> Vec<Arc<FunctionBody>> {
+pub fn get_all_function_bodies<'db>(
+    db: &'db dyn SemanticGroup,
+    item: &ModuleItemId<'db>,
+) -> Vec<Arc<FunctionBody<'db>>> {
     get_all_checkable_functions(db, item)
         .iter()
         .filter_map(|function| db.function_body(*function).ok())
@@ -54,10 +54,10 @@ pub fn get_all_function_bodies(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_function_bodies_with_ids(
-    db: &dyn SemanticGroup,
-    item: &ModuleItemId,
-) -> Vec<(FunctionWithBodyId, Arc<FunctionBody>)> {
+pub fn get_all_function_bodies_with_ids<'db>(
+    db: &'db dyn SemanticGroup,
+    item: &ModuleItemId<'db>,
+) -> Vec<(FunctionWithBodyId<'db>, Arc<FunctionBody<'db>>)> {
     get_all_checkable_functions(db, item)
         .iter()
         .filter_map(|&id| {
@@ -68,40 +68,30 @@ pub fn get_all_function_bodies_with_ids(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_parenthesized_expressions(
-    db: &dyn SemanticGroup,
-    item: &ModuleItemId,
-) -> Vec<ExprParenthesized> {
-    let function_nodes = match item {
-        ModuleItemId::Constant(id) => id
-            .stable_ptr(db.upcast())
-            .lookup(db.upcast())
-            .as_syntax_node(),
-        ModuleItemId::FreeFunction(id) => id
-            .stable_ptr(db.upcast())
-            .lookup(db.upcast())
-            .as_syntax_node(),
-        ModuleItemId::Impl(id) => id
-            .stable_ptr(db.upcast())
-            .lookup(db.upcast())
-            .as_syntax_node(),
+pub fn get_all_parenthesized_expressions<'db>(
+    db: &'db dyn SemanticGroup,
+    item: &ModuleItemId<'db>,
+) -> Vec<ExprParenthesized<'db>> {
+    let node = match item {
+        ModuleItemId::Constant(id) => id.stable_ptr(db).lookup(db).as_syntax_node(),
+        ModuleItemId::FreeFunction(id) => id.stable_ptr(db).lookup(db).as_syntax_node(),
+        ModuleItemId::Impl(id) => id.stable_ptr(db).lookup(db).as_syntax_node(),
         // Trait can have a default function impl.
-        ModuleItemId::Trait(id) => id
-            .stable_ptr(db.upcast())
-            .lookup(db.upcast())
-            .as_syntax_node(),
+        ModuleItemId::Trait(id) => id.stable_ptr(db).lookup(db).as_syntax_node(),
         _ => return vec![],
-    }
-    .descendants(db.upcast());
+    };
+    let function_nodes = node.descendants(db);
 
     function_nodes
-        .filter(|node| node.kind(db.upcast()) == SyntaxKind::ExprParenthesized)
-        .map(|node| ExprParenthesized::from_syntax_node(db.upcast(), node))
+        .filter(|node| node.kind(db) == SyntaxKind::ExprParenthesized)
+        .map(|node| ExprParenthesized::from_syntax_node(db, node))
         .collect()
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_match_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprMatch> {
+pub fn get_all_match_expressions<'db>(
+    function_body: &Arc<FunctionBody<'db>>,
+) -> Vec<ExprMatch<'db>> {
     function_body
         .arenas
         .exprs
@@ -117,7 +107,7 @@ pub fn get_all_match_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprM
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_loop_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprLoop> {
+pub fn get_all_loop_expressions<'db>(function_body: &Arc<FunctionBody<'db>>) -> Vec<ExprLoop<'db>> {
     function_body
         .arenas
         .exprs
@@ -133,9 +123,9 @@ pub fn get_all_loop_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprLo
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_function_calls(
-    function_body: &Arc<FunctionBody>,
-) -> impl Iterator<Item = ExprFunctionCall> + '_ {
+pub fn get_all_function_calls<'db, 'a>(
+    function_body: &'a Arc<FunctionBody<'db>>,
+) -> impl Iterator<Item = ExprFunctionCall<'db>> + 'a {
     function_body
         .arenas
         .exprs
@@ -150,9 +140,9 @@ pub fn get_all_function_calls(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_logical_operator_expressions(
-    function_body: &Arc<FunctionBody>,
-) -> Vec<ExprLogicalOperator> {
+pub fn get_all_logical_operator_expressions<'db>(
+    function_body: &Arc<FunctionBody<'db>>,
+) -> Vec<ExprLogicalOperator<'db>> {
     function_body
         .arenas
         .exprs
@@ -168,7 +158,7 @@ pub fn get_all_logical_operator_expressions(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_if_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprIf> {
+pub fn get_all_if_expressions<'db>(function_body: &Arc<FunctionBody<'db>>) -> Vec<ExprIf<'db>> {
     function_body
         .arenas
         .exprs
@@ -184,7 +174,7 @@ pub fn get_all_if_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprIf> 
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_conditions(function_body: &Arc<FunctionBody>) -> Vec<Condition> {
+pub fn get_all_conditions<'db>(function_body: &Arc<FunctionBody<'db>>) -> Vec<Condition> {
     let if_expr_conditions = get_all_if_expressions(function_body)
         .into_iter()
         .flat_map(|if_expr| if_expr.conditions.clone());
@@ -195,7 +185,9 @@ pub fn get_all_conditions(function_body: &Arc<FunctionBody>) -> Vec<Condition> {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_while_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprWhile> {
+pub fn get_all_while_expressions<'db>(
+    function_body: &Arc<FunctionBody<'db>>,
+) -> Vec<ExprWhile<'db>> {
     function_body
         .arenas
         .exprs
@@ -211,7 +203,9 @@ pub fn get_all_while_expressions(function_body: &Arc<FunctionBody>) -> Vec<ExprW
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_break_statements(function_body: &Arc<FunctionBody>) -> Vec<StatementBreak> {
+pub fn get_all_break_statements<'db>(
+    function_body: &Arc<FunctionBody<'db>>,
+) -> Vec<StatementBreak<'db>> {
     function_body
         .arenas
         .statements
@@ -229,7 +223,11 @@ pub fn get_all_break_statements(function_body: &Arc<FunctionBody>) -> Vec<Statem
 /// This function checks if the given `if` expression is an assert macro call.
 /// It's kind of a hack, but unfortunately compiler expands the `assert!()` macro before any other user macros,
 /// so we have to work around it.
-pub fn is_assert_macro_call(db: &dyn SemanticGroup, arenas: &Arenas, expr: &ExprIf) -> bool {
+pub fn is_assert_macro_call<'db>(
+    db: &'db dyn SemanticGroup,
+    arenas: &Arenas<'db>,
+    expr: &ExprIf<'db>,
+) -> bool {
     if_chain! {
         if let Expr::Block(ref if_block_expr) = arenas.exprs[expr.if_block];
         if let Statement::Let(ref if_block_let_stmt) = arenas.statements[if_block_expr.statements[0]];
@@ -245,14 +243,14 @@ pub fn is_assert_macro_call(db: &dyn SemanticGroup, arenas: &Arenas, expr: &Expr
 
 /// Gets rid of all the trivia (whitespaces, newlines etc.)
 /// It makes predetermined token sequences easily comparable without counting in formatting caveats
-pub fn syntax_node_to_str_without_all_nested_trivia(
-    db: &dyn SemanticGroup,
-    syntax_node: &SyntaxNode,
+pub fn syntax_node_to_str_without_all_nested_trivia<'db>(
+    db: &'db dyn SemanticGroup,
+    syntax_node: SyntaxNode<'db>,
 ) -> String {
     syntax_node
         .tokens(db)
         .fold(String::new(), |mut acc, terminal| {
-            acc.push_str(&terminal.get_text_without_trivia(db));
+            acc.push_str(terminal.get_text_without_trivia(db));
             acc
         })
 }

@@ -18,22 +18,22 @@ use cairo_lang_defs::diagnostic_utils::StableLocation;
 use cairo_lang_defs::ids::UseId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::DiagnosticEntry;
-use cairo_lang_filesystem::db::{FilesGroup, FilesGroupEx};
-use cairo_lang_filesystem::ids::{FileId, FileLongId};
+use cairo_lang_filesystem::db::FilesGroup;
+use cairo_lang_filesystem::db::FilesGroupEx;
+use cairo_lang_filesystem::ids::FileId;
 use cairo_lang_filesystem::span::{TextOffset, TextSpan, TextWidth};
 use cairo_lang_semantic::SemanticDiagnostic;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
-use cairo_lang_utils::LookupIntern;
+use cairo_lang_utils::Intern;
 use itertools::Itertools;
 use log::debug;
-use lsp_types::Url;
-use salsa::InternKey;
 
 use crate::context::get_fix_for_diagnostic_message;
 use crate::{CorelibContext, LinterDiagnosticParams, LinterGroup};
 use cairo_lang_defs::db::DefsGroup;
+use cairo_lang_filesystem::ids::FileInput;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 pub use db::FixerDatabase;
@@ -59,26 +59,25 @@ pub struct DiagnosticFixSuggestion {
 
 /// Represents an internal fix that includes the node to be modified,
 /// the suggestion for the fix, a short description, and optional import additions.
-pub struct InternalFix {
-    pub node: SyntaxNode,
+pub struct InternalFix<'db> {
+    pub node: SyntaxNode<'db>,
     pub suggestion: String,
     pub description: String,
     pub import_addition_paths: Option<Vec<String>>,
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_fixes_without_resolving_overlapping(
-    db: &(dyn SemanticGroup + 'static),
-    diagnostics: Vec<SemanticDiagnostic>,
-) -> HashMap<FileId, Vec<DiagnosticFixSuggestion>> {
+pub fn get_fixes_without_resolving_overlapping<'db>(
+    db: &'db (dyn SemanticGroup + 'static),
+    diagnostics: Vec<SemanticDiagnostic<'db>>,
+) -> HashMap<FileId<'db>, Vec<DiagnosticFixSuggestion>> {
     let (import_diagnostics, diags_without_imports): (Vec<_>, Vec<_>) = diagnostics
         .into_iter()
         .partition(|diag| matches!(diag.kind, SemanticDiagnosticKind::UnusedImport(_)));
 
     // Handling unused imports separately as we need to run pre-analysis on the diagnostics.
     // to handle complex cases.
-    let unused_imports: HashMap<FileId, HashMap<SyntaxNode, ImportFix>> =
-        collect_unused_import_fixes(db, &import_diagnostics);
+    let unused_imports = collect_unused_import_fixes(db, &import_diagnostics);
     let mut fixes = HashMap::new();
     unused_imports.keys().for_each(|file_id| {
         let file_fixes: Vec<DiagnosticFixSuggestion> =
@@ -147,10 +146,10 @@ pub fn get_fixes_without_resolving_overlapping(
 /// An `Option<(SyntaxNode, String)>` where the `SyntaxNode` represents the node to be
 /// replaced, and the `String` is the suggested replacement. Returns `None` if no fix
 /// is available for the given diagnostic.
-pub fn fix_semantic_diagnostic(
-    db: &dyn SemanticGroup,
-    diag: &SemanticDiagnostic,
-) -> Option<InternalFix> {
+pub fn fix_semantic_diagnostic<'db>(
+    db: &'db dyn SemanticGroup,
+    diag: &SemanticDiagnostic<'db>,
+) -> Option<InternalFix<'db>> {
     match diag.kind {
         SemanticDiagnosticKind::PluginDiagnostic(ref plugin_diag) => {
             fix_plugin_diagnostic(db, plugin_diag)
@@ -177,26 +176,26 @@ pub fn fix_semantic_diagnostic(
 /// # Returns
 ///
 /// `Option<InternalFix>` if a fix is available, or `None` if no fix can be applied.
-fn fix_plugin_diagnostic(
-    db: &dyn SemanticGroup,
-    plugin_diag: &PluginDiagnostic,
-) -> Option<InternalFix> {
+fn fix_plugin_diagnostic<'db>(
+    db: &'db dyn SemanticGroup,
+    plugin_diag: &PluginDiagnostic<'db>,
+) -> Option<InternalFix<'db>> {
     let node = plugin_diag.stable_ptr.lookup(db);
     get_fix_for_diagnostic_message(db, node, &plugin_diag.message)
 }
 
 /// Represents a fix for unused imports in a specific syntax node.
 #[derive(Debug, Clone)]
-pub struct ImportFix {
+pub struct ImportFix<'db> {
     /// The node that contains the imports to be fixed.
-    pub node: SyntaxNode,
+    pub node: SyntaxNode<'db>,
     /// The items to remove from the imports.
-    pub items_to_remove: Vec<String>,
+    pub items_to_remove: Vec<&'db str>,
 }
 
-impl ImportFix {
+impl<'db> ImportFix<'db> {
     /// Creates a new `ImportFix` for the given syntax node.
-    pub fn new(node: SyntaxNode) -> Self {
+    pub fn new(node: SyntaxNode<'db>) -> Self {
         ImportFix {
             node,
             items_to_remove: vec![],
@@ -214,10 +213,10 @@ impl ImportFix {
 /// # Returns
 ///
 /// A HashMap where keys are FileIds and values are HashMaps of SyntaxNodes to ImportFixes.
-pub fn collect_unused_import_fixes(
-    db: &(dyn SemanticGroup + 'static),
-    diags: &Vec<SemanticDiagnostic>,
-) -> HashMap<FileId, HashMap<SyntaxNode, ImportFix>> {
+pub fn collect_unused_import_fixes<'db>(
+    db: &'db (dyn SemanticGroup + 'static),
+    diags: &Vec<SemanticDiagnostic<'db>>,
+) -> HashMap<FileId<'db>, HashMap<SyntaxNode<'db>, ImportFix<'db>>> {
     let mut file_fixes = HashMap::new();
 
     for diag in diags {
@@ -240,10 +239,10 @@ pub fn collect_unused_import_fixes(
 /// * `id` - The UseId of the unused import.
 /// * `fixes` - A mutable reference to the HashMap of fixes.
 #[tracing::instrument(skip_all, level = "trace")]
-fn process_unused_import(
-    db: &dyn DefsGroup,
-    id: &UseId,
-    fixes: &mut HashMap<SyntaxNode, ImportFix>,
+fn process_unused_import<'db>(
+    db: &'db dyn DefsGroup,
+    id: &UseId<'db>,
+    fixes: &mut HashMap<SyntaxNode<'db>, ImportFix<'db>>,
 ) {
     let unused_node = id.stable_ptr(db).lookup(db).as_syntax_node();
     let mut current_node = unused_node;
@@ -292,9 +291,9 @@ fn process_unused_import(
 /// # Returns
 ///
 /// A vector of Fix objects representing the applied fixes.
-pub fn apply_import_fixes(
-    db: &dyn SyntaxGroup,
-    fixes: &HashMap<SyntaxNode, ImportFix>,
+pub fn apply_import_fixes<'db>(
+    db: &'db dyn SyntaxGroup,
+    fixes: &HashMap<SyntaxNode<'db>, ImportFix<'db>>,
 ) -> Vec<DiagnosticFixSuggestion> {
     fixes
         .iter()
@@ -313,7 +312,7 @@ pub fn apply_import_fixes(
                 }]
             } else {
                 // Multi-import case
-                handle_multi_import(db, &import_fix.node, &import_fix.items_to_remove)
+                handle_multi_import(db, import_fix.node, &import_fix.items_to_remove)
             }
         })
         .collect()
@@ -330,10 +329,10 @@ pub fn apply_import_fixes(
 /// # Returns
 ///
 /// A vector of Fix objects for the multi-import case.
-fn handle_multi_import(
-    db: &dyn SyntaxGroup,
-    node: &SyntaxNode,
-    items_to_remove: &[String],
+fn handle_multi_import<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+    items_to_remove: &[&'db str],
 ) -> Vec<DiagnosticFixSuggestion> {
     if all_descendants_removed(db, node, items_to_remove) {
         remove_entire_import(db, node)
@@ -353,10 +352,10 @@ fn handle_multi_import(
 /// # Returns
 ///
 /// A boolean indicating whether all descendants should be removed.
-fn all_descendants_removed(
-    db: &dyn SyntaxGroup,
-    node: &SyntaxNode,
-    items_to_remove: &[String],
+fn all_descendants_removed<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+    items_to_remove: &[&'db str],
 ) -> bool {
     node.descendants(db)
         .filter(|child| child.kind(db) == SyntaxKind::UsePathLeaf)
@@ -376,8 +375,10 @@ fn all_descendants_removed(
 /// # Returns
 ///
 /// A vector of Fix objects for removing the entire import.
-fn remove_entire_import(db: &dyn SyntaxGroup, node: &SyntaxNode) -> Vec<DiagnosticFixSuggestion> {
-    let mut current_node = *node;
+fn remove_entire_import<'db>(
+    db: &'db dyn SyntaxGroup,
+    mut current_node: SyntaxNode<'db>,
+) -> Vec<DiagnosticFixSuggestion> {
     while let Some(parent) = current_node.parent(db) {
         // Go up until we find a UsePathList on the path - then, we can remove the current node from that
         // list.
@@ -387,7 +388,7 @@ fn remove_entire_import(db: &dyn SyntaxGroup, node: &SyntaxNode) -> Vec<Diagnost
             // 2. Rewrite the UsePathList with the current node text removed.
             let items_to_remove = vec![current_node.get_text_without_trivia(db)];
             if let Some(grandparent) = parent.parent(db) {
-                return handle_multi_import(db, &grandparent, &items_to_remove);
+                return handle_multi_import(db, grandparent, &items_to_remove);
             }
         }
         if parent.kind(db) == SyntaxKind::ItemUse {
@@ -417,14 +418,14 @@ fn remove_entire_import(db: &dyn SyntaxGroup, node: &SyntaxNode) -> Vec<Diagnost
 /// # Returns
 ///
 /// A vector of Fix objects for removing specific items from the import.
-fn remove_specific_items(
-    db: &dyn SyntaxGroup,
-    node: &SyntaxNode,
-    items_to_remove: &[String],
+fn remove_specific_items<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+    items_to_remove: &[&'db str],
 ) -> Vec<DiagnosticFixSuggestion> {
     let use_path_list = find_use_path_list(db, node);
     let children = use_path_list.get_children(db);
-    let children: Vec<SyntaxNode> = children
+    let children: Vec<_> = children
         .iter()
         .filter(|child| {
             let text = child.get_text(db).trim().replace('\n', "");
@@ -436,7 +437,7 @@ fn remove_specific_items(
         .iter()
         .map(|child| child.get_text(db).trim().to_string())
         .collect();
-    items.retain(|item| !items_to_remove.contains(&item.to_string()));
+    items.retain(|item| !items_to_remove.contains(&item.as_str()));
 
     let text = if items.len() == 1 {
         items[0].to_string()
@@ -464,10 +465,10 @@ fn remove_specific_items(
 /// # Returns
 ///
 /// The UsePathList syntax node, or the original node if not found.
-fn find_use_path_list(db: &dyn SyntaxGroup, node: &SyntaxNode) -> SyntaxNode {
+fn find_use_path_list<'db>(db: &'db dyn SyntaxGroup, node: SyntaxNode<'db>) -> SyntaxNode<'db> {
     node.descendants(db)
         .find(|descendant| descendant.kind(db) == SyntaxKind::UsePathList)
-        .unwrap_or(*node)
+        .unwrap_or(node)
 }
 
 /// Merges overlapping fixes for a given file.
@@ -485,20 +486,26 @@ fn find_use_path_list(db: &dyn SyntaxGroup, node: &SyntaxNode) -> SyntaxNode {
 ///
 /// A vector of merged Fix objects.
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn merge_overlapping_fixes(
-    db: &mut FixerDatabase,
-    corelib_context: &CorelibContext,
+pub fn merge_overlapping_fixes<'db>(
+    db: &'db mut FixerDatabase,
+    corelib_context: &CorelibContext<'db>,
     linter_query_params: &LinterDiagnosticParams,
-    file_id: FileId,
+    file: FileInput,
     fixes: Vec<DiagnosticFixSuggestion>,
 ) -> Vec<DiagnosticFixSuggestion> {
     let mut current_fixes: Vec<DiagnosticFixSuggestion> = fixes.clone();
     let mut were_overlapped = false;
-    let file_content = db.file_content(file_id).unwrap();
+    let file_content = db
+        .file_content(file.clone().into_file_long_id(db).intern(db))
+        .unwrap()
+        .long(db)
+        .to_string();
 
     while let Some(overlapping_fix) = get_first_overlapping_fix(&current_fixes) {
         were_overlapped = true;
-        apply_suggestions_for_file(db, file_id, overlapping_fix.suggestions);
+
+        apply_suggestions_for_file(db, file.clone(), overlapping_fix.suggestions);
+        let file_id = file.clone().into_file_long_id(db).intern(db);
 
         let diags: Vec<SemanticDiagnostic> = db
             .file_modules(file_id)
@@ -545,8 +552,11 @@ pub fn merge_overlapping_fixes(
             .flat_map(|fix| fix.suggestions.iter())
             .cloned()
             .collect::<Vec<_>>();
-        apply_suggestions_for_file(db, file_id, suggestions);
-        let file_content_after = db.file_content(file_id).unwrap();
+        apply_suggestions_for_file(db, file.clone(), suggestions);
+
+        let file_id = file.into_file_long_id(db).intern(db);
+        let file_content_after = db.file_content(file_id).unwrap().long(db);
+
         // Currently we are just replacing the entire file content with the new fixed one.
         // This is not ideal, but as for now we don't need to worry about it.
         current_fixes = vec![DiagnosticFixSuggestion {
@@ -580,10 +590,11 @@ fn get_first_overlapping_fix(fixes: &[DiagnosticFixSuggestion]) -> Option<Diagno
 
 fn apply_suggestions_for_file(
     db: &mut FixerDatabase,
-    file_id: FileId,
+    file: FileInput,
     suggestions: Vec<Suggestion>,
 ) {
-    let mut content = db.file_content(file_id).unwrap().to_string();
+    let file_id = file.clone().into_file_long_id(db).intern(db);
+    let mut content = db.file_content(file_id).unwrap().long(db).to_string();
     let suggestions = suggestions
         .into_iter()
         .sorted_by_key(|suggestion| Reverse(suggestion.span.start));
@@ -593,51 +604,11 @@ fn apply_suggestions_for_file(
         content.replace_range(suggestion.span.to_str_range(), &suggestion.code);
     }
 
-    db.override_file_content(file_id, Some(Arc::from(content)));
+    let file = db.file_input(file_id);
+    let overrides = db.update_file_overrides_input(file, Some(Arc::from(content)));
+    db.set_file_overrides_input(overrides);
 }
 
 fn spans_intersects(span_a: TextSpan, span_b: TextSpan) -> bool {
     span_a.start <= span_b.end && span_b.start <= span_a.end
-}
-
-/// Get the [`FileId`] for a [`Url`].
-pub fn file_for_url(db: &(dyn SemanticGroup + 'static), uri: &Url) -> Option<FileId> {
-    match uri.scheme() {
-        "file" => uri
-            .to_file_path()
-            .inspect_err(|()| panic!("invalid file url: {uri}"))
-            .ok()
-            .map(|path| FileId::new(db.upcast(), path)),
-        "vfs" => uri
-            .host_str()
-            .or_else(|| {
-                panic!("invalid vfs url, missing host string: {uri:?}");
-            })?
-            .parse::<usize>()
-            .inspect_err(|e| {
-                panic!("invalid vfs url, host string is not a valid integer, {e}: {uri:?}")
-            })
-            .ok()
-            .map(Into::into)
-            .map(FileId::from_intern_id),
-        _ => {
-            panic!("invalid url, scheme is not supported by this language server: {uri:?}");
-        }
-    }
-}
-
-/// Get the canonical [`Url`] for a [`FileId`].
-pub fn url_for_file(db: &(dyn SemanticGroup + 'static), file_id: FileId) -> Option<Url> {
-    let vf = match file_id.lookup_intern(db) {
-        FileLongId::OnDisk(path) => return Some(Url::from_file_path(path).unwrap()),
-        FileLongId::Virtual(vf) => vf,
-        FileLongId::External(id) => db.try_ext_as_virtual(id)?,
-    };
-    let mut url = Url::parse("vfs://").unwrap();
-    url.set_host(Some(&file_id.as_intern_id().to_string()))
-        .unwrap();
-    url.path_segments_mut()
-        .unwrap()
-        .push(&format!("{}.cairo", vf.name));
-    Some(url)
 }

@@ -68,8 +68,12 @@ impl Lint for ManualExpectErr {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_manual_expect_err(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_manual_expect_err(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -78,11 +82,11 @@ impl Lint for ManualExpectErr {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_manual_expect_err(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_manual_expect_err<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -114,7 +118,10 @@ pub fn check_manual_expect_err(
 
 /// Rewrites a manual implementation of expect err
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_manual_expect_err(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_manual_expect_err<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let fix = match node.kind(db) {
         SyntaxKind::ExprMatch => {
             let expr_match = ExprMatch::from_syntax_node(db, node);

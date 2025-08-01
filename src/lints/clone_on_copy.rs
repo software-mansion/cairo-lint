@@ -48,7 +48,11 @@ impl Lint for CloneOnCopy {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
         fix_clone_on_copy(db, node)
     }
 
@@ -58,11 +62,11 @@ impl Lint for CloneOnCopy {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_clone_on_copy(
-    db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_clone_on_copy<'db>(
+    db: &'db dyn SemanticGroup,
+    corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -73,11 +77,11 @@ pub fn check_clone_on_copy(
     }
 }
 
-fn check_clone_usage(
-    db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
-    function_call_expr: &ExprFunctionCall,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_clone_usage<'db>(
+    db: &'db dyn SemanticGroup,
+    corelib_context: &CorelibContext<'db>,
+    function_call_expr: &ExprFunctionCall<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     if let GenericFunctionId::Impl(ImplGenericFunctionId { impl_id, .. }) = function_call_expr
         .function
@@ -96,12 +100,15 @@ fn check_clone_usage(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-fn fix_clone_on_copy(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-    let ast_expr_binary = ast::ExprBinary::cast(db.upcast(), node)?;
+fn fix_clone_on_copy<'db>(
+    db: &'db dyn SemanticGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
+    let ast_expr_binary = ast::ExprBinary::cast(db, node)?;
 
-    let module_file_id = find_module_file_containing_node(db, &node)?;
+    let module_file_id = find_module_file_containing_node(db, node)?;
 
-    let ast_expr = ast_expr_binary.lhs(db.upcast());
+    let ast_expr = ast_expr_binary.lhs(db);
 
     let expr_semantic = get_expr_semantic(db, module_file_id, &ast_expr_binary)
         .expect("Failed to find semantic expression.");
@@ -128,7 +135,7 @@ fn fix_clone_on_copy(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<Interna
     let fixed_expr = format!(
         "{}{}",
         "*".repeat(snapshot_count),
-        ast_expr.as_syntax_node().get_text(db.upcast())
+        ast_expr.as_syntax_node().get_text(db)
     );
 
     Some(InternalFix {
@@ -139,20 +146,20 @@ fn fix_clone_on_copy(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<Interna
     })
 }
 
-fn get_expr_semantic(
-    db: &dyn SemanticGroup,
-    module_file_id: ModuleFileId,
-    ast_expr_binary: &ast::ExprBinary,
-) -> Option<Expr> {
-    let ast_expr = ast_expr_binary.lhs(db.upcast());
+fn get_expr_semantic<'db>(
+    db: &'db dyn SemanticGroup,
+    module_file_id: ModuleFileId<'db>,
+    ast_expr_binary: &ast::ExprBinary<'db>,
+) -> Option<Expr<'db>> {
+    let ast_expr = ast_expr_binary.lhs(db);
 
-    let expr_ptr = ast_expr.stable_ptr(db.upcast());
+    let expr_ptr = ast_expr.stable_ptr(db);
 
     // Traverses up the syntax tree to find the nearest enclosing function (trait, impl, or free) that owns the expression.
     // If found, retrieves the corresponding semantic expression.
     ast_expr
         .as_syntax_node()
-        .ancestors_with_self(db.upcast())
+        .ancestors_with_self(db)
         .find_map(|ancestor| {
             let function_id = get_function_with_body_id(db, module_file_id, ancestor)?;
 
@@ -160,8 +167,7 @@ fn get_expr_semantic(
                 .or_else(|_| {
                     // If the expression is not found using the expr_ptr (the pointer from the left-hand side of the binary expression),
                     // it means the pointer should be created from the entire binary expression instead.
-                    let expr_binary_ptr =
-                        ast::ExprPtr(ast_expr_binary.stable_ptr(db.upcast()).untyped());
+                    let expr_binary_ptr = ast::ExprPtr(ast_expr_binary.stable_ptr(db).untyped());
                     db.lookup_expr_by_ptr(function_id, expr_binary_ptr)
                 })
                 .ok()
@@ -169,21 +175,21 @@ fn get_expr_semantic(
         })
 }
 
-fn get_function_with_body_id(
-    db: &dyn SemanticGroup,
-    module_file_id: ModuleFileId,
-    ancestor: SyntaxNode,
-) -> Option<FunctionWithBodyId> {
-    if let Some(trait_func) = ast::TraitItemFunction::cast(db.upcast(), ancestor) {
-        let ptr = trait_func.stable_ptr(db.upcast());
+fn get_function_with_body_id<'db>(
+    db: &'db dyn SemanticGroup,
+    module_file_id: ModuleFileId<'db>,
+    ancestor: SyntaxNode<'db>,
+) -> Option<FunctionWithBodyId<'db>> {
+    if let Some(trait_func) = ast::TraitItemFunction::cast(db, ancestor) {
+        let ptr = trait_func.stable_ptr(db);
         Some(FunctionWithBodyId::Trait(
             TraitFunctionLongId(module_file_id, ptr).intern(db),
         ))
-    } else if let Some(func_with_body) = ast::FunctionWithBody::cast(db.upcast(), ancestor) {
-        let ptr = func_with_body.stable_ptr(db.upcast());
+    } else if let Some(func_with_body) = ast::FunctionWithBody::cast(db, ancestor) {
+        let ptr = func_with_body.stable_ptr(db);
 
         let function_with_body_id = if ancestor
-            .ancestor_of_kind(db.upcast(), SyntaxKind::ItemImpl)
+            .ancestor_of_kind(db, SyntaxKind::ItemImpl)
             .is_some()
         {
             FunctionWithBodyId::Impl(ImplFunctionLongId(module_file_id, ptr).intern(db))

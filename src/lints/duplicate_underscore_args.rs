@@ -37,11 +37,11 @@ impl Lint for DuplicateUnderscoreArgs {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_duplicate_underscore_args(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_duplicate_underscore_args<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let functions = get_all_checkable_functions(db, item);
 
@@ -50,7 +50,7 @@ pub fn check_duplicate_underscore_args(
         let params = db.function_with_body_signature(function).unwrap().params;
 
         for param in params {
-            let param_name = param.name.to_string();
+            let param_name = param.name.long(db).to_string();
             let stripped_name = param_name.strip_prefix('_').unwrap_or(&param_name);
 
             if !registered_names.insert(stripped_name.to_string()) {

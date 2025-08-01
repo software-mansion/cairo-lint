@@ -52,8 +52,12 @@ impl Lint for EquatableIfLet {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_equatable_if_let(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_equatable_if_let(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -62,11 +66,11 @@ impl Lint for EquatableIfLet {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_equatable_if_let(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_equatable_if_let<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -78,11 +82,11 @@ pub fn check_equatable_if_let(
     }
 }
 
-fn check_single_equatable_if_let(
-    _db: &dyn SemanticGroup,
-    if_expr: &ExprIf,
-    arenas: &Arenas,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_single_equatable_if_let<'db>(
+    _db: &'db dyn SemanticGroup,
+    if_expr: &ExprIf<'db>,
+    arenas: &Arenas<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     if let Some(Condition::Let(condition_let, patterns)) = &if_expr.conditions.first() {
         // Simple literals and variables
@@ -123,7 +127,10 @@ fn is_simple_equality_condition(patterns: &[PatternId], arenas: &Arenas) -> bool
 
 /// Rewrites a useless `if let` to a simple `if`
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_equatable_if_let(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_equatable_if_let<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let expr = AstExprIf::from_syntax_node(db, node);
     let mut conditions = expr.conditions(db).elements(db);
     let condition = conditions.next()?;

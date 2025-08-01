@@ -1,46 +1,39 @@
-use std::sync::Arc;
+use std::{
+    cell::UnsafeCell,
+    ops::{Deref, DerefMut},
+    sync::Arc,
+};
 
 use anyhow::{Result, anyhow};
 use cairo_lang_compiler::{
     db::validate_corelib,
     project::{ProjectConfig, update_crate_roots_from_project_config},
 };
-use cairo_lang_defs::db::{DefsDatabase, DefsGroup, init_defs_group, try_ext_as_virtual_impl};
+use cairo_lang_defs::db::{DefsGroup, init_defs_group, try_ext_as_virtual_impl};
 use cairo_lang_filesystem::{
     cfg::CfgSet,
-    db::{
-        ExternalFiles, FilesDatabase, FilesGroup, FilesGroupEx, init_dev_corelib, init_files_group,
-    },
+    db::{ExternalFiles, FilesGroup, FilesGroupEx, init_dev_corelib, init_files_group},
     detect::detect_corelib,
     flag::Flag,
-    ids::{FlagId, VirtualFile},
+    ids::{FlagLongId, VirtualFile},
 };
 use cairo_lang_lowering::{
-    db::{ExternalCodeSizeEstimator, LoweringDatabase, LoweringGroup, init_lowering_group},
+    db::{ExternalCodeSizeEstimator, LoweringGroup, init_lowering_group},
     utils::InliningStrategy,
 };
-use cairo_lang_parser::db::{ParserDatabase, ParserGroup};
+use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_semantic::{
-    db::{PluginSuiteInput, SemanticDatabase, SemanticGroup, init_semantic_group},
+    db::{Elongate, PluginSuiteInput, SemanticGroup, init_semantic_group},
     inline_macros::get_default_plugin_suite,
     plugin::PluginSuite,
 };
-use cairo_lang_sierra_generator::db::SierraGenDatabase;
-use cairo_lang_syntax::node::db::{SyntaxDatabase, SyntaxGroup};
-use cairo_lang_utils::Upcast;
+use cairo_lang_syntax::node::db::SyntaxGroup;
+use cairo_lang_utils::{Upcast, smol_str::ToSmolStr};
 
-use crate::{LinterDatabase, LinterGroup, plugin::cairo_lint_allow_plugin_suite};
+use crate::{LinterGroup, plugin::cairo_lint_allow_plugin_suite};
 
-#[salsa::database(
-    LinterDatabase,
-    DefsDatabase,
-    FilesDatabase,
-    LoweringDatabase,
-    ParserDatabase,
-    SemanticDatabase,
-    SierraGenDatabase,
-    SyntaxDatabase
-)]
+#[salsa::db]
+#[derive(Clone)]
 pub struct LinterAnalysisDatabase {
     storage: salsa::Storage<Self>,
 }
@@ -62,8 +55,7 @@ impl LinterAnalysisDatabase {
 
         default_plugin_suite.add(cairo_lint_allow_plugin_suite());
 
-        let suite = res.intern_plugin_suite(default_plugin_suite);
-        res.set_default_plugins_from_suite(suite);
+        res.set_default_plugins_from_suite(default_plugin_suite);
 
         res
     }
@@ -71,7 +63,7 @@ impl LinterAnalysisDatabase {
 
 impl salsa::Database for LinterAnalysisDatabase {}
 impl ExternalFiles for LinterAnalysisDatabase {
-    fn try_ext_as_virtual(&self, external_id: salsa::InternId) -> Option<VirtualFile> {
+    fn try_ext_as_virtual(&self, external_id: salsa::Id) -> Option<VirtualFile> {
         try_ext_as_virtual_impl(self, external_id)
     }
 }
@@ -86,44 +78,50 @@ impl ExternalCodeSizeEstimator for LinterAnalysisDatabase {
     }
 }
 
-impl Upcast<dyn FilesGroup> for LinterAnalysisDatabase {
+impl<'db> Upcast<'db, dyn FilesGroup> for LinterAnalysisDatabase {
     fn upcast(&self) -> &(dyn FilesGroup + 'static) {
         self
     }
 }
 
-impl Upcast<dyn SyntaxGroup> for LinterAnalysisDatabase {
+impl<'db> Upcast<'db, dyn SyntaxGroup> for LinterAnalysisDatabase {
     fn upcast(&self) -> &(dyn SyntaxGroup + 'static) {
         self
     }
 }
 
-impl Upcast<dyn DefsGroup> for LinterAnalysisDatabase {
+impl<'db> Upcast<'db, dyn DefsGroup> for LinterAnalysisDatabase {
     fn upcast(&self) -> &(dyn DefsGroup + 'static) {
         self
     }
 }
 
-impl Upcast<dyn SemanticGroup> for LinterAnalysisDatabase {
+impl<'db> Upcast<'db, dyn SemanticGroup> for LinterAnalysisDatabase {
     fn upcast(&self) -> &(dyn SemanticGroup + 'static) {
         self
     }
 }
 
-impl Upcast<dyn LoweringGroup> for LinterAnalysisDatabase {
+impl<'db> Upcast<'db, dyn LoweringGroup> for LinterAnalysisDatabase {
     fn upcast(&self) -> &(dyn LoweringGroup + 'static) {
         self
     }
 }
 
-impl Upcast<dyn ParserGroup> for LinterAnalysisDatabase {
+impl<'db> Upcast<'db, dyn ParserGroup> for LinterAnalysisDatabase {
     fn upcast(&self) -> &(dyn ParserGroup + 'static) {
         self
     }
 }
 
-impl Upcast<dyn LinterGroup> for LinterAnalysisDatabase {
+impl<'db> Upcast<'db, dyn LinterGroup> for LinterAnalysisDatabase {
     fn upcast(&self) -> &(dyn LinterGroup + 'static) {
+        self
+    }
+}
+
+impl Elongate for LinterAnalysisDatabase {
+    fn elongate(&self) -> &(dyn SemanticGroup + 'static) {
         self
     }
 }
@@ -199,7 +197,7 @@ impl LinterAnalysisDatabaseBuilder {
         self
     }
 
-    pub fn build(&mut self) -> Result<LinterAnalysisDatabase> {
+    pub fn build(&mut self) -> Result<DBWrapper> {
         // NOTE: Order of operations matters here!
         // Errors if something is not OK are very subtle, mostly this results in missing
         // identifier diagnostics, or panics regarding lack of corelib items.
@@ -217,20 +215,18 @@ impl LinterAnalysisDatabaseBuilder {
             init_dev_corelib(&mut db, path)
         }
 
-        let add_withdraw_gas_flag_id = FlagId::new(&db, "add_withdraw_gas");
         db.set_flag(
-            add_withdraw_gas_flag_id,
+            FlagLongId("add_withdraw_gas".to_smolstr()),
             Some(Arc::new(Flag::AddWithdrawGas(self.auto_withdraw_gas))),
         );
-        let panic_backtrace_flag_id = FlagId::new(&db, "panic_backtrace");
+
         db.set_flag(
-            panic_backtrace_flag_id,
+            FlagLongId("panic_backtrace".to_smolstr()),
             Some(Arc::new(Flag::PanicBacktrace(self.panic_backtrace))),
         );
 
-        let unsafe_panic_flag_id = FlagId::new(&db, "unsafe_panic");
         db.set_flag(
-            unsafe_panic_flag_id,
+            FlagLongId("unsafe_panic".to_smolstr()),
             Some(Arc::new(Flag::UnsafePanic(self.unsafe_panic))),
         );
 
@@ -239,6 +235,34 @@ impl LinterAnalysisDatabaseBuilder {
         }
         validate_corelib(&db)?;
 
-        Ok(db)
+        Ok(DBWrapper::new(db))
+    }
+}
+
+pub struct DBWrapper(UnsafeCell<LinterAnalysisDatabase>);
+
+impl DBWrapper {
+    fn new(db: LinterAnalysisDatabase) -> Self {
+        Self(UnsafeCell::new(db))
+    }
+
+    #[allow(clippy::mut_from_ref)]
+    pub fn get_mut(&self) -> &mut LinterAnalysisDatabase {
+        //TODO, rework test macros so it will be unnecessary
+        unsafe { &mut *self.0.get() }
+    }
+}
+
+impl Deref for DBWrapper {
+    type Target = LinterAnalysisDatabase;
+
+    fn deref(&self) -> &Self::Target {
+        unsafe { &*self.0.get() }
+    }
+}
+
+impl DerefMut for DBWrapper {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        self.get_mut()
     }
 }

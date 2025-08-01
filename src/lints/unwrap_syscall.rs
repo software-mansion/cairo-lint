@@ -14,7 +14,6 @@ use cairo_lang_semantic::{
     db::SemanticGroup,
 };
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast};
-use cairo_lang_utils::LookupIntern;
 
 pub struct UnwrapSyscall;
 
@@ -67,7 +66,11 @@ impl Lint for UnwrapSyscall {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
         fix_unwrap_syscall(db, node)
     }
 
@@ -77,11 +80,11 @@ impl Lint for UnwrapSyscall {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_unwrap_syscall(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_unwrap_syscall<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -93,11 +96,11 @@ pub fn check_unwrap_syscall(
     }
 }
 
-fn check_single_unwrap_syscall(
-    db: &dyn SemanticGroup,
-    expr: &ExprFunctionCall,
-    arenas: &Arenas,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_single_unwrap_syscall<'db>(
+    db: &'db dyn SemanticGroup,
+    expr: &ExprFunctionCall<'db>,
+    arenas: &Arenas<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     if is_result_trait_impl_unwrap_call(db, expr)
         && let Some(ExprFunctionCallArg::Value(expr_id)) = expr.args.first()
@@ -157,7 +160,7 @@ fn is_syscall_result_type(db: &dyn SemanticGroup, ty: TypeId) -> bool {
 }
 
 fn is_specific_concrete_type(db: &dyn SemanticGroup, ty: TypeId, full_path: &str) -> bool {
-    if let TypeLongId::Concrete(concrete_type_long_id) = ty.lookup_intern(db)
+    if let TypeLongId::Concrete(concrete_type_long_id) = ty.long(db)
         && concrete_type_long_id.generic_type(db).full_path(db) == full_path
     {
         true
@@ -166,13 +169,13 @@ fn is_specific_concrete_type(db: &dyn SemanticGroup, ty: TypeId, full_path: &str
     }
 }
 
-fn is_specific_concrete_generic_type<const N: usize>(
-    db: &dyn SemanticGroup,
-    ty: TypeId,
+fn is_specific_concrete_generic_type<'db, const N: usize>(
+    db: &'db dyn SemanticGroup,
+    ty: TypeId<'db>,
     full_path: &str,
-    generic_args_matcher: impl FnOnce([GenericArgumentId; N]) -> bool,
+    generic_args_matcher: impl FnOnce([GenericArgumentId<'db>; N]) -> bool,
 ) -> bool {
-    if let TypeLongId::Concrete(concrete_type_long_id) = ty.lookup_intern(db)
+    if let TypeLongId::Concrete(concrete_type_long_id) = ty.long(db)
         && concrete_type_long_id.generic_type(db).full_path(db) == full_path
         && let Ok(generic_args) =
             <[GenericArgumentId; N]>::try_from(concrete_type_long_id.generic_args(db))
@@ -185,7 +188,10 @@ fn is_specific_concrete_generic_type<const N: usize>(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-fn fix_unwrap_syscall(db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+fn fix_unwrap_syscall<'db>(
+    db: &'db dyn SemanticGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let ast_expr_binary = ast::ExprBinary::cast(db, node).unwrap_or_else(|| {
         panic!(
           "Expected a binary expression for unwrap called on SyscallResult. Actual node text: {:?}",

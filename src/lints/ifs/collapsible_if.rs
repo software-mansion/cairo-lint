@@ -67,8 +67,12 @@ impl Lint for CollapsibleIf {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_collapsible_if(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_collapsible_if(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -77,11 +81,11 @@ impl Lint for CollapsibleIf {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_collapsible_if(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_collapsible_if<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -93,11 +97,11 @@ pub fn check_collapsible_if(
     }
 }
 
-fn check_single_collapsible_if(
-    db: &dyn SemanticGroup,
-    if_expr: &ExprIf,
-    arenas: &Arenas,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_single_collapsible_if<'db>(
+    db: &'db dyn SemanticGroup,
+    if_expr: &ExprIf<'db>,
+    arenas: &Arenas<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let Expr::Block(ref if_block) = arenas.exprs[if_expr.if_block] else {
         return;
@@ -176,7 +180,10 @@ fn check_single_collapsible_if(
 /// `if` is found. If no collapsible `if` is detected, the original text of the node is
 /// returned.
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_collapsible_if(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_collapsible_if<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let expr_if = AstExprIf::from_syntax_node(db, node);
     let outer_condition = expr_if.conditions(db).as_syntax_node().get_text(db);
     let if_block = expr_if.if_block(db);

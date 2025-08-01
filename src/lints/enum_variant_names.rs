@@ -56,8 +56,12 @@ impl Lint for EnumVariantNames {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_enum_variant_names(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_enum_variant_names(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -66,11 +70,11 @@ impl Lint for EnumVariantNames {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_enum_variant_names(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_enum_variant_names<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let ModuleItemId::Enum(enum_id) = item else {
         return;
@@ -78,13 +82,13 @@ pub fn check_enum_variant_names(
     let Ok(variants) = db.enum_variants(*enum_id) else {
         return;
     };
-    let variant_names: Vec<String> = variants.iter().map(|v| v.0.to_string()).collect();
+    let variant_names: Vec<String> = variants.iter().map(|v| v.0.long(db).to_string()).collect();
 
     let (prefix, suffix) = get_prefix_and_suffix(&variant_names);
 
     if !prefix.is_empty() || !suffix.is_empty() {
         diagnostics.push(PluginDiagnostic {
-            stable_ptr: enum_id.untyped_stable_ptr(db.upcast()),
+            stable_ptr: enum_id.untyped_stable_ptr(db),
             message: EnumVariantNames.diagnostic_message().to_string(),
             severity: Severity::Warning,
             inner_span: None,
@@ -93,7 +97,10 @@ pub fn check_enum_variant_names(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-fn fix_enum_variant_names(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+fn fix_enum_variant_names<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let enum_item = AstEnumItem::from_syntax_node(db, node);
 
     let source = enum_item.as_syntax_node().get_text(db);
@@ -103,7 +110,7 @@ fn fix_enum_variant_names(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
 
     let (prefixes, suffixes) = get_prefix_and_suffix(&variant_names);
 
-    let mut fixed_enum = source.clone();
+    let mut fixed_enum = source.to_string();
 
     for variant in &variant_names {
         let mut fixed_name = variant.clone();

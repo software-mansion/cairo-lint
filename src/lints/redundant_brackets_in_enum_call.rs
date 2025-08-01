@@ -62,8 +62,12 @@ impl Lint for RedundantBracketsInEnumCall {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_redundant_brackets_in_enum_call(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_redundant_brackets_in_enum_call(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -72,11 +76,11 @@ impl Lint for RedundantBracketsInEnumCall {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_redundant_brackets_in_enum_call(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_redundant_brackets_in_enum_call<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -133,9 +137,9 @@ fn is_redundant_enum_brackets_call(expr: &Expr, db: &dyn SemanticGroup) -> bool 
 /// Returns Some((index, name)) if the enum variant's type clause uses one of the enum's
 /// generic parameters, returning its position and name. e.g., `T` returns (0, "T") if used and
 /// the enum is declared as `enum MyEnum<T, E> { ... }`
-fn find_generic_param_with_index(
-    variant: &ConcreteVariant,
-    db: &dyn SemanticGroup,
+fn find_generic_param_with_index<'db>(
+    variant: &ConcreteVariant<'db>,
+    db: &'db dyn SemanticGroup,
 ) -> Option<(usize, String)> {
     let variant_id = variant.id;
     let variant_ast = variant_id.stable_ptr(db).lookup(db);
@@ -174,11 +178,11 @@ fn find_generic_param_with_index(
 /// Returns true if the generic argument at `index_to_match` is a unit type `()`.
 /// Handles both named arguments (matching against `generic_param_name`) and
 /// unnamed arguments at the specified position in the path segment's generic args.
-fn has_unit_generic_arg_at_index(
-    func_call: &ast::ExprFunctionCall,
+fn has_unit_generic_arg_at_index<'db>(
+    func_call: &ast::ExprFunctionCall<'db>,
     index_to_match: usize,
     generic_param_name: String,
-    db: &dyn SemanticGroup,
+    db: &'db dyn SemanticGroup,
 ) -> bool {
     for segment in func_call.path(db).segments(db).elements(db) {
         let ast::PathSegment::WithGenericArgs(path_segment) = &segment else {
@@ -216,10 +220,10 @@ fn has_unit_generic_arg_at_index(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-fn fix_redundant_brackets_in_enum_call(
-    db: &dyn SyntaxGroup,
-    node: SyntaxNode,
-) -> Option<InternalFix> {
+fn fix_redundant_brackets_in_enum_call<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let ast_expr = ast::Expr::from_syntax_node(db, node);
 
     let ast::Expr::FunctionCall(call_expr) = &ast_expr else {

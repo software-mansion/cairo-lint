@@ -69,8 +69,12 @@ impl Lint for CollapsibleIfElse {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_collapsible_if_else(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_collapsible_if_else(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -97,11 +101,11 @@ impl Lint for CollapsibleIfElse {
 /// }
 /// ```
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_collapsible_if_else(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_collapsible_if_else<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -113,10 +117,10 @@ pub fn check_collapsible_if_else(
     }
 }
 
-fn check_single_collapsible_if_else(
-    if_expr: &ExprIf,
-    arenas: &Arenas,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_single_collapsible_if_else<'db>(
+    if_expr: &ExprIf<'db>,
+    arenas: &Arenas<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     // Extract the expression from the ElseClause
     let Some(else_block) = if_expr.else_block else {
@@ -177,7 +181,10 @@ fn is_only_statement_if(block_expr: &ExprBlock, arenas: &Arenas) -> bool {
 ///
 /// A `String` with the refactored `if-else` structure.
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_collapsible_if_else(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_collapsible_if_else<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let if_expr = AstExprIf::from_syntax_node(db, node);
     let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) else {
         return None;

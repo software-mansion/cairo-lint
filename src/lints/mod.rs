@@ -53,9 +53,9 @@ pub(crate) const SPAN: &str = "core::array::Span";
 pub(crate) const ARRAY: &str = "core::array::Array";
 pub(crate) const U32: &str = "core::integer::u32";
 
-pub(crate) fn function_trait_name_from_fn_id(
-    db: &dyn SemanticGroup,
-    function: &FunctionId,
+pub(crate) fn function_trait_name_from_fn_id<'db>(
+    db: &'db dyn SemanticGroup,
+    function: &FunctionId<'db>,
 ) -> String {
     let Ok(Some(func_id)) = function.get_concrete(db).body(db) else {
         return String::new();
@@ -68,5 +68,5 @@ pub(crate) fn function_trait_name_from_fn_id(
         _ => return String::new(),
     };
     // From the trait function id get the trait name and check if it's the corelib `BitAnd`
-    trait_fn_id.full_path(db.upcast())
+    trait_fn_id.full_path(db)
 }

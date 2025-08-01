@@ -57,8 +57,12 @@ impl Lint for DestructMatch {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_destruct_match(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_destruct_match(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -103,11 +107,11 @@ impl Lint for EqualityMatch {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_single_matches(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_single_matches<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -119,11 +123,11 @@ pub fn check_single_matches(
     }
 }
 
-fn check_single_match(
-    db: &dyn SemanticGroup,
-    match_expr: &ExprMatch,
-    arenas: &Arenas,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_single_match<'db>(
+    db: &'db dyn SemanticGroup,
+    match_expr: &ExprMatch<'db>,
+    arenas: &Arenas<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let arms = &match_expr.arms;
     let mut is_single_armed = false;
@@ -177,10 +181,8 @@ fn check_single_match(
 
         // Checks that the second arm doesn't do anything
         is_single_armed = is_expr_unit(
-            arenas.exprs[second_arm.expression]
-                .stable_ptr()
-                .lookup(db.upcast()),
-            db.upcast(),
+            arenas.exprs[second_arm.expression].stable_ptr().lookup(db),
+            db,
         ) && is_complete;
     };
 
@@ -266,7 +268,10 @@ pub fn is_expr_unit(expr: AstExpr, db: &dyn SyntaxGroup) -> bool {
 ///
 /// Panics if the diagnostic is incorrect (i.e., the match doesn't have the expected structure).
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_destruct_match(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_destruct_match<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let match_expr = AstExprMatch::from_syntax_node(db, node);
     let mut arms = match_expr.arms(db).elements(db);
     let first_arm = &arms

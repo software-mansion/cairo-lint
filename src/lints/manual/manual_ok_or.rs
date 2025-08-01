@@ -66,8 +66,12 @@ impl Lint for ManualOkOr {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
-        fix_manual_ok_or(db.upcast(), node)
+    fn fix<'db>(
+        &self,
+        db: &'db dyn SemanticGroup,
+        node: SyntaxNode<'db>,
+    ) -> Option<InternalFix<'db>> {
+        fix_manual_ok_or(db, node)
     }
 
     fn fix_message(&self) -> Option<&'static str> {
@@ -76,11 +80,11 @@ impl Lint for ManualOkOr {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_manual_ok_or(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_manual_ok_or<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -112,7 +116,10 @@ pub fn check_manual_ok_or(
 
 /// Rewrites a manual implementation of ok_or
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_manual_ok_or(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<InternalFix> {
+pub fn fix_manual_ok_or<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: SyntaxNode<'db>,
+) -> Option<InternalFix<'db>> {
     let fix = match node.kind(db) {
         SyntaxKind::ExprMatch => {
             let expr_match = ExprMatch::from_syntax_node(db, node);

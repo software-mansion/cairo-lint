@@ -21,7 +21,11 @@ use num_bigint::BigInt;
 
 /// Checks if the input statement is a `FunctionCall` then checks if the function name is the
 /// expected function name
-pub fn is_expected_function(expr: &Expr, db: &dyn SemanticGroup, func_name: &str) -> bool {
+pub fn is_expected_function<'db>(
+    expr: &Expr<'db>,
+    db: &'db dyn SemanticGroup,
+    func_name: &str,
+) -> bool {
     let Expr::FunctionCall(func_call) = expr else {
         return false;
     };
@@ -37,7 +41,11 @@ pub fn is_expected_function(expr: &Expr, db: &dyn SemanticGroup, func_name: &str
 ///
 /// # Returns
 /// * `true` if the argument name matches, otherwise `false`.
-pub fn pattern_check_enum_arg(pattern: &Pattern, arg: &VarId, arenas: &Arenas) -> bool {
+pub fn pattern_check_enum_arg<'db>(
+    pattern: &Pattern<'db>,
+    arg: &VarId<'db>,
+    arenas: &Arenas<'db>,
+) -> bool {
     let Some(enum_destruct_var) = extract_pattern_variable(pattern, arenas) else {
         return false;
     };
@@ -49,10 +57,10 @@ pub fn pattern_check_enum_arg(pattern: &Pattern, arg: &VarId, arenas: &Arenas) -
 
 /// Extracts pattern variable from `Pattern` if it's a destructured enum.
 /// i.e. given `Pattern` of `Result::Err(x)` would return the pattern variable `x`
-pub fn extract_pattern_variable<'a>(
-    pattern: &Pattern,
-    arenas: &'a Arenas,
-) -> Option<&'a PatternVariable> {
+pub fn extract_pattern_variable<'a, 'db>(
+    pattern: &Pattern<'db>,
+    arenas: &'a Arenas<'db>,
+) -> Option<&'a PatternVariable<'db>> {
     let Pattern::EnumVariant(enum_var_pattern) = pattern else {
         return None;
     };
@@ -97,17 +105,17 @@ pub fn extract_pattern_variable<'a>(
 ///     Result::Err(_) => Option::None,
 /// };
 /// ```
-pub fn is_destructured_variable_used_and_expected_variant(
-    expr: &Expr,
-    pattern: &Pattern,
-    db: &dyn SemanticGroup,
-    arenas: &Arenas,
+pub fn is_destructured_variable_used_and_expected_variant<'db>(
+    expr: &Expr<'db>,
+    pattern: &Pattern<'db>,
+    db: &'db dyn SemanticGroup,
+    arenas: &Arenas<'db>,
     enum_name: &str,
 ) -> bool {
     let Expr::EnumVariantCtor(enum_expr) = expr else {
         return false;
     };
-    if enum_expr.variant.id.full_path(db.upcast()) != enum_name {
+    if enum_expr.variant.id.full_path(db) != enum_name {
         return false;
     };
     let Expr::Var(return_enum_var) = &arenas.exprs[enum_expr.value_expr] else {
@@ -193,10 +201,10 @@ pub fn if_expr_pattern_matches_tail_var(expr: &ExprIf, arenas: &Arenas) -> bool 
 /// }
 /// ```
 /// Checks if `x` in the condition matches `x` in the `if` block's enum pattern.
-pub fn if_expr_condition_and_block_match_enum_pattern(
-    expr: &ExprIf,
-    db: &dyn SemanticGroup,
-    arenas: &Arenas,
+pub fn if_expr_condition_and_block_match_enum_pattern<'db>(
+    expr: &ExprIf<'db>,
+    db: &'db dyn SemanticGroup,
+    arenas: &Arenas<'db>,
     enum_name: &str,
 ) -> bool {
     if_chain! {
@@ -284,9 +292,7 @@ pub fn check_is_default(db: &dyn SemanticGroup, expr: &Expr, arenas: &Arenas) ->
         // Literal integer
         Expr::Literal(expr_literal) => expr_literal.value == BigInt::ZERO,
         // Boolean false
-        Expr::EnumVariantCtor(enum_variant) => {
-            enum_variant.variant.id.full_path(db.upcast()) == FALSE
-        }
+        Expr::EnumVariantCtor(enum_variant) => enum_variant.variant.id.full_path(db) == FALSE,
         // Tuple contains only default elements
         Expr::Tuple(expr_tuple) => expr_tuple
             .items
@@ -297,7 +303,7 @@ pub fn check_is_default(db: &dyn SemanticGroup, expr: &Expr, arenas: &Arenas) ->
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_manual(func_name: &str, db: &dyn SyntaxGroup, node: SyntaxNode) -> String {
+pub fn fix_manual<'db>(func_name: &str, db: &'db dyn SyntaxGroup, node: SyntaxNode<'db>) -> String {
     match node.kind(db) {
         SyntaxKind::ExprMatch => {
             let expr_match = AstExprMatch::from_syntax_node(db, node);
@@ -323,13 +329,11 @@ pub fn fix_manual(func_name: &str, db: &dyn SyntaxGroup, node: SyntaxNode) -> St
     }
 }
 
-pub fn expr_match_get_var_name_and_err(
-    expr_match: AstExprMatch,
-    db: &dyn SyntaxGroup,
+pub fn expr_match_get_var_name_and_err<'db>(
+    expr_match: AstExprMatch<'db>,
+    db: &'db dyn SyntaxGroup,
     arm_index: usize,
-) -> (String, String) {
-    let option_var_name = expr_match.expr(db).as_syntax_node().get_text(db);
-
+) -> (&'db str, String) {
     let mut arms = expr_match.arms(db).elements(db);
     if arms.len() != 2 {
         panic!("Expected exactly two arms in the match expression");
@@ -365,17 +369,21 @@ pub fn expr_match_get_var_name_and_err(
 
     let none_arm_err = arg.as_syntax_node().get_text(db).to_string();
 
-    (option_var_name, none_arm_err)
+    (
+        expr_match.expr(db).as_syntax_node().get_text(db),
+        none_arm_err,
+    )
 }
 
-pub fn expr_if_get_var_name_and_err(expr_if: AstExprIf, db: &dyn SyntaxGroup) -> (String, String) {
+pub fn expr_if_get_var_name_and_err<'db>(
+    expr_if: AstExprIf<'db>,
+    db: &'db dyn SyntaxGroup,
+) -> (&'db str, String) {
     let mut conditions = expr_if.conditions(db).elements(db);
     let condition = conditions.next().expect("Expected at least one condition");
     let AstCondition::Let(condition_let) = condition else {
         panic!("Expected a ConditionLet condition");
     };
-    let option_var_name = condition_let.expr(db).as_syntax_node().get_text(db);
-
     let OptionElseClause::ElseClause(else_clause) = expr_if.else_clause(db) else {
         panic!("Expected a non-empty else clause");
     };
@@ -398,15 +406,15 @@ pub fn expr_if_get_var_name_and_err(expr_if: AstExprIf, db: &dyn SyntaxGroup) ->
     let arg = args.next().expect("Should have arg");
     let err = arg.as_syntax_node().get_text(db).to_string();
 
-    (option_var_name, err)
+    (condition_let.expr(db).as_syntax_node().get_text(db), err)
 }
 
 /// Returns true if the expression is a function call (or a block whose tail is a function call)
 /// and the function's return type is the NEVER type.
-pub fn func_call_or_block_returns_never(
-    expr: &Expr,
-    db: &dyn SemanticGroup,
-    arenas: &Arenas,
+pub fn func_call_or_block_returns_never<'db>(
+    expr: &Expr<'db>,
+    db: &'db dyn SemanticGroup,
+    arenas: &Arenas<'db>,
 ) -> bool {
     let function_call = match expr {
         // If it is block, it is necessary to extract tail from it
@@ -437,7 +445,10 @@ pub fn match_arm_returns_extracted_var(expr: &Expr, pattern: &Pattern, arenas: &
 
 /// Returns the tail expression from a block if it's the only content, otherwise returns the original expression.
 /// If the block contains statements, it returns the block itself.
-pub fn extract_tail_or_preserve_expr<'a>(expr: &'a Expr, arenas: &'a Arenas) -> &'a Expr {
+pub fn extract_tail_or_preserve_expr<'a, 'db>(
+    expr: &'a Expr<'db>,
+    arenas: &'a Arenas<'db>,
+) -> &'a Expr<'db> {
     if_chain! {
         if let Expr::Block(expr_block) = expr;
         if expr_block.statements.is_empty();
@@ -450,10 +461,10 @@ pub fn extract_tail_or_preserve_expr<'a>(expr: &'a Expr, arenas: &'a Arenas) -> 
     expr
 }
 
-pub fn is_variable_unused(db: &dyn SemanticGroup, variable: &LocalVariable) -> bool {
+pub fn is_variable_unused<'db>(db: &'db dyn SemanticGroup, variable: &LocalVariable<'db>) -> bool {
     let variable_syntax_stable_ptr = variable.stable_ptr(db).0;
     let Some(module_file_id) =
-        find_module_file_containing_node(db, &variable_syntax_stable_ptr.lookup(db))
+        find_module_file_containing_node(db, variable_syntax_stable_ptr.lookup(db))
     else {
         return false;
     };
@@ -470,10 +481,10 @@ pub fn is_variable_unused(db: &dyn SemanticGroup, variable: &LocalVariable) -> b
 /// It is stripped-down version of `get_semantic_diagnostics` from the compiler,
 /// designed to correctly find only `SemanticDiagnosticKind::UnusedVariable`
 /// and is tested for only that
-pub fn get_semantic_diagnostics(
-    db: &dyn SemanticGroup,
-    module_id: ModuleId,
-) -> Option<Diagnostics<SemanticDiagnostic>> {
+pub fn get_semantic_diagnostics<'db>(
+    db: &'db dyn SemanticGroup,
+    module_id: ModuleId<'db>,
+) -> Option<Diagnostics<'db, SemanticDiagnostic<'db>>> {
     let mut diagnostics = DiagnosticsBuilder::default();
     for item in db.module_items(module_id).ok()?.iter() {
         match item {

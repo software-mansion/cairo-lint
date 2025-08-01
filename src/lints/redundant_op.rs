@@ -49,11 +49,11 @@ impl Lint for RedundantOperation {
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn check_redundant_operation(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
-    item: &ModuleItemId,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+pub fn check_redundant_operation<'db>(
+    db: &'db dyn SemanticGroup,
+    _corelib_context: &CorelibContext<'db>,
+    item: &ModuleItemId<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
     for function_body in function_bodies.iter() {
@@ -65,11 +65,11 @@ pub fn check_redundant_operation(
     }
 }
 
-fn check_single_redundant_operation(
-    db: &dyn SemanticGroup,
-    expr_func: &ExprFunctionCall,
-    arenas: &Arenas,
-    diagnostics: &mut Vec<PluginDiagnostic>,
+fn check_single_redundant_operation<'db>(
+    db: &'db dyn SemanticGroup,
+    expr_func: &ExprFunctionCall<'db>,
+    arenas: &Arenas<'db>,
+    diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let func = function_trait_name_from_fn_id(db, &expr_func.function);
     let is_redundant = match func.as_str() {

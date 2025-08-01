@@ -56,10 +56,10 @@ pub enum ManualLint {
 ///     Result::Err(_) => Option::None,
 /// };
 /// ```
-pub fn check_manual(
-    db: &dyn SemanticGroup,
-    expr_match: &ExprMatch,
-    arenas: &Arenas,
+pub fn check_manual<'db>(
+    db: &'db dyn SemanticGroup,
+    expr_match: &ExprMatch<'db>,
+    arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
     if expr_match.arms.len() != 2 {
@@ -135,11 +135,11 @@ pub fn check_manual(
 }
 
 /// Checks the `Option::Some` arm in the match.
-fn check_syntax_some_arm(
-    expr: &Expr,
-    pattern: &Pattern,
-    db: &dyn SemanticGroup,
-    arenas: &Arenas,
+fn check_syntax_some_arm<'db>(
+    expr: &Expr<'db>,
+    pattern: &Pattern<'db>,
+    db: &'db dyn SemanticGroup,
+    arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
     match manual_lint {
@@ -158,7 +158,11 @@ fn check_syntax_some_arm(
 
 /// Checks that the variant of the expression is named exactly the provided string.
 /// This checks for the full path for example `core::option::Option::Some`
-fn is_expected_variant(expr: &Expr, db: &dyn SemanticGroup, expected_variant: &str) -> bool {
+fn is_expected_variant<'db>(
+    expr: &Expr<'db>,
+    db: &'db dyn SemanticGroup,
+    expected_variant: &str,
+) -> bool {
     let Some(variant_name) = get_variant_name(expr, db) else {
         return false;
     };
@@ -167,19 +171,19 @@ fn is_expected_variant(expr: &Expr, db: &dyn SemanticGroup, expected_variant: &s
 
 /// Returns the variant of the expression is named exactly the provided string.
 /// This returns the full path for example `core::option::Option::Some`
-fn get_variant_name(expr: &Expr, db: &dyn SemanticGroup) -> Option<String> {
+fn get_variant_name<'db>(expr: &Expr<'db>, db: &'db dyn SemanticGroup) -> Option<String> {
     let Expr::EnumVariantCtor(maybe_bool) = expr else {
         return None;
     };
-    Some(maybe_bool.variant.id.full_path(db.upcast()))
+    Some(maybe_bool.variant.id.full_path(db))
 }
 
 // Checks the `Result::Ok` arm
-fn check_syntax_ok_arm(
-    expr: &Expr,
-    pattern: &Pattern,
-    db: &dyn SemanticGroup,
-    arenas: &Arenas,
+fn check_syntax_ok_arm<'db>(
+    expr: &Expr<'db>,
+    pattern: &Pattern<'db>,
+    db: &'db dyn SemanticGroup,
+    arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
     match manual_lint {
@@ -208,11 +212,11 @@ fn check_syntax_ok_arm(
 }
 
 /// Checks `Option::None` arm
-fn check_syntax_none_arm(
-    expr: &Expr,
-    _pattern: &Pattern,
-    db: &dyn SemanticGroup,
-    arenas: &Arenas,
+fn check_syntax_none_arm<'db>(
+    expr: &Expr<'db>,
+    _pattern: &Pattern<'db>,
+    db: &'db dyn SemanticGroup,
+    arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
     match manual_lint {
@@ -237,11 +241,11 @@ fn check_syntax_none_arm(
 }
 
 /// Checks `Result::Err` arm
-fn check_syntax_err_arm(
-    expr: &Expr,
-    pattern: &Pattern,
-    db: &dyn SemanticGroup,
-    arenas: &Arenas,
+fn check_syntax_err_arm<'db>(
+    expr: &Expr<'db>,
+    pattern: &Pattern<'db>,
+    db: &'db dyn SemanticGroup,
+    arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
     match manual_lint {
@@ -284,17 +288,17 @@ fn check_syntax_err_arm(
 ///     Option::None
 /// };
 /// ```
-pub fn check_manual_if(
-    db: &dyn SemanticGroup,
-    expr: &ExprIf,
-    arenas: &Arenas,
+pub fn check_manual_if<'db>(
+    db: &'db dyn SemanticGroup,
+    expr: &ExprIf<'db>,
+    arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
     if_chain! {
         if let Some(Condition::Let(_condition_let, patterns)) = &expr.conditions.first();
         if let Pattern::EnumVariant(enum_pattern) = &arenas.patterns[patterns[0]];
         then {
-            let enum_name = enum_pattern.variant.id.full_path(db.upcast());
+            let enum_name = enum_pattern.variant.id.full_path(db);
             match enum_name.as_str() {
                 SOME => {
                     let found_if = check_syntax_opt_if(expr, db, arenas, manual_lint);
@@ -318,10 +322,10 @@ pub fn check_manual_if(
     false
 }
 
-fn check_syntax_opt_if(
-    expr: &ExprIf,
-    db: &dyn SemanticGroup,
-    arenas: &Arenas,
+fn check_syntax_opt_if<'db>(
+    expr: &ExprIf<'db>,
+    db: &'db dyn SemanticGroup,
+    arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
     let Expr::Block(if_block) = &arenas.exprs[expr.if_block] else {
@@ -347,10 +351,10 @@ fn check_syntax_opt_if(
     }
 }
 
-fn check_syntax_res_if(
-    expr: &ExprIf,
-    db: &dyn SemanticGroup,
-    arenas: &Arenas,
+fn check_syntax_res_if<'db>(
+    expr: &ExprIf<'db>,
+    db: &'db dyn SemanticGroup,
+    arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
     let Expr::Block(if_block) = &arenas.exprs[expr.if_block] else {
@@ -375,10 +379,10 @@ fn check_syntax_res_if(
     }
 }
 
-fn check_syntax_err_if(
-    expr: &ExprIf,
-    db: &dyn SemanticGroup,
-    arenas: &Arenas,
+fn check_syntax_err_if<'db>(
+    expr: &ExprIf<'db>,
+    db: &'db dyn SemanticGroup,
+    arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
     match manual_lint {
@@ -390,10 +394,10 @@ fn check_syntax_err_if(
     }
 }
 
-fn check_syntax_opt_else(
-    expr: &ExprIf,
-    db: &dyn SemanticGroup,
-    arenas: &Arenas,
+fn check_syntax_opt_else<'db>(
+    expr: &ExprIf<'db>,
+    db: &'db dyn SemanticGroup,
+    arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
     let expr_block = match expr.else_block {
@@ -427,10 +431,10 @@ fn check_syntax_opt_else(
     }
 }
 
-fn check_syntax_res_else(
-    expr: &ExprIf,
-    db: &dyn SemanticGroup,
-    arenas: &Arenas,
+fn check_syntax_res_else<'db>(
+    expr: &ExprIf<'db>,
+    db: &'db dyn SemanticGroup,
+    arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
     let expr_block = match expr.else_block {
@@ -465,10 +469,10 @@ fn check_syntax_res_else(
     }
 }
 
-fn check_syntax_err_else(
-    expr: &ExprIf,
-    db: &dyn SemanticGroup,
-    arenas: &Arenas,
+fn check_syntax_err_else<'db>(
+    expr: &ExprIf<'db>,
+    db: &'db dyn SemanticGroup,
+    arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
     let expr_block = match expr.else_block {

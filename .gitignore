@@ -2,3 +2,4 @@ target
 .idea/
 .DS_Store
 *.rs.pending-snap
+.spr.yml
