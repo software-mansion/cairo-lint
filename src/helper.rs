@@ -359,7 +359,6 @@ fn find_module_containing_node<'db>(
                 .stable_ptr(db)
                 .name_green(db)
                 .identifier(db)
-                .intern(db)
         })
         // Buffer the stack to get DoubleEndedIterator.
         .collect::<Vec<_>>()
@@ -367,7 +366,7 @@ fn find_module_containing_node<'db>(
         // And get id of the (sub)module containing the node by traversing this stack top-down.
         .try_rfold(main_module, |module, name| {
             let ModuleItemId::Submodule(submodule) =
-                db.module_item_by_name(module, name).ok()??
+                db.module_item_by_name(module, name.into()).ok()??
             else {
                 return None;
             };

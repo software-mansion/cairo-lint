@@ -28,7 +28,7 @@ use cairo_lang_semantic::{
     plugin::PluginSuite,
 };
 use cairo_lang_syntax::node::db::SyntaxGroup;
-use cairo_lang_utils::{Upcast, smol_str::ToSmolStr};
+use cairo_lang_utils::Upcast;
 
 use crate::{LinterGroup, plugin::cairo_lint_allow_plugin_suite};
 
@@ -216,17 +216,17 @@ impl LinterAnalysisDatabaseBuilder {
         }
 
         db.set_flag(
-            FlagLongId("add_withdraw_gas".to_smolstr()),
+            FlagLongId("add_withdraw_gas".to_string()),
             Some(Arc::new(Flag::AddWithdrawGas(self.auto_withdraw_gas))),
         );
 
         db.set_flag(
-            FlagLongId("panic_backtrace".to_smolstr()),
+            FlagLongId("panic_backtrace".to_string()),
             Some(Arc::new(Flag::PanicBacktrace(self.panic_backtrace))),
         );
 
         db.set_flag(
-            FlagLongId("unsafe_panic".to_smolstr()),
+            FlagLongId("unsafe_panic".to_string()),
             Some(Arc::new(Flag::UnsafePanic(self.unsafe_panic))),
         );
 

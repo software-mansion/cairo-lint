@@ -9,7 +9,6 @@ use std::{collections::BTreeMap, sync::Arc};
 
 use crate::CRATE_CONFIG;
 use cairo_lang_filesystem::ids::{CrateInput, DirectoryInput, FileInput, VirtualFileInput};
-use cairo_lang_utils::smol_str::ToSmolStr;
 use cairo_lint::LinterAnalysisDatabase;
 
 pub fn setup_test_crate_ex<'db>(
@@ -49,7 +48,7 @@ pub fn setup_test_crate_ex<'db>(
         cr.clone(),
         CrateConfigurationInput {
             root: DirectoryInput::Virtual {
-                files: BTreeMap::from([("lib.cairo".to_smolstr(), file)]),
+                files: BTreeMap::from([("lib.cairo".to_string(), file)]),
                 dirs: Default::default(),
             },
             settings,
