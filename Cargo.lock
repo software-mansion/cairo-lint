@@ -238,7 +238,7 @@ dependencies = [
  "cairo-lang-utils",
  "indoc",
  "rayon",
- "salsa 0.22.0",
+ "salsa",
  "semver",
  "smol_str",
  "thiserror",
@@ -251,7 +251,7 @@ source = "git+https://github.com/starkware-libs/cairo?rev=44eed82c5a0b2e57e4f76a
 dependencies = [
  "cairo-lang-utils",
  "id-arena",
- "salsa 0.22.0",
+ "salsa",
 ]
 
 [[package]]
@@ -268,7 +268,7 @@ dependencies = [
  "cairo-lang-syntax",
  "cairo-lang-utils",
  "itertools",
- "salsa 0.22.0",
+ "salsa",
  "serde",
  "smol_str",
  "typetag",
@@ -284,7 +284,7 @@ dependencies = [
  "cairo-lang-filesystem",
  "cairo-lang-utils",
  "itertools",
- "salsa 0.22.0",
+ "salsa",
 ]
 
 [[package]]
@@ -305,7 +305,7 @@ dependencies = [
  "cairo-lang-proc-macros",
  "cairo-lang-utils",
  "path-clean",
- "salsa 0.22.0",
+ "salsa",
  "semver",
  "serde",
  "smol_str",
@@ -353,7 +353,7 @@ dependencies = [
  "num-bigint",
  "num-integer",
  "num-traits",
- "salsa 0.22.0",
+ "salsa",
  "serde",
 ]
 
@@ -373,7 +373,7 @@ dependencies = [
  "itertools",
  "num-bigint",
  "num-traits",
- "salsa 0.22.0",
+ "salsa",
  "smol_str",
  "unescaper",
 ]
@@ -392,7 +392,7 @@ dependencies = [
  "indent",
  "indoc",
  "itertools",
- "salsa 0.22.0",
+ "salsa",
  "smol_str",
 ]
 
@@ -411,7 +411,7 @@ dependencies = [
  "cairo-lang-utils",
  "proc-macro2",
  "quote",
- "salsa 0.22.0",
+ "salsa",
  "syn 2.0.101",
 ]
 
@@ -464,7 +464,7 @@ dependencies = [
  "itertools",
  "num-bigint",
  "num-traits",
- "salsa 0.22.0",
+ "salsa",
  "sha3",
  "smol_str",
  "toml",
@@ -544,7 +544,7 @@ dependencies = [
  "cairo-lang-utils",
  "itertools",
  "num-traits",
- "salsa 0.22.0",
+ "salsa",
  "serde",
  "serde_json",
  "smol_str",
@@ -645,7 +645,7 @@ dependencies = [
  "cairo-lang-utils",
  "num-bigint",
  "num-traits",
- "salsa 0.22.0",
+ "salsa",
  "serde",
  "smol_str",
  "unescaper",
@@ -709,7 +709,7 @@ dependencies = [
  "itertools",
  "num-bigint",
  "num-traits",
- "salsa 0.22.0",
+ "salsa",
  "schemars",
  "serde",
  "smol_str",
@@ -740,7 +740,7 @@ dependencies = [
  "log",
  "num-bigint",
  "pretty_assertions",
- "salsa 0.23.0",
+ "salsa",
  "scarb-metadata",
  "tempfile",
  "test-case",
@@ -1396,15 +1396,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "intrusive-collections"
-version = "0.9.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "189d0897e4cbe8c75efedf3502c18c887b05046e59d28404d4d8e46cbc4d1e86"
-dependencies = [
- "memoffset",
-]
-
-[[package]]
 name = "inventory"
 version = "0.3.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1560,15 +1551,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 
 [[package]]
-name = "memoffset"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "488016bfae457b036d996092f6cb448677611ce4449e970ceaf42695203f218a"
-dependencies = [
- "autocfg",
-]
-
-[[package]]
 name = "microlp"
 version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1704,16 +1686,6 @@ name = "once_cell"
 version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
-
-[[package]]
-name = "papaya"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f92dd0b07c53a0a0c764db2ace8c541dc47320dad97c2200c2a637ab9dd2328f"
-dependencies = [
- "equivalent",
- "seize",
-]
 
 [[package]]
 name = "parity-scale-codec"
@@ -2049,33 +2021,8 @@ dependencies = [
  "portable-atomic",
  "rayon",
  "rustc-hash",
- "salsa-macro-rules 0.22.0",
- "salsa-macros 0.22.0",
- "smallvec",
- "thin-vec",
- "tracing",
-]
-
-[[package]]
-name = "salsa"
-version = "0.23.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e235afdb8e510f38a07138fbe5a0b64691894358a9c0cbd813b1aade110efc9"
-dependencies = [
- "boxcar",
- "crossbeam-queue",
- "crossbeam-utils",
- "hashbrown 0.15.3",
- "hashlink",
- "indexmap 2.9.0",
- "intrusive-collections",
- "papaya",
- "parking_lot",
- "portable-atomic",
- "rayon",
- "rustc-hash",
- "salsa-macro-rules 0.23.0",
- "salsa-macros 0.23.0",
+ "salsa-macro-rules",
+ "salsa-macros",
  "smallvec",
  "thin-vec",
  "tracing",
@@ -2088,30 +2035,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ea72b3c06f2ce6350fe3a0eeb7aaaf842d1d8352b706973c19c4f02e298a87c"
 
 [[package]]
-name = "salsa-macro-rules"
-version = "0.23.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2edb86a7e9c91f6d30c9ce054312721dbe773a162db27bbfae834d16177b30ce"
-
-[[package]]
 name = "salsa-macros"
 version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ce92025bc160b27814a207cb78d680973af17f863c7f4fc56cf3a535e22f378"
 dependencies = [
  "heck",
- "proc-macro2",
- "quote",
- "syn 2.0.101",
- "synstructure",
-]
-
-[[package]]
-name = "salsa-macros"
-version = "0.23.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d0778d6e209051bc4e75acfe83bcd7848601ec3dbe9c3dbb982829020e9128af"
-dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.101",
@@ -2170,16 +2099,6 @@ name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
-
-[[package]]
-name = "seize"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e4b8d813387d566f627f3ea1b914c068aac94c40ae27ec43f5f33bde65abefe7"
-dependencies = [
- "libc",
- "windows-sys 0.52.0",
-]
 
 [[package]]
 name = "semver"
