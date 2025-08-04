@@ -50,8 +50,7 @@ pub fn check_duplicate_underscore_args<'db>(
         let params = db.function_with_body_signature(function).unwrap().params;
 
         for param in params {
-            let param_name = param.name.long(db).to_string();
-            let stripped_name = param_name.strip_prefix('_').unwrap_or(&param_name);
+            let stripped_name = param.name.strip_prefix('_').unwrap_or(&param.name);
 
             if !registered_names.insert(stripped_name.to_string()) {
                 diagnostics.push(PluginDiagnostic {
