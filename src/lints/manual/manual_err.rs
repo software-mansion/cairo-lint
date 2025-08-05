@@ -1,17 +1,17 @@
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
+
 use crate::fixer::InternalFix;
 use crate::lints::manual::{ManualLint, check_manual, check_manual_if};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions};
 
 use super::helpers::fix_manual;
+use crate::LinterGroup;
 
 pub struct ManualErr;
 
@@ -58,7 +58,7 @@ impl Lint for ManualErr {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_manual_err(db, node)
@@ -71,8 +71,7 @@ impl Lint for ManualErr {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_err<'db>(
-    db: &'db dyn SemanticGroup,
-    _corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {

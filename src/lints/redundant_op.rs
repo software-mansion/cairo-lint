@@ -1,6 +1,7 @@
 use super::{ADD, DIV, MUL, SUB};
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
+
+use crate::LinterGroup;
 use crate::helper::{is_one, is_zero};
 use crate::lints::function_trait_name_from_fn_id;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
@@ -50,8 +51,7 @@ impl Lint for RedundantOperation {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_redundant_operation<'db>(
-    db: &'db dyn SemanticGroup,
-    _corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {

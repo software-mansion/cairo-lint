@@ -1,7 +1,6 @@
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{
@@ -10,7 +9,8 @@ use cairo_lang_syntax::node::{
 };
 
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
+
+use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::lints::manual::helpers::{
     expr_if_get_var_name_and_err, expr_match_get_var_name_and_err,
@@ -63,7 +63,7 @@ impl Lint for ManualExpect {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_manual_expect(db, node)
@@ -76,8 +76,7 @@ impl Lint for ManualExpect {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_expect<'db>(
-    db: &'db dyn SemanticGroup,
-    _corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {

@@ -14,11 +14,11 @@ use cairo_lang_utils::Upcast;
 use cairo_lang_utils::ordered_hash_set::OrderedHashSet;
 use if_chain::if_chain;
 
-use crate::CairoLintToolMetadata;
 use crate::context::{
     get_all_checking_functions, get_name_for_diagnostic_message, is_lint_enabled_by_default,
 };
-use crate::corelib::CorelibContext;
+use crate::{CairoLintToolMetadata, CorelibContext};
+
 use crate::mappings::{get_origin_module_item_as_syntax_node, get_origin_syntax_node};
 
 mod db;
@@ -34,7 +34,6 @@ pub struct LinterDiagnosticParams {
 pub trait LinterGroup: SemanticGroup + for<'db> Upcast<'db, dyn SemanticGroup> {
     fn linter_diagnostics<'db>(
         &'db self,
-        corelib_context: CorelibContext<'db>,
         params: LinterDiagnosticParams,
         module_id: ModuleId<'db>,
     ) -> Vec<PluginDiagnostic<'db>>;
@@ -51,12 +50,14 @@ pub trait LinterGroup: SemanticGroup + for<'db> Upcast<'db, dyn SemanticGroup> {
         node_descendant_files: Arc<[FileId<'db>]>,
         node: SyntaxNode<'db>,
     ) -> OrderedHashSet<SyntaxNode<'db>>;
+
+    #[salsa::transparent]
+    fn corelib_context<'db>(&'db self) -> &'db CorelibContext<'db>;
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
 fn linter_diagnostics<'db>(
     db: &'db dyn LinterGroup,
-    corelib_context: CorelibContext<'db>,
     params: LinterDiagnosticParams,
     module_id: ModuleId<'db>,
 ) -> Vec<PluginDiagnostic<'db>> {
@@ -90,7 +91,7 @@ fn linter_diagnostics<'db>(
                 then {
                     let checking_functions = get_all_checking_functions();
                     for checking_function in checking_functions {
-                        checking_function(db, &corelib_context, item, &mut item_diagnostics);
+                        checking_function(db, item, &mut item_diagnostics);
                     }
 
                     diags.extend(item_diagnostics.into_iter().filter_map(|mut diag| {
@@ -102,7 +103,7 @@ fn linter_diagnostics<'db>(
         } else if !is_generated_item || params.only_generated_files {
             let checking_functions = get_all_checking_functions();
             for checking_function in checking_functions {
-                checking_function(db, &corelib_context, item, &mut item_diagnostics);
+                checking_function(db, item, &mut item_diagnostics);
             }
 
             diags.extend(item_diagnostics.into_iter().filter_map(|diag| {
@@ -280,6 +281,11 @@ pub fn find_generated_nodes<'db>(
     }
 
     result
+}
+
+#[salsa::tracked(returns(ref))]
+fn corelib_context<'db>(db: &'db dyn SemanticGroup) -> CorelibContext<'db> {
+    CorelibContext::new(db)
 }
 
 #[tracing::instrument(skip_all, level = "trace")]

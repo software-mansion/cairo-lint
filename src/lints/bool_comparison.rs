@@ -1,7 +1,6 @@
 use cairo_lang_defs::ids::{ModuleItemId, TopLevelLanguageElementId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::functions::{GenericFunctionId, ImplGenericFunctionId};
 use cairo_lang_semantic::items::imp::ImplHead;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
@@ -11,8 +10,8 @@ use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode, ast::ExprBinary};
 use if_chain::if_chain;
 
+use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
 use crate::fixer::InternalFix;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
@@ -62,7 +61,7 @@ impl Lint for BoolComparison {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_bool_comparison(db, node)
@@ -76,8 +75,7 @@ impl Lint for BoolComparison {
 /// Checks for ` a == true`. Bool comparisons are useless and can be rewritten more clearly.
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_bool_comparison<'db>(
-    db: &'db dyn SemanticGroup,
-    corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -86,20 +84,13 @@ pub fn check_bool_comparison<'db>(
         let function_call_exprs = get_all_function_calls(function_body);
         let arenas = &function_body.arenas;
         for function_call_expr in function_call_exprs {
-            check_single_bool_comparison(
-                db,
-                corelib_context,
-                &function_call_expr,
-                arenas,
-                diagnostics,
-            );
+            check_single_bool_comparison(db, &function_call_expr, arenas, diagnostics);
         }
     }
 }
 
 fn check_single_bool_comparison<'db>(
-    db: &'db dyn SemanticGroup,
-    corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     function_call_expr: &ExprFunctionCall<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
@@ -112,7 +103,7 @@ fn check_single_bool_comparison<'db>(
     {
         GenericFunctionId::Impl(ImplGenericFunctionId { impl_id, .. }) => {
             if let Some(ImplHead::Concrete(impl_def_id)) = impl_id.head(db) {
-                if impl_def_id != corelib_context.get_bool_partial_eq_impl_id() {
+                if impl_def_id != db.corelib_context().get_bool_partial_eq_impl_id() {
                     return;
                 }
             } else {

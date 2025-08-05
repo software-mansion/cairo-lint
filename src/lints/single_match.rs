@@ -1,7 +1,6 @@
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, ExprMatch, Pattern};
 use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBlock, ExprListParenthesized, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
@@ -11,8 +10,8 @@ use cairo_lang_syntax::node::{
 };
 use if_chain::if_chain;
 
+use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
 use crate::fixer::InternalFix;
 use crate::helper::indent_snippet;
 use crate::queries::{get_all_function_bodies, get_all_match_expressions};
@@ -59,7 +58,7 @@ impl Lint for DestructMatch {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_destruct_match(db, node)
@@ -108,8 +107,7 @@ impl Lint for EqualityMatch {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_single_matches<'db>(
-    db: &'db dyn SemanticGroup,
-    _corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -124,7 +122,7 @@ pub fn check_single_matches<'db>(
 }
 
 fn check_single_match<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn LinterGroup,
     match_expr: &ExprMatch<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,

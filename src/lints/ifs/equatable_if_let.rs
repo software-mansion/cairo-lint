@@ -10,7 +10,8 @@ use cairo_lang_syntax::node::{
 };
 
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
+
+use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
@@ -54,7 +55,7 @@ impl Lint for EquatableIfLet {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_equatable_if_let(db, node)
@@ -67,8 +68,7 @@ impl Lint for EquatableIfLet {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_equatable_if_let<'db>(
-    db: &'db dyn SemanticGroup,
-    _corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {

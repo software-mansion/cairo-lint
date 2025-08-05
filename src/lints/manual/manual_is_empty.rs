@@ -1,5 +1,6 @@
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
+
+use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::lints::{ARRAY, SPAN, U32};
 use crate::mappings::get_originating_syntax_node_for;
@@ -81,7 +82,7 @@ impl Lint for ManualIsEmpty {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_manual_is_empty(db, node)
@@ -93,8 +94,7 @@ impl Lint for ManualIsEmpty {
 }
 
 pub fn check_manual_is_empty<'db>(
-    db: &'db dyn SemanticGroup,
-    _corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {

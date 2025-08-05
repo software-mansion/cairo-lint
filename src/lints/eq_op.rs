@@ -8,10 +8,11 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
+
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 use super::{AND, DIV, EQ, GE, GT, LE, LT, NE, NOT, OR, SUB, XOR, function_trait_name_from_fn_id};
+use crate::LinterGroup;
 
 pub struct DivisionEqualityOperation;
 
@@ -232,8 +233,7 @@ impl Lint for LogicalEqualityOperation {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_eq_op<'db>(
-    db: &'db dyn SemanticGroup,
-    _corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {

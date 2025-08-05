@@ -1,7 +1,6 @@
 use cairo_lang_defs::ids::{LookupItemId, ModuleId, ModuleItemId, TraitFunctionId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::functions::GenericFunctionId;
 use cairo_lang_semantic::items::imp::ImplHead;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
@@ -11,7 +10,8 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
+
+use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::helper::is_item_ancestor_of_module;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
@@ -60,7 +60,7 @@ impl Lint for IntegerGreaterEqualPlusOne {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_int_ge_plus_one(db, node)
@@ -115,7 +115,7 @@ impl Lint for IntegerGreaterEqualMinusOne {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_int_ge_min_one(db, node)
@@ -170,7 +170,7 @@ impl Lint for IntegerLessEqualPlusOne {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_int_le_plus_one(db, node)
@@ -225,7 +225,7 @@ impl Lint for IntegerLessEqualMinusOne {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_int_le_min_one(db, node)
@@ -238,8 +238,7 @@ impl Lint for IntegerLessEqualMinusOne {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_int_op_one<'db>(
-    db: &'db dyn SemanticGroup,
-    corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -248,20 +247,13 @@ pub fn check_int_op_one<'db>(
         let function_call_exprs = get_all_function_calls(function_body);
         let arenas = &function_body.arenas;
         for function_call_expr in function_call_exprs {
-            check_single_int_op_one(
-                db,
-                corelib_context,
-                &function_call_expr,
-                arenas,
-                diagnostics,
-            );
+            check_single_int_op_one(db, &function_call_expr, arenas, diagnostics);
         }
     }
 }
 
 fn check_single_int_op_one<'db>(
-    db: &'db dyn SemanticGroup,
-    corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     function_call_expr: &ExprFunctionCall<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
@@ -274,6 +266,8 @@ fn check_single_int_op_one<'db>(
     else {
         return;
     };
+
+    let corelib_context = db.corelib_context();
 
     // Check if the function call is the bool greater or equal (>=) or lower or equal (<=).
     if impl_generic_func_id.function != corelib_context.get_partial_ord_ge_trait_function_id()
@@ -390,7 +384,7 @@ fn check_is_variable<'db>(arg: &ExprFunctionCallArg<'db>, arenas: &Arenas<'db>) 
 }
 
 fn check_is_add_or_sub_one<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn LinterGroup,
     arg: &ExprFunctionCallArg<'db>,
     arenas: &Arenas<'db>,
     is_part_of_corelib_integer: bool,
