@@ -1,4 +1,4 @@
-use crate::{corelib::CorelibContext, fixer::InternalFix, helper::indent_snippet};
+use crate::{LinterGroup, fixer::InternalFix, helper::indent_snippet};
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::{Arenas, Expr, ExprBlock, ExprIf, Statement, db::SemanticGroup};
@@ -63,7 +63,7 @@ impl Lint for ManualAssert {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_manual_assert(db, node)
@@ -76,8 +76,7 @@ impl Lint for ManualAssert {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_assert<'db>(
-    db: &'db dyn SemanticGroup,
-    _corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {

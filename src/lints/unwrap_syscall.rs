@@ -1,6 +1,6 @@
 use crate::{
+    LinterGroup,
     context::{CairoLintKind, Lint},
-    corelib::CorelibContext,
     fixer::InternalFix,
     queries::{get_all_function_bodies, get_all_function_calls},
 };
@@ -68,7 +68,7 @@ impl Lint for UnwrapSyscall {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_unwrap_syscall(db, node)
@@ -81,8 +81,7 @@ impl Lint for UnwrapSyscall {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_unwrap_syscall<'db>(
-    db: &'db dyn SemanticGroup,
-    _corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {

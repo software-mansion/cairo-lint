@@ -1,5 +1,6 @@
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
+
+use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::helper::find_module_file_containing_node;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
@@ -50,7 +51,7 @@ impl Lint for CloneOnCopy {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_clone_on_copy(db, node)
@@ -63,8 +64,7 @@ impl Lint for CloneOnCopy {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_clone_on_copy<'db>(
-    db: &'db dyn SemanticGroup,
-    corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -72,14 +72,13 @@ pub fn check_clone_on_copy<'db>(
     for function_body in function_bodies.iter() {
         let function_call_exprs = get_all_function_calls(function_body);
         for function_call_expr in function_call_exprs {
-            check_clone_usage(db, corelib_context, &function_call_expr, diagnostics);
+            check_clone_usage(db, &function_call_expr, diagnostics);
         }
     }
 }
 
 fn check_clone_usage<'db>(
-    db: &'db dyn SemanticGroup,
-    corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     function_call_expr: &ExprFunctionCall<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -88,7 +87,7 @@ fn check_clone_usage<'db>(
         .get_concrete(db)
         .generic_function
         && let Some(ImplHead::Concrete(impl_def_id)) = impl_id.head(db)
-        && impl_def_id == corelib_context.get_t_copy_clone_impl_id()
+        && impl_def_id == db.corelib_context().get_t_copy_clone_impl_id()
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: function_call_expr.stable_ptr.untyped(),
@@ -101,7 +100,7 @@ fn check_clone_usage<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 fn fix_clone_on_copy<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn LinterGroup,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let ast_expr_binary = ast::ExprBinary::cast(db, node)?;

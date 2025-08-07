@@ -5,6 +5,7 @@ use cairo_lang_defs::ids::{
 use cairo_lang_filesystem::ids::CrateId;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
+use salsa::Update;
 
 pub const BOOL_PARTIAL_EQ_PATH: &str = "core::BoolPartialEq";
 pub const PANIC_PATH: &str = "core::panics::panic";
@@ -28,13 +29,13 @@ static CORELIB_ITEM_PATHS: [&str; 9] = [
     INTEGER_MODULE_PATH,
 ];
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Update)]
 pub struct CorelibContext<'db> {
     corelib_items: OrderedHashMap<String, Option<LookupItemId<'db>>>,
 }
 
 impl<'db> CorelibContext<'db> {
-    pub fn new(db: &'db dyn SemanticGroup) -> Self {
+    pub(crate) fn new(db: &'db dyn SemanticGroup) -> Self {
         let core_crate_id = CrateId::core(db);
         let modules = db.crate_modules(core_crate_id);
         Self {

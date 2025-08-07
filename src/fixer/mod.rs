@@ -23,6 +23,7 @@ use cairo_lang_filesystem::db::FilesGroupEx;
 use cairo_lang_filesystem::ids::FileId;
 use cairo_lang_filesystem::span::{TextOffset, TextSpan, TextWidth};
 use cairo_lang_semantic::SemanticDiagnostic;
+use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
@@ -31,10 +32,9 @@ use itertools::Itertools;
 use log::debug;
 
 use crate::context::get_fix_for_diagnostic_message;
-use crate::{CorelibContext, LinterDiagnosticParams, LinterGroup};
+use crate::{LinterDiagnosticParams, LinterGroup};
 use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_filesystem::ids::FileInput;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 pub use db::FixerDatabase;
 
@@ -68,7 +68,7 @@ pub struct InternalFix<'db> {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_fixes_without_resolving_overlapping<'db>(
-    db: &'db (dyn SemanticGroup + 'static),
+    db: &'db (dyn LinterGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic<'db>>,
 ) -> HashMap<FileId<'db>, Vec<DiagnosticFixSuggestion>> {
     let (import_diagnostics, diags_without_imports): (Vec<_>, Vec<_>) = diagnostics
@@ -138,7 +138,7 @@ pub fn get_fixes_without_resolving_overlapping<'db>(
 ///
 /// # Arguments
 ///
-/// * `db` - A reference to the `dyn SemanticGroup`
+/// * `db` - A reference to the `dyn LinterGroup`
 /// * `diag` - A reference to the SemanticDiagnostic to be fixed
 ///
 /// # Returns
@@ -147,7 +147,7 @@ pub fn get_fixes_without_resolving_overlapping<'db>(
 /// replaced, and the `String` is the suggested replacement. Returns `None` if no fix
 /// is available for the given diagnostic.
 pub fn fix_semantic_diagnostic<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn LinterGroup,
     diag: &SemanticDiagnostic<'db>,
 ) -> Option<InternalFix<'db>> {
     match diag.kind {
@@ -169,7 +169,7 @@ pub fn fix_semantic_diagnostic<'db>(
 ///
 /// # Arguments
 ///
-/// * `db` - A reference to the `dyn SemanticGroup`
+/// * `db` - A reference to the `dyn LinterGroup`
 /// * `diag` - A reference to the SemanticDiagnostic
 /// * `plugin_diag` - A reference to the PluginDiagnostic
 ///
@@ -177,7 +177,7 @@ pub fn fix_semantic_diagnostic<'db>(
 ///
 /// `Option<InternalFix>` if a fix is available, or `None` if no fix can be applied.
 fn fix_plugin_diagnostic<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn LinterGroup,
     plugin_diag: &PluginDiagnostic<'db>,
 ) -> Option<InternalFix<'db>> {
     let node = plugin_diag.stable_ptr.lookup(db);
@@ -214,7 +214,7 @@ impl<'db> ImportFix<'db> {
 ///
 /// A HashMap where keys are FileIds and values are HashMaps of SyntaxNodes to ImportFixes.
 pub fn collect_unused_import_fixes<'db>(
-    db: &'db (dyn SemanticGroup + 'static),
+    db: &'db (dyn LinterGroup + 'static),
     diags: &Vec<SemanticDiagnostic<'db>>,
 ) -> HashMap<FileId<'db>, HashMap<SyntaxNode<'db>, ImportFix<'db>>> {
     let mut file_fixes = HashMap::new();
@@ -488,7 +488,6 @@ fn find_use_path_list<'db>(db: &'db dyn SyntaxGroup, node: SyntaxNode<'db>) -> S
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn merge_overlapping_fixes<'db>(
     db: &'db mut FixerDatabase,
-    corelib_context: &CorelibContext<'db>,
     linter_query_params: &LinterDiagnosticParams,
     file: FileInput,
     fixes: Vec<DiagnosticFixSuggestion>,
@@ -513,11 +512,7 @@ pub fn merge_overlapping_fixes<'db>(
             .iter()
             .flat_map(|module_id| {
                 let linter_diags = db
-                    .linter_diagnostics(
-                        corelib_context.clone(),
-                        linter_query_params.clone(),
-                        *module_id,
-                    )
+                    .linter_diagnostics(linter_query_params.clone(), *module_id)
                     .into_iter()
                     .map(|diag| {
                         SemanticDiagnostic::new(

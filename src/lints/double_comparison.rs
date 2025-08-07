@@ -13,7 +13,8 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 
 use super::function_trait_name_from_fn_id;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
+
+use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::lints::{EQ, GE, GT, LE, LT};
 use crate::queries::{get_all_function_bodies, get_all_logical_operator_expressions};
@@ -103,7 +104,7 @@ impl Lint for SimplifiableComparison {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_simplifiable_comparison(db, node)
@@ -162,7 +163,7 @@ impl Lint for RedundantComparison {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_redundant_comparison(db, node)
@@ -221,7 +222,7 @@ impl Lint for ContradictoryComparison {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_contradictory_comparison(db, node)
@@ -234,8 +235,7 @@ impl Lint for ContradictoryComparison {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_double_comparison<'db>(
-    db: &'db dyn SemanticGroup,
-    _corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {

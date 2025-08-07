@@ -1,6 +1,6 @@
 use crate::{
+    LinterGroup,
     context::{CairoLintKind, Lint},
-    corelib::CorelibContext,
     fixer::InternalFix,
     queries::get_all_function_bodies,
 };
@@ -64,7 +64,7 @@ impl Lint for RedundantBracketsInEnumCall {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_redundant_brackets_in_enum_call(db, node)
@@ -77,8 +77,7 @@ impl Lint for RedundantBracketsInEnumCall {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_redundant_brackets_in_enum_call<'db>(
-    db: &'db dyn SemanticGroup,
-    _corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {

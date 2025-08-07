@@ -8,7 +8,8 @@ use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
+
+use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::queries::{get_all_break_statements, get_all_function_bodies};
 
@@ -56,7 +57,7 @@ impl Lint for BreakUnit {
 
     fn fix<'db>(
         &self,
-        db: &'db dyn SemanticGroup,
+        db: &'db dyn LinterGroup,
         node: SyntaxNode<'db>,
     ) -> Option<InternalFix<'db>> {
         fix_break_unit(db, node)
@@ -69,8 +70,7 @@ impl Lint for BreakUnit {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_break<'db>(
-    db: &'db dyn SemanticGroup,
-    _corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {

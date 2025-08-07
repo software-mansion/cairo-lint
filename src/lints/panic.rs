@@ -4,14 +4,14 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_filesystem::db::get_originating_location;
 use cairo_lang_semantic::ExprFunctionCall;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::functions::GenericFunctionId;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 use itertools::Itertools;
 
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
+
+use crate::LinterGroup;
 use crate::helper::ASSERT_FORMATTER_NAME;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
@@ -48,8 +48,7 @@ impl Lint for PanicInCode {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_panic_usage<'db>(
-    db: &'db dyn SemanticGroup,
-    corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -57,14 +56,13 @@ pub fn check_panic_usage<'db>(
     for function_body in function_bodies.iter() {
         let function_call_exprs = get_all_function_calls(function_body);
         for function_call_expr in function_call_exprs.unique() {
-            check_single_panic_usage(db, corelib_context, &function_call_expr, diagnostics);
+            check_single_panic_usage(db, &function_call_expr, diagnostics);
         }
     }
 }
 
 fn check_single_panic_usage<'db>(
-    db: &'db dyn SemanticGroup,
-    corelib_context: &CorelibContext<'db>,
+    db: &'db dyn LinterGroup,
     function_call_expr: &ExprFunctionCall<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -74,6 +72,8 @@ fn check_single_panic_usage<'db>(
         .function
         .get_concrete(db)
         .generic_function;
+
+    let corelib_context = db.corelib_context();
 
     // If the function is the panic function from the corelib.
     let is_panic = if let GenericFunctionId::Extern(id) = concrete_function_id

@@ -7,8 +7,8 @@ use cairo_lang_semantic::{
     SemanticDiagnostic, db::SemanticGroup, diagnostic::SemanticDiagnosticKind,
 };
 use cairo_lint::{
-    CairoLintToolMetadata, CorelibContext, LinterAnalysisDatabase, LinterDiagnosticParams,
-    LinterGroup, context::get_unique_allowed_names,
+    CairoLintToolMetadata, LinterAnalysisDatabase, LinterDiagnosticParams, LinterGroup,
+    context::get_unique_allowed_names,
 };
 use scarb::find_scarb_managed_core;
 use std::path::PathBuf;
@@ -37,7 +37,6 @@ pub fn get_diags<'db>(
         }
     }
 
-    let corelib_context = CorelibContext::new(db);
     let linter_params = LinterDiagnosticParams {
         only_generated_files: true,
         tool_metadata: get_cairo_lint_tool_metadata_with_all_lints_enabled(),
@@ -50,7 +49,7 @@ pub fn get_diags<'db>(
                 .get_all(),
         );
         diagnostics.extend(
-            db.linter_diagnostics(corelib_context.clone(), linter_params.clone(), *module_id)
+            db.linter_diagnostics(linter_params.clone(), *module_id)
                 .into_iter()
                 .map(|diag| {
                     SemanticDiagnostic::new(
@@ -104,12 +103,11 @@ macro_rules! test_lint_fixer {
       db.get_mut(),
     );
     let mut fixes = Vec::new();
-    let corelib_context = ::cairo_lint::CorelibContext::new(&*db);
     let linter_params = ::cairo_lint::LinterDiagnosticParams {
         only_generated_files: true,
         tool_metadata: $crate::helpers::get_cairo_lint_tool_metadata_with_all_lints_enabled(),
     };
-    fixes.extend(::cairo_lint::get_fixes(&*db, &corelib_context, &linter_params, diags).values().flatten().cloned());
+    fixes.extend(::cairo_lint::get_fixes(&*db, &linter_params, diags).values().flatten().cloned());
     let suggestions = fixes.iter().flat_map(|fix| fix.suggestions.iter()).sorted_by_key(|s| std::cmp::Reverse(s.span.start));
     if !$is_nested {
       for suggestion in suggestions {
