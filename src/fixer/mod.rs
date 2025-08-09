@@ -298,7 +298,7 @@ pub fn apply_import_fixes<'db>(
     fixes
         .iter()
         .flat_map(|(_, import_fix)| {
-            let span = import_fix.node.span(db);
+            let span = import_fix.node.span_without_trivia(db);
 
             if import_fix.items_to_remove.is_empty() {
                 // Single import case: remove entire import
