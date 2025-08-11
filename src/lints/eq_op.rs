@@ -307,15 +307,15 @@ fn check_single_eq_op<'db>(
 
     let op = function_trait_name_from_fn_id(db, &expr_func.function);
 
-    if are_operands_equal(db, lhs, rhs) {
-        if let Some(message) = get_diagnostic_message(&op) {
-            diagnostics.push(PluginDiagnostic {
-                stable_ptr: expr_func.stable_ptr.untyped(),
-                message: message.to_owned(),
-                severity: Severity::Warning,
-                inner_span: None,
-            });
-        }
+    if are_operands_equal(db, lhs, rhs)
+        && let Some(message) = get_diagnostic_message(&op)
+    {
+        diagnostics.push(PluginDiagnostic {
+            stable_ptr: expr_func.stable_ptr.untyped(),
+            message: message.to_owned(),
+            severity: Severity::Warning,
+            inner_span: None,
+        });
     }
 }
 

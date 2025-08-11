@@ -188,34 +188,30 @@ pub fn fix_collapsible_if_else<'db>(
     let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) else {
         return None;
     };
-    if let BlockOrIf::Block(block_expr) = else_clause.else_block_or_if(db) {
-        if let Some(AstStatement::Expr(statement_expr)) =
+    if let BlockOrIf::Block(block_expr) = else_clause.else_block_or_if(db)
+        && let Some(AstStatement::Expr(statement_expr)) =
             block_expr.statements(db).elements(db).next()
-        {
-            if let AstExpr::If(if_expr) = statement_expr.expr(db) {
-                // Construct the new "else if" expression
-                let condition = if_expr.conditions(db).as_syntax_node().get_text(db);
-                let if_body = if_expr.if_block(db).as_syntax_node().get_text(db);
-                let else_body = if_expr.else_clause(db).as_syntax_node().get_text(db);
+        && let AstExpr::If(if_expr) = statement_expr.expr(db)
+    {
+        // Construct the new "else if" expression
+        let condition = if_expr.conditions(db).as_syntax_node().get_text(db);
+        let if_body = if_expr.if_block(db).as_syntax_node().get_text(db);
+        let else_body = if_expr.else_clause(db).as_syntax_node().get_text(db);
 
-                // Preserve original indentation
-                let original_indent = else_clause
-                    .as_syntax_node()
-                    .get_text(db)
-                    .chars()
-                    .take_while(|c| c.is_whitespace())
-                    .collect::<String>();
+        // Preserve original indentation
+        let original_indent = else_clause
+            .as_syntax_node()
+            .get_text(db)
+            .chars()
+            .take_while(|c| c.is_whitespace())
+            .collect::<String>();
 
-                return Some(InternalFix {
-                    node: else_clause.as_syntax_node(),
-                    suggestion: format!(
-                        "{original_indent}else if {condition} {if_body} {else_body}"
-                    ),
-                    description: CollapsibleIfElse.fix_message().unwrap().to_string(),
-                    import_addition_paths: None,
-                });
-            }
-        }
+        return Some(InternalFix {
+            node: else_clause.as_syntax_node(),
+            suggestion: format!("{original_indent}else if {condition} {if_body} {else_body}"),
+            description: CollapsibleIfElse.fix_message().unwrap().to_string(),
+            import_addition_paths: None,
+        });
     }
 
     // If we can't transform it, return the original text
