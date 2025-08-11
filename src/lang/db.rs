@@ -63,7 +63,7 @@ impl LinterAnalysisDatabase {
 
 impl salsa::Database for LinterAnalysisDatabase {}
 impl ExternalFiles for LinterAnalysisDatabase {
-    fn try_ext_as_virtual(&self, external_id: salsa::Id) -> Option<VirtualFile> {
+    fn try_ext_as_virtual(&self, external_id: salsa::Id) -> Option<VirtualFile<'_>> {
         try_ext_as_virtual_impl(self, external_id)
     }
 }

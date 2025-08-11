@@ -48,7 +48,7 @@ impl FixerDatabase {
 }
 
 impl ExternalFiles for FixerDatabase {
-    fn try_ext_as_virtual(&self, external_id: salsa::Id) -> Option<VirtualFile> {
+    fn try_ext_as_virtual(&self, external_id: salsa::Id) -> Option<VirtualFile<'_>> {
         try_ext_as_virtual_impl(self, external_id)
     }
 }

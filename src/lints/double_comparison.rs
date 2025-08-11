@@ -537,17 +537,15 @@ pub fn fix_double_comparison<'db>(
         if let (Some(lhs_op), Some(rhs_op)) = (
             extract_binary_operator_expr(&lhs, db),
             extract_binary_operator_expr(&rhs, db),
-        ) {
-            if let Some(simplified_op) = determine_simplified_operator(&lhs_op, &rhs_op, &middle_op)
-            {
-                if let Some(operator_to_replace) = operator_to_replace(lhs_op) {
-                    let lhs_text = lhs
-                        .as_syntax_node()
-                        .get_text(db)
-                        .replace(operator_to_replace, simplified_op);
-                    return Some(lhs_text.to_string());
-                }
-            }
+        ) && let Some(simplified_op) =
+            determine_simplified_operator(&lhs_op, &rhs_op, &middle_op)
+            && let Some(operator_to_replace) = operator_to_replace(lhs_op)
+        {
+            let lhs_text = lhs
+                .as_syntax_node()
+                .get_text(db)
+                .replace(operator_to_replace, simplified_op);
+            return Some(lhs_text.to_string());
         }
     }
 

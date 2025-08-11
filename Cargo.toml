@@ -101,5 +101,5 @@ cairo-lang-utils = { git = "https://github.com/starkware-libs/cairo", rev = "348
 [profile.ci]
 inherits = "test"
 strip = "debuginfo"
-[profile.ci.package."rust-analyzer-salsa"]
+[profile.ci.package."salsa"]
 opt-level = 3

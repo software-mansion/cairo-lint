@@ -2,7 +2,7 @@ use anyhow::Result;
 use cairo_lint::context::find_lint_by_struct_name;
 use clap::Parser;
 use serde::Serialize;
-use serde_json::{ser::PrettyFormatter, Serializer, Value};
+use serde_json::{Serializer, Value, ser::PrettyFormatter};
 use std::{env, fs, process::Command};
 
 static RUSTDOC_PATH: &str = "target/doc/cairo_lint.json";
@@ -138,18 +138,19 @@ fn get_docs_as_json() -> anyhow::Result<Vec<LintDoc>> {
     let value: Value = serde_json::from_str(&data)?;
     let items_map = value.get("index");
 
-    if let Some(index) = items_map {
-        if let Some(index_map) = index.as_object() {
-            return Ok(index_map
-                .values()
-                .filter(|value| {
-                    value
-                        .pointer("/inner/impl/trait/path")
-                        .is_some_and(|path| path == "Lint")
-                })
-                .map(LintDoc::from_rustdoc_json_item)
-                .collect());
-        }
+    if let Some(index) = items_map
+        && let Some(index_map) = index.as_object()
+    {
+        Ok(index_map
+            .values()
+            .filter(|value| {
+                value
+                    .pointer("/inner/impl/trait/path")
+                    .is_some_and(|path| path == "Lint")
+            })
+            .map(LintDoc::from_rustdoc_json_item)
+            .collect())
+    } else {
+        Ok(vec![])
     }
-    Ok(vec![])
 }
