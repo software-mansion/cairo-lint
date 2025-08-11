@@ -55,7 +55,7 @@ fn main() {
 
 const MULTIPLE_UNUSED_IMPORTS_OF_DIFFERENT_MOD: &str = r#"
 use core::{
-    integer::u32_safe_divmod as safe, 
+    integer::u32_safe_divmod as safe,
     option::Option as opt,
 };
 
@@ -201,7 +201,7 @@ fn multiple_unused_imports_of_different_mod_diagnostics() {
     test_lint_diagnostics!(MULTIPLE_UNUSED_IMPORTS_OF_DIFFERENT_MOD, @r"
     Unused import: `test::safe`
      --> lib.cairo:3:14
-        integer::u32_safe_divmod as safe, 
+        integer::u32_safe_divmod as safe,
                  ^^^^^^^^^^^^^^^^^^^^^^^
     ")
 }
@@ -214,5 +214,23 @@ fn multiple_unused_imports_of_different_mod_fixer() {
     fn main() {
         let _ = opt::<u128>::Some(5);
     }
+    ")
+}
+
+#[test]
+fn unused_import_with_comment_fixer() {
+    test_lint_fixer!(r"
+    // Hehe.
+    // Hihi.
+    //! My comment not related to import.
+    use core::integer::u128_safe_divmod;
+
+    fn main() {}
+    ", @r"
+    // Hehe.
+    // Hihi.
+    //! My comment not related to import.
+
+    fn main() {}
     ")
 }
