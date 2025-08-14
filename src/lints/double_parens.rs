@@ -89,7 +89,13 @@ fn maybe_add_double_parens_diag(
             args_list_parenthesized.arguments(db).elements(db).len() == 1
         });
 
-    if is_inner_expr_with_parens || is_the_only_expr_in_function_call {
+    // Ignore cases such as `func((*value).into())`.
+    let is_binary_expression = parens_expr
+        .as_syntax_node()
+        .parent(db)
+        .is_some_and(|parent| matches!(parent.kind(db), SyntaxKind::ExprBinary));
+
+    if is_inner_expr_with_parens || (is_the_only_expr_in_function_call && !is_binary_expression) {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: parens_expr.stable_ptr(db).untyped(),
             message: DoubleParens.diagnostic_message().to_string(),
