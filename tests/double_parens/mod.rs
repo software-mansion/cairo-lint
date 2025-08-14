@@ -140,6 +140,31 @@ fn main() {
 }
 "#;
 
+const DOUBLE_PARENS_NOT_FIRING_FOR_BINARY_EXPR_IN_FUNC_ARG: &str = r#"
+fn func(number: felt252) {}
+
+fn main() {
+    let a: u128 = 5;
+    let a_ref = @a;
+    func((*a_ref).into());
+}
+"#;
+
+const DOUBLE_PARENS_NOT_FIRING_FOR_NECESSARY_CASES: &str = r#"
+fn main() {
+    let a: u128 = 5;
+    let a_ref = @a;
+    let a_array: Array<@u128> = array![a_ref];
+    let _unused_var: Array<felt252> = a_array
+        .into_iter()
+        .map(|alpha| -> felt252 {
+            (*alpha).into()
+        })
+        .collect();
+}
+
+"#;
+
 #[test]
 fn simple_double_parens_diagnostics() {
     test_lint_diagnostics!(SIMPLE_DOUBLE_PARENS, @r"
@@ -635,4 +660,44 @@ fn double_parens_in_function_call_with_multiple_args_around_single_arg() {
         func((5), 6);
         ^^^^^^^^^^^^
     ")
+}
+
+#[test]
+fn double_parens_not_firing_for_binary_expr_in_func_arg_diagnostics() {
+    test_lint_diagnostics!(DOUBLE_PARENS_NOT_FIRING_FOR_BINARY_EXPR_IN_FUNC_ARG, @"");
+}
+
+#[test]
+fn double_parens_not_firing_for_binary_expr_in_func_arg_fixer() {
+    test_lint_fixer!(DOUBLE_PARENS_NOT_FIRING_FOR_BINARY_EXPR_IN_FUNC_ARG, @r#"
+    fn func(number: felt252) {}
+
+    fn main() {
+        let a: u128 = 5;
+        let a_ref = @a;
+        func((*a_ref).into());
+    }
+    "#);
+}
+
+#[test]
+fn double_parens_not_firing_for_necessary_cases_diagnostics() {
+    test_lint_diagnostics!(DOUBLE_PARENS_NOT_FIRING_FOR_NECESSARY_CASES, @"");
+}
+
+#[test]
+fn double_parens_not_firing_for_necessary_cases_fixer() {
+    test_lint_fixer!(DOUBLE_PARENS_NOT_FIRING_FOR_NECESSARY_CASES, @r#"
+    fn main() {
+        let a: u128 = 5;
+        let a_ref = @a;
+        let a_array: Array<@u128> = array![a_ref];
+        let _unused_var: Array<felt252> = a_array
+            .into_iter()
+            .map(|alpha| -> felt252 {
+                (*alpha).into()
+            })
+            .collect();
+    }
+    "#);
 }
