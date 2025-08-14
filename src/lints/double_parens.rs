@@ -97,9 +97,7 @@ fn maybe_add_double_parens_diag<'db>(
     let is_binary_expression = parens_expr
         .as_syntax_node()
         .parent(db)
-        .map_or(false, |parent| {
-            matches!(parent.kind(db), SyntaxKind::ExprBinary)
-        });
+        .is_some_and(|parent| matches!(parent.kind(db), SyntaxKind::ExprBinary));
 
     if is_inner_expr_with_parens || (is_the_only_expr_in_function_call && !is_binary_expression) {
         diagnostics.push(PluginDiagnostic {
