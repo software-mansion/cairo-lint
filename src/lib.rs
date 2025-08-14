@@ -58,8 +58,7 @@ pub trait CairoLintGroup: SemanticGroup + SyntaxGroup {}
 /// * values are vectors of proposed Fixes.
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_fixes(
-    db: &(dyn SemanticGroup + 'static),
-    corelib_context: &CorelibContext,
+    db: &(dyn LinterGroup + 'static),
     linter_params: &LinterDiagnosticParams,
     diagnostics: Vec<SemanticDiagnostic>,
 ) -> HashMap<FileId, Vec<DiagnosticFixSuggestion>> {
@@ -75,13 +74,8 @@ pub fn get_fixes(
             let new_db_file_id = file_for_url(&new_db, &file_url).unwrap_or_else(|| {
                 panic!("FileUrl {file_url:?} should have a corresponding FileId")
             });
-            let new_fixes = merge_overlapping_fixes(
-                &mut new_db,
-                corelib_context,
-                linter_params,
-                new_db_file_id,
-                fixes,
-            );
+            let new_fixes =
+                merge_overlapping_fixes(&mut new_db, linter_params, new_db_file_id, fixes);
             (file_id, new_fixes)
         })
         .collect()
@@ -103,7 +97,7 @@ pub fn get_fixes(
 /// * values are vectors of proposed Fixes.
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_separated_fixes(
-    db: &(dyn SemanticGroup + 'static),
+    db: &(dyn LinterGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
 ) -> HashMap<FileId, Vec<DiagnosticFixSuggestion>> {
     get_fixes_without_resolving_overlapping(db, diagnostics)

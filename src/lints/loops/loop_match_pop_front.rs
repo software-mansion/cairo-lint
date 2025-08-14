@@ -16,8 +16,8 @@ use cairo_lang_syntax::node::{
 };
 use if_chain::if_chain;
 
+use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
 use crate::fixer::InternalFix;
 use crate::helper::indent_snippet;
 use crate::lints::{NONE, SOME};
@@ -68,7 +68,7 @@ impl Lint for LoopMatchPopFront {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_loop_match_pop_front(db.upcast(), node)
     }
 
@@ -79,8 +79,7 @@ impl Lint for LoopMatchPopFront {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_loop_match_pop_front(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

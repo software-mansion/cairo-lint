@@ -1,6 +1,5 @@
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr,
@@ -8,7 +7,7 @@ use cairo_lang_syntax::node::{
     db::SyntaxGroup,
 };
 
-use crate::corelib::CorelibContext;
+use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::{
     context::{CairoLintKind, Lint},
@@ -53,7 +52,7 @@ impl Lint for UnitReturnType {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_unit_return_type(db, node)
     }
 
@@ -64,8 +63,7 @@ impl Lint for UnitReturnType {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_unit_return_type(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

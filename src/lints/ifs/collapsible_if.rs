@@ -10,8 +10,8 @@ use cairo_lang_syntax::node::{
 };
 use if_chain::if_chain;
 
+use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
 use crate::fixer::InternalFix;
 use crate::helper::indent_snippet;
 use crate::queries::{get_all_function_bodies, get_all_if_expressions, is_assert_macro_call};
@@ -67,7 +67,7 @@ impl Lint for CollapsibleIf {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_collapsible_if(db.upcast(), node)
     }
 
@@ -78,8 +78,7 @@ impl Lint for CollapsibleIf {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_collapsible_if(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
@@ -186,48 +185,48 @@ pub fn fix_collapsible_if(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Inte
         return None;
     }
 
-    if let Some(AstStatement::Expr(inner_expr_stmt)) = statements.next() {
-        if let AstExpr::If(inner_if_expr) = inner_expr_stmt.expr(db) {
-            match inner_if_expr.else_clause(db) {
-                OptionElseClause::Empty(_) => {}
-                OptionElseClause::ElseClause(_) => {
-                    return None;
-                }
+    if let Some(AstStatement::Expr(inner_expr_stmt)) = statements.next()
+        && let AstExpr::If(inner_if_expr) = inner_expr_stmt.expr(db)
+    {
+        match inner_if_expr.else_clause(db) {
+            OptionElseClause::Empty(_) => {}
+            OptionElseClause::ElseClause(_) => {
+                return None;
             }
-
-            match expr_if.else_clause(db) {
-                OptionElseClause::Empty(_) => {}
-                OptionElseClause::ElseClause(_) => {
-                    return None;
-                }
-            }
-
-            let inner_condition = inner_if_expr.conditions(db).as_syntax_node().get_text(db);
-            let combined_condition = format!(
-                "({}) && ({})",
-                outer_condition.trim(),
-                inner_condition.trim()
-            );
-            let inner_if_block = inner_if_expr.if_block(db).as_syntax_node().get_text(db);
-
-            let indent = expr_if
-                .if_kw(db)
-                .as_syntax_node()
-                .get_text(db)
-                .chars()
-                .take_while(|c| c.is_whitespace())
-                .count();
-
-            return Some(InternalFix {
-                node,
-                suggestion: indent_snippet(
-                    &format!("if {combined_condition} {inner_if_block}"),
-                    indent / 4,
-                ),
-                description: CollapsibleIf.fix_message().unwrap().to_string(),
-                import_addition_paths: None,
-            });
         }
+
+        match expr_if.else_clause(db) {
+            OptionElseClause::Empty(_) => {}
+            OptionElseClause::ElseClause(_) => {
+                return None;
+            }
+        }
+
+        let inner_condition = inner_if_expr.conditions(db).as_syntax_node().get_text(db);
+        let combined_condition = format!(
+            "({}) && ({})",
+            outer_condition.trim(),
+            inner_condition.trim()
+        );
+        let inner_if_block = inner_if_expr.if_block(db).as_syntax_node().get_text(db);
+
+        let indent = expr_if
+            .if_kw(db)
+            .as_syntax_node()
+            .get_text(db)
+            .chars()
+            .take_while(|c| c.is_whitespace())
+            .count();
+
+        return Some(InternalFix {
+            node,
+            suggestion: indent_snippet(
+                &format!("if {combined_condition} {inner_if_block}"),
+                indent / 4,
+            ),
+            description: CollapsibleIf.fix_message().unwrap().to_string(),
+            import_addition_paths: None,
+        });
     }
     None
 }

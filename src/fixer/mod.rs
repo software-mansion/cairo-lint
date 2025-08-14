@@ -32,7 +32,7 @@ use lsp_types::Url;
 use salsa::InternKey;
 
 use crate::context::get_fix_for_diagnostic_message;
-use crate::{CorelibContext, LinterDiagnosticParams, LinterGroup};
+use crate::{LinterDiagnosticParams, LinterGroup};
 use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::db::SyntaxGroup;
@@ -68,7 +68,7 @@ pub struct InternalFix {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_fixes_without_resolving_overlapping(
-    db: &(dyn SemanticGroup + 'static),
+    db: &(dyn LinterGroup + 'static),
     diagnostics: Vec<SemanticDiagnostic>,
 ) -> HashMap<FileId, Vec<DiagnosticFixSuggestion>> {
     let (import_diagnostics, diags_without_imports): (Vec<_>, Vec<_>) = diagnostics
@@ -148,7 +148,7 @@ pub fn get_fixes_without_resolving_overlapping(
 /// replaced, and the `String` is the suggested replacement. Returns `None` if no fix
 /// is available for the given diagnostic.
 pub fn fix_semantic_diagnostic(
-    db: &dyn SemanticGroup,
+    db: &dyn LinterGroup,
     diag: &SemanticDiagnostic,
 ) -> Option<InternalFix> {
     match diag.kind {
@@ -178,7 +178,7 @@ pub fn fix_semantic_diagnostic(
 ///
 /// `Option<InternalFix>` if a fix is available, or `None` if no fix can be applied.
 fn fix_plugin_diagnostic(
-    db: &dyn SemanticGroup,
+    db: &dyn LinterGroup,
     plugin_diag: &PluginDiagnostic,
 ) -> Option<InternalFix> {
     let node = plugin_diag.stable_ptr.lookup(db);
@@ -487,7 +487,6 @@ fn find_use_path_list(db: &dyn SyntaxGroup, node: &SyntaxNode) -> SyntaxNode {
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn merge_overlapping_fixes(
     db: &mut FixerDatabase,
-    corelib_context: &CorelibContext,
     linter_query_params: &LinterDiagnosticParams,
     file_id: FileId,
     fixes: Vec<DiagnosticFixSuggestion>,
@@ -506,11 +505,7 @@ pub fn merge_overlapping_fixes(
             .iter()
             .flat_map(|module_id| {
                 let linter_diags = db
-                    .linter_diagnostics(
-                        corelib_context.clone(),
-                        linter_query_params.clone(),
-                        *module_id,
-                    )
+                    .linter_diagnostics(linter_query_params.clone(), *module_id)
                     .into_iter()
                     .map(|diag| {
                         SemanticDiagnostic::new(

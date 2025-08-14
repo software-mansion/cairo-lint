@@ -1,4 +1,4 @@
-use crate::corelib::CorelibContext;
+use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::lints::bitwise_for_parity_check::BitwiseForParity;
 use crate::lints::bitwise_for_parity_check::check_bitwise_for_parity;
@@ -84,15 +84,13 @@ use crate::lints::unit_return_type::check_unit_return_type;
 use crate::lints::unwrap_syscall::UnwrapSyscall;
 use crate::lints::unwrap_syscall::check_unwrap_syscall;
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::SyntaxNode;
 use itertools::Itertools;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
 /// Type describing a linter group's rule checking function.
-type CheckingFunction =
-    fn(&dyn SemanticGroup, &CorelibContext, &ModuleItemId, &mut Vec<PluginDiagnostic>);
+type CheckingFunction = fn(&dyn LinterGroup, &ModuleItemId, &mut Vec<PluginDiagnostic>);
 
 /// Enum representing the kind of a linter. Some lint rules might have the same kind.
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -171,7 +169,7 @@ pub trait Lint: Sync + Send {
     /// Attempts to generate a fix for this Lint's semantic diagnostic.
     /// # Arguments
     ///
-    /// * `db` - A reference to the `dyn SemanticGroup`
+    /// * `db` - A reference to the `dyn LinterGroup`
     /// * `diag` - A reference to the SemanticDiagnostic to be fixed
     ///
     /// # Returns
@@ -180,7 +178,7 @@ pub trait Lint: Sync + Send {
     ///
     /// By default there is no fixing procedure for a Lint.
     #[expect(unused_variables)]
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         unreachable!("fix() has been called for a lint which has_fixer() returned false")
     }
 
@@ -417,7 +415,7 @@ pub fn get_lint_type_from_diagnostic_message(message: &str) -> CairoLintKind {
 /// Get the fixing function based on the diagnostic message.
 /// For some of the rules there is no fixing function, so it returns `None`.
 pub fn get_fix_for_diagnostic_message(
-    db: &dyn SemanticGroup,
+    db: &dyn LinterGroup,
     node: SyntaxNode,
     message: &str,
 ) -> Option<InternalFix> {

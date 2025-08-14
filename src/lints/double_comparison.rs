@@ -12,8 +12,8 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 
 use super::function_trait_name_from_fn_id;
+use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
 use crate::fixer::InternalFix;
 use crate::lints::{EQ, GE, GT, LE, LT};
 use crate::queries::{get_all_function_bodies, get_all_logical_operator_expressions};
@@ -101,7 +101,7 @@ impl Lint for SimplifiableComparison {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_simplifiable_comparison(db, node)
     }
 
@@ -156,7 +156,7 @@ impl Lint for RedundantComparison {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_redundant_comparison(db, node)
     }
 
@@ -211,7 +211,7 @@ impl Lint for ContradictoryComparison {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_contradictory_comparison(db, node)
     }
 
@@ -222,8 +222,7 @@ impl Lint for ContradictoryComparison {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_double_comparison(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
@@ -537,17 +536,15 @@ pub fn fix_double_comparison(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<S
         if let (Some(lhs_op), Some(rhs_op)) = (
             extract_binary_operator_expr(&lhs, db),
             extract_binary_operator_expr(&rhs, db),
-        ) {
-            if let Some(simplified_op) = determine_simplified_operator(&lhs_op, &rhs_op, &middle_op)
-            {
-                if let Some(operator_to_replace) = operator_to_replace(lhs_op) {
-                    let lhs_text = lhs
-                        .as_syntax_node()
-                        .get_text(db)
-                        .replace(operator_to_replace, simplified_op);
-                    return Some(lhs_text.to_string());
-                }
-            }
+        ) && let Some(simplified_op) =
+            determine_simplified_operator(&lhs_op, &rhs_op, &middle_op)
+            && let Some(operator_to_replace) = operator_to_replace(lhs_op)
+        {
+            let lhs_text = lhs
+                .as_syntax_node()
+                .get_text(db)
+                .replace(operator_to_replace, simplified_op);
+            return Some(lhs_text.to_string());
         }
     }
 

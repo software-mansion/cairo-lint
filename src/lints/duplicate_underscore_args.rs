@@ -2,10 +2,9 @@ use std::collections::HashSet;
 
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 
+use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
 use crate::queries::get_all_checkable_functions;
 
 pub struct DuplicateUnderscoreArgs;
@@ -38,8 +37,7 @@ impl Lint for DuplicateUnderscoreArgs {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_duplicate_underscore_args(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

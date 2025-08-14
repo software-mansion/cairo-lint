@@ -11,8 +11,8 @@ use cairo_lang_syntax::node::{
 };
 use if_chain::if_chain;
 
+use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
 use crate::fixer::InternalFix;
 use crate::helper::indent_snippet;
 use crate::queries::{get_all_function_bodies, get_all_match_expressions};
@@ -57,7 +57,7 @@ impl Lint for DestructMatch {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_destruct_match(db.upcast(), node)
     }
 
@@ -104,8 +104,7 @@ impl Lint for EqualityMatch {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_single_matches(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
