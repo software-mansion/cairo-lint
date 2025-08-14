@@ -35,7 +35,6 @@ pub struct LinterDiagnosticParams {
 pub trait LinterGroup: SemanticGroup + Upcast<dyn SemanticGroup> {
     fn linter_diagnostics(
         &self,
-        corelib_context: CorelibContext,
         params: LinterDiagnosticParams,
         module_id: ModuleId,
     ) -> Vec<PluginDiagnostic>;
@@ -52,12 +51,15 @@ pub trait LinterGroup: SemanticGroup + Upcast<dyn SemanticGroup> {
         node_descendant_files: Arc<[FileId]>,
         node: SyntaxNode,
     ) -> OrderedHashSet<SyntaxNode>;
+
+    // TODO (wawel37): Make it return a reference with new salsa `tracked` macro.
+    #[salsa::transparent]
+    fn corelib_context(&self) -> CorelibContext;
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
 fn linter_diagnostics(
     db: &dyn LinterGroup,
-    corelib_context: CorelibContext,
     params: LinterDiagnosticParams,
     module_id: ModuleId,
 ) -> Vec<PluginDiagnostic> {
@@ -91,7 +93,7 @@ fn linter_diagnostics(
                 then {
                     let checking_functions = get_all_checking_functions();
                     for checking_function in checking_functions {
-                        checking_function(db, &corelib_context, item, &mut item_diagnostics);
+                        checking_function(db, item, &mut item_diagnostics);
                     }
 
                     diags.extend(item_diagnostics.into_iter().filter_map(|mut diag| {
@@ -103,7 +105,7 @@ fn linter_diagnostics(
         } else if !is_generated_item || params.only_generated_files {
             let checking_functions = get_all_checking_functions();
             for checking_function in checking_functions {
-                checking_function(db, &corelib_context, item, &mut item_diagnostics);
+                checking_function(db, item, &mut item_diagnostics);
             }
 
             diags.extend(item_diagnostics.into_iter().filter_map(|diag| {
@@ -278,6 +280,10 @@ pub fn find_generated_nodes(
     }
 
     result
+}
+
+fn corelib_context(db: &dyn SemanticGroup) -> CorelibContext {
+    CorelibContext::new(db)
 }
 
 #[tracing::instrument(skip_all, level = "trace")]

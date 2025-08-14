@@ -1,6 +1,5 @@
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
     ast::{self, OptionTypeClause},
@@ -8,8 +7,8 @@ use cairo_lang_syntax::node::{
 };
 
 use crate::{
+    LinterGroup,
     context::{CairoLintKind, Lint},
-    corelib::CorelibContext,
     fixer::InternalFix,
 };
 
@@ -53,7 +52,7 @@ impl Lint for EmptyEnumBracketsVariant {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_empty_enum_brackets_variant(db.upcast(), node)
     }
 
@@ -64,8 +63,7 @@ impl Lint for EmptyEnumBracketsVariant {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_empty_enum_brackets_variant(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

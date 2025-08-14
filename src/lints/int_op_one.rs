@@ -10,8 +10,8 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
+use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
 use crate::fixer::InternalFix;
 use crate::helper::is_item_ancestor_of_module;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
@@ -58,7 +58,7 @@ impl Lint for IntegerGreaterEqualPlusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_int_ge_plus_one(db.upcast(), node)
     }
 
@@ -109,7 +109,7 @@ impl Lint for IntegerGreaterEqualMinusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_int_ge_min_one(db.upcast(), node)
     }
 
@@ -160,7 +160,7 @@ impl Lint for IntegerLessEqualPlusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_int_le_plus_one(db.upcast(), node)
     }
 
@@ -211,7 +211,7 @@ impl Lint for IntegerLessEqualMinusOne {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_int_le_min_one(db.upcast(), node)
     }
 
@@ -222,8 +222,7 @@ impl Lint for IntegerLessEqualMinusOne {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_int_op_one(
-    db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
@@ -232,20 +231,13 @@ pub fn check_int_op_one(
         let function_call_exprs = get_all_function_calls(function_body);
         let arenas = &function_body.arenas;
         for function_call_expr in function_call_exprs {
-            check_single_int_op_one(
-                db,
-                corelib_context,
-                &function_call_expr,
-                arenas,
-                diagnostics,
-            );
+            check_single_int_op_one(db, &function_call_expr, arenas, diagnostics);
         }
     }
 }
 
 fn check_single_int_op_one(
-    db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     function_call_expr: &ExprFunctionCall,
     arenas: &Arenas,
     diagnostics: &mut Vec<PluginDiagnostic>,
@@ -260,8 +252,9 @@ fn check_single_int_op_one(
     };
 
     // Check if the function call is the bool greater or equal (>=) or lower or equal (<=).
-    if impl_generic_func_id.function != corelib_context.get_partial_ord_ge_trait_function_id()
-        && impl_generic_func_id.function != corelib_context.get_partial_ord_le_trait_function_id()
+    if impl_generic_func_id.function != db.corelib_context().get_partial_ord_ge_trait_function_id()
+        && impl_generic_func_id.function
+            != db.corelib_context().get_partial_ord_le_trait_function_id()
     {
         return;
     }
@@ -272,7 +265,7 @@ fn check_single_int_op_one(
             is_item_ancestor_of_module(
                 db,
                 &LookupItemId::ModuleItem(ModuleItemId::Impl(impl_def_id)),
-                ModuleId::Submodule(corelib_context.get_integer_module_id()),
+                ModuleId::Submodule(db.corelib_context().get_integer_module_id()),
             )
         } else {
             false
@@ -285,10 +278,12 @@ fn check_single_int_op_one(
     let lhs = &function_call_expr.args[0];
     let rhs = &function_call_expr.args[1];
 
-    let add_trait_function_id = corelib_context.get_add_trait_function_id();
-    let sub_trait_function_id = corelib_context.get_sub_trait_function_id();
-    let partial_ord_ge_trait_function_id = corelib_context.get_partial_ord_ge_trait_function_id();
-    let partial_ord_le_trait_function_id = corelib_context.get_partial_ord_le_trait_function_id();
+    let add_trait_function_id = db.corelib_context().get_add_trait_function_id();
+    let sub_trait_function_id = db.corelib_context().get_sub_trait_function_id();
+    let partial_ord_ge_trait_function_id =
+        db.corelib_context().get_partial_ord_ge_trait_function_id();
+    let partial_ord_le_trait_function_id =
+        db.corelib_context().get_partial_ord_le_trait_function_id();
 
     // x >= y + 1
     if check_is_variable(lhs, arenas)

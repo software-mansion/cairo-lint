@@ -7,8 +7,8 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
+use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 use super::{AND, DIV, EQ, GE, GT, LE, LT, NE, NOT, OR, SUB, XOR, function_trait_name_from_fn_id};
@@ -232,8 +232,7 @@ impl Lint for LogicalEqualityOperation {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_eq_op(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
@@ -307,15 +306,15 @@ fn check_single_eq_op(
 
     let op = function_trait_name_from_fn_id(db, &expr_func.function);
 
-    if are_operands_equal(db.upcast(), lhs, rhs) {
-        if let Some(message) = get_diagnostic_message(&op) {
-            diagnostics.push(PluginDiagnostic {
-                stable_ptr: expr_func.stable_ptr.untyped(),
-                message: message.to_owned(),
-                severity: Severity::Warning,
-                inner_span: None,
-            });
-        }
+    if are_operands_equal(db.upcast(), lhs, rhs)
+        && let Some(message) = get_diagnostic_message(&op)
+    {
+        diagnostics.push(PluginDiagnostic {
+            stable_ptr: expr_func.stable_ptr.untyped(),
+            message: message.to_owned(),
+            severity: Severity::Warning,
+            inner_span: None,
+        });
     }
 }
 
