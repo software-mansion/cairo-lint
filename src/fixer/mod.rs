@@ -486,8 +486,8 @@ fn find_use_path_list<'db>(db: &'db dyn SyntaxGroup, node: SyntaxNode<'db>) -> S
 ///
 /// A vector of merged Fix objects.
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn merge_overlapping_fixes<'db>(
-    db: &'db mut FixerDatabase,
+pub fn merge_overlapping_fixes(
+    db: &mut FixerDatabase,
     linter_query_params: &LinterDiagnosticParams,
     file: FileInput,
     fixes: Vec<DiagnosticFixSuggestion>,
