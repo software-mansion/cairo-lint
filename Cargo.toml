@@ -12,7 +12,7 @@ resolver = "2"
 members = ["xtask"]
 
 [workspace.package]
-version = "2.12.1-rc.0"
+version = "2.12.0"
 edition = "2024"
 repository = "https://github.com/software-mansion/cairo-lint"
 license-file = "LICENSE"
