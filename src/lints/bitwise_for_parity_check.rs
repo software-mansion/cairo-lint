@@ -7,8 +7,8 @@ use cairo_lang_syntax::node::TypedStablePtr;
 use if_chain::if_chain;
 use num_bigint::BigInt;
 
+use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 use super::AND;
@@ -43,8 +43,7 @@ impl Lint for BitwiseForParity {
 /// Checks for `x & 1` which is unoptimized in cairo and can be replaced by `x % 1`
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_bitwise_for_parity(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

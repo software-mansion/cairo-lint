@@ -1,5 +1,5 @@
+use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
 use crate::fixer::InternalFix;
 use crate::helper::find_module_file_containing_node;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
@@ -48,7 +48,7 @@ impl Lint for CloneOnCopy {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_clone_on_copy(db, node)
     }
 
@@ -59,8 +59,7 @@ impl Lint for CloneOnCopy {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_clone_on_copy(
-    db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
@@ -68,14 +67,13 @@ pub fn check_clone_on_copy(
     for function_body in function_bodies.iter() {
         let function_call_exprs = get_all_function_calls(function_body);
         for function_call_expr in function_call_exprs {
-            check_clone_usage(db, corelib_context, &function_call_expr, diagnostics);
+            check_clone_usage(db, &function_call_expr, diagnostics);
         }
     }
 }
 
 fn check_clone_usage(
-    db: &dyn SemanticGroup,
-    corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     function_call_expr: &ExprFunctionCall,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
@@ -84,7 +82,7 @@ fn check_clone_usage(
         .get_concrete(db)
         .generic_function
         && let Some(ImplHead::Concrete(impl_def_id)) = impl_id.head(db)
-        && impl_def_id == corelib_context.get_t_copy_clone_impl_id()
+        && impl_def_id == db.corelib_context().get_t_copy_clone_impl_id()
     {
         diagnostics.push(PluginDiagnostic {
             stable_ptr: function_call_expr.stable_ptr.untyped(),

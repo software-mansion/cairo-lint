@@ -6,8 +6,8 @@ use cairo_lang_semantic::{Arenas, ExprFunctionCall};
 use cairo_lang_syntax::node::TypedStablePtr;
 
 use super::{AND, function_trait_name_from_fn_id};
+use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
 use crate::helper::is_zero;
 use crate::lints::{DIV, MUL};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
@@ -56,8 +56,7 @@ impl Lint for ErasingOperation {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_erasing_operation(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

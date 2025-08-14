@@ -34,7 +34,7 @@ pub struct CorelibContext {
 }
 
 impl CorelibContext {
-    pub fn new(db: &dyn SemanticGroup) -> Self {
+    pub(crate) fn new(db: &dyn SemanticGroup) -> Self {
         let core_crate_id = CrateId::core(db);
         let modules = db.crate_modules(core_crate_id);
         Self {

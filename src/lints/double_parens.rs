@@ -1,5 +1,5 @@
+use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
 use crate::fixer::InternalFix;
 use crate::helper::indent_snippet;
 use crate::queries::get_all_parenthesized_expressions;
@@ -50,7 +50,7 @@ impl Lint for DoubleParens {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_double_parens(db.upcast(), node)
     }
 
@@ -61,8 +61,7 @@ impl Lint for DoubleParens {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_double_parens(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {

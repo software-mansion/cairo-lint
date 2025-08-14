@@ -1,7 +1,6 @@
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprBlock, ExprIf, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{
@@ -13,8 +12,8 @@ use cairo_lang_syntax::node::{
 };
 use if_chain::if_chain;
 
+use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
 use crate::fixer::InternalFix;
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
 
@@ -69,7 +68,7 @@ impl Lint for CollapsibleIfElse {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_collapsible_if_else(db.upcast(), node)
     }
 
@@ -98,8 +97,7 @@ impl Lint for CollapsibleIfElse {
 /// ```
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_collapsible_if_else(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
@@ -182,34 +180,30 @@ pub fn fix_collapsible_if_else(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option
     let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) else {
         return None;
     };
-    if let BlockOrIf::Block(block_expr) = else_clause.else_block_or_if(db) {
-        if let Some(AstStatement::Expr(statement_expr)) =
+    if let BlockOrIf::Block(block_expr) = else_clause.else_block_or_if(db)
+        && let Some(AstStatement::Expr(statement_expr)) =
             block_expr.statements(db).elements(db).next()
-        {
-            if let AstExpr::If(if_expr) = statement_expr.expr(db) {
-                // Construct the new "else if" expression
-                let condition = if_expr.conditions(db).as_syntax_node().get_text(db);
-                let if_body = if_expr.if_block(db).as_syntax_node().get_text(db);
-                let else_body = if_expr.else_clause(db).as_syntax_node().get_text(db);
+        && let AstExpr::If(if_expr) = statement_expr.expr(db)
+    {
+        // Construct the new "else if" expression
+        let condition = if_expr.conditions(db).as_syntax_node().get_text(db);
+        let if_body = if_expr.if_block(db).as_syntax_node().get_text(db);
+        let else_body = if_expr.else_clause(db).as_syntax_node().get_text(db);
 
-                // Preserve original indentation
-                let original_indent = else_clause
-                    .as_syntax_node()
-                    .get_text(db)
-                    .chars()
-                    .take_while(|c| c.is_whitespace())
-                    .collect::<String>();
+        // Preserve original indentation
+        let original_indent = else_clause
+            .as_syntax_node()
+            .get_text(db)
+            .chars()
+            .take_while(|c| c.is_whitespace())
+            .collect::<String>();
 
-                return Some(InternalFix {
-                    node: else_clause.as_syntax_node(),
-                    suggestion: format!(
-                        "{original_indent}else if {condition} {if_body} {else_body}"
-                    ),
-                    description: CollapsibleIfElse.fix_message().unwrap().to_string(),
-                    import_addition_paths: None,
-                });
-            }
-        }
+        return Some(InternalFix {
+            node: else_clause.as_syntax_node(),
+            suggestion: format!("{original_indent}else if {condition} {if_body} {else_body}"),
+            description: CollapsibleIfElse.fix_message().unwrap().to_string(),
+            import_addition_paths: None,
+        });
     }
 
     // If we can't transform it, return the original text

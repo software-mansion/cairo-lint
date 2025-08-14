@@ -1,7 +1,6 @@
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Expr, ExprId, ExprLoop, Statement};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::{
@@ -10,8 +9,8 @@ use cairo_lang_syntax::node::{
 };
 use if_chain::if_chain;
 
+use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
-use crate::corelib::CorelibContext;
 use crate::fixer::InternalFix;
 use crate::helper::{invert_condition, remove_break_from_block, remove_break_from_else_clause};
 use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
@@ -65,7 +64,7 @@ impl Lint for LoopForWhile {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_loop_break(db.upcast(), node)
     }
 
@@ -91,8 +90,7 @@ impl Lint for LoopForWhile {
 /// ```
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_loop_for_while(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
@@ -225,20 +223,19 @@ pub fn fix_loop_break(db: &dyn SyntaxGroup, node: SyntaxNode) -> Option<Internal
 
     if let Some(AstStatement::Expr(expr_statement)) =
         loop_expr.body(db).statements(db).elements(db).next()
+        && let AstExpr::If(if_expr) = expr_statement.expr(db)
     {
-        if let AstExpr::If(if_expr) = expr_statement.expr(db) {
-            condition_text = invert_condition(
-                &if_expr
-                    .conditions(db)
-                    .as_syntax_node()
-                    .get_text_without_trivia(db),
-            );
+        condition_text = invert_condition(
+            &if_expr
+                .conditions(db)
+                .as_syntax_node()
+                .get_text_without_trivia(db),
+        );
 
-            loop_body.push_str(&remove_break_from_block(db, if_expr.if_block(db), &indent));
+        loop_body.push_str(&remove_break_from_block(db, if_expr.if_block(db), &indent));
 
-            if let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) {
-                loop_body.push_str(&remove_break_from_else_clause(db, else_clause, &indent));
-            }
+        if let OptionElseClause::ElseClause(else_clause) = if_expr.else_clause(db) {
+            loop_body.push_str(&remove_break_from_else_clause(db, else_clause, &indent));
         }
     }
 

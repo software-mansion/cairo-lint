@@ -4,9 +4,9 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::{Arenas, ExprIf, ExprMatch, db::SemanticGroup};
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast, db::SyntaxGroup};
 
+use crate::LinterGroup;
 use crate::{
     context::CairoLintKind,
-    corelib::CorelibContext,
     fixer::InternalFix,
     queries::{
         get_all_function_bodies_with_ids, get_all_if_expressions, get_all_match_expressions,
@@ -56,7 +56,7 @@ impl Lint for ManualUnwrapOr {
         true
     }
 
-    fn fix(&self, db: &dyn SemanticGroup, node: SyntaxNode) -> Option<InternalFix> {
+    fn fix(&self, db: &dyn LinterGroup, node: SyntaxNode) -> Option<InternalFix> {
         fix_manual_unwrap_or(db, node)
     }
 
@@ -67,8 +67,7 @@ impl Lint for ManualUnwrapOr {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_unwrap_or(
-    db: &dyn SemanticGroup,
-    _corelib_context: &CorelibContext,
+    db: &dyn LinterGroup,
     item: &ModuleItemId,
     diagnostics: &mut Vec<PluginDiagnostic>,
 ) {
