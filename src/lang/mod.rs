@@ -53,8 +53,7 @@ pub trait LinterGroup: SemanticGroup + Upcast<dyn SemanticGroup> {
     ) -> OrderedHashSet<SyntaxNode>;
 
     // TODO (wawel37): Make it return a reference with new salsa `tracked` macro.
-    #[salsa::transparent]
-    fn corelib_context(&self) -> CorelibContext;
+    fn corelib_context(&self) -> Arc<CorelibContext>;
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
@@ -282,8 +281,8 @@ pub fn find_generated_nodes(
     result
 }
 
-fn corelib_context(db: &dyn SemanticGroup) -> CorelibContext {
-    CorelibContext::new(db)
+fn corelib_context(db: &dyn SemanticGroup) -> Arc<CorelibContext> {
+    Arc::new(CorelibContext::new(db))
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
