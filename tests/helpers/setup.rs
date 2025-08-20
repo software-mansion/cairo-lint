@@ -1,9 +1,8 @@
 use cairo_lang_filesystem::db::{CrateConfigurationInput, CrateSettings, FilesGroup};
 use cairo_lang_filesystem::{
     db::{Edition, ExperimentalFeaturesConfig},
-    ids::{CrateId, FileKind},
+    ids::FileKind,
 };
-use cairo_lang_utils::Intern;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use std::{collections::BTreeMap, sync::Arc};
 
@@ -11,10 +10,7 @@ use crate::CRATE_CONFIG;
 use cairo_lang_filesystem::ids::{CrateInput, DirectoryInput, FileInput, VirtualFileInput};
 use cairo_lint::LinterAnalysisDatabase;
 
-pub fn setup_test_crate_ex<'db>(
-    db: &'db mut LinterAnalysisDatabase,
-    content: &str,
-) -> CrateId<'db> {
+pub fn setup_test_crate_ex(db: &mut LinterAnalysisDatabase, content: &str) -> CrateInput {
     let settings = CrateSettings {
         name: None,
         edition: Edition::latest(),
@@ -56,5 +52,5 @@ pub fn setup_test_crate_ex<'db>(
         },
     )])));
 
-    cr.into_crate_long_id(db).intern(db)
+    cr
 }
