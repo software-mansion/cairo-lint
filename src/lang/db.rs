@@ -1,8 +1,4 @@
-use std::{
-    cell::UnsafeCell,
-    ops::{Deref, DerefMut},
-    sync::Arc,
-};
+use std::sync::Arc;
 
 use anyhow::{Result, anyhow};
 use cairo_lang_compiler::{
@@ -197,7 +193,7 @@ impl LinterAnalysisDatabaseBuilder {
         self
     }
 
-    pub fn build(&mut self) -> Result<DBWrapper> {
+    pub fn build(&mut self) -> Result<LinterAnalysisDatabase> {
         // NOTE: Order of operations matters here!
         // Errors if something is not OK are very subtle, mostly this results in missing
         // identifier diagnostics, or panics regarding lack of corelib items.
@@ -235,34 +231,6 @@ impl LinterAnalysisDatabaseBuilder {
         }
         validate_corelib(&db)?;
 
-        Ok(DBWrapper::new(db))
-    }
-}
-
-pub struct DBWrapper(UnsafeCell<LinterAnalysisDatabase>);
-
-impl DBWrapper {
-    fn new(db: LinterAnalysisDatabase) -> Self {
-        Self(UnsafeCell::new(db))
-    }
-
-    #[allow(clippy::mut_from_ref)]
-    pub fn get_mut(&self) -> &mut LinterAnalysisDatabase {
-        //TODO, rework test macros so it will be unnecessary
-        unsafe { &mut *self.0.get() }
-    }
-}
-
-impl Deref for DBWrapper {
-    type Target = LinterAnalysisDatabase;
-
-    fn deref(&self) -> &Self::Target {
-        unsafe { &*self.0.get() }
-    }
-}
-
-impl DerefMut for DBWrapper {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        self.get_mut()
+        Ok(db)
     }
 }
