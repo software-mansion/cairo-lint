@@ -1,4 +1,5 @@
 use super::is_expected_variant;
+use crate::LinterGroup;
 use crate::helper::find_module_file_containing_node;
 use crate::lints::{ARRAY_NEW, DEFAULT, FALSE, NEVER, function_trait_name_from_fn_id};
 use cairo_lang_defs::ids::{ModuleId, ModuleItemId, TopLevelLanguageElementId};
@@ -461,7 +462,7 @@ pub fn extract_tail_or_preserve_expr<'a, 'db>(
     expr
 }
 
-pub fn is_variable_unused<'db>(db: &'db dyn SemanticGroup, variable: &LocalVariable<'db>) -> bool {
+pub fn is_variable_unused<'db>(db: &'db dyn LinterGroup, variable: &LocalVariable<'db>) -> bool {
     let variable_syntax_stable_ptr = variable.stable_ptr(db).0;
     let Some(module_file_id) =
         find_module_file_containing_node(db, variable_syntax_stable_ptr.lookup(db))
@@ -486,7 +487,7 @@ pub fn get_semantic_diagnostics<'db>(
     module_id: ModuleId<'db>,
 ) -> Option<Diagnostics<'db, SemanticDiagnostic<'db>>> {
     let mut diagnostics = DiagnosticsBuilder::default();
-    for item in db.module_items(module_id).ok()?.iter() {
+    for item in module_id.module_data(db).ok()?.items(db) {
         match item {
             ModuleItemId::FreeFunction(free_function) => {
                 diagnostics.extend(db.free_function_body_diagnostics(*free_function));

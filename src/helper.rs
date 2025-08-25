@@ -11,6 +11,7 @@
 //!
 //! These helper functions can be reused in various parts of the Cairo Lint codebase to maintain
 //! consistency and modularity when working with blocks and conditions.
+use crate::LinterGroup;
 use cairo_lang_defs::ids::{
     FileIndex, ImplItemId, LookupItemId, ModuleFileId, ModuleId, ModuleItemId, TraitItemId,
 };
@@ -320,7 +321,7 @@ pub fn is_panic_expr<'db>(
 }
 
 pub fn find_module_file_containing_node<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn LinterGroup,
     node: SyntaxNode<'db>,
 ) -> Option<ModuleFileId<'db>> {
     let module_id = find_module_containing_node(db, node)?;
@@ -329,7 +330,7 @@ pub fn find_module_file_containing_node<'db>(
 }
 
 fn find_module_containing_node<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn LinterGroup,
     node: SyntaxNode<'db>,
 ) -> Option<ModuleId<'db>> {
     // Get the main module of the main file that leads to the node.
@@ -399,11 +400,11 @@ pub fn is_item_ancestor_of_module<'db>(
     searched_item: &LookupItemId<'db>,
     module_id: ModuleId<'db>,
 ) -> bool {
-    let Ok(items) = db.module_items(module_id) else {
+    let Ok(items) = module_id.module_data(db) else {
         return false;
     };
 
-    for item in items.iter() {
+    for item in items.items(db).iter() {
         match item {
             ModuleItemId::Submodule(submodule_id) => {
                 if is_item_ancestor_of_module(db, searched_item, ModuleId::Submodule(*submodule_id))

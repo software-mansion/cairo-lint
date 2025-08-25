@@ -25,6 +25,7 @@ use helpers::{
 use if_chain::if_chain;
 
 use super::{FALSE, OK, PANIC_WITH_FELT252, TRUE};
+use crate::LinterGroup;
 use crate::lints::manual::helpers::{
     extract_pattern_variable, extract_tail_or_preserve_expr, is_variable_unused,
 };
@@ -57,7 +58,7 @@ pub enum ManualLint {
 /// };
 /// ```
 pub fn check_manual<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn LinterGroup,
     expr_match: &ExprMatch<'db>,
     arenas: &Arenas<'db>,
     manual_lint: ManualLint,
@@ -244,7 +245,7 @@ fn check_syntax_none_arm<'db>(
 fn check_syntax_err_arm<'db>(
     expr: &Expr<'db>,
     pattern: &Pattern<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn LinterGroup,
     arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {

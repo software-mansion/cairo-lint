@@ -3,7 +3,9 @@ use std::sync::Arc;
 
 use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
-use cairo_lang_filesystem::db::{get_parent_and_mapping, translate_location};
+use cairo_lang_filesystem::db::{
+    FilesGroup, get_external_files, get_parent_and_mapping, translate_location,
+};
 use cairo_lang_filesystem::ids::{CodeOrigin, FileId, FileLongId};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::SyntaxNode;
@@ -22,6 +24,9 @@ use crate::{CairoLintToolMetadata, CorelibContext};
 use crate::mappings::{get_origin_module_item_as_syntax_node, get_origin_syntax_node};
 
 mod db;
+use crate::upstream::file_syntax;
+use cairo_lang_defs::db::DefsGroup;
+use cairo_lang_parser::db::ParserGroup;
 pub use db::{LinterAnalysisDatabase, LinterAnalysisDatabaseBuilder};
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
@@ -31,7 +36,14 @@ pub struct LinterDiagnosticParams {
 }
 
 #[cairo_lang_proc_macros::query_group]
-pub trait LinterGroup: SemanticGroup + for<'db> Upcast<'db, dyn SemanticGroup> {
+pub trait LinterGroup:
+    for<'db> Upcast<'db, dyn SemanticGroup>
+    + SemanticGroup
+    + SyntaxGroup
+    + DefsGroup
+    + ParserGroup
+    + FilesGroup
+{
     fn linter_diagnostics<'db>(
         &'db self,
         params: LinterDiagnosticParams,
@@ -62,10 +74,10 @@ fn linter_diagnostics<'db>(
     module_id: ModuleId<'db>,
 ) -> Vec<PluginDiagnostic<'db>> {
     let mut diags: Vec<(PluginDiagnostic, FileId)> = Vec::new();
-    let Ok(items) = db.module_items(module_id) else {
+    let Ok(module_data) = module_id.module_data(db) else {
         return Vec::default();
     };
-    for item in &*items {
+    for item in module_data.items(db) {
         let mut item_diagnostics = Vec::new();
         let module_file = db.module_main_file(module_id).unwrap();
         let item_file = item.stable_location(db).file_id(db).long(db);
@@ -206,7 +218,7 @@ pub fn find_generated_nodes<'db>(
             continue;
         }
 
-        let Ok(file_syntax) = db.file_syntax(file) else {
+        let Ok(file_syntax) = file_syntax(db, file) else {
             continue;
         };
 
@@ -225,7 +237,11 @@ pub fn find_generated_nodes<'db>(
 
         let is_replacing_og_item = match file.long(db) {
             FileLongId::Virtual(vfs) => vfs.original_item_removed,
-            FileLongId::External(id) => db.ext_as_virtual(*id).original_item_removed,
+            FileLongId::External(id) => {
+                get_external_files(db)
+                    .ext_as_virtual(db, *id)
+                    .original_item_removed
+            }
             _ => unreachable!(),
         };
 

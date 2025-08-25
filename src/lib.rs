@@ -13,7 +13,7 @@ use itertools::Itertools;
 use std::{cmp::Reverse, collections::HashMap};
 
 use anyhow::{Result, anyhow};
-use cairo_lang_filesystem::ids::FileId;
+use cairo_lang_filesystem::{db::FilesGroup, ids::FileId};
 use cairo_lang_semantic::{SemanticDiagnostic, db::SemanticGroup};
 
 pub static CAIRO_LINT_TOOL_NAME: &str = "cairo-lint";
@@ -34,6 +34,7 @@ pub mod lints;
 mod mappings;
 pub mod plugin;
 mod queries;
+mod upstream;
 
 pub use corelib::CorelibContext;
 pub use lang::{

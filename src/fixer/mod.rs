@@ -12,14 +12,12 @@
 
 use std::cmp::Reverse;
 use std::collections::HashMap;
-use std::sync::Arc;
 
 use cairo_lang_defs::diagnostic_utils::StableLocation;
 use cairo_lang_defs::ids::UseId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::DiagnosticEntry;
-use cairo_lang_filesystem::db::FilesGroup;
-use cairo_lang_filesystem::db::FilesGroupEx;
+use cairo_lang_filesystem::db::{FilesGroup, files_group_input};
 use cairo_lang_filesystem::ids::FileId;
 use cairo_lang_filesystem::span::{TextOffset, TextSpan, TextWidth};
 use cairo_lang_semantic::SemanticDiagnostic;
@@ -37,6 +35,7 @@ use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_filesystem::ids::FileInput;
 use cairo_lang_syntax::node::db::SyntaxGroup;
 pub use db::FixerDatabase;
+use salsa::Setter;
 
 mod db;
 
@@ -240,7 +239,7 @@ pub fn collect_unused_import_fixes<'db>(
 /// * `fixes` - A mutable reference to the HashMap of fixes.
 #[tracing::instrument(skip_all, level = "trace")]
 fn process_unused_import<'db>(
-    db: &'db dyn DefsGroup,
+    db: &'db dyn LinterGroup,
     id: &UseId<'db>,
     fixes: &mut HashMap<SyntaxNode<'db>, ImportFix<'db>>,
 ) {
@@ -599,9 +598,12 @@ fn apply_suggestions_for_file(
         content.replace_range(suggestion.span.to_str_range(), &suggestion.code);
     }
 
-    let file = db.file_input(file_id);
-    let overrides = db.update_file_overrides_input(file, Some(Arc::from(content)));
-    db.set_file_overrides_input(overrides);
+    let input = files_group_input(db);
+
+    let mut overrides = input.file_overrides(db).clone().unwrap();
+    overrides.insert(file.clone(), content.into());
+
+    input.set_file_overrides(db).to(overrides.into());
 }
 
 fn spans_intersects(span_a: TextSpan, span_b: TextSpan) -> bool {
