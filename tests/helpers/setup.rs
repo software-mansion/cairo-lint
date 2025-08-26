@@ -1,14 +1,15 @@
-use cairo_lang_filesystem::db::{CrateConfigurationInput, CrateSettings, FilesGroup};
+use cairo_lang_filesystem::db::{CrateConfigurationInput, CrateSettings, files_group_input};
 use cairo_lang_filesystem::{
     db::{Edition, ExperimentalFeaturesConfig},
     ids::FileKind,
 };
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
-use std::{collections::BTreeMap, sync::Arc};
+use std::collections::BTreeMap;
 
 use crate::CRATE_CONFIG;
 use cairo_lang_filesystem::ids::{CrateInput, DirectoryInput, FileInput, VirtualFileInput};
 use cairo_lint::LinterAnalysisDatabase;
+use salsa::Setter;
 
 pub fn setup_test_crate_ex(db: &mut LinterAnalysisDatabase, content: &str) -> CrateInput {
     let settings = CrateSettings {
@@ -40,17 +41,19 @@ pub fn setup_test_crate_ex(db: &mut LinterAnalysisDatabase, content: &str) -> Cr
         cache_file: None,
     };
 
-    db.set_crate_configs_input(Arc::new(OrderedHashMap::from([(
-        cr.clone(),
-        CrateConfigurationInput {
-            root: DirectoryInput::Virtual {
-                files: BTreeMap::from([("lib.cairo".to_string(), file)]),
-                dirs: Default::default(),
+    files_group_input(db)
+        .set_crate_configs(db)
+        .to(Some(OrderedHashMap::from([(
+            cr.clone(),
+            CrateConfigurationInput {
+                root: DirectoryInput::Virtual {
+                    files: BTreeMap::from([("lib.cairo".to_string(), file)]),
+                    dirs: Default::default(),
+                },
+                settings,
+                cache_file: None,
             },
-            settings,
-            cache_file: None,
-        },
-    )])));
+        )])));
 
     cr
 }

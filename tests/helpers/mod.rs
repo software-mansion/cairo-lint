@@ -47,7 +47,7 @@ pub fn get_diags<'db>(
         tool_metadata: get_cairo_lint_tool_metadata_with_all_lints_enabled(),
     };
 
-    for module_id in &*db.crate_modules(crate_id) {
+    for module_id in db.crate_modules(crate_id) {
         diagnostics.extend(
             db.module_semantic_diagnostics(*module_id)
                 .unwrap()

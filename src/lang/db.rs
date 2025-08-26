@@ -5,13 +5,16 @@ use cairo_lang_compiler::{
     db::validate_corelib,
     project::{ProjectConfig, update_crate_roots_from_project_config},
 };
-use cairo_lang_defs::db::{DefsGroup, init_defs_group, try_ext_as_virtual_impl};
+use cairo_lang_defs::{
+    db::{DefsGroup, defs_group_input, init_defs_group, init_external_files},
+    ids::{InlineMacroExprPluginLongId, MacroPluginLongId},
+};
 use cairo_lang_filesystem::{
     cfg::CfgSet,
-    db::{ExternalFiles, FilesGroup, FilesGroupEx, init_dev_corelib, init_files_group},
+    db::{FilesGroup, init_dev_corelib, init_files_group},
     detect::detect_corelib,
     flag::Flag,
-    ids::{FlagLongId, VirtualFile},
+    ids::FlagLongId,
 };
 use cairo_lang_lowering::{
     db::{ExternalCodeSizeEstimator, LoweringGroup, init_lowering_group},
@@ -19,7 +22,8 @@ use cairo_lang_lowering::{
 };
 use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_semantic::{
-    db::{Elongate, PluginSuiteInput, SemanticGroup, init_semantic_group},
+    db::{Elongate, SemanticGroup, init_semantic_group, semantic_group_input},
+    ids::AnalyzerPluginLongId,
     inline_macros::get_default_plugin_suite,
     plugin::PluginSuite,
 };
@@ -27,6 +31,7 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_utils::Upcast;
 
 use crate::{LinterGroup, plugin::cairo_lint_allow_plugin_suite};
+use salsa::Setter;
 
 #[salsa::db]
 #[derive(Clone)]
@@ -39,8 +44,7 @@ impl LinterAnalysisDatabase {
         LinterAnalysisDatabaseBuilder::new()
     }
 
-    fn new(default_plugin_suite: PluginSuite, inlining_strategy: InliningStrategy) -> Self {
-        let mut default_plugin_suite = default_plugin_suite;
+    fn new(mut default_plugin_suite: PluginSuite, inlining_strategy: InliningStrategy) -> Self {
         let mut res = Self {
             storage: Default::default(),
         };
@@ -48,21 +52,43 @@ impl LinterAnalysisDatabase {
         init_lowering_group(&mut res, inlining_strategy);
         init_defs_group(&mut res);
         init_semantic_group(&mut res);
+        init_external_files(&mut res);
 
         default_plugin_suite.add(cairo_lint_allow_plugin_suite());
 
-        res.set_default_plugins_from_suite(default_plugin_suite);
+        defs_group_input(&res)
+            .set_default_macro_plugins(&mut res)
+            .to(Some(
+                default_plugin_suite
+                    .plugins
+                    .into_iter()
+                    .map(MacroPluginLongId)
+                    .collect(),
+            ));
+        defs_group_input(&res)
+            .set_default_inline_macro_plugins(&mut res)
+            .to(Some(
+                default_plugin_suite
+                    .inline_macro_plugins
+                    .into_iter()
+                    .map(|(name, value)| (name, InlineMacroExprPluginLongId(value)))
+                    .collect(),
+            ));
+        semantic_group_input(&res)
+            .set_default_analyzer_plugins(&mut res)
+            .to(Some(
+                default_plugin_suite
+                    .analyzer_plugins
+                    .into_iter()
+                    .map(AnalyzerPluginLongId)
+                    .collect(),
+            ));
 
         res
     }
 }
 
 impl salsa::Database for LinterAnalysisDatabase {}
-impl ExternalFiles for LinterAnalysisDatabase {
-    fn try_ext_as_virtual(&self, external_id: salsa::Id) -> Option<VirtualFile<'_>> {
-        try_ext_as_virtual_impl(self, external_id)
-    }
-}
 
 // We don't need this implementation at the moment but it's required by `LoweringGroup`.
 impl ExternalCodeSizeEstimator for LinterAnalysisDatabase {
@@ -71,6 +97,12 @@ impl ExternalCodeSizeEstimator for LinterAnalysisDatabase {
         _function_id: cairo_lang_lowering::ids::ConcreteFunctionWithBodyId,
     ) -> cairo_lang_diagnostics::Maybe<isize> {
         cairo_lang_diagnostics::Maybe::Ok(0)
+    }
+}
+
+impl<'db> Upcast<'db, dyn salsa::Database> for LinterAnalysisDatabase {
+    fn upcast(&self) -> &(dyn salsa::Database + 'static) {
+        self
     }
 }
 

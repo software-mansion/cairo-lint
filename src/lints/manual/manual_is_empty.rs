@@ -173,7 +173,7 @@ fn extract_function_name(db: &dyn SemanticGroup, fn_call: &ExprFunctionCall) -> 
 }
 
 fn check_if_comparison_args_are_incorrect<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn LinterGroup,
     comparison: &ExprFunctionCall<'db>,
     arenas: &Arenas<'db>,
 ) -> bool {
@@ -209,7 +209,7 @@ fn check_if_comparison_args_are_incorrect<'db>(
     false
 }
 
-fn expr_is_empty_collection(db: &dyn SemanticGroup, expr: &Expr) -> bool {
+fn expr_is_empty_collection(db: &dyn LinterGroup, expr: &Expr) -> bool {
     // ArrayTrait::new()
     if_chain! {
         if let Expr::FunctionCall(func_call) = expr;

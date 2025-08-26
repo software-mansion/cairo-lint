@@ -14,6 +14,7 @@ use crate::context::{CairoLintKind, Lint};
 use crate::LinterGroup;
 use crate::helper::ASSERT_FORMATTER_NAME;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
+use crate::upstream::file_syntax;
 
 pub struct PanicInCode;
 
@@ -133,7 +134,7 @@ fn check_single_panic_usage<'db>(
         // code that contains a panic.
         if_chain! {
             if let Some(text_position) = span.position_in_file(db, file_id);
-            if let Ok(file_node) = db.file_syntax(file_id);
+            if let Ok(file_node) = file_syntax(db, file_id);
             then {
                 let syntax_node = file_node.lookup_position(db, text_position.start);
                 diagnostics.push(PluginDiagnostic {

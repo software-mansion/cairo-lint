@@ -104,12 +104,13 @@ pub fn check_manual_unwrap_or<'db>(
 }
 
 fn check_manual_unwrap_or_with_match<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn LinterGroup,
     match_expr: &ExprMatch<'db>,
     function_id: FunctionWithBodyId<'db>,
     arenas: &Arenas<'db>,
 ) -> bool {
-    let matched_expr = db.expr_semantic(function_id, match_expr.matched_expr);
+    let semantic_db: &dyn SemanticGroup = db.upcast();
+    let matched_expr = semantic_db.expr_semantic(function_id, match_expr.matched_expr);
     let is_droppable = db.droppable(matched_expr.ty()).is_ok();
     let is_manual_unwrap_or = check_manual(db, match_expr, arenas, ManualLint::ManualUnwrapOr);
     is_manual_unwrap_or && is_droppable

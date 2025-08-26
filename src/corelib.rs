@@ -1,6 +1,9 @@
-use cairo_lang_defs::ids::{
-    ExternFunctionId, FreeFunctionId, ImplDefId, ImplItemId, LookupItemId, ModuleId, ModuleItemId,
-    SubmoduleId, TopLevelLanguageElementId, TraitFunctionId, TraitItemId,
+use cairo_lang_defs::{
+    db::DefsGroup,
+    ids::{
+        ExternFunctionId, FreeFunctionId, ImplDefId, ImplItemId, LookupItemId, ModuleId,
+        ModuleItemId, SubmoduleId, TopLevelLanguageElementId, TraitFunctionId, TraitItemId,
+    },
 };
 use cairo_lang_filesystem::ids::CrateId;
 use cairo_lang_semantic::db::SemanticGroup;
@@ -170,7 +173,7 @@ fn find_item_with_path<'db>(
     module_id: ModuleId<'db>,
     path: &str,
 ) -> Option<LookupItemId<'db>> {
-    let items = db.module_items(module_id).ok()?;
+    let items = module_id.module_data(db).ok()?.items(db);
     for item in items.iter() {
         if item.full_path(db) == path {
             return Some(LookupItemId::ModuleItem(*item));
