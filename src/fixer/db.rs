@@ -63,6 +63,7 @@ impl FixerDatabase {
             .set_cfg_set(&mut new_db)
             .to(files_group_input(db).cfg_set(db).clone());
 
+        // We don't migrate the inputs of the external files, as the [`FixerDatabase`] is operating on real files.
         init_external_files(&mut new_db);
 
         new_db
