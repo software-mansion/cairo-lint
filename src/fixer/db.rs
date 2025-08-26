@@ -63,7 +63,9 @@ impl FixerDatabase {
             .set_cfg_set(&mut new_db)
             .to(files_group_input(db).cfg_set(db).clone());
 
-        // We don't migrate the inputs of the external files, as the [`FixerDatabase`] is operating on real files.
+        // Initiate it again instead of migrating because [`ExternalFiles.try_ext_as_virtual_obj`] is private.
+        // We can do that since the only thing in this input is an `Arc` to a closure,
+        // that is never supposed to be changed after the initialization.
         init_external_files(&mut new_db);
 
         new_db
