@@ -16,10 +16,6 @@ use cairo_lang_filesystem::{
     flag::Flag,
     ids::FlagLongId,
 };
-use cairo_lang_lowering::{
-    db::{ExternalCodeSizeEstimator, LoweringGroup, init_lowering_group},
-    utils::InliningStrategy,
-};
 use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_semantic::{
     db::{Elongate, SemanticGroup, init_semantic_group, semantic_group_input},
@@ -44,12 +40,11 @@ impl LinterAnalysisDatabase {
         LinterAnalysisDatabaseBuilder::new()
     }
 
-    fn new(mut default_plugin_suite: PluginSuite, inlining_strategy: InliningStrategy) -> Self {
+    fn new(mut default_plugin_suite: PluginSuite) -> Self {
         let mut res = Self {
             storage: Default::default(),
         };
         init_files_group(&mut res);
-        init_lowering_group(&mut res, inlining_strategy);
         init_defs_group(&mut res);
         init_semantic_group(&mut res);
         init_external_files(&mut res);
@@ -90,16 +85,6 @@ impl LinterAnalysisDatabase {
 
 impl salsa::Database for LinterAnalysisDatabase {}
 
-// We don't need this implementation at the moment but it's required by `LoweringGroup`.
-impl ExternalCodeSizeEstimator for LinterAnalysisDatabase {
-    fn estimate_size(
-        &self,
-        _function_id: cairo_lang_lowering::ids::ConcreteFunctionWithBodyId,
-    ) -> cairo_lang_diagnostics::Maybe<isize> {
-        cairo_lang_diagnostics::Maybe::Ok(0)
-    }
-}
-
 impl<'db> Upcast<'db, dyn salsa::Database> for LinterAnalysisDatabase {
     fn upcast(&self) -> &(dyn salsa::Database + 'static) {
         self
@@ -126,12 +111,6 @@ impl<'db> Upcast<'db, dyn DefsGroup> for LinterAnalysisDatabase {
 
 impl<'db> Upcast<'db, dyn SemanticGroup> for LinterAnalysisDatabase {
     fn upcast(&self) -> &(dyn SemanticGroup + 'static) {
-        self
-    }
-}
-
-impl<'db> Upcast<'db, dyn LoweringGroup> for LinterAnalysisDatabase {
-    fn upcast(&self) -> &(dyn LoweringGroup + 'static) {
         self
     }
 }
@@ -163,7 +142,6 @@ pub struct LinterAnalysisDatabaseBuilder {
     unsafe_panic: bool,
     project_config: Option<Box<ProjectConfig>>,
     cfg_set: Option<CfgSet>,
-    inlining_strategy: InliningStrategy,
 }
 
 impl LinterAnalysisDatabaseBuilder {
@@ -176,7 +154,6 @@ impl LinterAnalysisDatabaseBuilder {
             unsafe_panic: false,
             project_config: None,
             cfg_set: None,
-            inlining_strategy: InliningStrategy::Default,
         }
     }
 
@@ -187,11 +164,6 @@ impl LinterAnalysisDatabaseBuilder {
 
     pub fn clear_plugins(&mut self) -> &mut Self {
         self.default_plugin_suite = get_default_plugin_suite();
-        self
-    }
-
-    pub fn with_inlining_strategy(&mut self, inlining_strategy: InliningStrategy) -> &mut Self {
-        self.inlining_strategy = inlining_strategy;
         self
     }
 
@@ -230,8 +202,7 @@ impl LinterAnalysisDatabaseBuilder {
         // Errors if something is not OK are very subtle, mostly this results in missing
         // identifier diagnostics, or panics regarding lack of corelib items.
 
-        let mut db =
-            LinterAnalysisDatabase::new(self.default_plugin_suite.clone(), self.inlining_strategy);
+        let mut db = LinterAnalysisDatabase::new(self.default_plugin_suite.clone());
 
         if let Some(cfg_set) = &self.cfg_set {
             db.use_cfg(cfg_set);
