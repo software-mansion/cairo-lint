@@ -20,7 +20,7 @@ jobs:
       run:
         working-directory: ./website
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
@@ -35,7 +35,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: website/.vitepress/dist
 
