@@ -300,7 +300,7 @@ pub fn find_generated_nodes<'db>(
 }
 
 #[salsa::tracked(returns(ref))]
-fn corelib_context<'db>(db: &'db dyn SemanticGroup) -> CorelibContext<'db> {
+fn corelib_context<'db>(db: &'db dyn LinterGroup) -> CorelibContext<'db> {
     CorelibContext::new(db)
 }
 

@@ -22,7 +22,7 @@ use cairo_lang_lowering::{
 };
 use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_semantic::{
-    db::{Elongate, SemanticGroup, init_semantic_group, semantic_group_input},
+    db::{SemanticGroup, init_semantic_group, semantic_group_input},
     ids::AnalyzerPluginLongId,
     inline_macros::get_default_plugin_suite,
     plugin::PluginSuite,
@@ -144,12 +144,6 @@ impl<'db> Upcast<'db, dyn ParserGroup> for LinterAnalysisDatabase {
 
 impl<'db> Upcast<'db, dyn LinterGroup> for LinterAnalysisDatabase {
     fn upcast(&self) -> &(dyn LinterGroup + 'static) {
-        self
-    }
-}
-
-impl Elongate for LinterAnalysisDatabase {
-    fn elongate(&self) -> &(dyn SemanticGroup + 'static) {
         self
     }
 }
