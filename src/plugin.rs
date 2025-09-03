@@ -1,6 +1,5 @@
 use cairo_lang_defs::ids::ModuleId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
 use salsa::Database;
 
