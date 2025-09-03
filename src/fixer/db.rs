@@ -1,7 +1,7 @@
 use cairo_lang_defs::db::{DefsGroup, defs_group_input, init_external_files};
 use cairo_lang_filesystem::db::{FilesGroup, files_group_input};
 use cairo_lang_parser::db::ParserGroup;
-use cairo_lang_semantic::db::{Elongate, SemanticGroup, semantic_group_input};
+use cairo_lang_semantic::db::{SemanticGroup, semantic_group_input};
 use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_utils::Upcast;
 
@@ -115,12 +115,6 @@ impl<'db> Upcast<'db, dyn ParserGroup> for FixerDatabase {
 
 impl<'db> Upcast<'db, dyn LinterGroup> for FixerDatabase {
     fn upcast(&self) -> &(dyn LinterGroup + 'static) {
-        self
-    }
-}
-
-impl Elongate for FixerDatabase {
-    fn elongate(&self) -> &(dyn SemanticGroup + 'static) {
         self
     }
 }

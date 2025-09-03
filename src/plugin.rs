@@ -1,7 +1,7 @@
 use cairo_lang_defs::ids::ModuleId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::plugin::{AnalyzerPlugin, PluginSuite};
+use salsa::Database;
 
 use crate::context::get_unique_allowed_names;
 
@@ -19,7 +19,7 @@ pub struct CairoLintAllow;
 impl AnalyzerPlugin for CairoLintAllow {
     fn diagnostics<'db>(
         &self,
-        _db: &'db dyn SemanticGroup,
+        _db: &'db dyn Database,
         _module_id: ModuleId<'db>,
     ) -> Vec<PluginDiagnostic<'db>> {
         Vec::new()
