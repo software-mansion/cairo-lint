@@ -19,7 +19,7 @@ pub struct CairoLintAllow;
 impl AnalyzerPlugin for CairoLintAllow {
     fn diagnostics<'db>(
         &self,
-        _db: &'db (dyn Database + 'static),
+        _db: &'db dyn Database,
         _module_id: ModuleId<'db>,
     ) -> Vec<PluginDiagnostic<'db>> {
         Vec::new()
