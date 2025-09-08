@@ -4,7 +4,7 @@ use std::sync::Arc;
 use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::db::{
-    FilesGroup, get_external_files, get_parent_and_mapping, translate_location,
+    FilesGroup, ext_as_virtual, get_parent_and_mapping, translate_location,
 };
 use cairo_lang_filesystem::ids::{CodeOrigin, FileId, FileLongId};
 use cairo_lang_semantic::db::SemanticGroup;
@@ -237,11 +237,7 @@ pub fn find_generated_nodes<'db>(
 
         let is_replacing_og_item = match file.long(db) {
             FileLongId::Virtual(vfs) => vfs.original_item_removed,
-            FileLongId::External(id) => {
-                get_external_files(db)
-                    .ext_as_virtual(db, *id)
-                    .original_item_removed
-            }
+            FileLongId::External(id) => ext_as_virtual(db, *id).original_item_removed,
             _ => unreachable!(),
         };
 
