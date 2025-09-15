@@ -1,9 +1,9 @@
 use std::collections::HashSet;
 
+use crate::context::{CairoLintKind, Lint};
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-
-use crate::context::{CairoLintKind, Lint};
+use cairo_lang_semantic::items::function_with_body::FunctionWithBodySemantic;
 
 use crate::LinterGroup;
 use crate::queries::get_all_checkable_functions;

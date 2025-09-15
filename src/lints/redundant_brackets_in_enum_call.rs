@@ -6,6 +6,7 @@ use crate::{
 };
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
+use cairo_lang_semantic::items::enm::EnumSemantic;
 use cairo_lang_semantic::{ConcreteVariant, Expr, db::SemanticGroup};
 use cairo_lang_syntax::node::{
     SyntaxNode, Terminal, TypedStablePtr, TypedSyntaxNode,
