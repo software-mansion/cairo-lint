@@ -2,6 +2,9 @@ use std::sync::Arc;
 
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleItemId};
 use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::items::function_with_body::FunctionWithBodySemantic;
+use cairo_lang_semantic::items::imp::ImplSemantic;
+use cairo_lang_semantic::items::trt::TraitSemantic;
 use cairo_lang_semantic::{
     Arenas, Condition, Expr, ExprFunctionCall, ExprIf, ExprLogicalOperator, ExprLoop, ExprMatch,
     ExprWhile, FunctionBody, Pattern, Statement, StatementBreak,

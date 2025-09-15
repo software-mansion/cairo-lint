@@ -6,6 +6,9 @@ use cairo_lang_defs::ids::{ModuleId, ModuleItemId, TopLevelLanguageElementId};
 use cairo_lang_diagnostics::{Diagnostics, DiagnosticsBuilder};
 use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
+use cairo_lang_semantic::items::free_function::FreeFunctionSemantic;
+use cairo_lang_semantic::items::imp::ImplSemantic;
+use cairo_lang_semantic::items::trt::TraitSemantic;
 use cairo_lang_semantic::{
     Arenas, Condition, Expr, ExprIf, FixedSizeArrayItems, LocalVariable, Pattern, PatternVariable,
     SemanticDiagnostic, Statement, VarId,

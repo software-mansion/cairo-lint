@@ -7,6 +7,8 @@ use cairo_lang_defs::{
 };
 use cairo_lang_filesystem::ids::CrateId;
 use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::items::imp::ImplSemantic;
+use cairo_lang_semantic::items::trt::TraitSemantic;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use salsa::Update;
 
