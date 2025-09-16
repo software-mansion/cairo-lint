@@ -19,12 +19,10 @@ use cairo_lang_diagnostics::DiagnosticsBuilder;
 use cairo_lang_filesystem::ids::{FileKind, FileLongId, VirtualFile};
 use cairo_lang_formatter::{FormatterConfig, get_formatted_file};
 use cairo_lang_parser::parser::Parser;
-use cairo_lang_semantic::items::imp::ImplSemantic;
-use cairo_lang_semantic::items::module::ModuleSemantic;
-use cairo_lang_semantic::items::trt::TraitSemantic;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCallArg, ExprId};
 use cairo_lang_syntax::node::ast::{self, BlockOrIf, ElseClause, ExprBlock, Statement};
 
+use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::helpers::GetIdentifier;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};

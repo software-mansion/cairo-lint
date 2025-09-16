@@ -1,7 +1,6 @@
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::items::enm::EnumSemantic;
 use cairo_lang_semantic::{Arenas, ExprMatch, Pattern};
 use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBlock, ExprListParenthesized, Statement};
 
@@ -15,6 +14,7 @@ use crate::context::{CairoLintKind, Lint};
 use crate::fixer::InternalFix;
 use crate::helper::indent_snippet;
 use crate::queries::{get_all_function_bodies, get_all_match_expressions};
+use cairo_lang_semantic::db::SemanticGroup;
 use salsa::Database;
 
 pub struct DestructMatch;

@@ -1,6 +1,5 @@
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::items::enm::EnumSemantic;
 use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
     ast::{self, OptionTypeClause},
@@ -10,6 +9,7 @@ use crate::{
     context::{CairoLintKind, Lint},
     fixer::InternalFix,
 };
+use cairo_lang_semantic::db::SemanticGroup;
 use salsa::Database;
 
 pub struct EmptyEnumBracketsVariant;

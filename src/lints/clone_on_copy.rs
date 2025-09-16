@@ -10,9 +10,8 @@ use cairo_lang_defs::ids::{
 };
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::items::function_with_body::{
-    FunctionWithBodySemantic, SemanticExprLookup,
-};
+use cairo_lang_semantic::db::SemanticGroup;
+use cairo_lang_semantic::items::function_with_body::SemanticExprLookup;
 use cairo_lang_semantic::items::functions::{GenericFunctionId, ImplGenericFunctionId};
 use cairo_lang_semantic::items::imp::ImplHead;
 use cairo_lang_semantic::types::peel_snapshots;

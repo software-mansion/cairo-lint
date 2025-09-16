@@ -1,8 +1,6 @@
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleItemId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::items::function_with_body::FunctionWithBodySemantic;
-use cairo_lang_semantic::types::TypesSemantic;
 use cairo_lang_semantic::{Arenas, ExprIf, ExprMatch};
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast};
 
@@ -17,6 +15,7 @@ use crate::{
     context::Lint,
     lints::manual::{ManualLint, check_manual, check_manual_if},
 };
+use cairo_lang_semantic::db::SemanticGroup;
 use salsa::Database;
 
 pub struct ManualUnwrapOr;

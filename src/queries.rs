@@ -1,9 +1,6 @@
 use std::sync::Arc;
 
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleItemId};
-use cairo_lang_semantic::items::function_with_body::FunctionWithBodySemantic;
-use cairo_lang_semantic::items::imp::ImplSemantic;
-use cairo_lang_semantic::items::trt::TraitSemantic;
 use cairo_lang_semantic::{
     Arenas, Condition, Expr, ExprFunctionCall, ExprIf, ExprLogicalOperator, ExprLoop, ExprMatch,
     ExprWhile, FunctionBody, Pattern, Statement, StatementBreak,
@@ -16,6 +13,7 @@ use if_chain::if_chain;
 use itertools::chain;
 
 use crate::helper::{ASSERT_FORMATTER_NAME, ASSERT_PATH};
+use cairo_lang_semantic::db::SemanticGroup;
 use salsa::Database;
 
 #[tracing::instrument(skip_all, level = "trace")]

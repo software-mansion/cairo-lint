@@ -1,7 +1,6 @@
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleItemId, TopLevelLanguageElementId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::items::imp::ImplSemantic;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::TypedStablePtr;
 use if_chain::if_chain;
@@ -12,6 +11,7 @@ use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 use super::AND;
+use cairo_lang_semantic::db::SemanticGroup;
 use salsa::Database;
 
 pub struct BitwiseForParity;

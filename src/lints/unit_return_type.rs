@@ -1,6 +1,5 @@
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::items::function_with_body::FunctionWithBodySemantic;
 use cairo_lang_syntax::node::TypedSyntaxNode;
 use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr,
@@ -12,6 +11,7 @@ use crate::{
     context::{CairoLintKind, Lint},
     queries::get_all_checkable_functions,
 };
+use cairo_lang_semantic::db::SemanticGroup;
 use salsa::Database;
 
 pub struct UnitReturnType;
