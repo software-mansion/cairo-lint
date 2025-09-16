@@ -4,18 +4,18 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::items::enm::EnumSemantic;
 use cairo_lang_semantic::{Arenas, ExprMatch, Pattern};
 use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBlock, ExprListParenthesized, Statement};
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
     ast::{ExprMatch as AstExprMatch, Pattern as AstPattern},
 };
 use if_chain::if_chain;
 
-use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
 use crate::fixer::InternalFix;
 use crate::helper::indent_snippet;
 use crate::queries::{get_all_function_bodies, get_all_match_expressions};
+use salsa::Database;
 
 pub struct DestructMatch;
 
@@ -57,11 +57,7 @@ impl Lint for DestructMatch {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_destruct_match(db, node)
     }
 
@@ -108,7 +104,7 @@ impl Lint for EqualityMatch {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_single_matches<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -123,7 +119,7 @@ pub fn check_single_matches<'db>(
 }
 
 fn check_single_match<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     match_expr: &ExprMatch<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
@@ -203,12 +199,12 @@ fn check_single_match<'db>(
 }
 
 /// Is a tuple expression the unit type.
-fn is_expr_list_parenthesised_unit(expr: &ExprListParenthesized, db: &dyn SyntaxGroup) -> bool {
+fn is_expr_list_parenthesised_unit(expr: &ExprListParenthesized, db: &dyn Database) -> bool {
     expr.expressions(db).elements(db).len() == 0
 }
 
 /// Is the block empty `{}` or `{ () }` but it shouldn't contain a comment.
-fn is_block_expr_unit_without_comment(block_expr: &ExprBlock, db: &dyn SyntaxGroup) -> bool {
+fn is_block_expr_unit_without_comment(block_expr: &ExprBlock, db: &dyn Database) -> bool {
     let mut statements = block_expr.statements(db).elements(db);
     // Check if the block is empty and there's no comment in it
     if statements.len() == 0
@@ -241,7 +237,7 @@ fn is_block_expr_unit_without_comment(block_expr: &ExprBlock, db: &dyn SyntaxGro
 
 /// Checks that either the expression is `()` or `{ }` or `{ () }` but none of them should contain a
 /// comment.
-pub fn is_expr_unit(expr: AstExpr, db: &dyn SyntaxGroup) -> bool {
+pub fn is_expr_unit(expr: AstExpr, db: &dyn Database) -> bool {
     match expr {
         AstExpr::Block(block_expr) => is_block_expr_unit_without_comment(&block_expr, db),
         AstExpr::Tuple(tuple_expr) => is_expr_list_parenthesised_unit(&tuple_expr, db),
@@ -268,7 +264,7 @@ pub fn is_expr_unit(expr: AstExpr, db: &dyn SyntaxGroup) -> bool {
 /// Panics if the diagnostic is incorrect (i.e., the match doesn't have the expected structure).
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_destruct_match<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let match_expr = AstExprMatch::from_syntax_node(db, node);

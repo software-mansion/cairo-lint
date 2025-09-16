@@ -40,7 +40,6 @@ cairo-lang-diagnostics = "*"
 cairo-lang-filesystem = "*"
 cairo-lang-formatter = "*"
 cairo-lang-parser = "*"
-cairo-lang-proc-macros = "*"
 cairo-lang-semantic = "*"
 cairo-lang-syntax = "*"
 cairo-lang-test-plugin = "*"
@@ -79,7 +78,6 @@ cairo-lang-formatter = { git = "https://github.com/starkware-libs/cairo", rev = 
 cairo-lang-lowering = { git = "https://github.com/starkware-libs/cairo", rev = "2c30b613b2dfa36338b9e7e32d65dcf693eedf58" }
 cairo-lang-parser = { git = "https://github.com/starkware-libs/cairo", rev = "2c30b613b2dfa36338b9e7e32d65dcf693eedf58" }
 cairo-lang-plugins = { git = "https://github.com/starkware-libs/cairo", rev = "2c30b613b2dfa36338b9e7e32d65dcf693eedf58" }
-cairo-lang-proc-macros = { git = "https://github.com/starkware-libs/cairo", rev = "2c30b613b2dfa36338b9e7e32d65dcf693eedf58" }
 cairo-lang-project = { git = "https://github.com/starkware-libs/cairo", rev = "2c30b613b2dfa36338b9e7e32d65dcf693eedf58" }
 cairo-lang-runnable-utils = { git = "https://github.com/starkware-libs/cairo", rev = "2c30b613b2dfa36338b9e7e32d65dcf693eedf58" }
 cairo-lang-semantic = { git = "https://github.com/starkware-libs/cairo", rev = "2c30b613b2dfa36338b9e7e32d65dcf693eedf58" }

@@ -15,6 +15,7 @@ use crate::LinterGroup;
 use crate::helper::ASSERT_FORMATTER_NAME;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 use crate::upstream::file_syntax;
+use salsa::Database;
 
 pub struct PanicInCode;
 
@@ -49,7 +50,7 @@ impl Lint for PanicInCode {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_panic_usage<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -63,7 +64,7 @@ pub fn check_panic_usage<'db>(
 }
 
 fn check_single_panic_usage<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     function_call_expr: &ExprFunctionCall<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {

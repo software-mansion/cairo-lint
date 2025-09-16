@@ -1,7 +1,7 @@
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
@@ -10,13 +10,13 @@ use cairo_lang_syntax::node::{
 
 use crate::context::{CairoLintKind, Lint};
 
-use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::lints::manual::helpers::{
     expr_if_get_var_name_and_err, expr_match_get_var_name_and_err,
 };
 use crate::lints::manual::{ManualLint, check_manual, check_manual_if};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions};
+use salsa::Database;
 
 pub struct ManualExpect;
 
@@ -61,11 +61,7 @@ impl Lint for ManualExpect {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_manual_expect(db, node)
     }
 
@@ -76,7 +72,7 @@ impl Lint for ManualExpect {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_expect<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -129,7 +125,7 @@ pub fn check_manual_expect<'db>(
 /// Rewrites a manual implementation of expect
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_expect<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let fix = match node.kind(db) {

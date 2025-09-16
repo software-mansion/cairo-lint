@@ -1,6 +1,5 @@
 use crate::context::{CairoLintKind, Lint};
 
-use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::lints::{ARRAY, SPAN, U32};
 use crate::mappings::get_originating_syntax_node_for;
@@ -10,17 +9,17 @@ use crate::queries::{
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
     Arenas, Condition, Expr, ExprFunctionCall, ExprFunctionCallArg, TypeLongId,
 };
 use cairo_lang_syntax::node::ast::Expr as SyntaxExpr;
 use cairo_lang_syntax::node::ast::ExprBinary;
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 use num_bigint::BigInt;
+use salsa::Database;
 
 const ARRAY_LEN_EQ_FUNC_NAME: &str = "U32PartialEq::eq";
 const ARRAY_EQ_FUNC_NAME: &str = "ArrayPartialEq::eq";
@@ -80,11 +79,7 @@ impl Lint for ManualIsEmpty {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_manual_is_empty(db, node)
     }
 
@@ -94,7 +89,7 @@ impl Lint for ManualIsEmpty {
 }
 
 pub fn check_manual_is_empty<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -126,7 +121,7 @@ pub fn check_manual_is_empty<'db>(
 /// Rewrites a manual implementation of is_empty
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_is_empty<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let typed_node = ExprBinary::cast(db, node)?;
@@ -167,13 +162,13 @@ pub fn fix_manual_is_empty<'db>(
     })
 }
 
-fn extract_function_name(db: &dyn SemanticGroup, fn_call: &ExprFunctionCall) -> String {
+fn extract_function_name(db: &dyn Database, fn_call: &ExprFunctionCall) -> String {
     let generic_function = fn_call.function.get_concrete(db).generic_function;
     generic_function.name(db)
 }
 
 fn check_if_comparison_args_are_incorrect<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     comparison: &ExprFunctionCall<'db>,
     arenas: &Arenas<'db>,
 ) -> bool {
@@ -209,7 +204,7 @@ fn check_if_comparison_args_are_incorrect<'db>(
     false
 }
 
-fn expr_is_empty_collection(db: &dyn LinterGroup, expr: &Expr) -> bool {
+fn expr_is_empty_collection(db: &dyn Database, expr: &Expr) -> bool {
     // ArrayTrait::new()
     if_chain! {
         if let Expr::FunctionCall(func_call) = expr;
@@ -238,7 +233,7 @@ fn expr_is_empty_collection(db: &dyn LinterGroup, expr: &Expr) -> bool {
     false
 }
 
-fn expr_is_zero_literal(db: &dyn SemanticGroup, expr: &Expr) -> bool {
+fn expr_is_zero_literal(db: &dyn Database, expr: &Expr) -> bool {
     if_chain! {
         if let Expr::Literal(literal) = expr;
         if literal.ty.format(db) == U32;
@@ -252,7 +247,7 @@ fn expr_is_zero_literal(db: &dyn SemanticGroup, expr: &Expr) -> bool {
     false
 }
 
-fn expr_is_collection_length_call(db: &dyn SemanticGroup, expr: &Expr, arenas: &Arenas) -> bool {
+fn expr_is_collection_length_call(db: &dyn Database, expr: &Expr, arenas: &Arenas) -> bool {
     if_chain! {
         if let Expr::FunctionCall(func_call) = expr;
         if func_call.args.len() == 1;
@@ -271,7 +266,7 @@ fn expr_is_collection_length_call(db: &dyn SemanticGroup, expr: &Expr, arenas: &
     false
 }
 
-fn is_std_collection_type(db: &dyn SemanticGroup, type_long_id: &TypeLongId) -> bool {
+fn is_std_collection_type(db: &dyn Database, type_long_id: &TypeLongId) -> bool {
     match type_long_id {
         TypeLongId::Snapshot(type_id) => {
             let underlying_type = type_id.long(db);

@@ -1,15 +1,15 @@
 use crate::context::{CairoLintKind, Lint};
 
-use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use cairo_lang_defs::ids::{LanguageElementId, ModuleItemId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::items::enm::EnumSemantic;
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::{
     SyntaxNode, Terminal, TypedSyntaxNode, ast::ItemEnum as AstEnumItem,
 };
+use salsa::Database;
 
 pub struct EnumVariantNames;
 
@@ -57,11 +57,7 @@ impl Lint for EnumVariantNames {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_enum_variant_names(db, node)
     }
 
@@ -72,7 +68,7 @@ impl Lint for EnumVariantNames {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_enum_variant_names<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -98,7 +94,7 @@ pub fn check_enum_variant_names<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 fn fix_enum_variant_names<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let enum_item = AstEnumItem::from_syntax_node(db, node);

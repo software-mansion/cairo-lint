@@ -10,7 +10,6 @@ use cairo_lang_defs::ids::{
 };
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::function_with_body::{
     FunctionWithBodySemantic, SemanticExprLookup,
 };
@@ -21,6 +20,7 @@ use cairo_lang_semantic::{Expr, ExprFunctionCall};
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast};
 use cairo_lang_utils::Intern;
+use salsa::Database;
 
 pub struct CloneOnCopy;
 
@@ -51,11 +51,7 @@ impl Lint for CloneOnCopy {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_clone_on_copy(db, node)
     }
 
@@ -66,7 +62,7 @@ impl Lint for CloneOnCopy {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_clone_on_copy<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -80,7 +76,7 @@ pub fn check_clone_on_copy<'db>(
 }
 
 fn check_clone_usage<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     function_call_expr: &ExprFunctionCall<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -102,7 +98,7 @@ fn check_clone_usage<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 fn fix_clone_on_copy<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let ast_expr_binary = ast::ExprBinary::cast(db, node)?;
@@ -148,7 +144,7 @@ fn fix_clone_on_copy<'db>(
 }
 
 fn get_expr_semantic<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     module_file_id: ModuleFileId<'db>,
     ast_expr_binary: &ast::ExprBinary<'db>,
 ) -> Option<Expr<'db>> {
@@ -177,7 +173,7 @@ fn get_expr_semantic<'db>(
 }
 
 fn get_function_with_body_id<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     module_file_id: ModuleFileId<'db>,
     ancestor: SyntaxNode<'db>,
 ) -> Option<FunctionWithBodyId<'db>> {

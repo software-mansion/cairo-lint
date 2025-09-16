@@ -1,7 +1,7 @@
 use cairo_lang_defs::ids::{FunctionWithBodyId, TopLevelLanguageElementId};
 use cairo_lang_semantic::FunctionId;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::imp::ImplSemantic;
+use salsa::Database;
 
 pub mod bitwise_for_parity_check;
 pub mod bool_comparison;
@@ -55,7 +55,7 @@ pub(crate) const ARRAY: &str = "core::array::Array";
 pub(crate) const U32: &str = "core::integer::u32";
 
 pub(crate) fn function_trait_name_from_fn_id<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     function: &FunctionId<'db>,
 ) -> String {
     let Ok(Some(func_id)) = function.get_concrete(db).body(db) else {

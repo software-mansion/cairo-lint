@@ -5,8 +5,8 @@ use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::items::function_with_body::FunctionWithBodySemantic;
 
-use crate::LinterGroup;
 use crate::queries::get_all_checkable_functions;
+use salsa::Database;
 
 pub struct DuplicateUnderscoreArgs;
 
@@ -38,7 +38,7 @@ impl Lint for DuplicateUnderscoreArgs {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_duplicate_underscore_args<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {

@@ -4,12 +4,10 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
     ast::{ExprIf, ExprMatch},
-    db::SyntaxGroup,
     kind::SyntaxKind,
 };
 
 use crate::{
-    LinterGroup,
     context::CairoLintKind,
     fixer::InternalFix,
     queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions},
@@ -21,6 +19,7 @@ use crate::{
         helpers::{expr_if_get_var_name_and_err, expr_match_get_var_name_and_err},
     },
 };
+use salsa::Database;
 
 pub struct ManualOkOr;
 
@@ -65,11 +64,7 @@ impl Lint for ManualOkOr {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_manual_ok_or(db, node)
     }
 
@@ -80,7 +75,7 @@ impl Lint for ManualOkOr {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_ok_or<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -115,7 +110,7 @@ pub fn check_manual_ok_or<'db>(
 /// Rewrites a manual implementation of ok_or
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_ok_or<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let fix = match node.kind(db) {

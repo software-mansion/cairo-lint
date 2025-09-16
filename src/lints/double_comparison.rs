@@ -3,21 +3,20 @@ use std::collections::HashSet;
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
     Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg, ExprLogicalOperator, LogicalOperator,
 };
 use cairo_lang_syntax::node::ast::{BinaryOperator, Expr as AstExpr};
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 
 use super::function_trait_name_from_fn_id;
 use crate::context::{CairoLintKind, Lint};
 
-use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::lints::{EQ, GE, GT, LE, LT};
 use crate::queries::{get_all_function_bodies, get_all_logical_operator_expressions};
+use salsa::Database;
 
 pub struct ImpossibleComparison;
 
@@ -102,11 +101,7 @@ impl Lint for SimplifiableComparison {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_simplifiable_comparison(db, node)
     }
 
@@ -161,11 +156,7 @@ impl Lint for RedundantComparison {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_redundant_comparison(db, node)
     }
 
@@ -220,11 +211,7 @@ impl Lint for ContradictoryComparison {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_contradictory_comparison(db, node)
     }
 
@@ -235,7 +222,7 @@ impl Lint for ContradictoryComparison {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_double_comparison<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -250,7 +237,7 @@ pub fn check_double_comparison<'db>(
 }
 
 fn check_single_double_comparison<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     logical_operator_exprs: &ExprLogicalOperator<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
@@ -382,7 +369,7 @@ fn check_impossible_comparison<'db>(
     lhs_op: &str,
     rhs_op: &str,
     logical_operator_exprs: &ExprLogicalOperator<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
 ) -> bool {
     let (lhs_var, lhs_literal) = match (&lhs_comparison.args[0], &lhs_comparison.args[1]) {
@@ -479,7 +466,7 @@ fn is_contradictory_double_comparison(
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_simplifiable_comparison<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let lhs_text = fix_double_comparison(db, node)?;
@@ -494,7 +481,7 @@ pub fn fix_simplifiable_comparison<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_redundant_comparison<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let lhs_text = fix_double_comparison(db, node)?;
@@ -509,7 +496,7 @@ pub fn fix_redundant_comparison<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_contradictory_comparison<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let lhs_text = fix_double_comparison(db, node)?;
@@ -523,10 +510,7 @@ pub fn fix_contradictory_comparison<'db>(
 }
 
 /// Rewrites a double comparison. Ex: `a > b || a == b` to `a >= b`
-pub fn fix_double_comparison<'db>(
-    db: &'db dyn SyntaxGroup,
-    node: SyntaxNode<'db>,
-) -> Option<String> {
+pub fn fix_double_comparison<'db>(db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<String> {
     let expr = AstExpr::from_syntax_node(db, node);
 
     if let AstExpr::Binary(binary_op) = expr {
@@ -587,7 +571,7 @@ fn determine_simplified_operator(
 
 fn extract_binary_operator_expr<'db>(
     expr: &AstExpr<'db>,
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
 ) -> Option<BinaryOperator<'db>> {
     if let AstExpr::Binary(binary_op) = expr {
         Some(binary_op.op(db))

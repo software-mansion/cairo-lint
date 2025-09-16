@@ -1,10 +1,9 @@
 use super::is_expected_variant;
-use crate::LinterGroup;
+
 use crate::helper::find_module_file_containing_node;
 use crate::lints::{ARRAY_NEW, DEFAULT, FALSE, NEVER, function_trait_name_from_fn_id};
 use cairo_lang_defs::ids::{ModuleId, ModuleItemId, TopLevelLanguageElementId};
 use cairo_lang_diagnostics::{Diagnostics, DiagnosticsBuilder};
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::diagnostic::SemanticDiagnosticKind;
 use cairo_lang_semantic::items::free_function::FreeFunctionSemantic;
 use cairo_lang_semantic::items::imp::ImplSemantic;
@@ -17,19 +16,16 @@ use cairo_lang_syntax::node::ast::{
     BlockOrIf, Condition as AstCondition, Expr as AstExpr, ExprIf as AstExprIf,
     ExprMatch as AstExprMatch, OptionElseClause, Statement as AstStatement,
 };
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 use if_chain::if_chain;
 use num_bigint::BigInt;
+use salsa::Database;
 
 /// Checks if the input statement is a `FunctionCall` then checks if the function name is the
 /// expected function name
-pub fn is_expected_function<'db>(
-    expr: &Expr<'db>,
-    db: &'db dyn SemanticGroup,
-    func_name: &str,
-) -> bool {
+pub fn is_expected_function<'db>(expr: &Expr<'db>, db: &'db dyn Database, func_name: &str) -> bool {
     let Expr::FunctionCall(func_call) = expr else {
         return false;
     };
@@ -112,7 +108,7 @@ pub fn extract_pattern_variable<'a, 'db>(
 pub fn is_destructured_variable_used_and_expected_variant<'db>(
     expr: &Expr<'db>,
     pattern: &Pattern<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
     enum_name: &str,
 ) -> bool {
@@ -207,7 +203,7 @@ pub fn if_expr_pattern_matches_tail_var(expr: &ExprIf, arenas: &Arenas) -> bool 
 /// Checks if `x` in the condition matches `x` in the `if` block's enum pattern.
 pub fn if_expr_condition_and_block_match_enum_pattern<'db>(
     expr: &ExprIf<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
     enum_name: &str,
 ) -> bool {
@@ -237,7 +233,7 @@ pub fn if_expr_condition_and_block_match_enum_pattern<'db>(
 ///
 /// # Returns
 /// * `true` if the expression is a default otherwise `false`.
-pub fn check_is_default(db: &dyn SemanticGroup, expr: &Expr, arenas: &Arenas) -> bool {
+pub fn check_is_default(db: &dyn Database, expr: &Expr, arenas: &Arenas) -> bool {
     match expr {
         Expr::FunctionCall(func_call) => {
             // Checks if the function called is either default or array new.
@@ -307,7 +303,7 @@ pub fn check_is_default(db: &dyn SemanticGroup, expr: &Expr, arenas: &Arenas) ->
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn fix_manual<'db>(func_name: &str, db: &'db dyn SyntaxGroup, node: SyntaxNode<'db>) -> String {
+pub fn fix_manual<'db>(func_name: &str, db: &'db dyn Database, node: SyntaxNode<'db>) -> String {
     match node.kind(db) {
         SyntaxKind::ExprMatch => {
             let expr_match = AstExprMatch::from_syntax_node(db, node);
@@ -335,7 +331,7 @@ pub fn fix_manual<'db>(func_name: &str, db: &'db dyn SyntaxGroup, node: SyntaxNo
 
 pub fn expr_match_get_var_name_and_err<'db>(
     expr_match: AstExprMatch<'db>,
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     arm_index: usize,
 ) -> (&'db str, String) {
     let mut arms = expr_match.arms(db).elements(db);
@@ -381,7 +377,7 @@ pub fn expr_match_get_var_name_and_err<'db>(
 
 pub fn expr_if_get_var_name_and_err<'db>(
     expr_if: AstExprIf<'db>,
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
 ) -> (&'db str, String) {
     let mut conditions = expr_if.conditions(db).elements(db);
     let condition = conditions.next().expect("Expected at least one condition");
@@ -417,7 +413,7 @@ pub fn expr_if_get_var_name_and_err<'db>(
 /// and the function's return type is the NEVER type.
 pub fn func_call_or_block_returns_never<'db>(
     expr: &Expr<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
 ) -> bool {
     let function_call = match expr {
@@ -465,7 +461,7 @@ pub fn extract_tail_or_preserve_expr<'a, 'db>(
     expr
 }
 
-pub fn is_variable_unused<'db>(db: &'db dyn LinterGroup, variable: &LocalVariable<'db>) -> bool {
+pub fn is_variable_unused<'db>(db: &'db dyn Database, variable: &LocalVariable<'db>) -> bool {
     let variable_syntax_stable_ptr = variable.stable_ptr(db).0;
     let Some(module_file_id) =
         find_module_file_containing_node(db, variable_syntax_stable_ptr.lookup(db))
@@ -486,7 +482,7 @@ pub fn is_variable_unused<'db>(db: &'db dyn LinterGroup, variable: &LocalVariabl
 /// designed to correctly find only `SemanticDiagnosticKind::UnusedVariable`
 /// and is tested for only that
 pub fn get_semantic_diagnostics<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     module_id: ModuleId<'db>,
 ) -> Option<Diagnostics<'db, SemanticDiagnostic<'db>>> {
     let mut diagnostics = DiagnosticsBuilder::default();

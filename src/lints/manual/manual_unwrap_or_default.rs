@@ -4,11 +4,9 @@ use cairo_lang_diagnostics::Severity;
 use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
     ast::{self},
-    db::SyntaxGroup,
 };
 
 use crate::{
-    LinterGroup,
     context::CairoLintKind,
     fixer::InternalFix,
     queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions},
@@ -17,6 +15,7 @@ use crate::{
     context::Lint,
     lints::manual::{ManualLint, check_manual, check_manual_if},
 };
+use salsa::Database;
 
 pub struct ManualUnwrapOrDefault;
 
@@ -62,11 +61,7 @@ impl Lint for ManualUnwrapOrDefault {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_manual_unwrap_or_default(db, node)
     }
 
@@ -77,7 +72,7 @@ impl Lint for ManualUnwrapOrDefault {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_unwrap_or_default<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -113,7 +108,7 @@ pub fn check_manual_unwrap_or_default<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_unwrap_or_default<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let expr = ast::Expr::from_syntax_node(db, node);
@@ -175,7 +170,7 @@ pub fn fix_manual_unwrap_or_default<'db>(
 }
 
 // Extracts comments from the node's text and formats them with the given indentation.
-fn extract_comments<'db>(db: &'db dyn SyntaxGroup, node: SyntaxNode<'db>, indent: &str) -> String {
+fn extract_comments<'db>(db: &'db dyn Database, node: SyntaxNode<'db>, indent: &str) -> String {
     let text = node.get_text(db);
     let comments_lines = text
         .lines()

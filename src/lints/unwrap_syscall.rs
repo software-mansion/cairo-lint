@@ -1,5 +1,4 @@
 use crate::{
-    LinterGroup,
     context::{CairoLintKind, Lint},
     fixer::InternalFix,
     queries::{get_all_function_bodies, get_all_function_calls},
@@ -11,9 +10,9 @@ use cairo_lang_semantic::items::functions::{GenericFunctionId, ImplGenericFuncti
 use cairo_lang_semantic::items::imp::ImplHead;
 use cairo_lang_semantic::{
     Arenas, ExprFunctionCall, ExprFunctionCallArg, GenericArgumentId, TypeId, TypeLongId,
-    db::SemanticGroup,
 };
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast};
+use salsa::Database;
 
 pub struct UnwrapSyscall;
 
@@ -66,11 +65,7 @@ impl Lint for UnwrapSyscall {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_unwrap_syscall(db, node)
     }
 
@@ -81,7 +76,7 @@ impl Lint for UnwrapSyscall {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_unwrap_syscall<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -96,7 +91,7 @@ pub fn check_unwrap_syscall<'db>(
 }
 
 fn check_single_unwrap_syscall<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     expr: &ExprFunctionCall<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
@@ -122,7 +117,7 @@ fn check_single_unwrap_syscall<'db>(
 }
 
 /// Check if this function call expression calls `core::result::ResultTraitImpl<_>::unwrap`.
-fn is_result_trait_impl_unwrap_call(db: &dyn SemanticGroup, expr: &ExprFunctionCall) -> bool {
+fn is_result_trait_impl_unwrap_call(db: &dyn Database, expr: &ExprFunctionCall) -> bool {
     if let GenericFunctionId::Impl(ImplGenericFunctionId { impl_id, function }) =
         expr.function.get_concrete(db).generic_function
         && function.name(db) == "unwrap"
@@ -136,7 +131,7 @@ fn is_result_trait_impl_unwrap_call(db: &dyn SemanticGroup, expr: &ExprFunctionC
 }
 
 // Check if this type is a `Result<felt252, Array<felt252>>`.
-fn is_syscall_result_type(db: &dyn SemanticGroup, ty: TypeId) -> bool {
+fn is_syscall_result_type(db: &dyn Database, ty: TypeId) -> bool {
     is_specific_concrete_generic_type(db, ty, "core::result::Result", |[arg_t, arg_e]| {
         if let GenericArgumentId::Type(arg_t) = arg_t
             && is_specific_concrete_type(db, arg_t, "core::felt252")
@@ -158,7 +153,7 @@ fn is_syscall_result_type(db: &dyn SemanticGroup, ty: TypeId) -> bool {
     })
 }
 
-fn is_specific_concrete_type(db: &dyn SemanticGroup, ty: TypeId, full_path: &str) -> bool {
+fn is_specific_concrete_type(db: &dyn Database, ty: TypeId, full_path: &str) -> bool {
     if let TypeLongId::Concrete(concrete_type_long_id) = ty.long(db)
         && concrete_type_long_id.generic_type(db).full_path(db) == full_path
     {
@@ -169,7 +164,7 @@ fn is_specific_concrete_type(db: &dyn SemanticGroup, ty: TypeId, full_path: &str
 }
 
 fn is_specific_concrete_generic_type<'db, const N: usize>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     ty: TypeId<'db>,
     full_path: &str,
     generic_args_matcher: impl FnOnce([GenericArgumentId<'db>; N]) -> bool,
@@ -188,7 +183,7 @@ fn is_specific_concrete_generic_type<'db, const N: usize>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 fn fix_unwrap_syscall<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let ast_expr_binary = ast::ExprBinary::cast(db, node).unwrap_or_else(|| {

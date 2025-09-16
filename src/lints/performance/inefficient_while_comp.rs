@@ -1,13 +1,12 @@
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprWhile};
 
 use crate::context::{CairoLintKind, Lint};
 
-use crate::LinterGroup;
 use crate::queries::{get_all_function_bodies, get_all_while_expressions};
+use salsa::Database;
 
 pub struct InefficientWhileComparison;
 
@@ -65,7 +64,7 @@ const PARTIAL_ORD_PATTERNS: [&str; 4] = [
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_inefficient_while_comp<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -80,7 +79,7 @@ pub fn check_inefficient_while_comp<'db>(
 }
 
 fn check_single_inefficient_while_comp<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     while_expr: &ExprWhile<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
     arenas: &Arenas<'db>,
@@ -94,7 +93,7 @@ fn check_single_inefficient_while_comp<'db>(
 }
 
 fn check_expression<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     expr: &Expr<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
     arenas: &Arenas<'db>,

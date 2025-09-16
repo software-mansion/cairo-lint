@@ -6,7 +6,6 @@ use fixer::{
     merge_overlapping_fixes,
 };
 
-use cairo_lang_syntax::node::db::SyntaxGroup;
 use helper::format_fixed_file;
 use itertools::Itertools;
 
@@ -41,7 +40,9 @@ pub use lang::{
     LinterAnalysisDatabase, LinterAnalysisDatabaseBuilder, LinterDiagnosticParams, LinterGroup,
 };
 
+use cairo_lang_syntax::node::db::SyntaxGroup;
 use context::{CairoLintKind, get_lint_type_from_diagnostic_message};
+use salsa::Database;
 
 pub trait CairoLintGroup: SemanticGroup + SyntaxGroup {}
 
@@ -58,7 +59,7 @@ pub trait CairoLintGroup: SemanticGroup + SyntaxGroup {}
 /// * values are vectors of proposed Fixes.
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_fixes<'db>(
-    db: &'db (dyn LinterGroup + 'static),
+    db: &'db dyn Database,
     linter_params: &LinterDiagnosticParams,
     diagnostics: Vec<SemanticDiagnostic<'db>>,
 ) -> HashMap<FileId<'db>, Vec<DiagnosticFixSuggestion>> {
@@ -96,7 +97,7 @@ pub fn get_fixes<'db>(
 /// * values are vectors of proposed Fixes.
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_separated_fixes<'db>(
-    db: &'db (dyn LinterGroup + 'static),
+    db: &'db dyn Database,
     diagnostics: Vec<SemanticDiagnostic<'db>>,
 ) -> HashMap<FileId<'db>, Vec<DiagnosticFixSuggestion>> {
     get_fixes_without_resolving_overlapping(db, diagnostics)
@@ -113,7 +114,7 @@ pub fn get_separated_fixes<'db>(
 pub fn apply_file_fixes<'db>(
     file_id: FileId<'db>,
     fixes: Vec<DiagnosticFixSuggestion>,
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     formatter_config: FormatterConfig,
 ) -> Result<()> {
     // Those suggestions MUST be sorted in reverse, so changes at the end of the file,

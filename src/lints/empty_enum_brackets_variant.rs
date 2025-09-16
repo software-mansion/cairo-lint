@@ -4,14 +4,13 @@ use cairo_lang_semantic::items::enm::EnumSemantic;
 use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
     ast::{self, OptionTypeClause},
-    db::SyntaxGroup,
 };
 
 use crate::{
-    LinterGroup,
     context::{CairoLintKind, Lint},
     fixer::InternalFix,
 };
+use salsa::Database;
 
 pub struct EmptyEnumBracketsVariant;
 
@@ -53,11 +52,7 @@ impl Lint for EmptyEnumBracketsVariant {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_empty_enum_brackets_variant(db, node)
     }
 
@@ -68,7 +63,7 @@ impl Lint for EmptyEnumBracketsVariant {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_empty_enum_brackets_variant<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -104,7 +99,7 @@ pub fn check_empty_enum_brackets_variant<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 fn fix_empty_enum_brackets_variant<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let ast_variant = ast::Variant::from_syntax_node(db, node);

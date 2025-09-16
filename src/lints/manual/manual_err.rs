@@ -1,7 +1,7 @@
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 
 use crate::context::{CairoLintKind, Lint};
@@ -11,7 +11,8 @@ use crate::lints::manual::{ManualLint, check_manual, check_manual_if};
 use crate::queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions};
 
 use super::helpers::fix_manual;
-use crate::LinterGroup;
+
+use salsa::Database;
 
 pub struct ManualErr;
 
@@ -56,11 +57,7 @@ impl Lint for ManualErr {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_manual_err(db, node)
     }
 
@@ -71,7 +68,7 @@ impl Lint for ManualErr {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_err<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -106,7 +103,7 @@ pub fn check_manual_err<'db>(
 /// Rewrites a manual implementation of err
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_err<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     Some(InternalFix {

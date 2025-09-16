@@ -1,9 +1,8 @@
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprIf, Statement};
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
     ast::{Expr as AstExpr, ExprIf as AstExprIf, OptionElseClause, Statement as AstStatement},
@@ -12,10 +11,10 @@ use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
 
-use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::helper::indent_snippet;
 use crate::queries::{get_all_function_bodies, get_all_if_expressions, is_assert_macro_call};
+use salsa::Database;
 
 pub struct CollapsibleIf;
 
@@ -68,11 +67,7 @@ impl Lint for CollapsibleIf {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_collapsible_if(db, node)
     }
 
@@ -83,7 +78,7 @@ impl Lint for CollapsibleIf {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_collapsible_if<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -98,7 +93,7 @@ pub fn check_collapsible_if<'db>(
 }
 
 fn check_single_collapsible_if<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     if_expr: &ExprIf<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
@@ -181,7 +176,7 @@ fn check_single_collapsible_if<'db>(
 /// returned.
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_collapsible_if<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let expr_if = AstExprIf::from_syntax_node(db, node);

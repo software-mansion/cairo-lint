@@ -3,10 +3,9 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::items::function_with_body::FunctionWithBodySemantic;
 use cairo_lang_semantic::types::TypesSemantic;
-use cairo_lang_semantic::{Arenas, ExprIf, ExprMatch, db::SemanticGroup};
-use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast, db::SyntaxGroup};
+use cairo_lang_semantic::{Arenas, ExprIf, ExprMatch};
+use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast};
 
-use crate::LinterGroup;
 use crate::{
     context::CairoLintKind,
     fixer::InternalFix,
@@ -18,6 +17,7 @@ use crate::{
     context::Lint,
     lints::manual::{ManualLint, check_manual, check_manual_if},
 };
+use salsa::Database;
 
 pub struct ManualUnwrapOr;
 
@@ -58,11 +58,7 @@ impl Lint for ManualUnwrapOr {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_manual_unwrap_or(db, node)
     }
 
@@ -73,7 +69,7 @@ impl Lint for ManualUnwrapOr {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_unwrap_or<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -106,20 +102,19 @@ pub fn check_manual_unwrap_or<'db>(
 }
 
 fn check_manual_unwrap_or_with_match<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     match_expr: &ExprMatch<'db>,
     function_id: FunctionWithBodyId<'db>,
     arenas: &Arenas<'db>,
 ) -> bool {
-    let semantic_db: &dyn SemanticGroup = db.upcast();
-    let matched_expr = semantic_db.expr_semantic(function_id, match_expr.matched_expr);
+    let matched_expr = db.expr_semantic(function_id, match_expr.matched_expr);
     let is_droppable = db.droppable(matched_expr.ty()).is_ok();
     let is_manual_unwrap_or = check_manual(db, match_expr, arenas, ManualLint::ManualUnwrapOr);
     is_manual_unwrap_or && is_droppable
 }
 
 fn check_manual_unwrap_or_with_if<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     if_expr: &ExprIf,
     function_id: FunctionWithBodyId<'db>,
     arenas: &Arenas<'db>,
@@ -132,7 +127,7 @@ fn check_manual_unwrap_or_with_if<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 fn fix_manual_unwrap_or<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let expr = ast::Expr::from_syntax_node(db, node);
@@ -248,7 +243,7 @@ fn fix_manual_unwrap_or<'db>(
 // Match arms typically have extra indentation that should be removed when converting to unwrap_or.
 // The base indentation level is determined by the match arm's starting position.
 fn get_adjusted_lines_and_indent(
-    db: &(dyn SyntaxGroup),
+    db: &dyn Database,
     node: SyntaxNode,
     arm: &ast::MatchArm,
 ) -> (String, usize) {

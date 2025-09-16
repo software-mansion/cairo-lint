@@ -2,12 +2,12 @@ use crate::upstream::file_syntax;
 use cairo_lang_defs::ids::{LanguageElementId, ModuleItemId};
 use cairo_lang_diagnostics::ToOption;
 use cairo_lang_filesystem::{db::get_originating_location, ids::FileId, span::TextOffset};
-use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_syntax::node::{SyntaxNode, ast::ModuleItem, ids::SyntaxStablePtrId};
+use salsa::Database;
 
 #[tracing::instrument(level = "trace", skip(db))]
 pub fn get_origin_module_item_as_syntax_node<'db>(
-    db: &'db dyn ParserGroup,
+    db: &'db dyn Database,
     module_item_id: &ModuleItemId<'db>,
 ) -> Option<SyntaxNode<'db>> {
     let ptr = module_item_id.stable_location(db).stable_ptr();
@@ -26,7 +26,7 @@ pub fn get_origin_module_item_as_syntax_node<'db>(
 /// Returns the originating syntax node for a given stable pointer.
 #[tracing::instrument(level = "trace", skip(db))]
 pub fn get_origin_syntax_node<'db>(
-    db: &'db dyn ParserGroup,
+    db: &'db dyn Database,
     ptr: &SyntaxStablePtrId<'db>,
 ) -> Option<SyntaxNode<'db>> {
     let syntax_node = ptr.lookup(db);
@@ -46,7 +46,7 @@ pub fn get_origin_syntax_node<'db>(
 
 #[tracing::instrument(level = "trace", skip(db))]
 pub fn get_originating_syntax_node_for<'db>(
-    db: &'db dyn ParserGroup,
+    db: &'db dyn Database,
     ptr: &SyntaxStablePtrId<'db>,
 ) -> Option<SyntaxNode<'db>> {
     let (file, span) = get_originating_location(
@@ -60,7 +60,7 @@ pub fn get_originating_syntax_node_for<'db>(
 }
 
 fn find_syntax_node_at_offset<'db>(
-    db: &'db dyn ParserGroup,
+    db: &'db dyn Database,
     file: FileId<'db>,
     offset: TextOffset,
 ) -> Option<SyntaxNode<'db>> {

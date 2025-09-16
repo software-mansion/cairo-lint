@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleItemId};
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::function_with_body::FunctionWithBodySemantic;
 use cairo_lang_semantic::items::imp::ImplSemantic;
 use cairo_lang_semantic::items::trt::TraitSemantic;
@@ -17,10 +16,11 @@ use if_chain::if_chain;
 use itertools::chain;
 
 use crate::helper::{ASSERT_FORMATTER_NAME, ASSERT_PATH};
+use salsa::Database;
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_checkable_functions<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
 ) -> Vec<FunctionWithBodyId<'db>> {
     match item {
@@ -47,7 +47,7 @@ pub fn get_all_checkable_functions<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_function_bodies<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
 ) -> Vec<Arc<FunctionBody<'db>>> {
     get_all_checkable_functions(db, item)
@@ -58,7 +58,7 @@ pub fn get_all_function_bodies<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_function_bodies_with_ids<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
 ) -> Vec<(FunctionWithBodyId<'db>, Arc<FunctionBody<'db>>)> {
     get_all_checkable_functions(db, item)
@@ -72,7 +72,7 @@ pub fn get_all_function_bodies_with_ids<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_parenthesized_expressions<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
 ) -> Vec<ExprParenthesized<'db>> {
     let node = match item {
@@ -227,7 +227,7 @@ pub fn get_all_break_statements<'db>(
 /// It's kind of a hack, but unfortunately compiler expands the `assert!()` macro before any other user macros,
 /// so we have to work around it.
 pub fn is_assert_macro_call<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
     expr: &ExprIf<'db>,
 ) -> bool {
@@ -247,7 +247,7 @@ pub fn is_assert_macro_call<'db>(
 /// Gets rid of all the trivia (whitespaces, newlines etc.)
 /// It makes predetermined token sequences easily comparable without counting in formatting caveats
 pub fn syntax_node_to_str_without_all_nested_trivia<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     syntax_node: SyntaxNode<'db>,
 ) -> String {
     syntax_node

@@ -33,9 +33,9 @@ use crate::context::get_fix_for_diagnostic_message;
 use crate::{LinterDiagnosticParams, LinterGroup};
 use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_filesystem::ids::FileInput;
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 pub use db::FixerDatabase;
-use salsa::Setter;
+use salsa::{Database, Setter};
 
 mod db;
 
@@ -67,7 +67,7 @@ pub struct InternalFix<'db> {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_fixes_without_resolving_overlapping<'db>(
-    db: &'db (dyn LinterGroup + 'static),
+    db: &'db dyn Database,
     diagnostics: Vec<SemanticDiagnostic<'db>>,
 ) -> HashMap<FileId<'db>, Vec<DiagnosticFixSuggestion>> {
     let (import_diagnostics, diags_without_imports): (Vec<_>, Vec<_>) = diagnostics
@@ -146,7 +146,7 @@ pub fn get_fixes_without_resolving_overlapping<'db>(
 /// replaced, and the `String` is the suggested replacement. Returns `None` if no fix
 /// is available for the given diagnostic.
 pub fn fix_semantic_diagnostic<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     diag: &SemanticDiagnostic<'db>,
 ) -> Option<InternalFix<'db>> {
     match diag.kind {
@@ -176,7 +176,7 @@ pub fn fix_semantic_diagnostic<'db>(
 ///
 /// `Option<InternalFix>` if a fix is available, or `None` if no fix can be applied.
 fn fix_plugin_diagnostic<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     plugin_diag: &PluginDiagnostic<'db>,
 ) -> Option<InternalFix<'db>> {
     let node = plugin_diag.stable_ptr.lookup(db);
@@ -213,7 +213,7 @@ impl<'db> ImportFix<'db> {
 ///
 /// A HashMap where keys are FileIds and values are HashMaps of SyntaxNodes to ImportFixes.
 pub fn collect_unused_import_fixes<'db>(
-    db: &'db (dyn LinterGroup + 'static),
+    db: &'db dyn Database,
     diags: &Vec<SemanticDiagnostic<'db>>,
 ) -> HashMap<FileId<'db>, HashMap<SyntaxNode<'db>, ImportFix<'db>>> {
     let mut file_fixes = HashMap::new();
@@ -239,7 +239,7 @@ pub fn collect_unused_import_fixes<'db>(
 /// * `fixes` - A mutable reference to the HashMap of fixes.
 #[tracing::instrument(skip_all, level = "trace")]
 fn process_unused_import<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     id: &UseId<'db>,
     fixes: &mut HashMap<SyntaxNode<'db>, ImportFix<'db>>,
 ) {
@@ -291,7 +291,7 @@ fn process_unused_import<'db>(
 ///
 /// A vector of Fix objects representing the applied fixes.
 pub fn apply_import_fixes<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     fixes: &HashMap<SyntaxNode<'db>, ImportFix<'db>>,
 ) -> Vec<DiagnosticFixSuggestion> {
     fixes
@@ -329,7 +329,7 @@ pub fn apply_import_fixes<'db>(
 ///
 /// A vector of Fix objects for the multi-import case.
 fn handle_multi_import<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
     items_to_remove: &[&'db str],
 ) -> Vec<DiagnosticFixSuggestion> {
@@ -352,7 +352,7 @@ fn handle_multi_import<'db>(
 ///
 /// A boolean indicating whether all descendants should be removed.
 fn all_descendants_removed<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
     items_to_remove: &[&'db str],
 ) -> bool {
@@ -375,7 +375,7 @@ fn all_descendants_removed<'db>(
 ///
 /// A vector of Fix objects for removing the entire import.
 fn remove_entire_import<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     mut current_node: SyntaxNode<'db>,
 ) -> Vec<DiagnosticFixSuggestion> {
     while let Some(parent) = current_node.parent(db) {
@@ -418,7 +418,7 @@ fn remove_entire_import<'db>(
 ///
 /// A vector of Fix objects for removing specific items from the import.
 fn remove_specific_items<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
     items_to_remove: &[&'db str],
 ) -> Vec<DiagnosticFixSuggestion> {
@@ -464,7 +464,7 @@ fn remove_specific_items<'db>(
 /// # Returns
 ///
 /// The UsePathList syntax node, or the original node if not found.
-fn find_use_path_list<'db>(db: &'db dyn SyntaxGroup, node: SyntaxNode<'db>) -> SyntaxNode<'db> {
+fn find_use_path_list<'db>(db: &'db dyn Database, node: SyntaxNode<'db>) -> SyntaxNode<'db> {
     node.descendants(db)
         .find(|descendant| descendant.kind(db) == SyntaxKind::UsePathList)
         .unwrap_or(node)
@@ -512,11 +512,11 @@ pub fn merge_overlapping_fixes(
             .flat_map(|module_id| {
                 let linter_diags = db
                     .linter_diagnostics(linter_query_params.clone(), *module_id)
-                    .into_iter()
+                    .iter()
                     .map(|diag| {
                         SemanticDiagnostic::new(
                             StableLocation::new(diag.stable_ptr),
-                            SemanticDiagnosticKind::PluginDiagnostic(diag),
+                            SemanticDiagnosticKind::PluginDiagnostic(diag.clone()),
                         )
                     });
 

@@ -1,14 +1,13 @@
-use crate::{LinterGroup, fixer::InternalFix, helper::indent_snippet};
+use crate::{fixer::InternalFix, helper::indent_snippet};
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::{Arenas, Expr, ExprBlock, ExprIf, Statement, db::SemanticGroup};
+use cairo_lang_semantic::{Arenas, Expr, ExprBlock, ExprIf, Statement};
 use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
     ast::{
         BlockOrIf, Condition, ElseClause, Expr as AstExpr, ExprBlock as AstExprBlock,
         ExprIf as AstExprIf, OptionElseClause, Statement as AstStatement, WrappedTokenTree,
     },
-    db::SyntaxGroup,
 };
 use if_chain::if_chain;
 use itertools::Itertools;
@@ -18,6 +17,7 @@ use crate::{
     helper::is_panic_expr,
     queries::{get_all_function_bodies, get_all_if_expressions},
 };
+use salsa::Database;
 
 pub struct ManualAssert;
 
@@ -61,11 +61,7 @@ impl Lint for ManualAssert {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_manual_assert(db, node)
     }
 
@@ -76,7 +72,7 @@ impl Lint for ManualAssert {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_manual_assert<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -91,7 +87,7 @@ pub fn check_manual_assert<'db>(
 }
 
 fn check_single_manual_assert<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     if_expr: &ExprIf<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
@@ -112,7 +108,7 @@ fn check_single_manual_assert<'db>(
 }
 
 fn check_single_condition_block<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     condition_block_expr: &ExprBlock<'db>,
     if_expr: &ExprIf<'db>,
     arenas: &Arenas<'db>,
@@ -152,7 +148,7 @@ fn check_single_condition_block<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_manual_assert<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let if_expr = AstExprIf::from_syntax_node(db, node);
@@ -299,7 +295,7 @@ pub fn fix_manual_assert<'db>(
 // - The first element is an iterator over the panic arguments from the `if` block.
 // - The second element is an iterator over the panic arguments from the `else` block.
 fn get_panic_args_from_diagnosed_node<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> (Option<Vec<SyntaxNode<'db>>>, Option<Vec<SyntaxNode<'db>>>) {
     let if_expr = AstExprIf::from_syntax_node(db, node);
@@ -319,7 +315,7 @@ fn get_panic_args_from_diagnosed_node<'db>(
 }
 
 fn get_panic_args_from_block<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     block: AstExprBlock<'db>,
 ) -> Option<Vec<SyntaxNode<'db>>> {
     let mut statements = block.statements(db).elements(db);
@@ -352,7 +348,7 @@ fn get_panic_args_from_block<'db>(
 }
 
 // Checks if the given node is an `else if` expression.
-fn is_else_if_expr<'db>(db: &'db dyn SyntaxGroup, node: SyntaxNode<'db>) -> bool {
+fn is_else_if_expr<'db>(db: &'db dyn Database, node: SyntaxNode<'db>) -> bool {
     if_chain! {
         if let Some(else_clause) = node.parent_of_type::<ElseClause>(db);
         if let BlockOrIf::If(child_if) = else_clause.else_block_or_if(db);
