@@ -1,9 +1,8 @@
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprIf, Pattern, PatternId};
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
     ast::{Condition as AstCondition, ExprIf as AstExprIf},
@@ -11,9 +10,9 @@ use cairo_lang_syntax::node::{
 
 use crate::context::{CairoLintKind, Lint};
 
-use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
+use salsa::Database;
 
 pub struct EquatableIfLet;
 
@@ -53,11 +52,7 @@ impl Lint for EquatableIfLet {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_equatable_if_let(db, node)
     }
 
@@ -68,7 +63,7 @@ impl Lint for EquatableIfLet {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_equatable_if_let<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -83,7 +78,7 @@ pub fn check_equatable_if_let<'db>(
 }
 
 fn check_single_equatable_if_let<'db>(
-    _db: &'db dyn SemanticGroup,
+    _db: &'db dyn Database,
     if_expr: &ExprIf<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
@@ -128,7 +123,7 @@ fn is_simple_equality_condition(patterns: &[PatternId], arenas: &Arenas) -> bool
 /// Rewrites a useless `if let` to a simple `if`
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_equatable_if_let<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let expr = AstExprIf::from_syntax_node(db, node);

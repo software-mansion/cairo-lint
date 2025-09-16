@@ -5,7 +5,6 @@ use cairo_lang_semantic::items::functions::{GenericFunctionId, ImplGenericFuncti
 use cairo_lang_semantic::items::imp::ImplHead;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::SyntaxNode;
-use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode, ast::ExprBinary};
 use if_chain::if_chain;
@@ -14,6 +13,7 @@ use crate::LinterGroup;
 use crate::context::{CairoLintKind, Lint};
 use crate::fixer::InternalFix;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
+use salsa::Database;
 
 pub struct BoolComparison;
 
@@ -59,11 +59,7 @@ impl Lint for BoolComparison {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_bool_comparison(db, node)
     }
 
@@ -75,7 +71,7 @@ impl Lint for BoolComparison {
 /// Checks for ` a == true`. Bool comparisons are useless and can be rewritten more clearly.
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_bool_comparison<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -90,7 +86,7 @@ pub fn check_bool_comparison<'db>(
 }
 
 fn check_single_bool_comparison<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     function_call_expr: &ExprFunctionCall<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
@@ -137,7 +133,7 @@ fn check_single_bool_comparison<'db>(
 /// `!some_bool`
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_bool_comparison<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let node = ExprBinary::from_syntax_node(db, node);
@@ -155,7 +151,7 @@ pub fn fix_bool_comparison<'db>(
 
 /// Generates the fixed boolean for a boolean comparison. It will transform `x == false` to `!x`
 fn generate_fixed_text_for_comparison<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     lhs: &str,
     rhs: &str,
     node: ExprBinary<'db>,

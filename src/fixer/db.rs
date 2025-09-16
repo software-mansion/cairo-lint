@@ -2,11 +2,12 @@ use cairo_lang_defs::db::{DefsGroup, defs_group_input, init_external_files};
 use cairo_lang_filesystem::db::{FilesGroup, files_group_input};
 use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_semantic::db::{SemanticGroup, semantic_group_input};
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_utils::Upcast;
 
 use crate::LinterGroup;
-use salsa::Setter;
+use cairo_lang_syntax::node::db::SyntaxGroup;
+use salsa::{Database, Setter};
 
 #[salsa::db]
 #[derive(Clone)]
@@ -17,7 +18,7 @@ pub struct FixerDatabase {
 impl salsa::Database for FixerDatabase {}
 
 impl FixerDatabase {
-    pub fn new_from(db: &(dyn SemanticGroup + 'static)) -> Self {
+    pub fn new_from(db: &dyn Database) -> Self {
         let mut new_db = Self::new();
         // SemanticGroup salsa inputs.
         semantic_group_input(&new_db)

@@ -1,16 +1,15 @@
 use super::{ADD, DIV, MUL, SUB};
 use crate::context::{CairoLintKind, Lint};
 
-use crate::LinterGroup;
 use crate::helper::{is_one, is_zero};
 use crate::lints::function_trait_name_from_fn_id;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, ExprFunctionCall};
 use cairo_lang_syntax::node::TypedStablePtr;
+use salsa::Database;
 
 pub struct RedundantOperation;
 
@@ -51,7 +50,7 @@ impl Lint for RedundantOperation {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_redundant_operation<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -66,7 +65,7 @@ pub fn check_redundant_operation<'db>(
 }
 
 fn check_single_redundant_operation<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     expr_func: &ExprFunctionCall<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,

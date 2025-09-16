@@ -1,12 +1,11 @@
 use cairo_lang_defs::ids::{ModuleItemId, TopLevelLanguageElementId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{
     Arenas, Expr, ExprBlock, ExprId, ExprLoop, ExprMatch, Pattern, PatternEnumVariant, Statement,
 };
 use cairo_lang_syntax::node::SyntaxNode;
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::{
     TypedStablePtr, TypedSyntaxNode,
     ast::{
@@ -18,11 +17,11 @@ use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
 
-use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::helper::indent_snippet;
 use crate::lints::{NONE, SOME};
 use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
+use salsa::Database;
 
 const SPAN_MATCH_POP_FRONT: &str = "\"SpanImpl::pop_front\"";
 
@@ -69,11 +68,7 @@ impl Lint for LoopMatchPopFront {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_loop_match_pop_front(db, node)
     }
 
@@ -84,7 +79,7 @@ impl Lint for LoopMatchPopFront {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_loop_match_pop_front<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -99,7 +94,7 @@ pub fn check_loop_match_pop_front<'db>(
 }
 
 fn check_single_loop_match_pop_front<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     loop_expr: &ExprLoop<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
     arenas: &Arenas<'db>,
@@ -164,7 +159,7 @@ fn check_single_loop_match_pop_front<'db>(
 const OPTION_TYPE: &str = "core::option::Option::<";
 
 fn check_single_match<'db>(
-    db: &dyn SemanticGroup,
+    db: &dyn Database,
     match_expr: &ExprMatch<'db>,
     arenas: &Arenas<'db>,
 ) -> bool {
@@ -214,7 +209,7 @@ fn check_single_match<'db>(
     }
 }
 fn check_enum_pattern<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     enum_pat: &PatternEnumVariant<'db>,
     arenas: &Arenas<'db>,
     arm_expression: ExprId,
@@ -238,7 +233,7 @@ fn check_enum_pattern<'db>(
     enum_pat.variant.id.full_path(db) == SOME
 }
 /// Checks that the block only contains `break;` without comments
-fn check_block_is_break(db: &dyn SemanticGroup, expr_block: &ExprBlock, arenas: &Arenas) -> bool {
+fn check_block_is_break(db: &dyn Database, expr_block: &ExprBlock, arenas: &Arenas) -> bool {
     if_chain! {
         if expr_block.statements.len() == 1;
         if let Statement::Break(break_stmt) = &arenas.statements[expr_block.statements[0]];
@@ -274,7 +269,7 @@ fn check_block_is_break(db: &dyn SemanticGroup, expr_block: &ExprBlock, arenas: 
 /// ```
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_loop_match_pop_front<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let expr_loop = AstExprLoop::from_syntax_node(db, node);

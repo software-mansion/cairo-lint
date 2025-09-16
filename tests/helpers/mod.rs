@@ -55,11 +55,11 @@ pub fn get_diags<'db>(
         );
         diagnostics.extend(
             db.linter_diagnostics(linter_params.clone(), *module_id)
-                .into_iter()
+                .iter()
                 .map(|diag| {
                     SemanticDiagnostic::new(
                         StableLocation::new(diag.stable_ptr),
-                        SemanticDiagnosticKind::PluginDiagnostic(diag),
+                        SemanticDiagnosticKind::PluginDiagnostic(diag.clone()),
                     )
                 }),
         );

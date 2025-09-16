@@ -5,15 +5,14 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr,
     ast::{FunctionSignature, OptionReturnTypeClause},
-    db::SyntaxGroup,
 };
 
-use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::{
     context::{CairoLintKind, Lint},
     queries::get_all_checkable_functions,
 };
+use salsa::Database;
 
 pub struct UnitReturnType;
 
@@ -53,11 +52,7 @@ impl Lint for UnitReturnType {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_unit_return_type(db, node)
     }
 
@@ -68,7 +63,7 @@ impl Lint for UnitReturnType {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_unit_return_type<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -96,7 +91,7 @@ pub fn check_unit_return_type<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_unit_return_type<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let function_signature = FunctionSignature::from_syntax_node(db, node);

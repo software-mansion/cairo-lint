@@ -1,17 +1,16 @@
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, ExprFunctionCall};
 use cairo_lang_syntax::node::TypedStablePtr;
 
 use super::{AND, function_trait_name_from_fn_id};
 use crate::context::{CairoLintKind, Lint};
 
-use crate::LinterGroup;
 use crate::helper::is_zero;
 use crate::lints::{DIV, MUL};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
+use salsa::Database;
 
 pub struct ErasingOperation;
 
@@ -57,7 +56,7 @@ impl Lint for ErasingOperation {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_erasing_operation<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -72,7 +71,7 @@ pub fn check_erasing_operation<'db>(
 }
 
 fn check_single_erasing_operation<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     expr_func: &ExprFunctionCall<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,

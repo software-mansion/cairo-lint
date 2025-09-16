@@ -1,15 +1,14 @@
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprFunctionCall, ExprFunctionCallArg, ExprIf};
 use cairo_lang_syntax::node::{TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
 
-use crate::LinterGroup;
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
+use salsa::Database;
 
 pub struct DuplicateIfCondition;
 
@@ -58,7 +57,7 @@ impl Lint for DuplicateIfCondition {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_duplicate_if_condition<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -73,7 +72,7 @@ pub fn check_duplicate_if_condition<'db>(
 }
 
 fn check_single_duplicate_if_condition<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     if_expr: &ExprIf<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,

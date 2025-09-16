@@ -1,17 +1,16 @@
 use crate::context::{CairoLintKind, Lint};
 
-use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::helper::indent_snippet;
 use crate::queries::get_all_parenthesized_expressions;
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::ast::{ArgListParenthesized, Expr, ExprParenthesized};
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
+use salsa::Database;
 
 pub struct DoubleParens;
 
@@ -51,11 +50,7 @@ impl Lint for DoubleParens {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_double_parens(db, node)
     }
 
@@ -66,7 +61,7 @@ impl Lint for DoubleParens {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_double_parens<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -77,7 +72,7 @@ pub fn check_double_parens<'db>(
 }
 
 fn maybe_add_double_parens_diag<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     parens_expr: ExprParenthesized<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -129,7 +124,7 @@ fn maybe_add_double_parens_diag<'db>(
 /// Output: `x + y`
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_double_parens<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let mut expr = Expr::from_syntax_node(db, node);

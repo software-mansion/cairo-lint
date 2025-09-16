@@ -1,5 +1,4 @@
 use crate::{
-    LinterGroup,
     context::{CairoLintKind, Lint},
     fixer::InternalFix,
     queries::get_all_function_bodies,
@@ -7,13 +6,13 @@ use crate::{
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::items::enm::EnumSemantic;
-use cairo_lang_semantic::{ConcreteVariant, Expr, db::SemanticGroup};
+use cairo_lang_semantic::{ConcreteVariant, Expr};
 use cairo_lang_syntax::node::{
     SyntaxNode, Terminal, TypedStablePtr, TypedSyntaxNode,
     ast::{self, OptionTypeClause},
-    db::SyntaxGroup,
 };
 use if_chain::if_chain;
+use salsa::Database;
 
 pub struct RedundantBracketsInEnumCall;
 
@@ -63,11 +62,7 @@ impl Lint for RedundantBracketsInEnumCall {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_redundant_brackets_in_enum_call(db, node)
     }
 
@@ -78,7 +73,7 @@ impl Lint for RedundantBracketsInEnumCall {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_redundant_brackets_in_enum_call<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -97,7 +92,7 @@ pub fn check_redundant_brackets_in_enum_call<'db>(
     }
 }
 
-fn is_redundant_enum_brackets_call(expr: &Expr, db: &dyn SemanticGroup) -> bool {
+fn is_redundant_enum_brackets_call(expr: &Expr, db: &dyn Database) -> bool {
     if_chain! {
         // Check if the expression is a constructor call for an enum variant,
         if let Expr::EnumVariantCtor(enum_expr) = expr;
@@ -139,7 +134,7 @@ fn is_redundant_enum_brackets_call(expr: &Expr, db: &dyn SemanticGroup) -> bool 
 /// the enum is declared as `enum MyEnum<T, E> { ... }`
 fn find_generic_param_with_index<'db>(
     variant: &ConcreteVariant<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
 ) -> Option<(usize, String)> {
     let variant_id = variant.id;
     let variant_ast = variant_id.stable_ptr(db).lookup(db);
@@ -182,7 +177,7 @@ fn has_unit_generic_arg_at_index<'db>(
     func_call: &ast::ExprFunctionCall<'db>,
     index_to_match: usize,
     generic_param_name: String,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
 ) -> bool {
     for segment in func_call.path(db).segments(db).elements(db) {
         let ast::PathSegment::WithGenericArgs(path_segment) = &segment else {
@@ -221,7 +216,7 @@ fn has_unit_generic_arg_at_index<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 fn fix_redundant_brackets_in_enum_call<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let ast_expr = ast::Expr::from_syntax_node(db, node);

@@ -2,7 +2,7 @@ use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::{Arenas, Expr, ExprId, ExprLoop, Statement};
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::{
     SyntaxNode, TypedStablePtr, TypedSyntaxNode,
     ast::{Expr as AstExpr, ExprLoop as AstExprLoop, OptionElseClause, Statement as AstStatement},
@@ -11,10 +11,10 @@ use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
 
-use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::helper::{invert_condition, remove_break_from_block, remove_break_from_else_clause};
 use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
+use salsa::Database;
 
 pub struct LoopForWhile;
 
@@ -65,11 +65,7 @@ impl Lint for LoopForWhile {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_loop_break(db, node)
     }
 
@@ -95,7 +91,7 @@ impl Lint for LoopForWhile {
 /// ```
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_loop_for_while<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -208,7 +204,7 @@ fn check_if_contains_break_with_no_return_value(expr: &ExprId, arenas: &Arenas) 
 /// ```
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_loop_break<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let loop_expr = AstExprLoop::from_syntax_node(db, node);

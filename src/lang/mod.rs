@@ -3,16 +3,11 @@ use std::sync::Arc;
 
 use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
-use cairo_lang_filesystem::db::{
-    FilesGroup, ext_as_virtual, get_parent_and_mapping, translate_location,
-};
+use cairo_lang_filesystem::db::{ext_as_virtual, get_parent_and_mapping, translate_location};
 use cairo_lang_filesystem::ids::{CodeOrigin, FileId, FileLongId};
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_syntax::node::SyntaxNode;
-use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::kind::SyntaxKind;
-use cairo_lang_utils::Upcast;
 use cairo_lang_utils::ordered_hash_set::OrderedHashSet;
 use if_chain::if_chain;
 
@@ -26,8 +21,8 @@ use crate::mappings::{get_origin_module_item_as_syntax_node, get_origin_syntax_n
 mod db;
 use crate::upstream::file_syntax;
 use cairo_lang_defs::db::DefsGroup;
-use cairo_lang_parser::db::ParserGroup;
 pub use db::{LinterAnalysisDatabase, LinterAnalysisDatabaseBuilder};
+use salsa::Database;
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
 pub struct LinterDiagnosticParams {
@@ -35,41 +30,45 @@ pub struct LinterDiagnosticParams {
     pub tool_metadata: CairoLintToolMetadata,
 }
 
-#[cairo_lang_proc_macros::query_group]
-pub trait LinterGroup:
-    for<'db> Upcast<'db, dyn SemanticGroup>
-    + SemanticGroup
-    + SyntaxGroup
-    + DefsGroup
-    + ParserGroup
-    + FilesGroup
-{
+pub trait LinterGroup: Database {
     fn linter_diagnostics<'db>(
         &'db self,
         params: LinterDiagnosticParams,
         module_id: ModuleId<'db>,
-    ) -> Vec<PluginDiagnostic<'db>>;
+    ) -> &'db Vec<PluginDiagnostic<'db>> {
+        linter_diagnostics(self.as_dyn_database(), params, module_id)
+    }
 
-    fn node_resultants<'db>(&'db self, node: SyntaxNode<'db>) -> Option<Vec<SyntaxNode<'db>>>;
+    fn node_resultants<'db>(&'db self, node: SyntaxNode<'db>) -> &'db Option<Vec<SyntaxNode<'db>>> {
+        node_resultants(self.as_dyn_database(), node)
+    }
 
     fn file_and_subfiles_with_corresponding_modules<'db>(
         &'db self,
         file: FileId<'db>,
-    ) -> Option<(HashSet<FileId<'db>>, HashSet<ModuleId<'db>>)>;
+    ) -> &'db Option<(HashSet<FileId<'db>>, HashSet<ModuleId<'db>>)> {
+        file_and_subfiles_with_corresponding_modules(self.as_dyn_database(), file)
+    }
 
     fn find_generated_nodes<'db>(
         &'db self,
         node_descendant_files: Arc<[FileId<'db>]>,
         node: SyntaxNode<'db>,
-    ) -> OrderedHashSet<SyntaxNode<'db>>;
+    ) -> &'db OrderedHashSet<SyntaxNode<'db>> {
+        find_generated_nodes(self.as_dyn_database(), node_descendant_files, node)
+    }
 
-    #[salsa::transparent]
-    fn corelib_context<'db>(&'db self) -> &'db CorelibContext<'db>;
+    fn corelib_context<'db>(&'db self) -> &'db CorelibContext<'db> {
+        corelib_context(self.as_dyn_database())
+    }
 }
 
+impl<T: Database + ?Sized> LinterGroup for T {}
+
 #[tracing::instrument(skip_all, level = "trace")]
+#[salsa::tracked(returns(ref))]
 fn linter_diagnostics<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     params: LinterDiagnosticParams,
     module_id: ModuleId<'db>,
 ) -> Vec<PluginDiagnostic<'db>> {
@@ -144,25 +143,31 @@ fn linter_diagnostics<'db>(
 }
 
 #[tracing::instrument(level = "trace", skip(db))]
+#[salsa::tracked(returns(ref))]
 fn node_resultants<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<Vec<SyntaxNode<'db>>> {
     let main_file = node.stable_ptr(db).file_id(db);
 
-    let (mut files, _) = db.file_and_subfiles_with_corresponding_modules(main_file)?;
+    let (files, _) = db
+        .file_and_subfiles_with_corresponding_modules(main_file)
+        .as_ref()?;
 
-    files.remove(&main_file);
-
-    let files: Arc<[FileId]> = files.into_iter().collect();
+    let files: Arc<[FileId]> = files
+        .iter()
+        .filter(|file| **file != main_file)
+        .cloned()
+        .collect();
     let resultants = db.find_generated_nodes(files, node);
 
-    Some(resultants.into_iter().collect())
+    Some(resultants.into_iter().cloned().collect())
 }
 
 #[tracing::instrument(level = "trace", skip(db))]
+#[salsa::tracked(returns(ref))]
 pub fn file_and_subfiles_with_corresponding_modules<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     file: FileId<'db>,
 ) -> Option<(HashSet<FileId<'db>>, HashSet<ModuleId<'db>>)> {
     let mut modules: HashSet<_> = db.file_modules(file).ok()?.iter().copied().collect();
@@ -198,8 +203,9 @@ pub fn file_and_subfiles_with_corresponding_modules<'db>(
 }
 
 #[tracing::instrument(level = "trace", skip(db))]
+#[salsa::tracked(returns(ref))]
 pub fn find_generated_nodes<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     node_descendant_files: Arc<[FileId<'db>]>,
     node: SyntaxNode<'db>,
 ) -> OrderedHashSet<SyntaxNode<'db>> {
@@ -280,11 +286,11 @@ pub fn find_generated_nodes<'db>(
         }
 
         for new_node in new_nodes {
-            result.extend(find_generated_nodes(
-                db,
-                Arc::clone(&node_descendant_files),
-                new_node,
-            ));
+            result.extend(
+                find_generated_nodes(db, Arc::clone(&node_descendant_files), new_node)
+                    .into_iter()
+                    .cloned(),
+            );
         }
     }
 
@@ -296,13 +302,13 @@ pub fn find_generated_nodes<'db>(
 }
 
 #[salsa::tracked(returns(ref))]
-fn corelib_context<'db>(db: &'db dyn LinterGroup) -> CorelibContext<'db> {
+fn corelib_context<'db>(db: &'db dyn Database) -> CorelibContext<'db> {
     CorelibContext::new(db)
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
 fn node_has_ascendants_with_allow_name_attr<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
     allowed_name: &'static str,
 ) -> bool {

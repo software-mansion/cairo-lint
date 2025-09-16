@@ -5,7 +5,7 @@ use cairo_lang_semantic::items::functions::GenericFunctionId;
 use cairo_lang_semantic::items::imp::ImplHead;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::ast::{Expr as AstExpr, ExprBinary};
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
@@ -15,6 +15,7 @@ use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::helper::is_item_ancestor_of_module;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
+use salsa::Database;
 
 pub struct IntegerGreaterEqualPlusOne;
 
@@ -58,11 +59,7 @@ impl Lint for IntegerGreaterEqualPlusOne {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_int_ge_plus_one(db, node)
     }
 
@@ -113,11 +110,7 @@ impl Lint for IntegerGreaterEqualMinusOne {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_int_ge_min_one(db, node)
     }
 
@@ -168,11 +161,7 @@ impl Lint for IntegerLessEqualPlusOne {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_int_le_plus_one(db, node)
     }
 
@@ -223,11 +212,7 @@ impl Lint for IntegerLessEqualMinusOne {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_int_le_min_one(db, node)
     }
 
@@ -238,7 +223,7 @@ impl Lint for IntegerLessEqualMinusOne {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_int_op_one<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -253,7 +238,7 @@ pub fn check_int_op_one<'db>(
 }
 
 fn check_single_int_op_one<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     function_call_expr: &ExprFunctionCall<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
@@ -384,7 +369,7 @@ fn check_is_variable<'db>(arg: &ExprFunctionCallArg<'db>, arenas: &Arenas<'db>) 
 }
 
 fn check_is_add_or_sub_one<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     arg: &ExprFunctionCallArg<'db>,
     arenas: &Arenas<'db>,
     is_part_of_corelib_integer: bool,
@@ -436,7 +421,7 @@ fn check_is_add_or_sub_one<'db>(
 /// Rewrites a manual implementation of int ge plus one x >= y + 1
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_int_ge_plus_one<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let node = ExprBinary::from_syntax_node(db, node);
@@ -462,7 +447,7 @@ pub fn fix_int_ge_plus_one<'db>(
 /// Rewrites a manual implementation of int ge min one x - 1 >= y
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_int_ge_min_one<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let node = ExprBinary::from_syntax_node(db, node);
@@ -488,7 +473,7 @@ pub fn fix_int_ge_min_one<'db>(
 /// Rewrites a manual implementation of int le plus one x + 1 <= y
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_int_le_plus_one<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let node = ExprBinary::from_syntax_node(db, node);
@@ -511,7 +496,7 @@ pub fn fix_int_le_plus_one<'db>(
 /// Rewrites a manual implementation of int le min one x <= y -1
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_int_le_min_one<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     let node = ExprBinary::from_syntax_node(db, node);

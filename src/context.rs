@@ -1,4 +1,3 @@
-use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::lints::bitwise_for_parity_check::BitwiseForParity;
 use crate::lints::bitwise_for_parity_check::check_bitwise_for_parity;
@@ -86,12 +85,13 @@ use crate::lints::unwrap_syscall::check_unwrap_syscall;
 use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_syntax::node::SyntaxNode;
 use itertools::Itertools;
+use salsa::Database;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
 /// Type describing a linter group's rule checking function.
 type CheckingFunction =
-    for<'db> fn(&'db dyn LinterGroup, &ModuleItemId<'db>, &mut Vec<PluginDiagnostic<'db>>);
+    for<'db> fn(&'db dyn Database, &ModuleItemId<'db>, &mut Vec<PluginDiagnostic<'db>>);
 
 /// Enum representing the kind of a linter. Some lint rules might have the same kind.
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -179,11 +179,7 @@ pub trait Lint: Sync + Send {
     ///
     /// By default there is no fixing procedure for a Lint.
     #[expect(unused_variables)]
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         unreachable!("fix() has been called for a lint which has_fixer() returned false")
     }
 
@@ -420,7 +416,7 @@ pub fn get_lint_type_from_diagnostic_message(message: &str) -> CairoLintKind {
 /// Get the fixing function based on the diagnostic message.
 /// For some of the rules there is no fixing function, so it returns `None`.
 pub fn get_fix_for_diagnostic_message<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
     message: &str,
 ) -> Option<InternalFix<'db>> {

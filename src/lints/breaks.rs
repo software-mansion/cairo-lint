@@ -1,17 +1,16 @@
 use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, StatementBreak};
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr};
 use if_chain::if_chain;
 
 use crate::context::{CairoLintKind, Lint};
 
-use crate::LinterGroup;
 use crate::fixer::InternalFix;
 use crate::queries::{get_all_break_statements, get_all_function_bodies};
+use salsa::Database;
 
 pub struct BreakUnit;
 
@@ -55,11 +54,7 @@ impl Lint for BreakUnit {
         true
     }
 
-    fn fix<'db>(
-        &self,
-        db: &'db dyn LinterGroup,
-        node: SyntaxNode<'db>,
-    ) -> Option<InternalFix<'db>> {
+    fn fix<'db>(&self, db: &'db dyn Database, node: SyntaxNode<'db>) -> Option<InternalFix<'db>> {
         fix_break_unit(db, node)
     }
 
@@ -70,7 +65,7 @@ impl Lint for BreakUnit {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_break<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -84,7 +79,7 @@ pub fn check_break<'db>(
 }
 
 fn check_single_break<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     break_expr: &StatementBreak<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
@@ -106,7 +101,7 @@ fn check_single_break<'db>(
 /// Rewrites `break ();` as `break;` given the node text contains it.
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn fix_break_unit<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<InternalFix<'db>> {
     Some(InternalFix {

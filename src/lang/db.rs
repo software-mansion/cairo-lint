@@ -23,10 +23,11 @@ use cairo_lang_semantic::{
     inline_macros::get_default_plugin_suite,
     plugin::PluginSuite,
 };
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_utils::Upcast;
 
 use crate::{LinterGroup, plugin::cairo_lint_allow_plugin_suite};
+use cairo_lang_syntax::node::db::SyntaxGroup;
 use salsa::Setter;
 
 #[salsa::db]

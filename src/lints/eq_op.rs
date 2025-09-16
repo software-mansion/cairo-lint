@@ -2,7 +2,7 @@ use cairo_lang_defs::ids::ModuleItemId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode};
 use if_chain::if_chain;
 
@@ -11,7 +11,8 @@ use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 use super::{AND, DIV, EQ, GE, GT, LE, LT, NE, NOT, OR, SUB, XOR, function_trait_name_from_fn_id};
-use crate::LinterGroup;
+
+use salsa::Database;
 
 pub struct DivisionEqualityOperation;
 
@@ -232,7 +233,7 @@ impl Lint for LogicalEqualityOperation {
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_eq_op<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -247,7 +248,7 @@ pub fn check_eq_op<'db>(
 }
 
 fn check_single_eq_op<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     expr_func: &ExprFunctionCall<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
@@ -319,7 +320,7 @@ fn check_single_eq_op<'db>(
 }
 
 fn are_operands_equal<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     lhs: SyntaxNode<'db>,
     rhs: SyntaxNode<'db>,
 ) -> bool {

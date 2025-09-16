@@ -6,11 +6,10 @@ use cairo_lang_defs::{
     },
 };
 use cairo_lang_filesystem::ids::CrateId;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::imp::ImplSemantic;
 use cairo_lang_semantic::items::trt::TraitSemantic;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
-use salsa::Update;
+use salsa::{Database, Update};
 
 pub const BOOL_PARTIAL_EQ_PATH: &str = "core::BoolPartialEq";
 pub const PANIC_PATH: &str = "core::panics::panic";
@@ -40,7 +39,7 @@ pub struct CorelibContext<'db> {
 }
 
 impl<'db> CorelibContext<'db> {
-    pub(crate) fn new(db: &'db dyn SemanticGroup) -> Self {
+    pub(crate) fn new(db: &'db dyn Database) -> Self {
         let core_crate_id = CrateId::core(db);
         let modules = db.crate_modules(core_crate_id);
         Self {
@@ -171,7 +170,7 @@ impl<'db> CorelibContext<'db> {
 }
 
 fn find_item_with_path<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     module_id: ModuleId<'db>,
     path: &str,
 ) -> Option<LookupItemId<'db>> {

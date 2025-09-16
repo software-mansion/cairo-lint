@@ -11,7 +11,7 @@
 //!
 //! These helper functions can be reused in various parts of the Cairo Lint codebase to maintain
 //! consistency and modularity when working with blocks and conditions.
-use crate::LinterGroup;
+use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_defs::ids::{
     FileIndex, ImplItemId, LookupItemId, ModuleFileId, ModuleId, ModuleItemId, TraitItemId,
 };
@@ -19,19 +19,19 @@ use cairo_lang_diagnostics::DiagnosticsBuilder;
 use cairo_lang_filesystem::ids::{FileKind, FileLongId, VirtualFile};
 use cairo_lang_formatter::{FormatterConfig, get_formatted_file};
 use cairo_lang_parser::parser::Parser;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::imp::ImplSemantic;
 use cairo_lang_semantic::items::module::ModuleSemantic;
 use cairo_lang_semantic::items::trt::TraitSemantic;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCallArg, ExprId};
 use cairo_lang_syntax::node::ast::{self, BlockOrIf, ElseClause, ExprBlock, Statement};
-use cairo_lang_syntax::node::db::SyntaxGroup;
+
 use cairo_lang_syntax::node::helpers::GetIdentifier;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 use cairo_lang_utils::Intern;
 use if_chain::if_chain;
 use num_bigint::BigInt;
+use salsa::Database;
 
 pub const PANIC_PATH: &str = "core::panics::panic";
 pub const PANIC_WITH_BYTE_ARRAY_PATH: &str = "core::panics::panic_with_byte_array";
@@ -66,7 +66,7 @@ pub const ASSERT_PATH: &str = "core::fmt::Formatter";
 ///
 /// This function skips the `break` statement and preserves the remaining statements in the block.
 pub fn remove_break_from_block<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     block: ExprBlock<'db>,
     indent: &str,
 ) -> String {
@@ -112,7 +112,7 @@ pub fn remove_break_from_block<'db>(
 ///
 /// This function formats the `else` or `else if` block and returns it as a string.
 pub fn remove_break_from_else_clause<'db>(
-    db: &'db dyn SyntaxGroup,
+    db: &'db dyn Database,
     else_clause: ElseClause<'db>,
     indent: &str,
 ) -> String {
@@ -283,11 +283,7 @@ pub fn is_one(arg: &ExprFunctionCallArg, arenas: &Arenas) -> bool {
     )
 }
 
-fn check_if_panic_block<'db>(
-    db: &'db dyn SemanticGroup,
-    arenas: &Arenas<'db>,
-    expr_id: ExprId,
-) -> bool {
+fn check_if_panic_block<'db>(db: &'db dyn Database, arenas: &Arenas<'db>, expr_id: ExprId) -> bool {
     if_chain! {
         if let Expr::Block(ref panic_block) = arenas.exprs[expr_id];
         if let Some(panic_block_tail) = panic_block.tail;
@@ -301,7 +297,7 @@ fn check_if_panic_block<'db>(
 }
 
 fn check_if_inline_panic<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
     expr_id: ExprId,
 ) -> bool {
@@ -315,16 +311,12 @@ fn check_if_inline_panic<'db>(
     false
 }
 
-pub fn is_panic_expr<'db>(
-    db: &'db dyn SemanticGroup,
-    arenas: &Arenas<'db>,
-    expr_id: ExprId,
-) -> bool {
+pub fn is_panic_expr<'db>(db: &'db dyn Database, arenas: &Arenas<'db>, expr_id: ExprId) -> bool {
     check_if_inline_panic(db, arenas, expr_id) || check_if_panic_block(db, arenas, expr_id)
 }
 
 pub fn find_module_file_containing_node<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<ModuleFileId<'db>> {
     let module_id = find_module_containing_node(db, node)?;
@@ -333,7 +325,7 @@ pub fn find_module_file_containing_node<'db>(
 }
 
 fn find_module_containing_node<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<ModuleId<'db>> {
     // Get the main module of the main file that leads to the node.
@@ -379,7 +371,7 @@ fn find_module_containing_node<'db>(
 }
 
 pub fn format_fixed_file(
-    db: &dyn SyntaxGroup,
+    db: &dyn Database,
     formatter_config: FormatterConfig,
     content: String,
 ) -> String {
@@ -399,7 +391,7 @@ pub fn format_fixed_file(
 }
 
 pub fn is_item_ancestor_of_module<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     searched_item: &LookupItemId<'db>,
     module_id: ModuleId<'db>,
 ) -> bool {

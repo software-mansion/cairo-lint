@@ -13,7 +13,6 @@ pub mod manual_unwrap_or_default;
 use std::fmt::Debug;
 
 use cairo_lang_defs::ids::TopLevelLanguageElementId;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::{Arenas, Condition, Expr, ExprIf, ExprMatch, Pattern};
 use cairo_lang_syntax::node::{TypedStablePtr, ast};
 use helpers::{
@@ -25,11 +24,12 @@ use helpers::{
 use if_chain::if_chain;
 
 use super::{FALSE, OK, PANIC_WITH_FELT252, TRUE};
-use crate::LinterGroup;
+
 use crate::lints::manual::helpers::{
     extract_pattern_variable, extract_tail_or_preserve_expr, is_variable_unused,
 };
 use crate::lints::{ERR, NONE, SOME};
+use salsa::Database;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum ManualLint {
@@ -58,7 +58,7 @@ pub enum ManualLint {
 /// };
 /// ```
 pub fn check_manual<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     expr_match: &ExprMatch<'db>,
     arenas: &Arenas<'db>,
     manual_lint: ManualLint,
@@ -139,7 +139,7 @@ pub fn check_manual<'db>(
 fn check_syntax_some_arm<'db>(
     expr: &Expr<'db>,
     pattern: &Pattern<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
@@ -161,7 +161,7 @@ fn check_syntax_some_arm<'db>(
 /// This checks for the full path for example `core::option::Option::Some`
 fn is_expected_variant<'db>(
     expr: &Expr<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     expected_variant: &str,
 ) -> bool {
     let Some(variant_name) = get_variant_name(expr, db) else {
@@ -172,7 +172,7 @@ fn is_expected_variant<'db>(
 
 /// Returns the variant of the expression is named exactly the provided string.
 /// This returns the full path for example `core::option::Option::Some`
-fn get_variant_name<'db>(expr: &Expr<'db>, db: &'db dyn SemanticGroup) -> Option<String> {
+fn get_variant_name<'db>(expr: &Expr<'db>, db: &'db dyn Database) -> Option<String> {
     let Expr::EnumVariantCtor(maybe_bool) = expr else {
         return None;
     };
@@ -183,7 +183,7 @@ fn get_variant_name<'db>(expr: &Expr<'db>, db: &'db dyn SemanticGroup) -> Option
 fn check_syntax_ok_arm<'db>(
     expr: &Expr<'db>,
     pattern: &Pattern<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
@@ -216,7 +216,7 @@ fn check_syntax_ok_arm<'db>(
 fn check_syntax_none_arm<'db>(
     expr: &Expr<'db>,
     _pattern: &Pattern<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
@@ -245,7 +245,7 @@ fn check_syntax_none_arm<'db>(
 fn check_syntax_err_arm<'db>(
     expr: &Expr<'db>,
     pattern: &Pattern<'db>,
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
@@ -290,7 +290,7 @@ fn check_syntax_err_arm<'db>(
 /// };
 /// ```
 pub fn check_manual_if<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     expr: &ExprIf<'db>,
     arenas: &Arenas<'db>,
     manual_lint: ManualLint,
@@ -325,7 +325,7 @@ pub fn check_manual_if<'db>(
 
 fn check_syntax_opt_if<'db>(
     expr: &ExprIf<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
@@ -354,7 +354,7 @@ fn check_syntax_opt_if<'db>(
 
 fn check_syntax_res_if<'db>(
     expr: &ExprIf<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
@@ -382,7 +382,7 @@ fn check_syntax_res_if<'db>(
 
 fn check_syntax_err_if<'db>(
     expr: &ExprIf<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
@@ -397,7 +397,7 @@ fn check_syntax_err_if<'db>(
 
 fn check_syntax_opt_else<'db>(
     expr: &ExprIf<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
@@ -434,7 +434,7 @@ fn check_syntax_opt_else<'db>(
 
 fn check_syntax_res_else<'db>(
     expr: &ExprIf<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {
@@ -472,7 +472,7 @@ fn check_syntax_res_else<'db>(
 
 fn check_syntax_err_else<'db>(
     expr: &ExprIf<'db>,
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     arenas: &Arenas<'db>,
     manual_lint: ManualLint,
 ) -> bool {

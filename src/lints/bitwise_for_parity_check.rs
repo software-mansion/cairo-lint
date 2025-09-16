@@ -1,7 +1,6 @@
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleItemId, TopLevelLanguageElementId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::Severity;
-use cairo_lang_semantic::db::SemanticGroup;
 use cairo_lang_semantic::items::imp::ImplSemantic;
 use cairo_lang_semantic::{Arenas, Expr, ExprFunctionCall, ExprFunctionCallArg};
 use cairo_lang_syntax::node::TypedStablePtr;
@@ -13,7 +12,7 @@ use crate::context::{CairoLintKind, Lint};
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 use super::AND;
-use crate::LinterGroup;
+use salsa::Database;
 
 pub struct BitwiseForParity;
 
@@ -45,7 +44,7 @@ impl Lint for BitwiseForParity {
 /// Checks for `x & 1` which is unoptimized in cairo and can be replaced by `x % 1`
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn check_bitwise_for_parity<'db>(
-    db: &'db dyn LinterGroup,
+    db: &'db dyn Database,
     item: &ModuleItemId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
@@ -60,7 +59,7 @@ pub fn check_bitwise_for_parity<'db>(
 }
 
 fn check_single_bitwise_for_parity<'db>(
-    db: &'db dyn SemanticGroup,
+    db: &'db dyn Database,
     function_call_expr: &ExprFunctionCall<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
