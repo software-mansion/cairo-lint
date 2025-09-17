@@ -46,7 +46,11 @@ pub fn check_duplicate_underscore_args<'db>(
 
     for function in functions {
         let mut registered_names: HashSet<String> = HashSet::new();
-        let params = db.function_with_body_signature(function).unwrap().params;
+        let params = db
+            .function_with_body_signature(function)
+            .cloned()
+            .unwrap()
+            .params;
 
         for param in params {
             let stripped_name = param.name.strip_prefix('_').unwrap_or(&param.name);

@@ -75,8 +75,8 @@ pub fn check_manual_unwrap_or<'db>(
 ) {
     let function_bodies = get_all_function_bodies_with_ids(db, item);
     for (function_id, function_body) in function_bodies {
-        let if_exprs = get_all_if_expressions(&function_body);
-        let match_exprs = get_all_match_expressions(&function_body);
+        let if_exprs = get_all_if_expressions(function_body);
+        let match_exprs = get_all_match_expressions(function_body);
         let arenas = &function_body.arenas;
         for match_expr in match_exprs {
             if check_manual_unwrap_or_with_match(db, &match_expr, function_id, arenas) {
