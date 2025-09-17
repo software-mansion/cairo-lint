@@ -77,7 +77,7 @@ pub fn check_manual_unwrap_or_default<'db>(
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
     let function_bodies = get_all_function_bodies(db, item);
-    for function_body in function_bodies.iter() {
+    for function_body in function_bodies {
         let if_exprs = get_all_if_expressions(function_body);
         let match_exprs = get_all_match_expressions(function_body);
         let arenas = &function_body.arenas;

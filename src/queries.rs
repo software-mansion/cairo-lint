@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use cairo_lang_defs::ids::{FunctionWithBodyId, ModuleItemId};
 use cairo_lang_semantic::items::function_with_body::FunctionWithBodySemantic;
 use cairo_lang_semantic::items::imp::ImplSemantic;
@@ -49,7 +47,7 @@ pub fn get_all_checkable_functions<'db>(
 pub fn get_all_function_bodies<'db>(
     db: &'db dyn Database,
     item: &ModuleItemId<'db>,
-) -> Vec<Arc<FunctionBody<'db>>> {
+) -> Vec<&'db FunctionBody<'db>> {
     get_all_checkable_functions(db, item)
         .iter()
         .filter_map(|function| db.function_body(*function).ok())
@@ -60,7 +58,7 @@ pub fn get_all_function_bodies<'db>(
 pub fn get_all_function_bodies_with_ids<'db>(
     db: &'db dyn Database,
     item: &ModuleItemId<'db>,
-) -> Vec<(FunctionWithBodyId<'db>, Arc<FunctionBody<'db>>)> {
+) -> Vec<(FunctionWithBodyId<'db>, &'db FunctionBody<'db>)> {
     get_all_checkable_functions(db, item)
         .iter()
         .filter_map(|&id| {
@@ -93,7 +91,7 @@ pub fn get_all_parenthesized_expressions<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_match_expressions<'db>(
-    function_body: &Arc<FunctionBody<'db>>,
+    function_body: &'db FunctionBody<'db>,
 ) -> Vec<ExprMatch<'db>> {
     function_body
         .arenas
@@ -110,7 +108,7 @@ pub fn get_all_match_expressions<'db>(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_loop_expressions<'db>(function_body: &Arc<FunctionBody<'db>>) -> Vec<ExprLoop<'db>> {
+pub fn get_all_loop_expressions<'db>(function_body: &'db FunctionBody<'db>) -> Vec<ExprLoop<'db>> {
     function_body
         .arenas
         .exprs
@@ -126,9 +124,9 @@ pub fn get_all_loop_expressions<'db>(function_body: &Arc<FunctionBody<'db>>) -> 
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_function_calls<'db, 'a>(
-    function_body: &'a Arc<FunctionBody<'db>>,
-) -> impl Iterator<Item = ExprFunctionCall<'db>> + 'a {
+pub fn get_all_function_calls<'db>(
+    function_body: &'db FunctionBody<'db>,
+) -> impl Iterator<Item = ExprFunctionCall<'db>> {
     function_body
         .arenas
         .exprs
@@ -144,7 +142,7 @@ pub fn get_all_function_calls<'db, 'a>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_logical_operator_expressions<'db>(
-    function_body: &Arc<FunctionBody<'db>>,
+    function_body: &'db FunctionBody<'db>,
 ) -> Vec<ExprLogicalOperator<'db>> {
     function_body
         .arenas
@@ -161,7 +159,7 @@ pub fn get_all_logical_operator_expressions<'db>(
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_if_expressions<'db>(function_body: &Arc<FunctionBody<'db>>) -> Vec<ExprIf<'db>> {
+pub fn get_all_if_expressions<'db>(function_body: &'db FunctionBody<'db>) -> Vec<ExprIf<'db>> {
     function_body
         .arenas
         .exprs
@@ -177,7 +175,7 @@ pub fn get_all_if_expressions<'db>(function_body: &Arc<FunctionBody<'db>>) -> Ve
 }
 
 #[tracing::instrument(skip_all, level = "trace")]
-pub fn get_all_conditions<'db>(function_body: &Arc<FunctionBody<'db>>) -> Vec<Condition> {
+pub fn get_all_conditions<'db>(function_body: &'db FunctionBody<'db>) -> Vec<Condition> {
     let if_expr_conditions = get_all_if_expressions(function_body)
         .into_iter()
         .flat_map(|if_expr| if_expr.conditions.clone());
@@ -189,7 +187,7 @@ pub fn get_all_conditions<'db>(function_body: &Arc<FunctionBody<'db>>) -> Vec<Co
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_while_expressions<'db>(
-    function_body: &Arc<FunctionBody<'db>>,
+    function_body: &'db FunctionBody<'db>,
 ) -> Vec<ExprWhile<'db>> {
     function_body
         .arenas
@@ -207,7 +205,7 @@ pub fn get_all_while_expressions<'db>(
 
 #[tracing::instrument(skip_all, level = "trace")]
 pub fn get_all_break_statements<'db>(
-    function_body: &Arc<FunctionBody<'db>>,
+    function_body: &'db FunctionBody<'db>,
 ) -> Vec<StatementBreak<'db>> {
     function_body
         .arenas
