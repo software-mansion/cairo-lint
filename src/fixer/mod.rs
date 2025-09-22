@@ -254,7 +254,7 @@ fn process_unused_import<'db>(
                     .entry(parent)
                     .or_insert_with(|| ImportFix::new(parent))
                     .items_to_remove
-                    .push(path_to_remove.get_text_without_trivia(db));
+                    .push(path_to_remove.get_text_without_trivia(db).long(db).as_str());
 
                 break;
             }
@@ -358,7 +358,7 @@ fn all_descendants_removed<'db>(
 ) -> bool {
     node.descendants(db)
         .filter(|child| child.kind(db) == SyntaxKind::UsePathLeaf)
-        .all(|child| items_to_remove.contains(&child.get_text_without_trivia(db)))
+        .all(|child| items_to_remove.contains(&child.get_text_without_trivia(db).long(db).as_str()))
 }
 
 /// Removes an entire import statement.
@@ -385,7 +385,7 @@ fn remove_entire_import<'db>(
             // To remove the current node from the UsePathList, we need to:
             // 1. Get the text of the current node, which becomes "to remove"
             // 2. Rewrite the UsePathList with the current node text removed.
-            let items_to_remove = vec![current_node.get_text_without_trivia(db)];
+            let items_to_remove = vec![current_node.get_text_without_trivia(db).long(db).as_str()];
             if let Some(grandparent) = parent.parent(db) {
                 return handle_multi_import(db, grandparent, &items_to_remove);
             }
@@ -496,7 +496,6 @@ pub fn merge_overlapping_fixes(
     let file_content = db
         .file_content(file.clone().into_file_long_id(db).intern(db))
         .unwrap()
-        .long(db)
         .to_string();
 
     while let Some(overlapping_fix) = get_first_overlapping_fix(&current_fixes) {
@@ -549,7 +548,7 @@ pub fn merge_overlapping_fixes(
         apply_suggestions_for_file(db, file.clone(), suggestions);
 
         let file_id = file.into_file_long_id(db).intern(db);
-        let file_content_after = db.file_content(file_id).unwrap().long(db);
+        let file_content_after = db.file_content(file_id).unwrap();
 
         // Currently we are just replacing the entire file content with the new fixed one.
         // This is not ideal, but as for now we don't need to worry about it.
@@ -588,7 +587,7 @@ fn apply_suggestions_for_file(
     suggestions: Vec<Suggestion>,
 ) {
     let file_id = file.clone().into_file_long_id(db).intern(db);
-    let mut content = db.file_content(file_id).unwrap().long(db).to_string();
+    let mut content = db.file_content(file_id).unwrap().to_string();
     let suggestions = suggestions
         .into_iter()
         .sorted_by_key(|suggestion| Reverse(suggestion.span.start));

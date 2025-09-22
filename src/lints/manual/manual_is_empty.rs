@@ -136,7 +136,10 @@ pub fn fix_manual_is_empty<'db>(
                 .path(db)
                 .as_syntax_node()
                 .get_text_without_trivia(db);
-            let call_to_replace = if call_lhs_path.contains(ARRAY_CONSTRUCTOR_FUNC_NAME) {
+            let call_to_replace = if call_lhs_path
+                .to_string(db)
+                .contains(ARRAY_CONSTRUCTOR_FUNC_NAME)
+            {
                 call_rhs
             } else {
                 call_lhs
@@ -153,7 +156,7 @@ pub fn fix_manual_is_empty<'db>(
         node,
         suggestion: format!(
             "{}.is_empty()",
-            node_for_wrapping.get_text_without_trivia(db)
+            node_for_wrapping.get_text_without_trivia(db).to_string(db)
         )
         .parse()
         .unwrap(),

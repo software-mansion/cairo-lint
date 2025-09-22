@@ -98,7 +98,7 @@ fn linter_diagnostics<'db>(
                 // We don't do the `==` check here, as the origin node always has the proc macro attributes.
                 // It also means that if the macro changed anything in the original item code,
                 // we won't be processing it, as it might lead to unexpected behavior.
-                if node.get_text_without_trivia(db).contains(item_syntax_node.get_text_without_trivia(db));
+                if node.get_text_without_trivia(db).long(db).as_str().contains(item_syntax_node.get_text_without_trivia(db).long(db).as_str());
                 then {
                     let checking_functions = get_all_checking_functions();
                     for checking_function in checking_functions {

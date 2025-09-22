@@ -311,11 +311,13 @@ pub fn fix_destruct_match<'db>(
         suggestion: indent_snippet(
             &format!(
                 "{trivia}{indent}if let {} = {} {{\n{}\n}}",
-                pattern.get_text_without_trivia(db),
+                pattern.get_text_without_trivia(db).long(db).as_str(),
                 match_expr
                     .expr(db)
                     .as_syntax_node()
-                    .get_text_without_trivia(db),
+                    .get_text_without_trivia(db)
+                    .long(db)
+                    .as_str(),
                 first_expr.expression(db).as_syntax_node().get_text(db),
             ),
             indent.len() / 4,

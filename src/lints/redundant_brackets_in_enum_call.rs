@@ -166,7 +166,7 @@ fn find_generic_param_with_index<'db>(
         generic_params
             .iter()
             .position(|param| param.id().name(db).as_ref() == Some(&param_name))
-            .map(|index| (index, param_name.to_string()))
+            .map(|index| (index, param_name.to_string(db)))
     })
 }
 
@@ -191,7 +191,7 @@ fn has_unit_generic_arg_at_index<'db>(
 
             if let Some(ast::GenericArgValue::Expr(arg_val)) = match arg {
                 // Match named argument if it matches our target generic parameter
-                ast::GenericArg::Named(named_arg) if named_arg.name(db).text(db) == generic_param_name => {
+                ast::GenericArg::Named(named_arg) if named_arg.name(db).text(db).to_string(db) == generic_param_name => {
                     Some(named_arg.value(db))
                 },
                 // Skip other named arguments
@@ -229,7 +229,9 @@ fn fix_redundant_brackets_in_enum_call<'db>(
     let arguments = call_expr
         .arguments(db)
         .as_syntax_node()
-        .get_text_without_trivia(db);
+        .get_text_without_trivia(db)
+        .long(db)
+        .as_str();
 
     let fixed_expr = ast_expr
         .as_syntax_node()

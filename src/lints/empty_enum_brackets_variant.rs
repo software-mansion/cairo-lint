@@ -111,7 +111,7 @@ fn fix_empty_enum_brackets_variant<'db>(
         .get_text_without_trivia(db);
 
     let variant_text = node.get_text(db);
-    let fixed = variant_text.replace(type_clause, "");
+    let fixed = variant_text.replace(type_clause.long(db).as_str(), "");
 
     Some(InternalFix {
         node,

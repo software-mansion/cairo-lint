@@ -267,7 +267,11 @@ fn check_syntax_err_arm<'db>(
                 };
 
                 return is_variable_unused(db, &error_pattern_variable.var)
-                    || error_pattern_variable.name.starts_with("_");
+                    || error_pattern_variable
+                        .name
+                        .long(db)
+                        .as_str()
+                        .starts_with("_");
             }
             false
         }
