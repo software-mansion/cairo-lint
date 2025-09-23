@@ -233,7 +233,7 @@ pub fn is_assert_macro_call<'db>(
         if let Expr::Block(ref if_block_expr) = arenas.exprs[expr.if_block];
         if let Statement::Let(ref if_block_let_stmt) = arenas.statements[if_block_expr.statements[0]];
         if let Pattern::Variable(ref if_block_let_stmt_pattern) = arenas.patterns[if_block_let_stmt.pattern];
-        if if_block_let_stmt_pattern.name == ASSERT_FORMATTER_NAME;
+        if if_block_let_stmt_pattern.name.long(db).as_str() == ASSERT_FORMATTER_NAME;
         if if_block_let_stmt_pattern.var.ty.short_name(db) == ASSERT_PATH;
         then {
           return true;
@@ -251,7 +251,7 @@ pub fn syntax_node_to_str_without_all_nested_trivia<'db>(
     syntax_node
         .tokens(db)
         .fold(String::new(), |mut acc, terminal| {
-            acc.push_str(terminal.get_text_without_trivia(db));
+            acc.push_str(terminal.get_text_without_trivia(db).long(db).as_str());
             acc
         })
 }

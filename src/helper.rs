@@ -16,7 +16,7 @@ use cairo_lang_defs::ids::{
     FileIndex, ImplItemId, LookupItemId, ModuleFileId, ModuleId, ModuleItemId, TraitItemId,
 };
 use cairo_lang_diagnostics::DiagnosticsBuilder;
-use cairo_lang_filesystem::ids::{FileKind, FileLongId, VirtualFile};
+use cairo_lang_filesystem::ids::{FileKind, FileLongId, SmolStrId, VirtualFile};
 use cairo_lang_formatter::{FormatterConfig, get_formatted_file};
 use cairo_lang_parser::parser::Parser;
 use cairo_lang_semantic::items::imp::ImplSemantic;
@@ -362,7 +362,7 @@ fn find_module_containing_node<'db>(
         // And get id of the (sub)module containing the node by traversing this stack top-down.
         .try_rfold(main_module, |module, name| {
             let ModuleItemId::Submodule(submodule) =
-                db.module_item_by_name(module, name.into()).ok()??
+                db.module_item_by_name(module, name).ok()??
             else {
                 return None;
             };
@@ -377,8 +377,8 @@ pub fn format_fixed_file(
 ) -> String {
     let virtual_file = FileLongId::Virtual(VirtualFile {
         parent: None,
-        name: "string_to_format".into(),
-        content: content.clone().into(),
+        name: SmolStrId::from(db, "string_to_format"),
+        content: SmolStrId::from(db, content.clone()),
         code_mappings: [].into(),
         kind: FileKind::Module,
         original_item_removed: false,

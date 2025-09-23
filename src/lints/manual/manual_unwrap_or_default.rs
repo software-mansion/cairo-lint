@@ -136,6 +136,7 @@ pub fn fix_manual_unwrap_or_default<'db>(
         let mut expr = parent_node
             .as_syntax_node()
             .get_text_without_trivia(db)
+            .to_string(db)
             .replace(
                 parent_node.rhs(db).as_syntax_node().get_text(db),
                 &format!("{}.unwrap_or_default()", matched_expr.get_text(db).trim()),

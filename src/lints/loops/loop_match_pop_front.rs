@@ -241,7 +241,7 @@ fn check_block_is_break(db: &dyn Database, expr_block: &ExprBlock, arenas: &Aren
             let break_node = break_stmt.stable_ptr.lookup(db).as_syntax_node();
             // Checks that the trimmed text == the text without trivia which would mean that there is no comment
             let break_text = break_node.get_text(db).trim().to_string();
-            if break_text == break_node.get_text_without_trivia(db)
+            if break_text == break_node.get_text_without_trivia(db).to_string(db)
                 && (break_text == "break;" || break_text == "break ();")
             {
                 return true;

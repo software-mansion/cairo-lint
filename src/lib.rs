@@ -130,8 +130,7 @@ pub fn apply_file_fixes<'db>(
     files.insert(
         file_id,
         db.file_content(file_id)
-            .ok_or(anyhow!("{} not found", file_id.file_name(db)))?
-            .long(db)
+            .ok_or(anyhow!("{} not found", file_id.file_name(db).to_string(db)))?
             .to_string(),
     );
 

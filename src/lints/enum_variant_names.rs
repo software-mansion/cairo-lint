@@ -78,7 +78,7 @@ pub fn check_enum_variant_names<'db>(
     let Ok(variants) = db.enum_variants(*enum_id) else {
         return;
     };
-    let variant_names: Vec<String> = variants.iter().map(|v| v.0.to_string()).collect();
+    let variant_names: Vec<String> = variants.iter().map(|v| v.0.to_string(db)).collect();
 
     let (prefix, suffix) = get_prefix_and_suffix(&variant_names);
 
@@ -102,7 +102,9 @@ fn fix_enum_variant_names<'db>(
     let source = enum_item.as_syntax_node().get_text(db);
     let variants = enum_item.variants(db).elements(db);
 
-    let variant_names: Vec<String> = variants.map(|v| v.name(db).text(db).to_string()).collect();
+    let variant_names: Vec<String> = variants
+        .map(|v| v.name(db).text(db).to_string(db))
+        .collect();
 
     let (prefixes, suffixes) = get_prefix_and_suffix(&variant_names);
 

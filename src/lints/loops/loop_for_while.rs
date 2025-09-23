@@ -233,7 +233,9 @@ pub fn fix_loop_break<'db>(
             if_expr
                 .conditions(db)
                 .as_syntax_node()
-                .get_text_without_trivia(db),
+                .get_text_without_trivia(db)
+                .long(db)
+                .as_str(),
         );
 
         loop_body.push_str(&remove_break_from_block(db, if_expr.if_block(db), &indent));

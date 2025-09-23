@@ -53,7 +53,8 @@ pub fn check_duplicate_underscore_args<'db>(
             .params;
 
         for param in params {
-            let stripped_name = param.name.strip_prefix('_').unwrap_or(&param.name);
+            let name_string = param.name.to_string(db);
+            let stripped_name = name_string.strip_prefix('_').unwrap_or(&name_string);
 
             if !registered_names.insert(stripped_name.to_string()) {
                 diagnostics.push(PluginDiagnostic {

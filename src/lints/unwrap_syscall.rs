@@ -120,7 +120,7 @@ fn check_single_unwrap_syscall<'db>(
 fn is_result_trait_impl_unwrap_call(db: &dyn Database, expr: &ExprFunctionCall) -> bool {
     if let GenericFunctionId::Impl(ImplGenericFunctionId { impl_id, function }) =
         expr.function.get_concrete(db).generic_function
-        && function.name(db) == "unwrap"
+        && function.name(db).long(db).as_str() == "unwrap"
         && let Some(ImplHead::Concrete(impl_def_id)) = impl_id.head(db)
         && impl_def_id.full_path(db) == "core::result::ResultTraitImpl"
     {
