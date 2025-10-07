@@ -33,7 +33,6 @@ pub mod lints;
 mod mappings;
 pub mod plugin;
 mod queries;
-mod upstream;
 
 pub use corelib::CorelibContext;
 pub use lang::{

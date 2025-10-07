@@ -5,6 +5,7 @@ use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::db::{ext_as_virtual, get_parent_and_mapping, translate_location};
 use cairo_lang_filesystem::ids::{CodeOrigin, FileId, FileLongId};
+use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::kind::SyntaxKind;
@@ -19,7 +20,6 @@ use crate::{CairoLintToolMetadata, CorelibContext};
 use crate::mappings::{get_origin_module_item_as_syntax_node, get_origin_syntax_node};
 
 mod db;
-use crate::upstream::file_syntax;
 use cairo_lang_defs::db::DefsGroup;
 pub use db::{LinterAnalysisDatabase, LinterAnalysisDatabaseBuilder};
 use salsa::Database;
@@ -224,7 +224,7 @@ pub fn find_generated_nodes<'db>(
             continue;
         }
 
-        let Ok(file_syntax) = file_syntax(db, file) else {
+        let Ok(file_syntax) = db.file_syntax(file) else {
             continue;
         };
 
