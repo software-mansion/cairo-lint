@@ -11,6 +11,15 @@ fn main() {
 }
 "#;
 
+const COMPLEX_SYSCALL: &str = r#"
+use starknet::syscalls::get_execution_info_syscall;
+
+fn main() {
+    let result = get_execution_info_syscall();
+    result.unwrap();
+}
+"#;
+
 const BASIC_SYSCALL_ASSIGN: &str = r#"
 use starknet::storage_access::{storage_address_from_base, storage_base_address_from_felt252};
 use starknet::syscalls::storage_read_syscall;
@@ -68,6 +77,19 @@ fn test_basic_syscall_fixer() {
     fn main() {
         let storage_address = storage_base_address_from_felt252(3534535754756246375475423547453);
         let result = storage_read_syscall(0, storage_address_from_base(storage_address));
+        result.unwrap_syscall();
+    }
+    ");
+}
+
+#[test]
+fn test_complex_syscall_fixer() {
+    test_lint_fixer!(COMPLEX_SYSCALL, @r"
+    use starknet::SyscallResultTrait;
+    use starknet::syscalls::get_execution_info_syscall;
+
+    fn main() {
+        let result = get_execution_info_syscall();
         result.unwrap_syscall();
     }
     ");

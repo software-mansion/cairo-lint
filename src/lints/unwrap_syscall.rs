@@ -130,12 +130,10 @@ fn is_result_trait_impl_unwrap_call(db: &dyn Database, expr: &ExprFunctionCall) 
     }
 }
 
-// Check if this type is a `Result<felt252, Array<felt252>>`.
+// Checks if the type is `Result<T, Array<felt252>>`.
 fn is_syscall_result_type(db: &dyn Database, ty: TypeId) -> bool {
-    is_specific_concrete_generic_type(db, ty, "core::result::Result", |[arg_t, arg_e]| {
-        if let GenericArgumentId::Type(arg_t) = arg_t
-            && is_specific_concrete_type(db, arg_t, "core::felt252")
-            && let GenericArgumentId::Type(arg_e) = arg_e
+    is_specific_concrete_generic_type(db, ty, "core::result::Result", |[_, arg_e]| {
+        if let GenericArgumentId::Type(arg_e) = arg_e
             && is_specific_concrete_generic_type(db, arg_e, "core::array::Array", |[arg]| {
                 if let GenericArgumentId::Type(arg) = arg
                     && is_specific_concrete_type(db, arg, "core::felt252")
