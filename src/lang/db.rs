@@ -6,7 +6,7 @@ use cairo_lang_compiler::{
     project::{ProjectConfig, update_crate_roots_from_project_config},
 };
 use cairo_lang_defs::{
-    db::{DefsGroup, defs_group_input, init_defs_group, init_external_files},
+    db::{defs_group_input, init_defs_group, init_external_files},
     ids::{InlineMacroExprPluginLongId, MacroPluginLongId},
 };
 use cairo_lang_filesystem::{
@@ -16,18 +16,14 @@ use cairo_lang_filesystem::{
     flag::Flag,
     ids::FlagLongId,
 };
-use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_semantic::{
-    db::{SemanticGroup, init_semantic_group, semantic_group_input},
+    db::{init_semantic_group, semantic_group_input},
     ids::AnalyzerPluginLongId,
     inline_macros::get_default_plugin_suite,
     plugin::PluginSuite,
 };
 
-use cairo_lang_utils::Upcast;
-
-use crate::{LinterGroup, plugin::cairo_lint_allow_plugin_suite};
-use cairo_lang_syntax::node::db::SyntaxGroup;
+use crate::plugin::cairo_lint_allow_plugin_suite;
 use salsa::Setter;
 
 #[salsa::db]
@@ -85,48 +81,6 @@ impl LinterAnalysisDatabase {
 }
 
 impl salsa::Database for LinterAnalysisDatabase {}
-
-impl<'db> Upcast<'db, dyn salsa::Database> for LinterAnalysisDatabase {
-    fn upcast(&self) -> &(dyn salsa::Database + 'static) {
-        self
-    }
-}
-
-impl<'db> Upcast<'db, dyn FilesGroup> for LinterAnalysisDatabase {
-    fn upcast(&self) -> &(dyn FilesGroup + 'static) {
-        self
-    }
-}
-
-impl<'db> Upcast<'db, dyn SyntaxGroup> for LinterAnalysisDatabase {
-    fn upcast(&self) -> &(dyn SyntaxGroup + 'static) {
-        self
-    }
-}
-
-impl<'db> Upcast<'db, dyn DefsGroup> for LinterAnalysisDatabase {
-    fn upcast(&self) -> &(dyn DefsGroup + 'static) {
-        self
-    }
-}
-
-impl<'db> Upcast<'db, dyn SemanticGroup> for LinterAnalysisDatabase {
-    fn upcast(&self) -> &(dyn SemanticGroup + 'static) {
-        self
-    }
-}
-
-impl<'db> Upcast<'db, dyn ParserGroup> for LinterAnalysisDatabase {
-    fn upcast(&self) -> &(dyn ParserGroup + 'static) {
-        self
-    }
-}
-
-impl<'db> Upcast<'db, dyn LinterGroup> for LinterAnalysisDatabase {
-    fn upcast(&self) -> &(dyn LinterGroup + 'static) {
-        self
-    }
-}
 
 #[derive(Clone, Debug)]
 pub struct LinterAnalysisDatabaseBuilder {
