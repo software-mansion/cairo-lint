@@ -21,6 +21,7 @@ pub mod manual;
 pub mod panic;
 pub mod performance;
 pub mod redundant_brackets_in_enum_call;
+pub mod redundant_into;
 pub mod redundant_op;
 pub mod single_match;
 pub mod unit_return_type;
@@ -42,6 +43,7 @@ pub(crate) const ADD: &str = "core::traits::Add::add";
 pub(crate) const SUB: &str = "core::traits::Sub::sub";
 pub(crate) const OK: &str = "core::result::Result::Ok";
 pub(crate) const ERR: &str = "core::result::Result::Err";
+pub(crate) const OPTION: &str = "core::option::Option";
 pub(crate) const SOME: &str = "core::option::Option::Some";
 pub(crate) const NONE: &str = "core::option::Option::None";
 pub(crate) const TRUE: &str = "core::bool::True";
@@ -53,6 +55,8 @@ pub(crate) const NEVER: &str = "core::never";
 pub(crate) const SPAN: &str = "core::array::Span";
 pub(crate) const ARRAY: &str = "core::array::Array";
 pub(crate) const U32: &str = "core::integer::u32";
+pub(crate) const INTO: &str = "core::traits::Into::into";
+pub(crate) const TRY_INTO: &str = "core::traits::TryInto::try_into";
 
 pub(crate) fn function_trait_name_from_fn_id<'db>(
     db: &'db dyn Database,
