@@ -1,12 +1,7 @@
-use cairo_lang_defs::db::{DefsGroup, defs_group_input, init_external_files};
-use cairo_lang_filesystem::db::{FilesGroup, files_group_input};
-use cairo_lang_parser::db::ParserGroup;
-use cairo_lang_semantic::db::{SemanticGroup, semantic_group_input};
+use cairo_lang_defs::db::{defs_group_input, init_external_files};
+use cairo_lang_filesystem::db::files_group_input;
+use cairo_lang_semantic::db::semantic_group_input;
 
-use cairo_lang_utils::Upcast;
-
-use crate::LinterGroup;
-use cairo_lang_syntax::node::db::SyntaxGroup;
 use salsa::{Database, Setter};
 
 #[salsa::db]
@@ -76,46 +71,5 @@ impl FixerDatabase {
         Self {
             storage: Default::default(),
         }
-    }
-}
-
-impl<'db> Upcast<'db, dyn salsa::Database> for FixerDatabase {
-    fn upcast(&self) -> &(dyn salsa::Database + 'static) {
-        self
-    }
-}
-impl<'db> Upcast<'db, dyn FilesGroup> for FixerDatabase {
-    fn upcast(&self) -> &(dyn FilesGroup + 'static) {
-        self
-    }
-}
-
-impl<'db> Upcast<'db, dyn SyntaxGroup> for FixerDatabase {
-    fn upcast(&self) -> &(dyn SyntaxGroup + 'static) {
-        self
-    }
-}
-
-impl<'db> Upcast<'db, dyn DefsGroup> for FixerDatabase {
-    fn upcast(&self) -> &(dyn DefsGroup + 'static) {
-        self
-    }
-}
-
-impl<'db> Upcast<'db, dyn SemanticGroup> for FixerDatabase {
-    fn upcast(&self) -> &(dyn SemanticGroup + 'static) {
-        self
-    }
-}
-
-impl<'db> Upcast<'db, dyn ParserGroup> for FixerDatabase {
-    fn upcast(&self) -> &(dyn ParserGroup + 'static) {
-        self
-    }
-}
-
-impl<'db> Upcast<'db, dyn LinterGroup> for FixerDatabase {
-    fn upcast(&self) -> &(dyn LinterGroup + 'static) {
-        self
     }
 }

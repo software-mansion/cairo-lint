@@ -1,6 +1,6 @@
 use super::is_expected_variant;
 
-use crate::helper::find_module_file_containing_node;
+use crate::helper::find_module_containing_node;
 use crate::lints::{ARRAY_NEW, DEFAULT, FALSE, NEVER, function_trait_name_from_fn_id};
 use cairo_lang_defs::ids::{ModuleId, ModuleItemId, TopLevelLanguageElementId};
 use cairo_lang_diagnostics::{Diagnostics, DiagnosticsBuilder};
@@ -463,12 +463,11 @@ pub fn extract_tail_or_preserve_expr<'a, 'db>(
 
 pub fn is_variable_unused<'db>(db: &'db dyn Database, variable: &LocalVariable<'db>) -> bool {
     let variable_syntax_stable_ptr = variable.stable_ptr(db).0;
-    let Some(module_file_id) =
-        find_module_file_containing_node(db, variable_syntax_stable_ptr.lookup(db))
+    let Some(module_id) = find_module_containing_node(db, variable_syntax_stable_ptr.lookup(db))
     else {
         return false;
     };
-    let Some(diags) = get_semantic_diagnostics(db, module_file_id.0) else {
+    let Some(diags) = get_semantic_diagnostics(db, module_id) else {
         return false;
     };
     diags.get_all().iter().any(|diagnostic| {
