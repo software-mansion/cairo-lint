@@ -2,10 +2,10 @@ use crate::context::{CairoLintKind, Lint};
 
 use crate::LinterGroup;
 use crate::fixer::InternalFix;
-use crate::helper::find_module_file_containing_node;
+use crate::helper::find_module_containing_node;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
 use cairo_lang_defs::ids::{
-    FreeFunctionLongId, FunctionWithBodyId, ImplFunctionLongId, ModuleFileId, ModuleItemId,
+    FreeFunctionLongId, FunctionWithBodyId, ImplFunctionLongId, ModuleId, ModuleItemId,
     TraitFunctionLongId,
 };
 use cairo_lang_defs::plugin::PluginDiagnostic;
@@ -103,11 +103,11 @@ fn fix_clone_on_copy<'db>(
 ) -> Option<InternalFix<'db>> {
     let ast_expr_binary = ast::ExprBinary::cast(db, node)?;
 
-    let module_file_id = find_module_file_containing_node(db, node)?;
+    let module_id = find_module_containing_node(db, node)?;
 
     let ast_expr = ast_expr_binary.lhs(db);
 
-    let expr_semantic = get_expr_semantic(db, module_file_id, &ast_expr_binary)
+    let expr_semantic = get_expr_semantic(db, module_id, &ast_expr_binary)
         .expect("Failed to find semantic expression.");
 
     // Extract the number of `@` snapshots from the type.
@@ -145,7 +145,7 @@ fn fix_clone_on_copy<'db>(
 
 fn get_expr_semantic<'db>(
     db: &'db dyn Database,
-    module_file_id: ModuleFileId<'db>,
+    module_id: ModuleId<'db>,
     ast_expr_binary: &ast::ExprBinary<'db>,
 ) -> Option<Expr<'db>> {
     let ast_expr = ast_expr_binary.lhs(db);
@@ -158,7 +158,7 @@ fn get_expr_semantic<'db>(
         .as_syntax_node()
         .ancestors_with_self(db)
         .find_map(|ancestor| {
-            let function_id = get_function_with_body_id(db, module_file_id, ancestor)?;
+            let function_id = get_function_with_body_id(db, module_id, ancestor)?;
 
             db.lookup_expr_by_ptr(function_id, expr_ptr)
                 .or_else(|_| {
@@ -174,13 +174,13 @@ fn get_expr_semantic<'db>(
 
 fn get_function_with_body_id<'db>(
     db: &'db dyn Database,
-    module_file_id: ModuleFileId<'db>,
+    module_id: ModuleId<'db>,
     ancestor: SyntaxNode<'db>,
 ) -> Option<FunctionWithBodyId<'db>> {
     if let Some(trait_func) = ast::TraitItemFunction::cast(db, ancestor) {
         let ptr = trait_func.stable_ptr(db);
         Some(FunctionWithBodyId::Trait(
-            TraitFunctionLongId(module_file_id, ptr).intern(db),
+            TraitFunctionLongId(module_id, ptr).intern(db),
         ))
     } else if let Some(func_with_body) = ast::FunctionWithBody::cast(db, ancestor) {
         let ptr = func_with_body.stable_ptr(db);
@@ -189,9 +189,9 @@ fn get_function_with_body_id<'db>(
             .ancestor_of_kind(db, SyntaxKind::ItemImpl)
             .is_some()
         {
-            FunctionWithBodyId::Impl(ImplFunctionLongId(module_file_id, ptr).intern(db))
+            FunctionWithBodyId::Impl(ImplFunctionLongId(module_id, ptr).intern(db))
         } else {
-            FunctionWithBodyId::Free(FreeFunctionLongId(module_file_id, ptr).intern(db))
+            FunctionWithBodyId::Free(FreeFunctionLongId(module_id, ptr).intern(db))
         };
 
         Some(function_with_body_id)

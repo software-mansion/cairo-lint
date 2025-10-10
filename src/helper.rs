@@ -12,9 +12,7 @@
 //! These helper functions can be reused in various parts of the Cairo Lint codebase to maintain
 //! consistency and modularity when working with blocks and conditions.
 use cairo_lang_defs::db::DefsGroup;
-use cairo_lang_defs::ids::{
-    FileIndex, ImplItemId, LookupItemId, ModuleFileId, ModuleId, ModuleItemId, TraitItemId,
-};
+use cairo_lang_defs::ids::{ImplItemId, LookupItemId, ModuleId, ModuleItemId, TraitItemId};
 use cairo_lang_diagnostics::DiagnosticsBuilder;
 use cairo_lang_filesystem::ids::{FileKind, FileLongId, SmolStrId, VirtualFile};
 use cairo_lang_formatter::{FormatterConfig, get_formatted_file};
@@ -315,16 +313,7 @@ pub fn is_panic_expr<'db>(db: &'db dyn Database, arenas: &Arenas<'db>, expr_id: 
     check_if_inline_panic(db, arenas, expr_id) || check_if_panic_block(db, arenas, expr_id)
 }
 
-pub fn find_module_file_containing_node<'db>(
-    db: &'db dyn Database,
-    node: SyntaxNode<'db>,
-) -> Option<ModuleFileId<'db>> {
-    let module_id = find_module_containing_node(db, node)?;
-    let file_index = FileIndex(0);
-    Some(ModuleFileId(module_id, file_index))
-}
-
-fn find_module_containing_node<'db>(
+pub fn find_module_containing_node<'db>(
     db: &'db dyn Database,
     node: SyntaxNode<'db>,
 ) -> Option<ModuleId<'db>> {
