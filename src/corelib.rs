@@ -1,3 +1,4 @@
+use cairo_lang_defs::ids::EnumId;
 use cairo_lang_defs::{
     db::DefsGroup,
     ids::{
@@ -20,8 +21,11 @@ pub const PARTIAL_ORD_GE_PATH: &str = "core::traits::PartialOrd::ge";
 pub const ADD_TRAIT_FUNCTION_PATH: &str = "core::traits::Add::add";
 pub const SUB_TRAIT_FUNCTION_PATH: &str = "core::traits::Sub::sub";
 pub const INTEGER_MODULE_PATH: &str = "core::integer";
+pub const INTO_TRAIT_FUNCTION_PATH: &str = "core::traits::Into::into";
+pub const TRY_INTO_TRAIT_FUNCTION_PATH: &str = "core::traits::TryInto::try_into";
+pub const OPTION_TYPE_PATH: &str = "core::option::Option";
 
-static CORELIB_ITEM_PATHS: [&str; 9] = [
+static CORELIB_ITEM_PATHS: [&str; 12] = [
     BOOL_PARTIAL_EQ_PATH,
     PANIC_PATH,
     PANIC_WITH_BYTE_ARRAY_PATH,
@@ -31,6 +35,9 @@ static CORELIB_ITEM_PATHS: [&str; 9] = [
     ADD_TRAIT_FUNCTION_PATH,
     SUB_TRAIT_FUNCTION_PATH,
     INTEGER_MODULE_PATH,
+    OPTION_TYPE_PATH,
+    INTO_TRAIT_FUNCTION_PATH,
+    TRY_INTO_TRAIT_FUNCTION_PATH,
 ];
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Update)]
@@ -165,6 +172,41 @@ impl<'db> CorelibContext<'db> {
         match item {
             LookupItemId::ModuleItem(ModuleItemId::Submodule(id)) => id,
             _ => unreachable!("Expected integer module to be a Submodule"),
+        }
+    }
+
+    pub fn get_into_trait_function_id(&self) -> TraitFunctionId<'db> {
+        let item = self
+            .corelib_items
+            .get(INTO_TRAIT_FUNCTION_PATH)
+            .expect("Expected Into::into to be present in corelib items")
+            .expect("Expected Into::into to be defined in the corelib");
+        match item {
+            LookupItemId::TraitItem(TraitItemId::Function(id)) => id,
+            _ => unreachable!("Expected Into::into to be a TraitFunctionId"),
+        }
+    }
+
+    pub fn get_try_into_trait_function_id(&self) -> TraitFunctionId<'db> {
+        let item = self
+            .corelib_items
+            .get(TRY_INTO_TRAIT_FUNCTION_PATH)
+            .expect("Expected TryInto::try_into to be present in corelib items")
+            .expect("Expected TryInto::try_into to be defined in the corelib");
+        match item {
+            LookupItemId::TraitItem(TraitItemId::Function(id)) => id,
+            _ => unreachable!("Expected TryInto::try_into to be a TraitFunctionId"),
+        }
+    }
+    pub fn get_option_enum_id(&self) -> EnumId<'db> {
+        let item = self
+            .corelib_items
+            .get(OPTION_TYPE_PATH)
+            .expect("Expected Option to be present in corelib items")
+            .expect("Expected Option to be defined in the corelib");
+        match item {
+            LookupItemId::ModuleItem(ModuleItemId::Enum(id)) => id,
+            _ => unreachable!("Expected Option to be a EnumId"),
         }
     }
 }

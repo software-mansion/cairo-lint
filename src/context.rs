@@ -73,6 +73,8 @@ use crate::lints::performance::inefficient_while_comp::InefficientWhileCompariso
 use crate::lints::performance::inefficient_while_comp::check_inefficient_while_comp;
 use crate::lints::redundant_brackets_in_enum_call::RedundantBracketsInEnumCall;
 use crate::lints::redundant_brackets_in_enum_call::check_redundant_brackets_in_enum_call;
+use crate::lints::redundant_into::RedundantInto;
+use crate::lints::redundant_into::check_redundant_into;
 use crate::lints::redundant_op::RedundantOperation;
 use crate::lints::redundant_op::check_redundant_operation;
 use crate::lints::single_match::DestructMatch;
@@ -139,6 +141,7 @@ pub enum CairoLintKind {
     ManualUnwrapOr,
     UnitReturnType,
     UnwrapSyscall,
+    RedundantInto,
 }
 
 pub trait Lint: Sync + Send {
@@ -373,6 +376,10 @@ impl LintContext {
             LintRuleGroup {
                 lints: vec![Box::new(UnwrapSyscall)],
                 check_function: check_unwrap_syscall,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(RedundantInto)],
+                check_function: check_redundant_into,
             },
         ]
     }

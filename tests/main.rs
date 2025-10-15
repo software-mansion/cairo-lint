@@ -19,6 +19,7 @@ mod nested_fixes;
 mod panic;
 mod performance;
 mod redundant_brackets_in_enum_call;
+mod redundant_into;
 mod redundant_op;
 mod single_match;
 mod unit_return_type;
