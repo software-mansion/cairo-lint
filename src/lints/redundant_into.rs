@@ -14,10 +14,13 @@ use crate::queries::{get_all_function_bodies, get_all_function_calls};
 
 pub struct RedundantInto;
 
+/// ## What it does
+///
 /// Detects redundant calls to `into()` or `try_into()` where the input and output
 /// types are the same, i.e., the conversion is a no-op and can be removed.
 ///
-/// Example
+/// ## Example
+///
 /// ```cairo
 /// fn f(x: u128) -> u128 {
 ///     // redundant - `x` is already an u128
