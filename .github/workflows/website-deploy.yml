@@ -1,7 +1,19 @@
 name: Website Deploy
 
 on:
+  workflow_call:
+    inputs:
+      target_branch:
+        description: "Git branch that should the website be deployed from"
+        required: true
+        type: string
+
   workflow_dispatch:
+    inputs:
+      target_branch:
+        description: "Git branch that should the website be deployed from"
+        type: string
+        default: "main"
 
 permissions:
   contents: read
@@ -21,6 +33,8 @@ jobs:
         working-directory: ./website
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.target_ref }}
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
