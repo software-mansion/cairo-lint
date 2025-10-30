@@ -4,7 +4,7 @@ use std::sync::Arc;
 use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::db::{ext_as_virtual, get_parent_and_mapping, translate_location};
-use cairo_lang_filesystem::ids::{CodeOrigin, FileId, FileLongId};
+use cairo_lang_filesystem::ids::{CodeOrigin, FileId, FileLongId, Tracked};
 use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
@@ -39,8 +39,8 @@ pub trait LinterGroup: Database {
         linter_diagnostics(self.as_dyn_database(), params, module_id)
     }
 
-    fn node_resultants<'db>(&'db self, node: SyntaxNode<'db>) -> &'db Option<Vec<SyntaxNode<'db>>> {
-        node_resultants(self.as_dyn_database(), node)
+    fn node_resultants<'db>(&'db self, node: SyntaxNode<'db>) -> Option<&'db Vec<SyntaxNode<'db>>> {
+        node_resultants(self.as_dyn_database(), (), node).as_ref()
     }
 
     fn file_and_subfiles_with_corresponding_modules<'db>(
@@ -146,6 +146,7 @@ fn linter_diagnostics<'db>(
 #[salsa::tracked(returns(ref))]
 fn node_resultants<'db>(
     db: &'db dyn Database,
+    _: Tracked,
     node: SyntaxNode<'db>,
 ) -> Option<Vec<SyntaxNode<'db>>> {
     let main_file = node.stable_ptr(db).file_id(db);

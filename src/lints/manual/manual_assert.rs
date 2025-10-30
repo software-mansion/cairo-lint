@@ -352,7 +352,7 @@ fn is_else_if_expr<'db>(db: &'db dyn Database, node: SyntaxNode<'db>) -> bool {
     if_chain! {
         if let Some(else_clause) = node.parent_of_type::<ElseClause>(db);
         if let BlockOrIf::If(child_if) = else_clause.else_block_or_if(db);
-        if child_if.as_syntax_node().long(db) == node.long(db);
+        if child_if.as_syntax_node() == node;
         then {
             return true;
         }
