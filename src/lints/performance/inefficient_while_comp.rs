@@ -12,7 +12,7 @@ pub struct InefficientWhileComparison;
 
 /// ## What it does
 ///
-/// Checks if the while loop exit condition is using [`<`, `<=`, `>=`, `>`] operators.
+/// Checks if the while loop exit condition is using relational (`<`, `<=`, `>=`, `>`) operators.
 ///
 /// ## Example
 ///
