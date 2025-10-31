@@ -4,14 +4,14 @@ on:
   workflow_call:
     inputs:
       target_branch:
-        description: "Git branch that should the website be deployed from"
+        description: "Git branch to deploy from"
         required: true
         type: string
 
   workflow_dispatch:
     inputs:
       target_branch:
-        description: "Git branch that should the website be deployed from"
+        description: "Git branch to deploy from"
         type: string
         default: "main"
 
