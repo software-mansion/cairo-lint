@@ -1,0 +1,11 @@
+name: Respond to New Scarb Tag
+
+on:
+  repository_dispatch:
+    types: [scarb-new-tag-published]
+
+jobs:
+  run-on-tag:
+    uses: software-mansion/cairo-lint/.github/workflows/website-deploy.yml@main
+    with:
+      target_branch: "${{ github.event.client_payload.tag }}"
