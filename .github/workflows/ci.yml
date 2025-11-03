@@ -57,7 +57,7 @@ jobs:
         with:
           cache: false
       - uses: taiki-e/install-action@nextest
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: nextest-archive
       - name: Run nextest partition ${{ matrix.partition }}/4
