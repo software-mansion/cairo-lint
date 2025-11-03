@@ -1,7 +1,19 @@
 name: Website Deploy
 
 on:
+  workflow_call:
+    inputs:
+      target_branch:
+        description: "Git branch to deploy from"
+        required: true
+        type: string
+
   workflow_dispatch:
+    inputs:
+      target_branch:
+        description: "Git branch to deploy from"
+        type: string
+        default: "main"
 
 permissions:
   contents: read
@@ -13,14 +25,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  validate-branch:
+    name: Validate target branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set target ref
+        run: |
+          VERSION_REGEX="^v[0-9]+\.[0-9]+\.[0-9]+$"
+          INPUT_BRANCH="${{ inputs.target_branch }}"
+
+          # If the branch does not match the version regex, exit with failure.
+          if [[ ! $INPUT_BRANCH =~ $VERSION_REGEX ]]; then
+            exit 1
+          fi
   build:
     name: Build website
     runs-on: ubuntu-latest
+    needs:
+      - validate-branch
     defaults:
       run:
         working-directory: ./website
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.target_ref }}
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
@@ -44,7 +73,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
+    needs:
+      - validate-branch
+      - build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
