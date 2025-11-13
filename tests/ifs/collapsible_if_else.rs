@@ -110,6 +110,18 @@ fn main() {
 }
 "#;
 
+const IF_WITH_ASSERT_MACRO: &str = r#"
+  fn main() {
+      let x = true;
+      if x {
+          println!("x is true");
+      }
+      else {
+          assert!(x, "x is false!");
+      }
+  }
+"#;
+
 #[test]
 fn simple_else_if_with_new_line_diagnostics() {
     test_lint_diagnostics!(SIMPLE_ELSE_IF_WITH_NEW_LINE, @r"
@@ -302,6 +314,25 @@ fn else_if_with_if_let_fixer() {
         } else {
             20
         };
+    }
+    "#);
+}
+
+#[test]
+fn if_with_assert_macro_diagnostics() {
+    test_lint_diagnostics!(IF_WITH_ASSERT_MACRO, @"");
+}
+
+#[test]
+fn if_with_assert_macro_fixer() {
+    test_lint_fixer!(IF_WITH_ASSERT_MACRO, @r#"
+    fn main() {
+        let x = true;
+        if x {
+            println!("x is true");
+        } else {
+            assert!(x, "x is false!");
+        }
     }
     "#);
 }
