@@ -15,6 +15,7 @@ use crate::context::{CairoLintKind, Lint};
 use crate::LinterGroup;
 use crate::helper::ASSERT_FORMATTER_NAME;
 use crate::queries::{get_all_function_bodies, get_all_function_calls};
+use cairo_lang_filesystem::ids::SpanInFile;
 use salsa::Database;
 
 pub struct PanicInCode;
@@ -112,14 +113,16 @@ fn check_single_panic_usage<'db>(
     // Get the origination location of this panic as there is a `panic!` macro that generates virtual
     // files
     let initial_file_id = StableLocation::new(function_call_expr.stable_ptr.untyped()).file_id(db);
-    let (file_id, span) = get_originating_location(
+    let SpanInFile { file_id, span } = get_originating_location(
         db,
-        initial_file_id,
-        function_call_expr
-            .stable_ptr
-            .lookup(db)
-            .as_syntax_node()
-            .span(db),
+        SpanInFile {
+            file_id: initial_file_id,
+            span: function_call_expr
+                .stable_ptr
+                .lookup(db)
+                .as_syntax_node()
+                .span(db),
+        },
         None,
     );
     // If the panic comes from a real file (macros generate code in new virtual files)

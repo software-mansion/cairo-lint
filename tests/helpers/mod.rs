@@ -69,7 +69,7 @@ pub fn get_diags<'db>(
     // Tests are setup in a virtual file so we have to filter them out this way instead.
     diagnostics
         .into_iter()
-        .filter(|diag| diag.stable_location.diagnostic_location(db).file_id == module_file)
+        .filter(|diag| diag.stable_location.span_in_file(db).file_id == module_file)
         .collect::<Vec<_>>()
 }
 
