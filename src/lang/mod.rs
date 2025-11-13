@@ -4,7 +4,7 @@ use std::sync::Arc;
 use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::db::{ext_as_virtual, get_parent_and_mapping, translate_location};
-use cairo_lang_filesystem::ids::{CodeOrigin, FileId, FileLongId, Tracked};
+use cairo_lang_filesystem::ids::{CodeOrigin, FileId, FileLongId, SpanInFile, Tracked};
 use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
@@ -217,7 +217,14 @@ pub fn find_generated_nodes<'db>(
     let mut is_replaced = false;
 
     for file in node_descendant_files.iter().cloned() {
-        let Some((parent, mappings)) = get_parent_and_mapping(db, file) else {
+        let Some((
+            SpanInFile {
+                file_id: parent,
+                span: _,
+            },
+            mappings,
+        )) = get_parent_and_mapping(db, file)
+        else {
             continue;
         };
 

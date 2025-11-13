@@ -528,7 +528,7 @@ pub fn merge_overlapping_fixes(
 
                 linter_diags.chain(semantic_diags).collect::<Vec<_>>()
             })
-            .filter(|diag| diag.stable_location.diagnostic_location(db).file_id == file_id)
+            .filter(|diag| diag.stable_location.span_in_file(db).file_id == file_id)
             .collect();
 
         current_fixes = get_fixes_without_resolving_overlapping(db, diags)
