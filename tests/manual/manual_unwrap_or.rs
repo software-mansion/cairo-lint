@@ -441,7 +441,7 @@ fn main() {
 "#;
 
 const IF_LET_WITH_NON_DROPPABLE_TYPE: &str = r#"
-// This type cannot be dropped => lint will not trigger.
+// This type cannot be dropped => `manual_unwrap_or_else` will trigger instead.
 struct Struct {
     x: felt252,
 }
@@ -458,7 +458,7 @@ fn main() {
 "#;
 
 const MATCH_WITH_NON_DROPPABLE_TYPE: &str = r#"
-// This type cannot be dropped => lint will not trigger.
+// This type cannot be dropped => `manual_unwrap_or_else` will trigger instead.
 struct Struct {
     x: felt252,
 }
@@ -1234,12 +1234,28 @@ fn allow_if_let_with_array_macro_result_diagnostics() {
 
 #[test]
 fn if_let_with_non_droppable_type_diagnostics() {
-    test_lint_diagnostics!(IF_LET_WITH_NON_DROPPABLE_TYPE, @r"");
+    test_lint_diagnostics!(IF_LET_WITH_NON_DROPPABLE_TYPE, @r"
+    Plugin diagnostic: Manual `unwrap_or_else` detected. Consider using `unwrap_or_else()` instead.
+     --> lib.cairo:10:5-14:5
+          if let Option::Some(v) = a {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
 }
 
 #[test]
 fn match_with_non_droppable_type_diagnostics() {
-    test_lint_diagnostics!(MATCH_WITH_NON_DROPPABLE_TYPE, @r"");
+    test_lint_diagnostics!(MATCH_WITH_NON_DROPPABLE_TYPE, @r"
+    Plugin diagnostic: Manual `unwrap_or_else` detected. Consider using `unwrap_or_else()` instead.
+     --> lib.cairo:10:5-13:5
+          match a {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
 }
 
 #[test]
