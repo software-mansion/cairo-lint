@@ -11,3 +11,4 @@ mod manual_ok;
 mod manual_ok_or;
 mod manual_unwrap_or;
 mod manual_unwrap_or_default;
+mod manual_unwrap_or_else;
