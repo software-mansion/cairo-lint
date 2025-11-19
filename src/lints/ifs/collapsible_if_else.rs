@@ -12,7 +12,10 @@ use cairo_lang_syntax::node::{
 };
 use if_chain::if_chain;
 
-use crate::context::{CairoLintKind, Lint};
+use crate::{
+    context::{CairoLintKind, Lint},
+    queries::is_assert_macro_call,
+};
 
 use crate::fixer::InternalFix;
 use crate::queries::{get_all_function_bodies, get_all_if_expressions};
@@ -107,12 +110,13 @@ pub fn check_collapsible_if_else<'db>(
         let if_exprs = get_all_if_expressions(function_body);
         let arenas = &function_body.arenas;
         for if_expr in if_exprs.iter() {
-            check_single_collapsible_if_else(if_expr, arenas, diagnostics);
+            check_single_collapsible_if_else(db, if_expr, arenas, diagnostics);
         }
     }
 }
 
 fn check_single_collapsible_if_else<'db>(
+    db: &'db dyn Database,
     if_expr: &ExprIf<'db>,
     arenas: &Arenas<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
@@ -126,7 +130,7 @@ fn check_single_collapsible_if_else<'db>(
         return;
     };
     // Check if the expression is a block (not else if)
-    let is_if = is_only_statement_if(block_expr, arenas);
+    let is_if = is_only_statement_if(db, block_expr, arenas);
 
     if is_if {
         diagnostics.push(PluginDiagnostic {
@@ -138,15 +142,13 @@ fn check_single_collapsible_if_else<'db>(
     }
 }
 
-fn is_only_statement_if(block_expr: &ExprBlock, arenas: &Arenas) -> bool {
+fn is_only_statement_if(db: &dyn Database, block_expr: &ExprBlock, arenas: &Arenas) -> bool {
     if block_expr.statements.len() == 1 && block_expr.tail.is_none() {
         if_chain! {
             if let Statement::Expr(statement_expr) = &arenas.statements[block_expr.statements[0]];
-            if matches!(arenas.exprs[statement_expr.expr], Expr::If(_));
+            if let Expr::If(ref inner_if_expr) = arenas.exprs[statement_expr.expr];
             then {
-                return true;
-            } else {
-                return false;
+                return !is_assert_macro_call(db, arenas, inner_if_expr);
             }
         }
     }
