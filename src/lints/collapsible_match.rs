@@ -142,6 +142,7 @@ fn check_single_collapsible_match<'db>(
     }
 }
 
+/// Checks whether the given matches can be collapsed into a single match.
 fn check_if_matches_are_simplifiable<'db>(
     db: &'db dyn Database,
     arenas: &Arenas<'db>,
@@ -298,7 +299,7 @@ pub fn fix_collapsible_match<'db>(
     if let Some(inner_match) = get_inner_match_syntax_expression(db, first_arm) {
         return Some(InternalFix {
             node,
-            suggestion: get_collapsed_match(
+            suggestion: get_fixed_collapsed_match(
                 db,
                 match_expr_text,
                 first_arm,
@@ -313,7 +314,7 @@ pub fn fix_collapsible_match<'db>(
     if let Some(inner_match) = get_inner_match_syntax_expression(db, second_arm) {
         return Some(InternalFix {
             node,
-            suggestion: get_collapsed_match(
+            suggestion: get_fixed_collapsed_match(
                 db,
                 match_expr_text,
                 second_arm,
@@ -328,7 +329,8 @@ pub fn fix_collapsible_match<'db>(
     None
 }
 
-fn get_collapsed_match<'db>(
+/// Gets already fixed collapsed match ready to be suggested.
+fn get_fixed_collapsed_match<'db>(
     db: &'db dyn Database,
     match_expr: &'db str,
     // The arm which contains the inner match.
@@ -418,6 +420,7 @@ fn get_collapsed_match<'db>(
     }
 }
 
+/// Gets the inner match syntax expression. We also support matches inside blocks with a single expression.
 fn get_inner_match_syntax_expression<'db>(
     db: &'db dyn Database,
     match_arm: &ast::MatchArm<'db>,
