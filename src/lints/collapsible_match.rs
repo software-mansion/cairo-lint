@@ -2,7 +2,7 @@ use cairo_lang_defs::{ids::ModuleItemId, plugin::PluginDiagnostic};
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_semantic::{Arenas, Expr, ExprMatch, MatchArm, Statement, VarId};
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast};
-use indoc::{formatdoc, indoc};
+use indoc::formatdoc;
 use salsa::Database;
 
 use crate::{
