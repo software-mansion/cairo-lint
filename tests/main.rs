@@ -2,6 +2,7 @@ mod bitwise_for_parity_check;
 mod bool_comparison;
 mod breaks;
 mod clone_on_copy;
+mod collapsible_match;
 mod double_comparison;
 mod double_parens;
 mod duplicate_underscore_args;

@@ -6,6 +6,8 @@ use crate::lints::bool_comparison::check_bool_comparison;
 use crate::lints::breaks::BreakUnit;
 use crate::lints::breaks::check_break;
 use crate::lints::clone_on_copy::{CloneOnCopy, check_clone_on_copy};
+use crate::lints::collapsible_match::CollapsibleMatch;
+use crate::lints::collapsible_match::check_collapsible_match;
 use crate::lints::double_comparison::ContradictoryComparison;
 use crate::lints::double_comparison::ImpossibleComparison;
 use crate::lints::double_comparison::RedundantComparison;
@@ -107,6 +109,7 @@ pub enum CairoLintKind {
     BoolComparison,
     CollapsibleIfElse,
     CollapsibleIf,
+    CollapsibleMatch,
     DuplicateUnderscoreArgs,
     LoopMatchPopFront,
     ManualUnwrapOrDefault,
@@ -380,6 +383,10 @@ impl LintContext {
             LintRuleGroup {
                 lints: vec![Box::new(RedundantInto)],
                 check_function: check_redundant_into,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(CollapsibleMatch)],
+                check_function: check_collapsible_match,
             },
         ]
     }
