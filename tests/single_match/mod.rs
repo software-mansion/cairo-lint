@@ -301,6 +301,13 @@ fn nested_destructuring_match_diagnostics() {
     | ...
     |     };
     |_____^
+    Plugin diagnostic: Nested `match` statements can be collapsed into a single `match` statement.
+     --> lib.cairo:5:5-11:5
+          match variable {
+     _____^
+    | ...
+    |     };
+    |_____^
     ");
 }
 
@@ -322,6 +329,13 @@ fn nested_destructuring_match_fixer() {
 fn destructuring_match_twisted_diagnostics() {
     test_lint_diagnostics!(DESTRUCTURING_MATCH_TWISTED, @r"
     Plugin diagnostic: you seem to be trying to use `match` for destructuring a single pattern. Consider using `if let`
+     --> lib.cairo:5:5-12:5
+          match variable {
+     _____^
+    | ...
+    |     };
+    |_____^
+    Plugin diagnostic: Nested `match` statements can be collapsed into a single `match` statement.
      --> lib.cairo:5:5-12:5
           match variable {
      _____^
@@ -357,6 +371,13 @@ fn destructuring_match_twisted_differently_diagnostics() {
     | ...
     |         },
     |_________^
+    Plugin diagnostic: Nested `match` statements can be collapsed into a single `match` statement.
+     --> lib.cairo:5:5-12:5
+          match variable {
+     _____^
+    | ...
+    |     };
+    |_____^
     ");
 }
 
@@ -379,8 +400,15 @@ fn destructuring_match_twisted_differently_fixer() {
 
 #[test]
 fn destructuring_match_second_arm_diagnostics() {
-    test_lint_diagnostics!(DESTRUCTURING_MATCH_SECOND_ARM, @r#"
-    "#);
+    test_lint_diagnostics!(DESTRUCTURING_MATCH_SECOND_ARM, @r"
+    Plugin diagnostic: Nested `match` statements can be collapsed into a single `match` statement.
+     --> lib.cairo:5:5-11:5
+          match variable {
+     _____^
+    | ...
+    |     };
+    |_____^
+    ");
 }
 
 #[test]
@@ -390,11 +418,8 @@ fn destructuring_match_second_arm_fixer() {
         // Both of the match are invalid hence the plugin doesn't output any diag
         let variable = Option::Some(Option::Some(1_felt252));
         match variable {
+            Option::Some(Option::Some(b)) => println!("{b}"),
             _ => (),
-            Option::Some(a) => match a {
-                _ => (),
-                Option::Some(b) => println!("{b}"),
-            },
         };
     }
     "#);

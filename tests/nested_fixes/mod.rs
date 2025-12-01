@@ -229,6 +229,13 @@ fn nested_destructuring_match_diagnostics() {
     | ...
     |     };
     |_____^
+    Plugin diagnostic: Nested `match` statements can be collapsed into a single `match` statement.
+     --> lib.cairo:4:5-10:5
+          match variable {
+     _____^
+    | ...
+    |     };
+    |_____^
     ");
 }
 
