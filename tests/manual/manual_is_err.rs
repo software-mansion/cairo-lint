@@ -80,6 +80,16 @@ fn main() {
 }
 "#;
 
+const MATCH_WITH_REVERSED_ARMS: &str = r#"
+fn main() {
+    let a: Result<usize, ()> = Result::Err(());
+    let _ = match a {
+        Result::Err(_) => true,
+        Result::Ok(_) => false,
+    };
+}
+"#;
+
 #[test]
 fn test_basic_is_err_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_IS_ERR, @r"
@@ -224,6 +234,29 @@ fn test_basic_is_err_block_fixer() {
         let res_val: Result<i32> = Result::Err('err');
         // This is just a variable.
         let _a = res_val.is_err();
+    }
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_diagnostics() {
+    test_lint_diagnostics!(MATCH_WITH_REVERSED_ARMS, @r"
+    Plugin diagnostic: Manual match for `is_err` detected. Consider using `is_err()` instead
+     --> lib.cairo:4:13-7:5
+          let _ = match a {
+     _____________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_fixer() {
+    test_lint_fixer!(MATCH_WITH_REVERSED_ARMS, @r"
+    fn main() {
+        let a: Result<usize, ()> = Result::Err(());
+        let _ = a.is_err();
     }
     ");
 }

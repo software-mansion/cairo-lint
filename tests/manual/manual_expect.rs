@@ -191,6 +191,16 @@ fn main() {
 }
 "#;
 
+const TEST_MATCH_WITH_REVERSED_ARMS: &str = r#"
+fn main() {
+    let a: Result<usize> = Result::Err('error');
+    let _ = match a {
+        Result::Err(_) => core::panic_with_felt252('other-error'),
+        Result::Ok(v) => v,
+    };
+}
+"#;
+
 #[test]
 fn test_core_panic_with_felt252_diagnostics() {
     test_lint_diagnostics!(TEST_CORE_PANIC_WITH_FELT252, @r"
@@ -525,6 +535,29 @@ fn test_core_panic_with_felt252_block_fixer() {
         let foo: Option<i32> = Option::None;
         // This is just a variable.
         let _foo = foo.expect('err');
+    }
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_diagnostics() {
+    test_lint_diagnostics!(TEST_MATCH_WITH_REVERSED_ARMS, @r"
+    Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+     --> lib.cairo:4:13-7:5
+          let _ = match a {
+     _____________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_fixer() {
+    test_lint_fixer!(TEST_MATCH_WITH_REVERSED_ARMS, @r"
+    fn main() {
+        let a: Result<usize> = Result::Err('error');
+        let _ = a.expect('other-error');
     }
     ");
 }
