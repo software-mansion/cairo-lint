@@ -65,7 +65,7 @@ fn main() {
 const TEST_MATCH_WITH_FUNCTION: &str = r#"
 fn foo(x : i32) -> Result<i32, felt252> {
     Result::Ok('i32')
-} 
+}
 fn main() {
     // This is just a variable.
     let _foo = match foo(0) {
@@ -78,7 +78,7 @@ fn main() {
 const TEST_IF_WITH_FUNCTION: &str = r#"
 fn foo(x : i32) -> Result<i32, felt252> {
     Result::Ok('i32')
-} 
+}
 fn main() {
     // This is just a variable.
     let _a = if let Result::Err(err) = foo(0) {
@@ -101,6 +101,16 @@ fn main() {
         Result::Err(x) => {
             x
         },
+    };
+}
+"#;
+
+const TEST_MATCH_WITH_REVERSED_ARMS: &str = r#"
+fn main() {
+    let a: Result<usize> = Result::Err('error');
+    let _ = match a {
+        Result::Err(err) => err,
+        Result::Ok(_) => core::panic_with_felt252('other-error'),
     };
 }
 "#;
@@ -292,6 +302,29 @@ fn test_basic_match_expect_err_block_fixer() {
         let err = 'this is an err';
         // This is just a variable.
         let _foo = foo.expect_err(err);
+    }
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_diagnostics() {
+    test_lint_diagnostics!(TEST_MATCH_WITH_REVERSED_ARMS, @r"
+    Plugin diagnostic: Manual match for `expect_err` detected. Consider using `expect_err()` instead
+     --> lib.cairo:4:13-7:5
+          let _ = match a {
+     _____________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_fixer() {
+    test_lint_fixer!(TEST_MATCH_WITH_REVERSED_ARMS, @r"
+    fn main() {
+        let a: Result<usize> = Result::Err('error');
+        let _ = a.expect_err('other-error');
     }
     ");
 }
