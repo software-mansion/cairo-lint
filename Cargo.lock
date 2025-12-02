@@ -759,6 +759,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "cairo-language-common"
+version = "0.1.0"
+source = "git+https://github.com/software-mansion/cairo-language-common?rev=9711438fb538dc86d5478e4122ab32da840f0a7c#9711438fb538dc86d5478e4122ab32da840f0a7c"
+dependencies = [
+ "cairo-lang-defs",
+ "cairo-lang-diagnostics",
+ "cairo-lang-filesystem",
+ "cairo-lang-parser",
+ "cairo-lang-semantic",
+ "cairo-lang-syntax",
+ "cairo-lang-utils",
+ "salsa",
+ "semver",
+ "tracing",
+]
+
+[[package]]
 name = "cairo-lint"
 version = "2.14.0"
 dependencies = [
@@ -773,6 +790,7 @@ dependencies = [
  "cairo-lang-syntax",
  "cairo-lang-test-plugin",
  "cairo-lang-utils",
+ "cairo-language-common",
  "ctor",
  "if_chain",
  "indoc",

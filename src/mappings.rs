@@ -1,12 +1,7 @@
 use cairo_lang_defs::ids::{LanguageElementId, ModuleItemId};
-use cairo_lang_diagnostics::ToOption;
-use cairo_lang_filesystem::{
-    db::get_originating_location,
-    ids::{FileId, SpanInFile},
-    span::TextOffset,
-};
-use cairo_lang_parser::db::ParserGroup;
+use cairo_lang_filesystem::{db::get_originating_location, ids::SpanInFile};
 use cairo_lang_syntax::node::{SyntaxNode, ast::ModuleItem, ids::SyntaxStablePtrId};
+use cairo_language_common::CommonGroup;
 use salsa::Database;
 
 #[tracing::instrument(level = "trace", skip(db))]
@@ -24,7 +19,7 @@ pub fn get_origin_module_item_as_syntax_node<'db>(
         None,
     );
 
-    find_syntax_node_at_offset(db, file_id, span.start)?
+    db.find_syntax_node_at_offset(file_id, span.start)?
         .ancestors_with_self(db)
         .find(|n| ModuleItem::is_variant(n.kind(db)))
 }
@@ -47,7 +42,8 @@ pub fn get_origin_syntax_node<'db>(
 
     // Heuristically find the syntax node at the given offset.
     // We match the ancestors with node text to ensure we get the whole node.
-    return find_syntax_node_at_offset(db, file_id, span.start)?
+    return db
+        .find_syntax_node_at_offset(file_id, span.start)?
         .ancestors_with_self(db)
         .find(|node| node.get_text_without_trivia(db) == syntax_node.get_text_without_trivia(db));
 }
@@ -66,13 +62,5 @@ pub fn get_originating_syntax_node_for<'db>(
         None,
     );
 
-    find_syntax_node_at_offset(db, file_id, span.start)
-}
-
-fn find_syntax_node_at_offset<'db>(
-    db: &'db dyn Database,
-    file: FileId<'db>,
-    offset: TextOffset,
-) -> Option<SyntaxNode<'db>> {
-    Some(db.file_syntax(file).to_option()?.lookup_offset(db, offset))
+    db.find_syntax_node_at_offset(file_id, span.start)
 }
