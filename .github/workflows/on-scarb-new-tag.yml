@@ -4,6 +4,11 @@ on:
   repository_dispatch:
     types: [scarb-new-tag-published]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   run-on-tag:
     uses: software-mansion/cairo-lint/.github/workflows/website-deploy.yml@main
