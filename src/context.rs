@@ -71,6 +71,8 @@ use crate::lints::manual::manual_unwrap_or_default::ManualUnwrapOrDefault;
 use crate::lints::manual::manual_unwrap_or_default::check_manual_unwrap_or_default;
 use crate::lints::panic::PanicInCode;
 use crate::lints::panic::check_panic_usage;
+use crate::lints::performance::inefficient_unwrap_or::InefficientUnwrapOr;
+use crate::lints::performance::inefficient_unwrap_or::check_inefficient_unwrap_or;
 use crate::lints::performance::inefficient_while_comp::InefficientWhileComparison;
 use crate::lints::performance::inefficient_while_comp::check_inefficient_while_comp;
 use crate::lints::redundant_brackets_in_enum_call::RedundantBracketsInEnumCall;
@@ -92,6 +94,7 @@ use itertools::Itertools;
 use salsa::Database;
 use std::collections::HashMap;
 use std::sync::LazyLock;
+use std::vec;
 
 /// Type describing a linter group's rule checking function.
 type CheckingFunction =
@@ -145,6 +148,7 @@ pub enum CairoLintKind {
     UnitReturnType,
     UnwrapSyscall,
     RedundantInto,
+    InefficientUnwrapOr,
 }
 
 pub trait Lint: Sync + Send {
@@ -387,6 +391,10 @@ impl LintContext {
             LintRuleGroup {
                 lints: vec![Box::new(CollapsibleMatch)],
                 check_function: check_collapsible_match,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(InefficientUnwrapOr)],
+                check_function: check_inefficient_unwrap_or,
             },
         ]
     }
