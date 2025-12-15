@@ -3,8 +3,8 @@ use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::ids::{FileId, FileLongId};
 use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_language_common::CommonGroup;
 use if_chain::if_chain;
+use std::collections::HashSet;
 
 use crate::context::{
     get_all_checking_functions, get_name_for_diagnostic_message, is_lint_enabled_by_default,
@@ -51,6 +51,9 @@ fn linter_diagnostics<'db>(
     let Ok(module_data) = module_id.module_data(db) else {
         return Vec::default();
     };
+
+    let mut linted_nodes: HashSet<SyntaxNode> = HashSet::new();
+
     for item in module_data.items(db) {
         let mut item_diagnostics = Vec::new();
         let module_file = db.module_main_file(module_id).unwrap();
@@ -64,12 +67,8 @@ fn linter_diagnostics<'db>(
 
             if_chain! {
                 if let Some(node) = origin_node;
-                if let Some(resultants) = db.get_node_resultants(node);
-                // Check if the item has only a single resultant, as if there is multiple resultants,
-                // we would generate different diagnostics for each of resultants.
-                // If we don't check this, we might generate different diagnostics for the same item,
-                // which is a very unpredictable behavior.
-                if resultants.len() == 1;
+                // We want to make sure that the corresponding item to the origin node was not yet linted. We don't want to duplicate the diagnostics for the same user code.
+                if !linted_nodes.contains(&node);
                 // We don't do the `==` check here, as the origin node always has the proc macro attributes.
                 // It also means that if the macro changed anything in the original item code,
                 // we won't be processing it, as it might lead to unexpected behavior.
@@ -79,6 +78,8 @@ fn linter_diagnostics<'db>(
                     for checking_function in checking_functions {
                         checking_function(db, item, &mut item_diagnostics);
                     }
+
+                    linted_nodes.insert(node);
 
                     diags.extend(item_diagnostics.into_iter().filter_map(|mut diag| {
                       let ptr = diag.stable_ptr;
