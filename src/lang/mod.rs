@@ -1,10 +1,16 @@
-use cairo_lang_defs::ids::{LanguageElementId, ModuleId};
+use cairo_lang_defs::ids::{
+    ConstantLongId, EnumLongId, ExternFunctionLongId, ExternTypeLongId, FreeFunctionLongId,
+    ImplAliasLongId, ImplDefLongId, LanguageElementId, MacroDeclarationLongId, ModuleId,
+    ModuleItemId, ModuleTypeAliasLongId, StructLongId, TraitLongId, UseLongId,
+};
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_filesystem::ids::{FileId, FileLongId};
-use cairo_lang_syntax::node::SyntaxNode;
 use cairo_lang_syntax::node::helpers::QueryAttrs;
-use cairo_language_common::CommonGroup;
+use cairo_lang_syntax::node::kind::SyntaxKind;
+use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode, ast};
+use cairo_lang_utils::Intern;
 use if_chain::if_chain;
+use std::collections::HashSet;
 
 use crate::context::{
     get_all_checking_functions, get_name_for_diagnostic_message, is_lint_enabled_by_default,
@@ -14,7 +20,7 @@ use crate::{CairoLintToolMetadata, CorelibContext};
 use crate::mappings::{get_origin_module_item_as_syntax_node, get_origin_syntax_node};
 
 mod db;
-use cairo_lang_defs::db::DefsGroup;
+use cairo_lang_defs::db::{DefsGroup, get_all_path_leaves};
 pub use db::{LinterAnalysisDatabase, LinterAnalysisDatabaseBuilder};
 use salsa::Database;
 
@@ -51,6 +57,9 @@ fn linter_diagnostics<'db>(
     let Ok(module_data) = module_id.module_data(db) else {
         return Vec::default();
     };
+
+    let mut linted_nodes: HashSet<SyntaxNode> = HashSet::new();
+
     for item in module_data.items(db) {
         let mut item_diagnostics = Vec::new();
         let module_file = db.module_main_file(module_id).unwrap();
@@ -64,12 +73,8 @@ fn linter_diagnostics<'db>(
 
             if_chain! {
                 if let Some(node) = origin_node;
-                if let Some(resultants) = db.get_node_resultants(node);
-                // Check if the item has only a single resultant, as if there is multiple resultants,
-                // we would generate different diagnostics for each of resultants.
-                // If we don't check this, we might generate different diagnostics for the same item,
-                // which is a very unpredictable behavior.
-                if resultants.len() == 1;
+                // We want. to make sure that the corresponding item to the origin node was not yet linted. We don't want to duplicate the diagnostics for the same user code.
+                if !linted_nodes.contains(&node);
                 // We don't do the `==` check here, as the origin node always has the proc macro attributes.
                 // It also means that if the macro changed anything in the original item code,
                 // we won't be processing it, as it might lead to unexpected behavior.
@@ -79,6 +84,8 @@ fn linter_diagnostics<'db>(
                     for checking_function in checking_functions {
                         checking_function(db, item, &mut item_diagnostics);
                     }
+
+                    linted_nodes.insert(node);
 
                     diags.extend(item_diagnostics.into_iter().filter_map(|mut diag| {
                       let ptr = diag.stable_ptr;
@@ -134,4 +141,112 @@ fn node_has_ascendants_with_allow_name_attr<'db>(
         }
     }
     false
+}
+
+/// If the ast node is a ModuleItem, return corresponding ids. Otherwise, returns `None`.
+fn module_item_ids_from_ast<'db>(
+    db: &'db dyn Database,
+    module_id: ModuleId<'db>,
+    node: SyntaxNode<'db>,
+) -> Option<Vec<ModuleItemId<'db>>> {
+    let syntax_db = db;
+
+    Some(match node.kind(syntax_db) {
+        SyntaxKind::ItemConstant => vec![ModuleItemId::Constant(
+            ConstantLongId(
+                module_id,
+                ast::ItemConstant::from_syntax_node(db, node).stable_ptr(db),
+            )
+            .intern(db),
+        )],
+        SyntaxKind::FunctionWithBody => vec![ModuleItemId::FreeFunction(
+            FreeFunctionLongId(
+                module_id,
+                ast::FunctionWithBody::from_syntax_node(db, node).stable_ptr(db),
+            )
+            .intern(db),
+        )],
+        SyntaxKind::ItemExternFunction => vec![ModuleItemId::ExternFunction(
+            ExternFunctionLongId(
+                module_id,
+                ast::ItemExternFunction::from_syntax_node(db, node).stable_ptr(db),
+            )
+            .intern(db),
+        )],
+        SyntaxKind::ItemExternType => vec![ModuleItemId::ExternType(
+            ExternTypeLongId(
+                module_id,
+                ast::ItemExternType::from_syntax_node(db, node).stable_ptr(db),
+            )
+            .intern(db),
+        )],
+        SyntaxKind::ItemTrait => vec![ModuleItemId::Trait(
+            TraitLongId(
+                module_id,
+                ast::ItemTrait::from_syntax_node(db, node).stable_ptr(db),
+            )
+            .intern(db),
+        )],
+        SyntaxKind::ItemImpl => {
+            vec![ModuleItemId::Impl(
+                ImplDefLongId(
+                    module_id,
+                    ast::ItemImpl::from_syntax_node(db, node).stable_ptr(db),
+                )
+                .intern(db),
+            )]
+        }
+        SyntaxKind::ItemStruct => {
+            vec![ModuleItemId::Struct(
+                StructLongId(
+                    module_id,
+                    ast::ItemStruct::from_syntax_node(db, node).stable_ptr(db),
+                )
+                .intern(db),
+            )]
+        }
+        SyntaxKind::ItemEnum => {
+            vec![ModuleItemId::Enum(
+                EnumLongId(
+                    module_id,
+                    ast::ItemEnum::from_syntax_node(db, node).stable_ptr(db),
+                )
+                .intern(db),
+            )]
+        }
+        SyntaxKind::ItemUse => {
+            let item_use = ast::ItemUse::from_syntax_node(db, node);
+            get_all_path_leaves(db, &item_use)
+                .into_iter()
+                .map(|leaf| {
+                    let use_long_id = UseLongId(module_id, leaf.stable_ptr(syntax_db));
+                    ModuleItemId::Use(use_long_id.intern(db))
+                })
+                .collect()
+        }
+        SyntaxKind::ItemTypeAlias => vec![ModuleItemId::TypeAlias(
+            ModuleTypeAliasLongId(
+                module_id,
+                ast::ItemTypeAlias::from_syntax_node(db, node).stable_ptr(db),
+            )
+            .intern(db),
+        )],
+        SyntaxKind::ItemImplAlias => vec![ModuleItemId::ImplAlias(
+            ImplAliasLongId(
+                module_id,
+                ast::ItemImplAlias::from_syntax_node(db, node).stable_ptr(db),
+            )
+            .intern(db),
+        )],
+        SyntaxKind::ItemMacroDeclaration => {
+            vec![ModuleItemId::MacroDeclaration(
+                MacroDeclarationLongId(
+                    module_id,
+                    ast::ItemMacroDeclaration::from_syntax_node(db, node).stable_ptr(db),
+                )
+                .intern(db),
+            )]
+        }
+        _ => return None,
+    })
 }
