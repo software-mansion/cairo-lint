@@ -189,7 +189,7 @@ fn has_unit_generic_arg_at_index<'db>(
         if_chain! {
             if let Some(arg) = args.nth(index_to_match);
 
-            if let Some(ast::GenericArgValue::Expr(arg_val)) = match arg {
+            if let Some(arg_val) = match arg {
                 // Match named argument if it matches our target generic parameter
                 ast::GenericArg::Named(named_arg) if named_arg.name(db).text(db).to_string(db) == generic_param_name => {
                     Some(named_arg.value(db))
@@ -200,7 +200,7 @@ fn has_unit_generic_arg_at_index<'db>(
                 ast::GenericArg::Unnamed(unnamed_arg) => Some(unnamed_arg.value(db))
             };
 
-            if let ast::Expr::Tuple(unit) = arg_val.expr(db);
+            if let ast::Expr::Tuple(unit) = arg_val;
 
             // Check if the tuple is empty; if it is, it means it is a unit type
             if unit.expressions(db).elements(db).len() == 0;
