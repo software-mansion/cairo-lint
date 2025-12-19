@@ -9,6 +9,7 @@ pub mod manual_ok;
 pub mod manual_ok_or;
 pub mod manual_unwrap_or;
 pub mod manual_unwrap_or_default;
+pub mod manual_unwrap_or_else;
 
 use std::fmt::Debug;
 
@@ -47,6 +48,7 @@ pub enum ManualLint {
     ManualExpectErr,
     ManualUnwrapOr,
     ManualIsEmpty,
+    ManualUnwrapOrElse,
 }
 
 /// Checks for all the manual lint written as `match`.
@@ -180,6 +182,7 @@ fn check_syntax_some_arm<'db>(
         ManualLint::ManualIsSome => is_expected_variant(expr, db, TRUE),
         ManualLint::ManualIsNone => is_expected_variant(expr, db, FALSE),
         ManualLint::ManualUnwrapOr
+        | ManualLint::ManualUnwrapOrElse
         | ManualLint::ManualUnwrapOrDefault
         | ManualLint::ManualOptExpect => match_arm_returns_extracted_var(expr, pattern, arenas),
 
@@ -235,9 +238,8 @@ fn check_syntax_ok_arm<'db>(
         }
         ManualLint::ManualResExpect
         | ManualLint::ManualUnwrapOr
-        | ManualLint::ManualUnwrapOrDefault => {
-            match_arm_returns_extracted_var(expr, pattern, arenas)
-        }
+        | ManualLint::ManualUnwrapOrDefault
+        | ManualLint::ManualUnwrapOrElse => match_arm_returns_extracted_var(expr, pattern, arenas),
         _ => false,
     }
 }
@@ -263,7 +265,7 @@ fn check_syntax_none_arm<'db>(
             }
         }
         ManualLint::ManualUnwrapOrDefault => check_is_default(db, expr, arenas),
-        ManualLint::ManualUnwrapOr => {
+        ManualLint::ManualUnwrapOr | ManualLint::ManualUnwrapOrElse => {
             !func_call_or_block_returns_never(expr, db, arenas)
                 && !check_is_default(db, expr, arenas)
         }
@@ -307,7 +309,7 @@ fn check_syntax_err_arm<'db>(
         }
         ManualLint::ManualExpectErr => match_arm_returns_extracted_var(expr, pattern, arenas),
         ManualLint::ManualUnwrapOrDefault => check_is_default(db, expr, arenas),
-        ManualLint::ManualUnwrapOr => {
+        ManualLint::ManualUnwrapOr | ManualLint::ManualUnwrapOrElse => {
             !func_call_or_block_returns_never(expr, db, arenas)
                 && !check_is_default(db, expr, arenas)
         }
@@ -381,7 +383,9 @@ fn check_syntax_opt_if<'db>(
         ManualLint::ManualIsNone => is_expected_variant(&arenas.exprs[tail_expr_id], db, FALSE),
         ManualLint::ManualOptExpect => if_expr_pattern_matches_tail_var(expr, arenas),
         ManualLint::ManualUnwrapOrDefault => if_expr_pattern_matches_tail_var(expr, arenas),
-        ManualLint::ManualUnwrapOr => if_expr_pattern_matches_tail_var(expr, arenas),
+        ManualLint::ManualUnwrapOr | ManualLint::ManualUnwrapOrElse => {
+            if_expr_pattern_matches_tail_var(expr, arenas)
+        }
         _ => false,
     }
 }
@@ -408,7 +412,9 @@ fn check_syntax_res_if<'db>(
             if_expr_condition_and_block_match_enum_pattern(expr, db, arenas, SOME)
         }
         ManualLint::ManualResExpect => if_expr_pattern_matches_tail_var(expr, arenas),
-        ManualLint::ManualUnwrapOr => if_expr_pattern_matches_tail_var(expr, arenas),
+        ManualLint::ManualUnwrapOr | ManualLint::ManualUnwrapOrElse => {
+            if_expr_pattern_matches_tail_var(expr, arenas)
+        }
         ManualLint::ManualUnwrapOrDefault => if_expr_pattern_matches_tail_var(expr, arenas),
         _ => false,
     }
@@ -458,7 +464,7 @@ fn check_syntax_opt_else<'db>(
         ManualLint::ManualIsNone => is_expected_variant(&arenas.exprs[tail_expr_id], db, TRUE),
         ManualLint::ManualOptExpect => is_expected_function(tail_expr, db, PANIC_WITH_FELT252),
         ManualLint::ManualUnwrapOrDefault => check_is_default(db, tail_expr, arenas),
-        ManualLint::ManualUnwrapOr => {
+        ManualLint::ManualUnwrapOr | ManualLint::ManualUnwrapOrElse => {
             !check_is_default(db, tail_expr, arenas)
                 && !func_call_or_block_returns_never(tail_expr, db, arenas)
         }
@@ -495,7 +501,7 @@ fn check_syntax_res_else<'db>(
         ManualLint::ManualIsErr => is_expected_variant(tail_expr, db, TRUE),
         ManualLint::ManualOk => is_expected_variant(tail_expr, db, NONE),
         ManualLint::ManualResExpect => is_expected_function(tail_expr, db, PANIC_WITH_FELT252),
-        ManualLint::ManualUnwrapOr => {
+        ManualLint::ManualUnwrapOr | ManualLint::ManualUnwrapOrElse => {
             !check_is_default(db, tail_expr, arenas)
                 && !func_call_or_block_returns_never(tail_expr, db, arenas)
         }
