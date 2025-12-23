@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use anyhow::{Result, anyhow};
 use cairo_lang_compiler::{
     db::validate_corelib,
@@ -9,6 +7,7 @@ use cairo_lang_defs::{
     db::{defs_group_input, init_defs_group, init_external_files},
     ids::{InlineMacroExprPluginLongId, MacroPluginLongId},
 };
+use cairo_lang_filesystem::flag::FlagsGroup;
 use cairo_lang_filesystem::{
     cfg::CfgSet,
     db::{FilesGroup, init_dev_corelib, init_files_group},
@@ -165,17 +164,17 @@ impl LinterAnalysisDatabaseBuilder {
 
         db.set_flag(
             FlagLongId("add_withdraw_gas".to_string()),
-            Some(Arc::new(Flag::AddWithdrawGas(self.auto_withdraw_gas))),
+            Some(Flag::AddWithdrawGas(self.auto_withdraw_gas)),
         );
 
         db.set_flag(
             FlagLongId("panic_backtrace".to_string()),
-            Some(Arc::new(Flag::PanicBacktrace(self.panic_backtrace))),
+            Some(Flag::PanicBacktrace(self.panic_backtrace)),
         );
 
         db.set_flag(
             FlagLongId("unsafe_panic".to_string()),
-            Some(Arc::new(Flag::UnsafePanic(self.unsafe_panic))),
+            Some(Flag::UnsafePanic(self.unsafe_panic)),
         );
 
         if let Some(config) = &self.project_config {
