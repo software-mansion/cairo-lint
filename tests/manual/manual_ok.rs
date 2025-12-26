@@ -76,6 +76,16 @@ fn main() {
 }
 "#;
 
+const MATCH_WITH_REVERSED_ARMS: &str = r#"
+fn main() {
+    let a: Result<usize, ()> = Result::Err(());
+    let _ = match a {
+        Result::Err(_) => Option::None,
+        Result::Ok(v) => Option::Some(v),
+    };
+}
+"#;
+
 #[test]
 fn test_basic_ok_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_OK, @r"
@@ -209,6 +219,29 @@ fn test_basic_ok_block_fixer() {
         let res_val: Result<i32> = Result::Err('err');
         // This is just a variable.
         let _a = res_val.ok();
+    }
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_diagnostics() {
+    test_lint_diagnostics!(MATCH_WITH_REVERSED_ARMS, @r"
+    Plugin diagnostic: Manual match for `ok` detected. Consider using `ok()` instead
+     --> lib.cairo:4:13-7:5
+          let _ = match a {
+     _____________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_fixer() {
+    test_lint_fixer!(MATCH_WITH_REVERSED_ARMS, @r"
+    fn main() {
+        let a: Result<usize, ()> = Result::Err(());
+        let _ = a.ok();
     }
     ");
 }

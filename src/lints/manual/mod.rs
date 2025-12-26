@@ -116,6 +116,21 @@ pub fn check_manual<'db>(
                 manual_lint,
             )
         }
+        (NONE, SOME) => {
+            check_syntax_none_arm(
+                first_expr,
+                &arenas.patterns[first_arm.patterns[0]],
+                db,
+                arenas,
+                manual_lint,
+            ) && check_syntax_some_arm(
+                second_expr,
+                &arenas.patterns[second_arm.patterns[0]],
+                db,
+                arenas,
+                manual_lint,
+            )
+        }
         (OK, ERR) => {
             check_syntax_ok_arm(
                 first_expr,
@@ -124,6 +139,21 @@ pub fn check_manual<'db>(
                 arenas,
                 manual_lint,
             ) && check_syntax_err_arm(
+                second_expr,
+                &arenas.patterns[second_arm.patterns[0]],
+                db,
+                arenas,
+                manual_lint,
+            )
+        }
+        (ERR, OK) => {
+            check_syntax_err_arm(
+                first_expr,
+                &arenas.patterns[first_arm.patterns[0]],
+                db,
+                arenas,
+                manual_lint,
+            ) && check_syntax_ok_arm(
                 second_expr,
                 &arenas.patterns[second_arm.patterns[0]],
                 db,

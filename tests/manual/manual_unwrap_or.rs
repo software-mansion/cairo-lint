@@ -506,6 +506,26 @@ fn main() {
 }
 "#;
 
+const MATCH_WITH_REVERSED_ARMS_OPTION: &str = r#"
+fn main() {
+    let a: Option<usize> = Option::None;
+    let _ = match a {
+        Option::None => 0,
+        Option::Some(v) => v,
+    };
+}
+"#;
+
+const MATCH_WITH_REVERSED_ARMS_RESULT: &str = r#"
+fn main() {
+    let a: Result<usize, ()> = Result::Err(());
+    let _ = match a {
+        Result::Err(_) => 5,
+        Result::Ok(v) => v,
+    };
+}
+"#;
+
 #[test]
 fn if_let_with_constant_option_diagnostics() {
     test_lint_diagnostics!(IF_LET_WITH_CONSTANT_OPTION, @r#"
@@ -1276,6 +1296,52 @@ fn match_with_derive_drop_type_fixer() {
         let a: Option<Struct> = Option::Some(Struct { x: 0x0 });
 
         a.unwrap_or(Struct { x: 0x1 });
+    }
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_option_diagnostics() {
+    test_lint_diagnostics!(MATCH_WITH_REVERSED_ARMS_OPTION, @r"
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:4:13-7:5
+          let _ = match a {
+     _____________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_option_fixer() {
+    test_lint_fixer!(MATCH_WITH_REVERSED_ARMS_OPTION, @r"
+    fn main() {
+        let a: Option<usize> = Option::None;
+        let _ = a.unwrap_or_default();
+    }
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_result_diagnostics() {
+    test_lint_diagnostics!(MATCH_WITH_REVERSED_ARMS_RESULT, @r"
+    Plugin diagnostic: Manual `unwrap_or` detected. Consider using `unwrap_or()` instead.
+     --> lib.cairo:4:13-7:5
+          let _ = match a {
+     _____________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_result_fixer() {
+    test_lint_fixer!(MATCH_WITH_REVERSED_ARMS_RESULT, @r"
+    fn main() {
+        let a: Result<usize, ()> = Result::Err(());
+        let _ = a.unwrap_or(5);
     }
     ");
 }

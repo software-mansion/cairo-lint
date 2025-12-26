@@ -14,14 +14,129 @@ use cairo_lang_semantic::{
 };
 use cairo_lang_syntax::node::ast::{
     BlockOrIf, Condition as AstCondition, Expr as AstExpr, ExprIf as AstExprIf,
-    ExprMatch as AstExprMatch, OptionElseClause, Statement as AstStatement,
+    ExprMatch as AstExprMatch, MatchArm as AstMatchArm, OptionElseClause, Pattern as AstPattern,
+    Statement as AstStatement,
 };
 
+use cairo_lang_syntax::node::helpers::GetIdentifier;
 use cairo_lang_syntax::node::kind::SyntaxKind;
 use cairo_lang_syntax::node::{SyntaxNode, TypedSyntaxNode};
 use if_chain::if_chain;
 use num_bigint::BigInt;
 use salsa::Database;
+
+pub struct MatchOnOption<'db> {
+    pub some_arm: AstMatchArm<'db>,
+    pub none_arm: AstMatchArm<'db>,
+}
+
+impl<'db> MatchOnOption<'db> {
+    pub fn try_new(db: &'db dyn Database, match_expr: &AstExprMatch<'db>) -> Option<Self> {
+        let arms = match_expr.arms(db).elements_vec(db);
+
+        if arms.len() != 2 {
+            return None;
+        }
+
+        let first_arm = arms[0].to_owned();
+        let second_arm = arms[1].to_owned();
+
+        let AstPattern::Enum(first_arm_enum_variant) =
+            first_arm.patterns(db).elements(db).next()?
+        else {
+            return None;
+        };
+
+        let AstPattern::Enum(second_arm_enum_variant) =
+            second_arm.patterns(db).elements(db).next()?
+        else {
+            return None;
+        };
+
+        let first_arm_enum_variant_name = first_arm_enum_variant
+            .path(db)
+            .segments(db)
+            .elements(db)
+            .last()?
+            .identifier(db)
+            .long(db)
+            .as_str();
+
+        let second_arm_enum_variant_name = second_arm_enum_variant
+            .path(db)
+            .segments(db)
+            .elements(db)
+            .last()?
+            .identifier(db)
+            .long(db)
+            .as_str();
+
+        let (some_arm, none_arm) = match (first_arm_enum_variant_name, second_arm_enum_variant_name)
+        {
+            ("Some", "None") => (first_arm, second_arm),
+            ("None", "Some") => (second_arm, first_arm),
+            _ => return None,
+        };
+
+        Some(Self { some_arm, none_arm })
+    }
+}
+
+pub struct MatchOnResult<'db> {
+    pub ok_arm: AstMatchArm<'db>,
+    pub err_arm: AstMatchArm<'db>,
+}
+
+impl<'db> MatchOnResult<'db> {
+    pub fn try_new(db: &'db dyn Database, match_expr: &AstExprMatch<'db>) -> Option<Self> {
+        let arms = match_expr.arms(db).elements_vec(db);
+
+        if arms.len() != 2 {
+            return None;
+        }
+
+        let first_arm = arms[0].to_owned();
+        let second_arm = arms[1].to_owned();
+
+        let AstPattern::Enum(first_arm_enum_variant) =
+            first_arm.patterns(db).elements(db).next()?
+        else {
+            return None;
+        };
+
+        let AstPattern::Enum(second_arm_enum_variant) =
+            second_arm.patterns(db).elements(db).next()?
+        else {
+            return None;
+        };
+
+        let first_arm_enum_variant_name = first_arm_enum_variant
+            .path(db)
+            .segments(db)
+            .elements(db)
+            .last()?
+            .identifier(db)
+            .long(db)
+            .as_str();
+
+        let second_arm_enum_variant_name = second_arm_enum_variant
+            .path(db)
+            .segments(db)
+            .elements(db)
+            .last()?
+            .identifier(db)
+            .long(db)
+            .as_str();
+
+        let (ok_arm, err_arm) = match (first_arm_enum_variant_name, second_arm_enum_variant_name) {
+            ("Ok", "Err") => (first_arm, second_arm),
+            ("Err", "Ok") => (second_arm, first_arm),
+            _ => return None,
+        };
+
+        Some(Self { ok_arm, err_arm })
+    }
+}
 
 /// Checks if the input statement is a `FunctionCall` then checks if the function name is the
 /// expected function name
@@ -329,21 +444,8 @@ pub fn fix_manual<'db>(func_name: &str, db: &'db dyn Database, node: SyntaxNode<
     }
 }
 
-pub fn expr_match_get_var_name_and_err<'db>(
-    expr_match: AstExprMatch<'db>,
-    db: &'db dyn Database,
-    arm_index: usize,
-) -> (&'db str, String) {
-    let mut arms = expr_match.arms(db).elements(db);
-    if arms.len() != 2 {
-        panic!("Expected exactly two arms in the match expression");
-    }
-
-    if arm_index > 1 {
-        panic!("Invalid arm index. Expected 0 for first arm or 1 for second arm.");
-    }
-
-    let mut args = match &arms.nth(arm_index).unwrap().expression(db) {
+pub fn extract_err<'db>(db: &'db dyn Database, arm: &AstMatchArm<'db>) -> String {
+    let mut args = match arm.expression(db) {
         AstExpr::FunctionCall(func_call) => func_call.arguments(db).arguments(db).elements(db),
         AstExpr::Block(block) => {
             if block.statements(db).elements(db).len() != 1 {
@@ -366,13 +468,7 @@ pub fn expr_match_get_var_name_and_err<'db>(
     };
 
     let arg = args.next().expect("Should have arg");
-
-    let none_arm_err = arg.as_syntax_node().get_text(db).to_string();
-
-    (
-        expr_match.expr(db).as_syntax_node().get_text(db),
-        none_arm_err,
-    )
+    arg.as_syntax_node().get_text(db).to_string()
 }
 
 pub fn expr_if_get_var_name_and_err<'db>(
