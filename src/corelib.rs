@@ -1,4 +1,4 @@
-use cairo_lang_defs::ids::EnumId;
+use cairo_lang_defs::ids::{EnumId, TraitId};
 use cairo_lang_defs::{
     db::DefsGroup,
     ids::{
@@ -7,6 +7,7 @@ use cairo_lang_defs::{
     },
 };
 use cairo_lang_filesystem::ids::CrateId;
+use cairo_lang_semantic::helper::ModuleHelper;
 use cairo_lang_semantic::items::imp::ImplSemantic;
 use cairo_lang_semantic::items::trt::TraitSemantic;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
@@ -208,6 +209,18 @@ impl<'db> CorelibContext<'db> {
             LookupItemId::ModuleItem(ModuleItemId::Enum(id)) => id,
             _ => unreachable!("Expected Option to be a EnumId"),
         }
+    }
+
+    pub fn get_option_trait(&self, db: &'db dyn Database) -> TraitId<'db> {
+        ModuleHelper::core(db)
+            .submodule("option")
+            .trait_id("OptionTrait")
+    }
+
+    pub fn get_result_trait(&self, db: &'db dyn Database) -> TraitId<'db> {
+        ModuleHelper::core(db)
+            .submodule("result")
+            .trait_id("ResultTrait")
     }
 }
 
