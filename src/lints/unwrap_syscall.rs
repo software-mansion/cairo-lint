@@ -112,6 +112,7 @@ fn check_single_unwrap_syscall<'db>(
             message: UnwrapSyscall.diagnostic_message().to_string(),
             severity: Severity::Warning,
             inner_span: None,
+            error_code: None,
         });
     }
 }

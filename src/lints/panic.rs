@@ -132,6 +132,7 @@ fn check_single_panic_usage<'db>(
             message: PanicInCode.diagnostic_message().to_owned(),
             severity: Severity::Warning,
             inner_span: None,
+            error_code: None,
         });
     } else {
         // If the originating location is a different file get the syntax node that generated the
@@ -145,7 +146,8 @@ fn check_single_panic_usage<'db>(
                     stable_ptr: syntax_node.stable_ptr(db),
                     message: PanicInCode.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
-                    inner_span: None
+                    inner_span: None,
+                    error_code: None,
                 });
             }
         }

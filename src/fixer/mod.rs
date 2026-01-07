@@ -516,6 +516,7 @@ pub fn merge_overlapping_fixes(
                         SemanticDiagnostic::new(
                             StableLocation::new(diag.stable_ptr),
                             SemanticDiagnosticKind::PluginDiagnostic(diag.clone()),
+                            *module_id,
                         )
                     });
 

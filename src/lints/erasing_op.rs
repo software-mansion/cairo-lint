@@ -88,6 +88,7 @@ fn check_single_erasing_operation<'db>(
             stable_ptr: expr_func.stable_ptr.untyped(),
             message: ErasingOperation.diagnostic_message().to_string(),
             severity: Severity::Warning,
+            error_code: None,
             inner_span: None,
         });
     }

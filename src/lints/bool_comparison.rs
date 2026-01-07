@@ -122,7 +122,8 @@ fn check_single_bool_comparison<'db>(
                     stable_ptr: function_call_expr.stable_ptr.untyped(),
                     message: BoolComparison.diagnostic_message().to_string(),
                     severity: Severity::Warning,
-                    inner_span: None
+                    inner_span: None,
+                    error_code: None,
                 });
             }
         }

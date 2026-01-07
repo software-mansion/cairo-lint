@@ -125,6 +125,7 @@ fn check_single_loop_for_while<'db>(
                 stable_ptr: loop_expr.stable_ptr.untyped(),
                 message: LoopForWhile.diagnostic_message().to_string(),
                 severity: Severity::Warning,
+                error_code: None,
                 inner_span: None
             });
         }
@@ -142,6 +143,7 @@ fn check_single_loop_for_while<'db>(
                 stable_ptr: loop_expr.stable_ptr.untyped(),
                 message: LoopForWhile.diagnostic_message().to_string(),
                 severity: Severity::Warning,
+                error_code: None,
                 inner_span: None
             });
         }

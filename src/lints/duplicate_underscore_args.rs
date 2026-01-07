@@ -62,6 +62,7 @@ pub fn check_duplicate_underscore_args<'db>(
                     message: DuplicateUnderscoreArgs.diagnostic_message().to_string(),
                     severity: Severity::Warning,
                     inner_span: None,
+                    error_code: None,
                 });
             }
         }

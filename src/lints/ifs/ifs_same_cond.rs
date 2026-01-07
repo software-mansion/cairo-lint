@@ -126,6 +126,7 @@ fn check_single_duplicate_if_condition<'db>(
                     stable_ptr: if_expr.stable_ptr.untyped(),
                     message: DuplicateIfCondition.diagnostic_message().to_string(),
                     severity: Severity::Warning,
+                    error_code: None,
                     inner_span: None,
                 });
                 break;

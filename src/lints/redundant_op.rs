@@ -85,6 +85,7 @@ fn check_single_redundant_operation<'db>(
             message: RedundantOperation.diagnostic_message().to_string(),
             severity: Severity::Warning,
             inner_span: None,
+            error_code: None,
         });
     }
 }

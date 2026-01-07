@@ -100,6 +100,7 @@ fn maybe_add_double_parens_diag<'db>(
             message: DoubleParens.diagnostic_message().to_string(),
             severity: Severity::Warning,
             inner_span: None,
+            error_code: None,
         });
     }
 }

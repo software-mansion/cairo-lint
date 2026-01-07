@@ -88,6 +88,7 @@ fn check_single_bitwise_for_parity<'db>(
                 message: BitwiseForParity.diagnostic_message().to_string(),
                 severity: Severity::Warning,
                 inner_span: None,
+                error_code: None,
             });
         }
     }

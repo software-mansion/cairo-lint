@@ -107,6 +107,7 @@ fn check_expression<'db>(
                     message: InefficientWhileComparison.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                     inner_span: None,
+                    error_code: None,
                 });
             }
         }

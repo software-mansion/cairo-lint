@@ -187,12 +187,14 @@ fn check_single_match<'db>(
             message: EqualityMatch.diagnostic_message().to_string(),
             severity: Severity::Warning,
             inner_span: None,
+            error_code: None,
         }),
         (true, true) => diagnostics.push(PluginDiagnostic {
             stable_ptr: match_expr.stable_ptr.into(),
             message: DestructMatch.diagnostic_message().to_string(),
             severity: Severity::Warning,
             inner_span: None,
+            error_code: None,
         }),
         (_, _) => (),
     }
