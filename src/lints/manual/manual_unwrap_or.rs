@@ -6,6 +6,7 @@ use cairo_lang_semantic::types::TypesSemantic;
 use cairo_lang_semantic::{Arenas, ExprIf, ExprMatch};
 use cairo_lang_syntax::node::{SyntaxNode, TypedStablePtr, TypedSyntaxNode, ast};
 
+use crate::lints::manual::helpers::{MatchOnOption, MatchOnResult};
 use crate::{
     context::CairoLintKind,
     fixer::InternalFix,
@@ -134,11 +135,15 @@ fn fix_manual_unwrap_or<'db>(
 
     let (matched_expr, or_body) = match &expr {
         ast::Expr::Match(expr_match) => {
-            let mut arms = expr_match.arms(db).elements(db);
-            let matched_expr = expr_match.expr(db).as_syntax_node();
-            let arm = arms.nth(1).expect("Expected a `match` with second arm.");
+            let or_arm = MatchOnOption::try_new(db, expr_match)
+                .map(|match_on_option| match_on_option.none_arm)
+                .or_else(|| {
+                    MatchOnResult::try_new(db, expr_match)
+                        .map(|match_on_result| match_on_result.err_arm)
+                })
+                .expect("Match expression should either contain Option or Result enum.");
 
-            let or_body = if let ast::Expr::Block(block) = arm.expression(db) {
+            let or_body = if let ast::Expr::Block(block) = or_arm.expression(db) {
                 let block_statements = block.statements(db).node.get_text(db);
 
                 // If the block has more than one line or a comment, we need to adjust the indentation.
@@ -146,16 +151,16 @@ fn fix_manual_unwrap_or<'db>(
                 if block_statements.lines().count() > 1
                     || block.as_syntax_node().get_text(db).contains("//")
                 {
-                    let (text, _) = get_adjusted_lines_and_indent(db, node, &arm);
+                    let (text, _) = get_adjusted_lines_and_indent(db, node, &or_arm);
                     text
                 } else {
                     block_statements.trim().to_string()
                 }
             } else {
-                let expression_text = arm.expression(db).as_syntax_node().get_text(db);
+                let expression_text = or_arm.expression(db).as_syntax_node().get_text(db);
 
                 // Comments that are right behind the arrow.
-                let arrow_trivia = arm
+                let arrow_trivia = or_arm
                     .arrow(db)
                     .trailing_trivia(db)
                     .node
@@ -167,7 +172,7 @@ fn fix_manual_unwrap_or<'db>(
                 // Otherwise, we can remove whitespaces.
                 if expression_text.lines().count() > 1 || arrow_trivia.contains("//") {
                     let (text, expression_bracket_indent) =
-                        get_adjusted_lines_and_indent(db, node, &arm);
+                        get_adjusted_lines_and_indent(db, node, &or_arm);
                     format!(
                         "{arrow_trivia}\n{}\n{}",
                         text,
@@ -178,7 +183,7 @@ fn fix_manual_unwrap_or<'db>(
                 }
             };
 
-            (matched_expr, or_body)
+            (expr_match.expr(db).as_syntax_node(), or_body)
         }
 
         ast::Expr::If(expr_if) => {

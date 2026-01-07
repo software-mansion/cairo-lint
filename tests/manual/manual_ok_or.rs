@@ -161,6 +161,16 @@ fn main() {
 }
 "#;
 
+const MATCH_WITH_REVERSED_ARMS: &str = r#"
+fn main() {
+    let a: Option<usize> = Option::None;
+    let _ = match a {
+        Option::None => Result::Err('error'),
+        Option::Some(v) => Result::Ok(v),
+    };
+}
+"#;
+
 #[test]
 fn test_error_str_diagnostics() {
     test_lint_diagnostics!(TEST_ERROR_STR, @r"
@@ -442,4 +452,27 @@ fn test_error_str_block_more_statements_fixer() {
         };
     }
     ")
+}
+
+#[test]
+fn match_with_reversed_arms_diagnostics() {
+    test_lint_diagnostics!(MATCH_WITH_REVERSED_ARMS, @r"
+    Plugin diagnostic: Manual match for Option<T> detected. Consider using ok_or instead
+     --> lib.cairo:4:13-7:5
+          let _ = match a {
+     _____________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_fixer() {
+    test_lint_fixer!(MATCH_WITH_REVERSED_ARMS, @r"
+    fn main() {
+        let a: Option<usize> = Option::None;
+        let _ = a.ok_or('error');
+    }
+    ");
 }

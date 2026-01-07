@@ -67,7 +67,7 @@ fn main() {
     let _foo = match foo {
         Result::Ok(_) => {
             // let _a = 5;
-        
+
             Option::None
         },
         Result::Err(x) => {
@@ -89,6 +89,16 @@ fn main() {
         Result::Err(x) => {
             Option::Some(x)
         },
+    };
+}
+"#;
+
+const TEST_MATCH_WITH_REVERSED_ARMS: &str = r#"
+fn main() {
+    let a: Result<usize> = Result::Err('error');
+    let _ = match a {
+        Result::Err(err) => Option::Some(err),
+        Result::Ok(_) => Option::None,
     };
 }
 "#;
@@ -249,4 +259,27 @@ fn test_basic_err_block_with_more_statements_fixer() {
         };
     }
     ")
+}
+
+#[test]
+fn match_with_reversed_arms_diagnostics() {
+    test_lint_diagnostics!(TEST_MATCH_WITH_REVERSED_ARMS, @r"
+    Plugin diagnostic: Manual match for `err` detected. Consider using `err()` instead
+     --> lib.cairo:4:13-7:5
+          let _ = match a {
+     _____________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_fixer() {
+    test_lint_fixer!(TEST_MATCH_WITH_REVERSED_ARMS, @r"
+    fn main() {
+        let a: Result<usize> = Result::Err('error');
+        let _ = a.err();
+    }
+    ");
 }

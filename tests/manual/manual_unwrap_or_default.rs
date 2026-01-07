@@ -190,7 +190,7 @@ fn main() {
     // testing with comments ok arm
     v
   } else {
-    // testing with comments err arm 
+    // testing with comments err arm
     Default::default()
   };
 }
@@ -385,7 +385,7 @@ fn main() {
       // Testing with comments
       v
     },
-    Option::None => { // comment after { 
+    Option::None => { // comment after {
       // Testing with comments
       [0; 5]
       // comment before }
@@ -483,10 +483,10 @@ fn main() {
     // Some before
     let _z = if let Option::Some(v) = a {
         v
-    } else { // comment after { 
+    } else { // comment after {
         // Some comment
         0 // Comment after value
-        // comment before } 
+        // comment before }
     };
 }
 "#;
@@ -498,8 +498,28 @@ fn main() {
     let _x = match a {
         Result::Ok(v) => v,
         Result::Err(_) => // comment after =>
-            // Different comment 
-            0 
+            // Different comment
+            0
+    };
+}
+"#;
+
+const MATCH_WITH_REVERSED_ARMS_OPTION: &str = r#"
+fn main() {
+    let a: Option<usize> = Option::None;
+    let _ = match a {
+        Option::None => 0,
+        Option::Some(v) => v,
+    };
+}
+"#;
+
+const MATCH_WITH_REVERSED_ARMS_RESULT: &str = r#"
+fn main() {
+    let a: Result<usize, ()> = Result::Err(());
+    let _ = match a {
+        Result::Err(_) => 0,
+        Result::Ok(v) => v,
     };
 }
 "#;
@@ -1506,6 +1526,52 @@ fn manual_unwrap_or_default_result_for_match_with_comment_after_arrow_fixer() {
         // comment after =>
         // Different comment
         let _x = a.unwrap_or_default();
+    }
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_option_diagnostics() {
+    test_lint_diagnostics!(MATCH_WITH_REVERSED_ARMS_OPTION, @r"
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:4:13-7:5
+          let _ = match a {
+     _____________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_option_fixer() {
+    test_lint_fixer!(MATCH_WITH_REVERSED_ARMS_OPTION, @r"
+    fn main() {
+        let a: Option<usize> = Option::None;
+        let _ = a.unwrap_or_default();
+    }
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_result_diagnostics() {
+    test_lint_diagnostics!(MATCH_WITH_REVERSED_ARMS_RESULT, @r"
+    Plugin diagnostic: This can be done in one call with `.unwrap_or_default()`
+     --> lib.cairo:4:13-7:5
+          let _ = match a {
+     _____________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_result_fixer() {
+    test_lint_fixer!(MATCH_WITH_REVERSED_ARMS_RESULT, @r"
+    fn main() {
+        let a: Result<usize, ()> = Result::Err(());
+        let _ = a.unwrap_or_default();
     }
     ");
 }

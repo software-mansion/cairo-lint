@@ -10,13 +10,13 @@ use cairo_lang_syntax::node::{
 use crate::{
     context::CairoLintKind,
     fixer::InternalFix,
+    lints::manual::helpers::{MatchOnOption, MatchOnResult, extract_err},
     queries::{get_all_function_bodies, get_all_if_expressions, get_all_match_expressions},
 };
 use crate::{
     context::Lint,
     lints::manual::{
-        ManualLint, check_manual, check_manual_if,
-        helpers::{expr_if_get_var_name_and_err, expr_match_get_var_name_and_err},
+        ManualLint, check_manual, check_manual_if, helpers::expr_if_get_var_name_and_err,
     },
 };
 use salsa::Database;
@@ -116,11 +116,18 @@ pub fn fix_manual_ok_or<'db>(
     let fix = match node.kind(db) {
         SyntaxKind::ExprMatch => {
             let expr_match = ExprMatch::from_syntax_node(db, node);
+            let target_expr = expr_match.expr(db).as_syntax_node().get_text(db).trim_end();
 
-            let (option_var_name, none_arm_err) =
-                expr_match_get_var_name_and_err(expr_match, db, 1);
+            let arm = MatchOnOption::try_new(db, &expr_match)
+                .map(|match_on_option| match_on_option.none_arm)
+                .or_else(|| {
+                    MatchOnResult::try_new(db, &expr_match)
+                        .map(|match_on_result| match_on_result.err_arm)
+                })
+                .expect("Expected a match expression on either Option or Result");
 
-            format!("{}.ok_or({none_arm_err})", option_var_name.trim_end())
+            let err = extract_err(db, &arm);
+            format!("{target_expr}.ok_or({err})")
         }
         SyntaxKind::ExprIf => {
             let expr_if = ExprIf::from_syntax_node(db, node);

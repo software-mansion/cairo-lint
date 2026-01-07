@@ -191,6 +191,26 @@ fn main() {
 }
 "#;
 
+const TEST_MATCH_WITH_REVERSED_ARMS_OPTION: &str = r#"
+fn main() {
+    let a: Option<usize> = Option::None;
+    let _ = match a {
+        Option::None => core::panic_with_felt252('other-error'),
+        Option::Some(v) => v,
+    };
+}
+"#;
+
+const TEST_MATCH_WITH_REVERSED_ARMS_RESULT: &str = r#"
+fn main() {
+    let a: Result<usize> = Result::Err('error');
+    let _ = match a {
+        Result::Err(_) => core::panic_with_felt252('other-error'),
+        Result::Ok(v) => v,
+    };
+}
+"#;
+
 #[test]
 fn test_core_panic_with_felt252_diagnostics() {
     test_lint_diagnostics!(TEST_CORE_PANIC_WITH_FELT252, @r"
@@ -525,6 +545,52 @@ fn test_core_panic_with_felt252_block_fixer() {
         let foo: Option<i32> = Option::None;
         // This is just a variable.
         let _foo = foo.expect('err');
+    }
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_option_diagnostics() {
+    test_lint_diagnostics!(TEST_MATCH_WITH_REVERSED_ARMS_OPTION, @r"
+    Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+     --> lib.cairo:4:13-7:5
+          let _ = match a {
+     _____________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_option_fixer() {
+    test_lint_fixer!(TEST_MATCH_WITH_REVERSED_ARMS_OPTION, @r"
+    fn main() {
+        let a: Option<usize> = Option::None;
+        let _ = a.expect('other-error');
+    }
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_result_diagnostics() {
+    test_lint_diagnostics!(TEST_MATCH_WITH_REVERSED_ARMS_RESULT, @r"
+    Plugin diagnostic: Manual match for expect detected. Consider using `expect()` instead
+     --> lib.cairo:4:13-7:5
+          let _ = match a {
+     _____________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_result_fixer() {
+    test_lint_fixer!(TEST_MATCH_WITH_REVERSED_ARMS_RESULT, @r"
+    fn main() {
+        let a: Result<usize> = Result::Err('error');
+        let _ = a.expect('other-error');
     }
     ");
 }

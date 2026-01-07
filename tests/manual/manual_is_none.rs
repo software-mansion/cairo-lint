@@ -106,6 +106,16 @@ fn main() {
 }
 "#;
 
+const MATCH_WITH_REVERSED_ARMS: &str = r#"
+fn main() {
+    let a: Option<usize> = Option::None;
+    let _ = match a {
+        Option::None => true,
+        Option::Some(_) => false,
+    };
+}
+"#;
+
 #[test]
 fn test_basic_is_none_diagnostics() {
     test_lint_diagnostics!(TEST_BASIC_IS_NONE, @r"
@@ -293,6 +303,29 @@ fn test_basic_is_none_block_fixer() {
         let foo: Option<i32> = Option::None;
         // This is just a variable.
         let _foo = foo.is_none();
+    }
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_diagnostics() {
+    test_lint_diagnostics!(MATCH_WITH_REVERSED_ARMS, @r"
+    Plugin diagnostic: Manual match for `is_none` detected. Consider using `is_none()` instead
+     --> lib.cairo:4:13-7:5
+          let _ = match a {
+     _____________^
+    | ...
+    |     };
+    |_____^
+    ");
+}
+
+#[test]
+fn match_with_reversed_arms_fixer() {
+    test_lint_fixer!(MATCH_WITH_REVERSED_ARMS, @r"
+    fn main() {
+        let a: Option<usize> = Option::None;
+        let _ = a.is_none();
     }
     ");
 }
