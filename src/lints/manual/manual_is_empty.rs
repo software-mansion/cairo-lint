@@ -1,7 +1,7 @@
 use crate::context::{CairoLintKind, Lint};
 
 use crate::fixer::InternalFix;
-use crate::lints::{ARRAY, SPAN, U32};
+use crate::lints::{ARRAY, SPAN, U32, function_trait_name_from_fn_id};
 use crate::mappings::get_originating_syntax_node_for;
 use crate::queries::{
     get_all_conditions, get_all_function_bodies, syntax_node_to_str_without_all_nested_trivia,
@@ -21,9 +21,8 @@ use if_chain::if_chain;
 use num_bigint::BigInt;
 use salsa::Database;
 
-const ARRAY_LEN_EQ_FUNC_NAME: &str = "U32PartialEq::eq";
-const ARRAY_EQ_FUNC_NAME: &str = "ArrayPartialEq::eq";
-const ARRAY_CONSTRUCTOR_FUNC_NAME: &str = "ArrayImpl::new";
+const PARTIAL_EQ_TRAIT_FUNC_NAME: &str = "core::traits::PartialEq::eq";
+const ARRAY_CONSTRUCTOR_TRAIT_FUNC_NAME: &str = "core::array::ArrayTrait::new";
 const ARRAY_EMPTY_CREATION_VIA_MACRO: &str = "array![]";
 
 pub struct ManualIsEmpty;
@@ -100,17 +99,18 @@ pub fn check_manual_is_empty<'db>(
             if_chain! {
                 if let Condition::BoolExpr(expr) = condition;
                 let expr = &arenas.exprs[expr];
-                if let Expr::FunctionCall(fn_call) = expr;
+                if let Expr::FunctionCall(func_call) = expr;
 
-                if [ARRAY_LEN_EQ_FUNC_NAME, ARRAY_EQ_FUNC_NAME].contains(&extract_function_name(db, fn_call).as_str());
-                if check_if_comparison_args_are_incorrect(db, fn_call, arenas);
+                if PARTIAL_EQ_TRAIT_FUNC_NAME == function_trait_name_from_fn_id(db, &func_call.function).as_str();
+                if check_if_comparison_args_are_incorrect(db, func_call, arenas);
 
                 then {
                     diagnostics.push(PluginDiagnostic {
-                        stable_ptr: fn_call.stable_ptr.untyped(),
+                        stable_ptr: func_call.stable_ptr.untyped(),
                         message: ManualIsEmpty.diagnostic_message().to_owned(),
                         severity: Severity::Warning,
                         inner_span: None,
+                        error_code: None,
                     });
                 }
             }
@@ -138,7 +138,7 @@ pub fn fix_manual_is_empty<'db>(
                 .get_text_without_trivia(db);
             let call_to_replace = if call_lhs_path
                 .to_string(db)
-                .contains(ARRAY_CONSTRUCTOR_FUNC_NAME)
+                .contains(ARRAY_CONSTRUCTOR_TRAIT_FUNC_NAME)
             {
                 call_rhs
             } else {
@@ -163,11 +163,6 @@ pub fn fix_manual_is_empty<'db>(
         description: ManualIsEmpty.fix_message().unwrap().to_string(),
         import_addition_paths: None,
     })
-}
-
-fn extract_function_name(db: &dyn Database, fn_call: &ExprFunctionCall) -> String {
-    let generic_function = fn_call.function.get_concrete(db).generic_function;
-    generic_function.name(db)
 }
 
 fn check_if_comparison_args_are_incorrect<'db>(
@@ -212,7 +207,7 @@ fn expr_is_empty_collection(db: &dyn Database, expr: &Expr) -> bool {
     if_chain! {
         if let Expr::FunctionCall(func_call) = expr;
         if func_call.args.is_empty();
-        if extract_function_name(db, func_call) == ARRAY_CONSTRUCTOR_FUNC_NAME;
+        if function_trait_name_from_fn_id(db, &func_call.function) == ARRAY_CONSTRUCTOR_TRAIT_FUNC_NAME;
         then {
             return true;
         }

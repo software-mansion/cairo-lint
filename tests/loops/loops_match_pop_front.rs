@@ -83,7 +83,7 @@ fn main() {
                 // This is a comment
                 println!("{val}")
             },
-            Option::None => { 
+            Option::None => {
                 break;
             },
         }
@@ -101,7 +101,7 @@ fn main() {
                 // This is a comment
                 println!("{val}")
             },
-            Option::None => { 
+            Option::None => {
                 break;
             },
         }
@@ -115,7 +115,7 @@ fn main() {
     loop {
         match a.pop_front() {
             Option::Some(val) => println!("{val}"),
-            Option::None => { 
+            Option::None => {
                 // This is a comment
                 break;
             },
@@ -130,7 +130,7 @@ fn main() {
     loop {
         match a.pop_front() {
             Option::Some(val) => println!("{val}"),
-            Option::None => { 
+            Option::None => {
                 println!("Finished looping");
                 break;
             },

@@ -123,6 +123,7 @@ fn check_single_collapsible_match<'db>(
                 message: CollapsibleMatch.diagnostic_message().to_string(),
                 severity: Severity::Warning,
                 inner_span: None,
+                error_code: None,
             });
         }
     }
@@ -137,6 +138,7 @@ fn check_single_collapsible_match<'db>(
                 message: CollapsibleMatch.diagnostic_message().to_string(),
                 severity: Severity::Warning,
                 inner_span: None,
+                error_code: None,
             });
         }
     }

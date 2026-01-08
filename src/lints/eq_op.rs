@@ -315,6 +315,7 @@ fn check_single_eq_op<'db>(
             message: message.to_owned(),
             severity: Severity::Warning,
             inner_span: None,
+            error_code: None,
         });
     }
 }

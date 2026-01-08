@@ -60,6 +60,7 @@ pub fn get_diags<'db>(
                     SemanticDiagnostic::new(
                         StableLocation::new(diag.stable_ptr),
                         SemanticDiagnosticKind::PluginDiagnostic(diag.clone()),
+                        *module_id,
                     )
                 }),
         );

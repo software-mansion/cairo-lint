@@ -301,6 +301,7 @@ fn check_single_int_op_one<'db>(
             message: IntegerGreaterEqualPlusOne.diagnostic_message().to_string(),
             severity: Severity::Warning,
             inner_span: None,
+            error_code: None,
         })
     }
 
@@ -319,6 +320,7 @@ fn check_single_int_op_one<'db>(
             message: IntegerGreaterEqualMinusOne.diagnostic_message().to_string(),
             severity: Severity::Warning,
             inner_span: None,
+            error_code: None,
         })
     }
 
@@ -337,6 +339,7 @@ fn check_single_int_op_one<'db>(
             message: IntegerLessEqualPlusOne.diagnostic_message().to_string(),
             severity: Severity::Warning,
             inner_span: None,
+            error_code: None,
         })
     }
 
@@ -356,6 +359,7 @@ fn check_single_int_op_one<'db>(
             message: IntegerLessEqualMinusOne.diagnostic_message().to_string(),
             severity: Severity::Warning,
             inner_span: None,
+            error_code: None,
         })
     }
 }

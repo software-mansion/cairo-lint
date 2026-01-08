@@ -92,6 +92,7 @@ fn check_clone_usage<'db>(
             message: CloneOnCopy.diagnostic_message().to_string(),
             severity: Severity::Warning,
             inner_span: None,
+            error_code: None,
         });
     }
 }

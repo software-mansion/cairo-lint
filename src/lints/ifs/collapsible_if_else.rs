@@ -137,6 +137,7 @@ fn check_single_collapsible_if_else<'db>(
             stable_ptr: if_expr.stable_ptr.untyped(),
             message: CollapsibleIfElse.diagnostic_message().to_string(),
             severity: Severity::Warning,
+            error_code: None,
             inner_span: None,
         });
     }

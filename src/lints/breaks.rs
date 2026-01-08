@@ -92,7 +92,8 @@ fn check_single_break<'db>(
                 stable_ptr: break_expr.stable_ptr.untyped(),
                 message: BreakUnit.diagnostic_message().to_string(),
                 severity: Severity::Warning,
-                inner_span: None
+                inner_span: None,
+                error_code: None,
             });
         }
     }

@@ -103,6 +103,7 @@ fn check_single_redundant_into<'db>(
             stable_ptr: expr_func.stable_ptr.untyped(),
             message: RedundantInto.diagnostic_message().to_string(),
             severity: Severity::Warning,
+            error_code: None,
             inner_span: None,
         });
     }

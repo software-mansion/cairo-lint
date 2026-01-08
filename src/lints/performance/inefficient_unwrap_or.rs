@@ -94,6 +94,7 @@ pub fn check_inefficient_unwrap_or<'db>(
                     message: InefficientUnwrapOr.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                     inner_span: None,
+                    error_code: None,
                 });
             }
         }

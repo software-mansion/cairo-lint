@@ -87,6 +87,7 @@ pub fn check_enum_variant_names<'db>(
             stable_ptr: enum_id.untyped_stable_ptr(db),
             message: EnumVariantNames.diagnostic_message().to_string(),
             severity: Severity::Warning,
+            error_code: None,
             inner_span: None,
         });
     }

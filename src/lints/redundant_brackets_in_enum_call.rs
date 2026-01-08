@@ -86,6 +86,7 @@ pub fn check_redundant_brackets_in_enum_call<'db>(
                     message: RedundantBracketsInEnumCall.diagnostic_message().to_string(),
                     severity: Severity::Warning,
                     inner_span: None,
+                    error_code: None,
                 });
             }
         }

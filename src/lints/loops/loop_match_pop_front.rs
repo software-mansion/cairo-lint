@@ -19,11 +19,11 @@ use crate::context::{CairoLintKind, Lint};
 
 use crate::fixer::InternalFix;
 use crate::helper::indent_snippet;
-use crate::lints::{NONE, SOME};
+use crate::lints::{NONE, SOME, function_trait_name_from_fn_id};
 use crate::queries::{get_all_function_bodies, get_all_loop_expressions};
 use salsa::Database;
 
-const SPAN_MATCH_POP_FRONT: &str = "\"SpanImpl::pop_front\"";
+const POP_FRONT_SPAN_TRAIT_FUNCTION: &str = "core::array::SpanTrait::pop_front";
 
 pub struct LoopMatchPopFront;
 
@@ -114,7 +114,7 @@ fn check_single_loop_match_pop_front<'db>(
         // Get the function call and check that it's the span match pop front function from the corelib
         if let Expr::Match(expr_match) = &arenas.exprs[*tail];
         if let Expr::FunctionCall(func_call) = &arenas.exprs[expr_match.matched_expr];
-        if func_call.function.name(db) == SPAN_MATCH_POP_FRONT;
+        if function_trait_name_from_fn_id(db, &func_call.function) == POP_FRONT_SPAN_TRAIT_FUNCTION;
         then {
             // Check that something is done only in the Some branch of the match
             if !check_single_match(db, expr_match, arenas) {
@@ -124,6 +124,7 @@ fn check_single_loop_match_pop_front<'db>(
                 stable_ptr: loop_expr.stable_ptr.into(),
                 message: LoopMatchPopFront.diagnostic_message().to_owned(),
                 severity: Severity::Warning,
+                error_code: None,
                 inner_span: None
             });
             return;
@@ -144,11 +145,12 @@ fn check_single_loop_match_pop_front<'db>(
             let Expr::FunctionCall(func_call) = &arenas.exprs[expr_match.matched_expr] else {
                 return;
             };
-            if func_call.function.name(db) == SPAN_MATCH_POP_FRONT {
+            if function_trait_name_from_fn_id(db, &func_call.function) == POP_FRONT_SPAN_TRAIT_FUNCTION {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: loop_expr.stable_ptr.into(),
                     message: LoopMatchPopFront.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
+                    error_code: None,
                     inner_span: None
                 })
             }

@@ -124,6 +124,7 @@ fn check_single_condition_block<'db>(
                 stable_ptr: if_expr.stable_ptr.untyped(),
                 message: ManualAssert.diagnostic_message().to_string(),
                 severity: Severity::Warning,
+                error_code: None,
                 inner_span: None
             });
             return;
@@ -140,6 +141,7 @@ fn check_single_condition_block<'db>(
                 stable_ptr: if_expr.stable_ptr.untyped(),
                 message: ManualAssert.diagnostic_message().to_string(),
                 severity: Severity::Warning,
+                error_code: None,
                 inner_span: None
             });
         }
