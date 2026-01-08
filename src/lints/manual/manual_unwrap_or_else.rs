@@ -94,6 +94,7 @@ pub fn check_manual_unwrap_or_else<'db>(
                     message: ManualUnwrapOrElse.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                     inner_span: None,
+                    error_code: None,
                 });
             }
         }
@@ -105,6 +106,7 @@ pub fn check_manual_unwrap_or_else<'db>(
                     message: ManualUnwrapOrElse.diagnostic_message().to_owned(),
                     severity: Severity::Warning,
                     inner_span: None,
+                    error_code: None,
                 });
             }
         }
