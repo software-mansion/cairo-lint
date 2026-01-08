@@ -69,6 +69,8 @@ use crate::lints::manual::manual_unwrap_or::ManualUnwrapOr;
 use crate::lints::manual::manual_unwrap_or::check_manual_unwrap_or;
 use crate::lints::manual::manual_unwrap_or_default::ManualUnwrapOrDefault;
 use crate::lints::manual::manual_unwrap_or_default::check_manual_unwrap_or_default;
+use crate::lints::manual::manual_unwrap_or_else::ManualUnwrapOrElse;
+use crate::lints::manual::manual_unwrap_or_else::check_manual_unwrap_or_else;
 use crate::lints::panic::PanicInCode;
 use crate::lints::panic::check_panic_usage;
 use crate::lints::performance::inefficient_unwrap_or::InefficientUnwrapOr;
@@ -149,6 +151,7 @@ pub enum CairoLintKind {
     UnwrapSyscall,
     RedundantInto,
     InefficientUnwrapOr,
+    ManualUnwrapOrElse,
 }
 
 pub trait Lint: Sync + Send {
@@ -395,6 +398,10 @@ impl LintContext {
             LintRuleGroup {
                 lints: vec![Box::new(InefficientUnwrapOr)],
                 check_function: check_inefficient_unwrap_or,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(ManualUnwrapOrElse)],
+                check_function: check_manual_unwrap_or_else,
             },
         ]
     }
