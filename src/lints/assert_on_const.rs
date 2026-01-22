@@ -1,19 +1,15 @@
 use cairo_lang_defs::{
-    ids::{
-        FreeFunctionId, FunctionWithBodyId, LanguageElementId, ModuleId, ModuleItemId,
-        NamedLanguageElementId, NamedLanguageElementLongId,
-    },
+    ids::{FreeFunctionId, FunctionWithBodyId, LanguageElementId, ModuleId, ModuleItemId},
     plugin::PluginDiagnostic,
 };
 use cairo_lang_diagnostics::Severity;
 use cairo_lang_filesystem::ids::FileLongId;
 use cairo_lang_lowering::{
-    self as lowering, Lowered, LoweringStage, MatchInfo, Statement, StatementCall,
-    db::LoweringGroup,
+    self as lowering, Lowered, LoweringStage, Statement, StatementCall, db::LoweringGroup,
 };
 use cairo_lang_parser::db::ParserGroup;
 use cairo_lang_semantic::{
-    self as semantic, FunctionId, MatchArmSelector,
+    self as semantic, FunctionId,
     corelib::{core_bool_enum, unit_ty},
     helper::ModuleHelper,
     lsp_helpers::LspHelpers,
@@ -23,7 +19,6 @@ use cairo_lang_syntax::node::{
     ast::{ExprInlineMacro, ExprUnary, PathSegment},
 };
 use cairo_lang_utils::Intern;
-use itertools::Itertools;
 use salsa::Database;
 
 use crate::{
@@ -111,8 +106,6 @@ pub fn check_assert_on_const<'db>(
     let bool_not_impl_calls_on_const_exprs =
         find_bool_not_impl_calls_on_const_values(db, function_body_lowering);
 
-    eprintln!("{bool_not_impl_calls_on_const_exprs:?}");
-
     let module_id = item.parent_module(db);
 
     for assert_call in get_assert_macro_calls(db, item) {
@@ -182,9 +175,7 @@ fn find_bool_not_impl_calls_on_const_values<'db>(
     // we never know which of them is a part of the assert! macro.
     let mut bool_not_impl_calls_on_const_exprs: Vec<&'db StatementCall<'db>> = vec![];
 
-    for (block_id, block) in function_body_lowering.blocks.iter() {
-        eprintln!("[Block {}]", block_id.0);
-
+    for (_, block) in function_body_lowering.blocks.iter() {
         // Unit structs and bool enums should be collected separately for each block.
         // If variables with those are used accross two blocks,
         // it always means that their values are conditional.
@@ -196,8 +187,6 @@ fn find_bool_not_impl_calls_on_const_values<'db>(
                 // We obviously need to collect all bool constants.
                 // Those are defined explicitly by the user and aren't results of the const folding.
                 Statement::Const(const_statement) => {
-                    let value = const_statement.value.long(db);
-                    eprintln!("Build Const: {value:?} to var {:?}", const_statement.output);
                     const_statements.push(const_statement);
                 }
 
@@ -214,36 +203,11 @@ fn find_bool_not_impl_calls_on_const_values<'db>(
                     if output_type == unit_ty(db).long(db) {
                         unit_structs.push(struct_construct);
                     }
-
-                    let inputs = struct_construct
-                        .inputs
-                        .iter()
-                        .map(|var_usage| var_usage.var_id)
-                        .collect_vec();
-
-                    eprintln!(
-                        "Build Struct (type: {}) from vars {:?} to var {:?}",
-                        output_type.format(db),
-                        inputs,
-                        struct_construct.output
-                    );
                 }
 
                 // Collect all bool enum instantiations.
                 Statement::EnumConstruct(enum_construct) => {
-                    let name = enum_construct
-                        .variant
-                        .concrete_enum_id
-                        .enum_id(db)
-                        .name(db)
-                        .long(db);
-
                     let input_variable = enum_construct.input;
-
-                    eprintln!(
-                        "Build Enum (type: {name}) from var {:?} to var {:?}",
-                        input_variable.var_id, enum_construct.output
-                    );
 
                     let concrete_enum_id = enum_construct.variant.concrete_enum_id;
                     let is_bool = concrete_enum_id == core_bool_enum(db);
@@ -261,19 +225,6 @@ fn find_bool_not_impl_calls_on_const_values<'db>(
 
                 // Collect all calls to `core::bool_not_impl`.
                 Statement::Call(call) => {
-                    let full_path = call.function.full_path(db).to_string();
-
-                    let inputs = call
-                        .inputs
-                        .iter()
-                        .map(|var_usage| var_usage.var_id)
-                        .collect_vec();
-
-                    eprintln!(
-                        "Call {full_path} on vars {:?} to vars ({:?})",
-                        inputs, call.outputs
-                    );
-
                     let Some(function_id) =
                         try_semantic_function_id_from_lowering(db, call.function)
                     else {
@@ -313,80 +264,6 @@ fn find_bool_not_impl_calls_on_const_values<'db>(
                 _ => {}
             }
         }
-
-        match &block.end {
-            cairo_lang_lowering::BlockEnd::Return(var_usages, _location_id) => {
-                let return_vars = var_usages.iter().map(|usage| usage.var_id).collect_vec();
-                eprintln!("Return vars {return_vars:?}");
-            }
-            cairo_lang_lowering::BlockEnd::Match { info } => match info {
-                MatchInfo::Enum(match_enum_info) => {
-                    let input = match_enum_info.input.var_id;
-                    let name = match_enum_info
-                        .concrete_enum_id
-                        .enum_id(db)
-                        .long(db)
-                        .name(db)
-                        .long(db);
-
-                    eprintln!("Match on type {name} from var {input:?}:");
-
-                    for arm in match_enum_info.arms.iter() {
-                        let variant = match &arm.arm_selector {
-                            MatchArmSelector::VariantId(concrete_variant) => concrete_variant
-                                .id
-                                .long(db)
-                                .1
-                                .0
-                                .0
-                                .get_text_without_trivia(db)
-                                .long(db),
-                            MatchArmSelector::Value(_) => "(value)",
-                        };
-
-                        eprintln!(
-                            "    On {variant} (with vars: {:?}): block {}",
-                            arm.var_ids, arm.block_id.0
-                        )
-                    }
-                }
-                MatchInfo::Extern(match_extern_info) => {
-                    let function = match_extern_info.function.full_path(db);
-                    let inputs = match_extern_info
-                        .inputs
-                        .iter()
-                        .map(|var_usage| var_usage.var_id)
-                        .collect_vec();
-
-                    eprintln!("Match on extern function {function} with input vars: {inputs:?}");
-
-                    for arm in match_extern_info.arms.iter() {
-                        let variant = match &arm.arm_selector {
-                            MatchArmSelector::VariantId(concrete_variant) => concrete_variant
-                                .id
-                                .long(db)
-                                .1
-                                .0
-                                .0
-                                .get_text_without_trivia(db)
-                                .long(db),
-                            MatchArmSelector::Value(_) => "(value)",
-                        };
-
-                        eprintln!(
-                            "    On {variant} (with vars: {:?}): block {}",
-                            arm.var_ids, arm.block_id.0
-                        )
-                    }
-                }
-                MatchInfo::Value(_) => {
-                    eprintln!("(Match on value)")
-                }
-            },
-            _ => {}
-        }
-
-        eprintln!("");
     }
 
     bool_not_impl_calls_on_const_exprs
