@@ -58,7 +58,7 @@ which = "8"
 
 [dev-dependencies]
 ctor = "0.6.3"
-insta = "1.45.1"
+insta = "1.46.2"
 pretty_assertions = "1.4.1"
 test-case = "3.0"
 
