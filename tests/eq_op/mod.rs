@@ -56,13 +56,30 @@ fn foo(a: Array<u256>) -> bool {
 "#;
 
 const OP_WITH_METHOD_CALL_ON_METHOD_REF: &str = r#"
+#[derive(Drop)]
+struct Counter {
+    value: u32,
+}
+
+trait CounterTrait {
+    fn increment(ref self: Counter) -> u32;
+}
+
+impl CounterImpl of CounterTrait {
+    #[inline(never)]
+    fn increment(ref self: Counter) -> u32 {
+        self.value += 1;
+        self.value
+    }
+}
+
 #[inline(never)]
-fn make_array() -> Array<u256> {
-    array![]
+fn make_counter() -> Counter {
+    Counter { value: 0 }
 }
 
 fn foo() -> bool {
-    make_array().len() == make_array().len()
+    make_counter().increment() == make_counter().increment()
 }
 "#;
 
@@ -238,13 +255,30 @@ fn op_with_method_call_on_method_ref_diagnostics() {
 #[test]
 fn op_with_method_call_on_method_ref_fixer() {
     test_lint_fixer!(OP_WITH_METHOD_CALL_ON_METHOD_REF, @r"
+    #[derive(Drop)]
+    struct Counter {
+        value: u32,
+    }
+
+    trait CounterTrait {
+        fn increment(ref self: Counter) -> u32;
+    }
+
+    impl CounterImpl of CounterTrait {
+        #[inline(never)]
+        fn increment(ref self: Counter) -> u32 {
+            self.value += 1;
+            self.value
+        }
+    }
+
     #[inline(never)]
-    fn make_array() -> Array<u256> {
-        array![]
+    fn make_counter() -> Counter {
+        Counter { value: 0 }
     }
 
     fn foo() -> bool {
-        make_array().len() == make_array().len()
+        make_counter().increment() == make_counter().increment()
     }
     ");
 }
