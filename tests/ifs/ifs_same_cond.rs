@@ -135,6 +135,38 @@ fn main(){
 }
 "#;
 
+const IF_WITH_FUNCTIONS_WITH_SELF_METHOD: &str = r#"
+#[derive(Drop)]
+struct Counter {
+    value: u32,
+}
+
+trait CounterTrait {
+    fn increment(ref self: Counter) -> u32;
+}
+
+impl CounterImpl of CounterTrait {
+    #[inline(never)]
+    fn increment(ref self: Counter) -> u32 {
+        self.value += 1;
+        self.value
+    }
+}
+
+#[inline(never)]
+fn make_counter() -> Counter {
+    Counter { value: 0 }
+}
+
+fn main() {
+    if make_counter().increment() == make_counter().increment() {
+        println!("Lengths are equal");
+    } else if make_counter().increment() == make_counter().increment() {
+        println!("Lengths are still equal");
+    }
+}
+"#;
+
 const GREATER_LESSER_COMPARISON: &str = r#"
 fn main(){
     let a:u32 = 3;
@@ -460,6 +492,54 @@ fn if_with_functions_fixer() {
         }
     }
     "#);
+}
+
+#[test]
+fn if_with_functions_with_self_method_diagnostics() {
+    test_lint_diagnostics!(IF_WITH_FUNCTIONS_WITH_SELF_METHOD, @r"
+    Plugin diagnostic: Consecutive `if` with the same condition found.
+     --> lib.cairo:25:5-29:5
+          if make_counter().increment() == make_counter().increment() {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ");
+}
+
+#[test]
+fn if_with_functions_with_self_method_fixer() {
+    test_lint_fixer!(IF_WITH_FUNCTIONS_WITH_SELF_METHOD, @r##"
+    #[derive(Drop)]
+    struct Counter {
+        value: u32,
+    }
+
+    trait CounterTrait {
+        fn increment(ref self: Counter) -> u32;
+    }
+
+    impl CounterImpl of CounterTrait {
+        #[inline(never)]
+        fn increment(ref self: Counter) -> u32 {
+            self.value += 1;
+            self.value
+        }
+    }
+
+    #[inline(never)]
+    fn make_counter() -> Counter {
+        Counter { value: 0 }
+    }
+
+    fn main() {
+        if make_counter().increment() == make_counter().increment() {
+            println!("Lengths are equal");
+        } else if make_counter().increment() == make_counter().increment() {
+            println!("Lengths are still equal");
+        }
+    }
+    "##);
 }
 
 #[test]

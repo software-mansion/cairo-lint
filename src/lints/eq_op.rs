@@ -260,7 +260,7 @@ fn check_single_eq_op<'db>(
     // Get lhs syntax node to check the text
     let lhs = match &expr_func.args[0] {
         ExprFunctionCallArg::Reference(val) => val.stable_ptr(),
-        ExprFunctionCallArg::Value(val) => {
+        ExprFunctionCallArg::Value(val) | ExprFunctionCallArg::TempReference(val) => {
             let expr = &arenas.exprs[*val];
             // If the operands are funtion calls don't lint because the function might have a side effect
             if matches!(expr, Expr::FunctionCall(_)) {
@@ -284,7 +284,7 @@ fn check_single_eq_op<'db>(
     // Get rhs syntax node to check the text
     let rhs = match &expr_func.args[1] {
         ExprFunctionCallArg::Reference(val) => val.stable_ptr(),
-        ExprFunctionCallArg::Value(val) => {
+        ExprFunctionCallArg::Value(val) | ExprFunctionCallArg::TempReference(val) => {
             let expr = &arenas.exprs[*val];
             // If the operands are funtion calls don't lint because the function might have a side effect
             if matches!(expr, Expr::FunctionCall(_)) {

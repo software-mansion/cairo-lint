@@ -55,6 +55,34 @@ fn foo(a: Array<u256>) -> bool {
 }
 "#;
 
+const OP_WITH_METHOD_CALL_ON_METHOD_REF: &str = r#"
+#[derive(Drop)]
+struct Counter {
+    value: u32,
+}
+
+trait CounterTrait {
+    fn increment(ref self: Counter) -> u32;
+}
+
+impl CounterImpl of CounterTrait {
+    #[inline(never)]
+    fn increment(ref self: Counter) -> u32 {
+        self.value += 1;
+        self.value
+    }
+}
+
+#[inline(never)]
+fn make_counter() -> Counter {
+    Counter { value: 0 }
+}
+
+fn foo() -> bool {
+    make_counter().increment() == make_counter().increment()
+}
+"#;
+
 #[test]
 fn simple_eq_op_diagnostics() {
     test_lint_diagnostics!(SIMPLE_EQ_OP, @r"
@@ -217,4 +245,40 @@ fn op_with_method_call_fixer() {
         a.len() == a.len()
     }
     "#);
+}
+
+#[test]
+fn op_with_method_call_on_method_ref_diagnostics() {
+    test_lint_diagnostics!(OP_WITH_METHOD_CALL_ON_METHOD_REF, @"");
+}
+
+#[test]
+fn op_with_method_call_on_method_ref_fixer() {
+    test_lint_fixer!(OP_WITH_METHOD_CALL_ON_METHOD_REF, @r"
+    #[derive(Drop)]
+    struct Counter {
+        value: u32,
+    }
+
+    trait CounterTrait {
+        fn increment(ref self: Counter) -> u32;
+    }
+
+    impl CounterImpl of CounterTrait {
+        #[inline(never)]
+        fn increment(ref self: Counter) -> u32 {
+            self.value += 1;
+            self.value
+        }
+    }
+
+    #[inline(never)]
+    fn make_counter() -> Counter {
+        Counter { value: 0 }
+    }
+
+    fn foo() -> bool {
+        make_counter().increment() == make_counter().increment()
+    }
+    ");
 }
