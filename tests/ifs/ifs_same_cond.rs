@@ -135,6 +135,21 @@ fn main(){
 }
 "#;
 
+const IF_WITH_FUNCTIONS_WITH_SELF_METHOD: &str = r#"
+#[inline(never)]
+fn make_array() -> Array<u256> {
+    array![]
+}
+
+fn main() {
+    if make_array().len() == make_array().len() {
+        println!("Lengths are equal");
+    } else if make_array().len() == make_array().len() {
+        println!("Lengths are still equal");
+    }
+}
+"#;
+
 const GREATER_LESSER_COMPARISON: &str = r#"
 fn main(){
     let a:u32 = 3;
@@ -457,6 +472,37 @@ fn if_with_functions_fixer() {
             println!("foo");
         } else if foo() {
             println!("foo");
+        }
+    }
+    "#);
+}
+
+#[test]
+fn if_with_functions_with_self_method_diagnostics() {
+    test_lint_diagnostics!(IF_WITH_FUNCTIONS_WITH_SELF_METHOD, @r"
+    Plugin diagnostic: Consecutive `if` with the same condition found.
+     --> lib.cairo:8:5-12:5
+          if make_array().len() == make_array().len() {
+     _____^
+    | ...
+    |     }
+    |_____^
+    ");
+}
+
+#[test]
+fn if_with_functions_with_self_method_fixer() {
+    test_lint_fixer!(IF_WITH_FUNCTIONS_WITH_SELF_METHOD, @r#"
+    #[inline(never)]
+    fn make_array() -> Array<u256> {
+        array![]
+    }
+
+    fn main() {
+        if make_array().len() == make_array().len() {
+            println!("Lengths are equal");
+        } else if make_array().len() == make_array().len() {
+            println!("Lengths are still equal");
         }
     }
     "#);

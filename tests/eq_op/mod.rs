@@ -55,6 +55,17 @@ fn foo(a: Array<u256>) -> bool {
 }
 "#;
 
+const OP_WITH_METHOD_CALL_ON_METHOD_REF: &str = r#"
+#[inline(never)]
+fn make_array() -> Array<u256> {
+    array![]
+}
+
+fn foo() -> bool {
+    make_array().len() == make_array().len()
+}
+"#;
+
 #[test]
 fn simple_eq_op_diagnostics() {
     test_lint_diagnostics!(SIMPLE_EQ_OP, @r"
@@ -217,4 +228,23 @@ fn op_with_method_call_fixer() {
         a.len() == a.len()
     }
     "#);
+}
+
+#[test]
+fn op_with_method_call_on_method_ref_diagnostics() {
+    test_lint_diagnostics!(OP_WITH_METHOD_CALL_ON_METHOD_REF, @"");
+}
+
+#[test]
+fn op_with_method_call_on_method_ref_fixer() {
+    test_lint_fixer!(OP_WITH_METHOD_CALL_ON_METHOD_REF, @r"
+    #[inline(never)]
+    fn make_array() -> Array<u256> {
+        array![]
+    }
+
+    fn foo() -> bool {
+        make_array().len() == make_array().len()
+    }
+    ");
 }

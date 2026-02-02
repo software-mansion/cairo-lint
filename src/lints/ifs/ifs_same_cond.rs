@@ -140,9 +140,11 @@ fn check_single_duplicate_if_condition<'db>(
 fn ensure_no_ref_arg<'db>(arenas: &Arenas<'db>, func_call: &ExprFunctionCall<'db>) -> bool {
     func_call.args.iter().any(|arg| match arg {
         ExprFunctionCallArg::Reference(_) => true,
-        ExprFunctionCallArg::Value(expr_id) => match &arenas.exprs[*expr_id] {
-            Expr::FunctionCall(expr_func) => ensure_no_ref_arg(arenas, expr_func),
-            _ => false,
-        },
+        ExprFunctionCallArg::Value(expr_id) | ExprFunctionCallArg::TempReference(expr_id) => {
+            match &arenas.exprs[*expr_id] {
+                Expr::FunctionCall(expr_func) => ensure_no_ref_arg(arenas, expr_func),
+                _ => false,
+            }
+        }
     })
 }
