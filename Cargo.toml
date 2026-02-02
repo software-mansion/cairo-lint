@@ -44,7 +44,7 @@ cairo-lang-semantic = "*"
 cairo-lang-syntax = "*"
 cairo-lang-test-plugin = "*"
 cairo-lang-utils = "*"
-cairo-language-common = { git = "https://github.com/software-mansion/cairo-language-common" , rev = "d3bdb21045f0af465fecdb540f31c98eab0aa0ba" }
+cairo-language-common = { git = "https://github.com/software-mansion/cairo-language-common" , rev = "4aaa8282ade8111fca0cdd4e1aefca70aba8900d" }
 if_chain = "1.0.3"
 indoc = "2"
 itertools = "0.14.0"
