@@ -1,4 +1,6 @@
 use crate::fixer::InternalFix;
+use crate::lints::assert_on_const::AssertOnConst;
+use crate::lints::assert_on_const::check_assert_on_const;
 use crate::lints::bitwise_for_parity_check::BitwiseForParity;
 use crate::lints::bitwise_for_parity_check::check_bitwise_for_parity;
 use crate::lints::bool_comparison::BoolComparison;
@@ -402,6 +404,10 @@ impl LintContext {
             LintRuleGroup {
                 lints: vec![Box::new(ManualUnwrapOrElse)],
                 check_function: check_manual_unwrap_or_else,
+            },
+            LintRuleGroup {
+                lints: vec![Box::new(AssertOnConst)],
+                check_function: check_assert_on_const,
             },
         ]
     }
