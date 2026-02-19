@@ -1,7 +1,7 @@
 use cairo_lang_defs::db::{defs_group_input, init_external_files};
 use cairo_lang_filesystem::db::files_group_input;
-use cairo_lang_lowering::{db::init_lowering_group, optimizations::config::Optimizations};
 use cairo_lang_semantic::db::semantic_group_input;
+
 use salsa::{Database, Setter};
 
 #[salsa::db]
@@ -15,13 +15,6 @@ impl salsa::Database for FixerDatabase {}
 impl FixerDatabase {
     pub fn new_from(db: &dyn Database) -> Self {
         let mut new_db = Self::new();
-
-        init_lowering_group(
-            &mut new_db,
-            Optimizations::enabled_with_minimal_movable_functions(),
-            None,
-        );
-
         // SemanticGroup salsa inputs.
         semantic_group_input(&new_db)
             .set_default_analyzer_plugins(&mut new_db)
