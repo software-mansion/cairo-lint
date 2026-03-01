@@ -33,7 +33,7 @@ license-file = "LICENSE"
 # To keep our Cargo.toml following this contract, always use `cargo xtask upgrade`
 # for manipulating these dependencies.
 [dependencies]
-anyhow = "1.0.100"
+anyhow = "1.0.102"
 cairo-lang-compiler = "*"
 cairo-lang-defs = "*"
 cairo-lang-diagnostics = "*"
@@ -59,7 +59,7 @@ which = "8"
 
 [dev-dependencies]
 ctor = "0.6.3"
-insta = "1.46.2"
+insta = "1.46.3"
 pretty_assertions = "1.4.1"
 test-case = "3.0"
 
