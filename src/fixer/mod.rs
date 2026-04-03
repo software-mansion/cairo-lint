@@ -17,7 +17,7 @@ use cairo_lang_defs::diagnostic_utils::StableLocation;
 use cairo_lang_defs::ids::UseId;
 use cairo_lang_defs::plugin::PluginDiagnostic;
 use cairo_lang_diagnostics::DiagnosticEntry;
-use cairo_lang_filesystem::db::{FilesGroup, files_group_input};
+use cairo_lang_filesystem::db::{FilesGroup, set_editor_file_content_for_input};
 use cairo_lang_filesystem::ids::FileId;
 use cairo_lang_filesystem::span::{TextOffset, TextSpan, TextWidth};
 use cairo_lang_semantic::SemanticDiagnostic;
@@ -35,7 +35,7 @@ use cairo_lang_defs::db::DefsGroup;
 use cairo_lang_filesystem::ids::FileInput;
 
 pub use db::FixerDatabase;
-use salsa::{Database, Setter};
+use salsa::Database;
 
 mod db;
 
@@ -598,12 +598,7 @@ fn apply_suggestions_for_file(
         content.replace_range(suggestion.span.to_str_range(), &suggestion.code);
     }
 
-    let input = files_group_input(db);
-
-    let mut overrides = input.file_overrides(db).clone().unwrap();
-    overrides.insert(file.clone(), content.into());
-
-    input.set_file_overrides(db).to(overrides.into());
+    set_editor_file_content_for_input(db, file, Some(content.into()));
 }
 
 fn spans_intersects(span_a: TextSpan, span_b: TextSpan) -> bool {

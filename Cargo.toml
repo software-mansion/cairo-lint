@@ -69,35 +69,37 @@ test-case = "3.0"
 # on some of them directly.
 # This ensures no duplicate instances of Cairo crates are pulled in by mistake.
 [patch.crates-io]
-cairo-lang-casm = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-language-common = { git = "https://github.com/software-mansion/cairo-language-common" , rev = "e780ac2be99edda452643a8edb4b10acc7adccf1" }
-cairo-lang-compiler = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-debug = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-defs = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-diagnostics = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-eq-solver = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-filesystem = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-formatter = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-lowering = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-parser = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-plugins = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-proc-macros = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-project = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-runnable-utils = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-semantic = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-sierra = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-sierra-ap-change = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-sierra-gas = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-sierra-generator = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-sierra-to-casm = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-sierra-type-size = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-starknet = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-starknet-classes = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-syntax = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-syntax-codegen = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-test-plugin = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-test-utils = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
-cairo-lang-utils = { git = "https://github.com/starkware-libs/cairo", rev = "bf4bb15a41094a08b06c7b1c502ffaa47d49aa8a" }
+cairo-lang-casm = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-casm" }
+cairo-lang-compiler = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-compiler" }
+cairo-lang-debug = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-debug" }
+cairo-lang-defs = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-defs" }
+cairo-lang-diagnostics = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-diagnostics" }
+cairo-lang-doc = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-doc" }
+cairo-lang-eq-solver = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-eq-solver" }
+cairo-lang-executable-plugin = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-executable-plugin" }
+cairo-lang-filesystem = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-filesystem" }
+cairo-lang-formatter = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-formatter" }
+cairo-lang-lowering = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-lowering" }
+cairo-lang-parser = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-parser" }
+cairo-lang-plugins = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-plugins" }
+cairo-lang-proc-macros = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-proc-macros" }
+cairo-lang-project = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-project" }
+cairo-lang-runnable-utils = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-runnable-utils" }
+cairo-lang-semantic = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-semantic" }
+cairo-lang-sierra = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-sierra" }
+cairo-lang-sierra-ap-change = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-sierra-ap-change" }
+cairo-lang-sierra-gas = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-sierra-gas" }
+cairo-lang-sierra-generator = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-sierra-generator" }
+cairo-lang-sierra-to-casm = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-sierra-to-casm" }
+cairo-lang-sierra-type-size = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-sierra-type-size" }
+cairo-lang-starknet = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-starknet" }
+cairo-lang-starknet-classes = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-starknet-classes" }
+cairo-lang-syntax = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-syntax" }
+cairo-lang-syntax-codegen = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-syntax-codegen" }
+cairo-lang-test-plugin = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-test-plugin" }
+cairo-lang-test-utils = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-test-utils" }
+cairo-lang-utils = { path = "/Users/jsmolka/Work/cairo-language/cairo/crates/cairo-lang-utils" }
+cairo-language-common = { path = "/Users/jsmolka/Work/cairo-language/cairo-language-common" }
 
 [profile.ci]
 inherits = "test"

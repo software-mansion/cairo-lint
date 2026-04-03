@@ -10,7 +10,7 @@ use cairo_lang_defs::{
 use cairo_lang_filesystem::flag::FlagsGroup;
 use cairo_lang_filesystem::{
     cfg::CfgSet,
-    db::{FilesGroup, init_dev_corelib, init_files_group},
+    db::{FilesGroup, GranularFileContentView, init_dev_corelib, init_files_group},
     detect::detect_corelib,
     flag::Flag,
     ids::FlagLongId,
@@ -85,6 +85,8 @@ impl LinterAnalysisDatabase {
 }
 
 impl salsa::Database for LinterAnalysisDatabase {}
+
+impl GranularFileContentView for LinterAnalysisDatabase {}
 
 #[derive(Clone, Debug)]
 pub struct LinterAnalysisDatabaseBuilder {
