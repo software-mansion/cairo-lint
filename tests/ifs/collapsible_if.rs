@@ -75,8 +75,8 @@ fn main() {
 "#;
 
 const COLLAPSIBLE_IF_WITH_FUNCTION_CALLS: &str = r#"
-fn is_valid(_a: bool) -> bool { true }
-fn is_ready(_b: bool) -> bool { true }
+fn is_valid(_a: bool) -> bool { true } 
+fn is_ready(_b: bool) -> bool { true } 
 
 fn main() {
     if is_valid(true) {
@@ -126,7 +126,7 @@ fn main() {
     if x || z {
         if y && z {
             println!("Hello");
-        }
+        } 
     } else {
         println!("World");
     }
@@ -163,9 +163,9 @@ fn main() {
 "#;
 
 const IF_LET_TO_IGNORE_WITH_ASSERT: &str = r#"
-fn main(n: felt252) {
-    let x = Option::Some(n);
-    let y = Option::Some(1);
+fn main() {
+    let x = Option::Some(true);
+    let y = Option::Some(true);
 
     if let Option::Some(_z) = x {
         assert!(x == y);
@@ -270,8 +270,8 @@ fn main() {
 "#;
 
 const IF_LET_WITH_ASSERT: &str = r#"
-fn main(n: felt252) {
-    let x = Some(n);
+fn main() {
+    let x = Some(42);
 
     if let Some(y) = x {
         assert!(y == 42);
@@ -577,9 +577,9 @@ fn if_let_to_ignore_with_assert_diagnostic() {
 #[test]
 fn if_let_to_ignore_fixer() {
     test_lint_fixer!(IF_LET_TO_IGNORE_WITH_ASSERT, @r"
-    fn main(n: felt252) {
-        let x = Option::Some(n);
-        let y = Option::Some(1);
+    fn main() {
+        let x = Option::Some(true);
+        let y = Option::Some(true);
 
         if let Option::Some(_z) = x {
             assert!(x == y);
