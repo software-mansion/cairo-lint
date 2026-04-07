@@ -15,7 +15,6 @@ use cairo_lang_filesystem::{
     flag::Flag,
     ids::FlagLongId,
 };
-use cairo_lang_lowering::{db::init_lowering_group, optimizations::config::Optimizations};
 use cairo_lang_semantic::{
     db::{init_semantic_group, semantic_group_input},
     ids::AnalyzerPluginLongId,
@@ -45,11 +44,6 @@ impl LinterAnalysisDatabase {
         init_defs_group(&mut res);
         init_semantic_group(&mut res);
         init_external_files(&mut res);
-        init_lowering_group(
-            &mut res,
-            Optimizations::enabled_with_minimal_movable_functions(),
-            None,
-        );
 
         default_plugin_suite.add(cairo_lint_allow_plugin_suite());
 
@@ -80,6 +74,7 @@ impl LinterAnalysisDatabase {
                     .map(AnalyzerPluginLongId)
                     .collect(),
             ));
+
         res
     }
 }
