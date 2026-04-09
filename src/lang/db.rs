@@ -4,20 +4,35 @@ use cairo_lang_compiler::{
     project::{ProjectConfig, update_crate_roots_from_project_config},
 };
 use cairo_lang_defs::{
-    db::{defs_group_input, init_defs_group, init_external_files},
+    db::{
+        GranularInlineMacroPluginOverrideStorage, GranularInlineMacroPluginOverrideView,
+        GranularMacroPluginOverrideStorage, GranularMacroPluginOverrideView, defs_group_input,
+        init_defs_group, init_external_files, new_granular_inline_macro_plugin_override_storage,
+        new_granular_macro_plugin_override_storage, register_granular_inline_macro_plugin_override_view,
+        register_granular_macro_plugin_override_view,
+    },
     ids::{InlineMacroExprPluginLongId, MacroPluginLongId},
 };
 use cairo_lang_filesystem::flag::FlagsGroup;
 use cairo_lang_filesystem::{
     cfg::CfgSet,
-    db::{FilesGroup, GranularFileContentView, init_dev_corelib, init_files_group},
+    db::{
+        FilesGroup, GranularCrateConfigStorage, GranularCrateConfigView,
+        GranularFileContentView, init_dev_corelib, init_files_group,
+        new_granular_crate_config_storage, register_granular_crate_config_view,
+        register_files_group_view,
+    },
     detect::detect_corelib,
     flag::Flag,
     ids::FlagLongId,
 };
 use cairo_lang_lowering::{db::init_lowering_group, optimizations::config::Optimizations};
 use cairo_lang_semantic::{
-    db::{init_semantic_group, semantic_group_input},
+    db::{
+        GranularAnalyzerPluginOverrideStorage, GranularAnalyzerPluginOverrideView,
+        init_semantic_group, new_granular_analyzer_plugin_override_storage,
+        register_granular_analyzer_plugin_override_view, semantic_group_input,
+    },
     ids::AnalyzerPluginLongId,
     inline_macros::get_default_plugin_suite,
     plugin::PluginSuite,
@@ -30,6 +45,10 @@ use salsa::Setter;
 #[derive(Clone)]
 pub struct LinterAnalysisDatabase {
     storage: salsa::Storage<Self>,
+    granular_crate_configs: GranularCrateConfigStorage,
+    granular_macro_plugin_overrides: GranularMacroPluginOverrideStorage,
+    granular_inline_macro_plugin_overrides: GranularInlineMacroPluginOverrideStorage,
+    granular_analyzer_plugin_overrides: GranularAnalyzerPluginOverrideStorage,
 }
 
 impl LinterAnalysisDatabase {
@@ -40,7 +59,17 @@ impl LinterAnalysisDatabase {
     fn new(mut default_plugin_suite: PluginSuite) -> Self {
         let mut res = Self {
             storage: Default::default(),
+            granular_crate_configs: new_granular_crate_config_storage(),
+            granular_macro_plugin_overrides: new_granular_macro_plugin_override_storage(),
+            granular_inline_macro_plugin_overrides:
+                new_granular_inline_macro_plugin_override_storage(),
+            granular_analyzer_plugin_overrides: new_granular_analyzer_plugin_override_storage(),
         };
+        register_files_group_view(&res);
+        register_granular_crate_config_view(&res);
+        register_granular_macro_plugin_override_view(&res);
+        register_granular_inline_macro_plugin_override_view(&res);
+        register_granular_analyzer_plugin_override_view(&res);
         init_files_group(&mut res);
         init_defs_group(&mut res);
         init_semantic_group(&mut res);
@@ -87,6 +116,30 @@ impl LinterAnalysisDatabase {
 impl salsa::Database for LinterAnalysisDatabase {}
 
 impl GranularFileContentView for LinterAnalysisDatabase {}
+impl GranularCrateConfigView for LinterAnalysisDatabase {
+    fn granular_crate_config_storage(&self) -> Option<&GranularCrateConfigStorage> {
+        Some(&self.granular_crate_configs)
+    }
+}
+impl GranularMacroPluginOverrideView for LinterAnalysisDatabase {
+    fn granular_macro_plugin_override_storage(&self) -> Option<&GranularMacroPluginOverrideStorage> {
+        Some(&self.granular_macro_plugin_overrides)
+    }
+}
+impl GranularInlineMacroPluginOverrideView for LinterAnalysisDatabase {
+    fn granular_inline_macro_plugin_override_storage(
+        &self,
+    ) -> Option<&GranularInlineMacroPluginOverrideStorage> {
+        Some(&self.granular_inline_macro_plugin_overrides)
+    }
+}
+impl GranularAnalyzerPluginOverrideView for LinterAnalysisDatabase {
+    fn granular_analyzer_plugin_override_storage(
+        &self,
+    ) -> Option<&GranularAnalyzerPluginOverrideStorage> {
+        Some(&self.granular_analyzer_plugin_overrides)
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct LinterAnalysisDatabaseBuilder {
