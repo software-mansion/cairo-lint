@@ -1,8 +1,9 @@
 use cairo_lang_defs::db::{defs_group_input, init_external_files};
 use cairo_lang_filesystem::db::{
-    FileContentStorage, FileContentView, files_group_input, new_file_content_storage,
-    register_files_group_view, set_generated_file_content_for_input,
-    set_on_disk_file_content_for_input, snapshot_file_contents,
+    CrateConfigStorage, CrateConfigView, FileContentStorage, FileContentView, files_group_input,
+    new_crate_config_storage, new_file_content_storage, register_crate_config_view,
+    register_files_group_view, set_crate_config_for_input, set_generated_file_content_for_input,
+    set_on_disk_file_content_for_input, snapshot_crate_configs, snapshot_file_contents,
 };
 use cairo_lang_lowering::{db::init_lowering_group, optimizations::config::Optimizations};
 use cairo_lang_semantic::db::semantic_group_input;
@@ -13,12 +14,18 @@ use salsa::{Database, Setter};
 pub struct FixerDatabase {
     storage: salsa::Storage<Self>,
     file_contents: FileContentStorage,
+    crate_configs: CrateConfigStorage,
 }
 
 impl salsa::Database for FixerDatabase {}
 impl FileContentView for FixerDatabase {
     fn file_content_storage(&self) -> Option<&FileContentStorage> {
         Some(&self.file_contents)
+    }
+}
+impl CrateConfigView for FixerDatabase {
+    fn crate_config_storage(&self) -> Option<&CrateConfigStorage> {
+        Some(&self.crate_configs)
     }
 }
 
@@ -64,9 +71,6 @@ impl FixerDatabase {
 
         // FilesGroup salsa inputs.
         files_group_input(&new_db)
-            .set_crate_configs(&mut new_db)
-            .to(files_group_input(db).crate_configs(db).clone());
-        files_group_input(&new_db)
             .set_flags(&mut new_db)
             .to(files_group_input(db).flags(db).clone());
         files_group_input(&new_db)
@@ -77,6 +81,10 @@ impl FixerDatabase {
         // We can do that since the only thing in this input is an `Arc` to a closure,
         // that is never supposed to be changed after the initialization.
         init_external_files(&mut new_db);
+
+        for (crate_input, config) in snapshot_crate_configs(db) {
+            set_crate_config_for_input(&mut new_db, crate_input, Some(config));
+        }
 
         for (file_input, (editor_content, generated_content)) in snapshot_file_contents(db) {
             if editor_content.is_some() {
@@ -94,8 +102,10 @@ impl FixerDatabase {
         let db = Self {
             storage: Default::default(),
             file_contents: new_file_content_storage(),
+            crate_configs: new_crate_config_storage(),
         };
         register_files_group_view(&db);
+        register_crate_config_view(&db);
         db
     }
 }

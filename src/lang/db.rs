@@ -7,13 +7,19 @@ use cairo_lang_defs::{
     db::{defs_group_input, init_defs_group, init_external_files},
     ids::{InlineMacroExprPluginLongId, MacroPluginLongId},
 };
-use cairo_lang_filesystem::flag::FlagsGroup;
 use cairo_lang_filesystem::{
     cfg::CfgSet,
-    db::{FileContentView, FilesGroup, init_dev_corelib, init_files_group},
+    db::{CrateConfigView, FileContentView, FilesGroup, init_dev_corelib, init_files_group},
     detect::detect_corelib,
     flag::Flag,
     ids::FlagLongId,
+};
+use cairo_lang_filesystem::{
+    db::{
+        CrateConfigStorage, new_crate_config_storage, register_crate_config_view,
+        register_files_group_view,
+    },
+    flag::FlagsGroup,
 };
 use cairo_lang_lowering::{db::init_lowering_group, optimizations::config::Optimizations};
 use cairo_lang_semantic::{
@@ -30,6 +36,7 @@ use salsa::Setter;
 #[derive(Clone)]
 pub struct LinterAnalysisDatabase {
     storage: salsa::Storage<Self>,
+    crate_configs: CrateConfigStorage,
 }
 
 impl LinterAnalysisDatabase {
@@ -40,7 +47,10 @@ impl LinterAnalysisDatabase {
     fn new(mut default_plugin_suite: PluginSuite) -> Self {
         let mut res = Self {
             storage: Default::default(),
+            crate_configs: new_crate_config_storage(),
         };
+        register_files_group_view(&res);
+        register_crate_config_view(&res);
         init_files_group(&mut res);
         init_defs_group(&mut res);
         init_semantic_group(&mut res);
@@ -87,6 +97,12 @@ impl LinterAnalysisDatabase {
 impl salsa::Database for LinterAnalysisDatabase {}
 
 impl FileContentView for LinterAnalysisDatabase {}
+
+impl CrateConfigView for LinterAnalysisDatabase {
+    fn crate_config_storage(&self) -> Option<&CrateConfigStorage> {
+        Some(&self.crate_configs)
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct LinterAnalysisDatabaseBuilder {
