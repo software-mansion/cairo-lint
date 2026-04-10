@@ -219,7 +219,7 @@ checksum = "1e748733b7cbc798e1434b6ac524f0c1ff2ab456fe201501e6497c8417a4fc33"
 [[package]]
 name = "cairo-lang-casm"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-utils",
  "indoc",
@@ -232,7 +232,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-compiler"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "anyhow",
  "cairo-lang-defs",
@@ -258,7 +258,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-debug"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-utils",
  "id-arena",
@@ -268,7 +268,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-defs"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-diagnostics",
@@ -288,7 +288,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-diagnostics"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-filesystem",
@@ -301,7 +301,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-eq-solver"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-utils",
  "good_lp",
@@ -310,7 +310,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-filesystem"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-proc-macros",
@@ -327,7 +327,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-formatter"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "anyhow",
  "cairo-lang-diagnostics",
@@ -346,7 +346,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-lowering"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "assert_matches",
  "cairo-lang-debug",
@@ -375,7 +375,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-parser"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-diagnostics",
  "cairo-lang-filesystem",
@@ -394,7 +394,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-plugins"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-defs",
  "cairo-lang-diagnostics",
@@ -417,7 +417,7 @@ checksum = "123ac0ecadf31bacae77436d72b88fa9caef2b8e92c89ce63a125ae911a12fae"
 [[package]]
 name = "cairo-lang-proc-macros"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-debug",
  "proc-macro2",
@@ -429,7 +429,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-project"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-filesystem",
  "cairo-lang-utils",
@@ -441,7 +441,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-runnable-utils"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-casm",
  "cairo-lang-sierra",
@@ -457,7 +457,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-semantic"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-defs",
@@ -486,7 +486,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-sierra"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "anyhow",
  "cairo-lang-utils",
@@ -511,7 +511,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-sierra-ap-change"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-eq-solver",
  "cairo-lang-sierra",
@@ -526,7 +526,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-sierra-gas"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-eq-solver",
  "cairo-lang-sierra",
@@ -541,7 +541,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-sierra-generator"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-defs",
@@ -565,7 +565,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-sierra-to-casm"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "assert_matches",
  "cairo-lang-casm",
@@ -585,7 +585,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-sierra-type-size"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-sierra",
  "cairo-lang-utils",
@@ -594,7 +594,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-starknet"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "anyhow",
  "cairo-lang-compiler",
@@ -626,7 +626,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-starknet-classes"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-casm",
  "cairo-lang-sierra",
@@ -649,7 +649,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-syntax"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-debug",
  "cairo-lang-filesystem",
@@ -667,7 +667,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-syntax-codegen"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "genco",
  "xshell",
@@ -676,7 +676,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-test-plugin"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "anyhow",
  "cairo-lang-compiler",
@@ -704,7 +704,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-test-utils"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "cairo-lang-formatter",
  "cairo-lang-proc-macros",
@@ -717,7 +717,7 @@ dependencies = [
 [[package]]
 name = "cairo-lang-utils"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-crate-configs#956f0fd12905170436c1e06b0e9b00191e26f068"
+source = "git+https://github.com/starkware-libs/cairo?branch=optimization%2Fgranular-plugin-overrides#6d1428089b0bb6fd9f72dce24457536087684732"
 dependencies = [
  "hashbrown 0.16.1",
  "indexmap",
@@ -1521,9 +1521,9 @@ checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
 
 [[package]]
 name = "js-sys"
-version = "0.3.94"
+version = "0.3.95"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e04e2ef80ce82e13552136fabeef8a5ed1f985a96805761cbb9a2c34e7664d9"
+checksum = "2964e92d1d9dc3364cae4d718d93f227e3abb088e747d92e0395bfdedf1c12ca"
 dependencies = [
  "once_cell",
  "wasm-bindgen",
@@ -2989,9 +2989,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen"
-version = "0.2.117"
+version = "0.2.118"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0551fc1bb415591e3372d0bc4780db7e587d84e2a7e79da121051c5c4b89d0b0"
+checksum = "0bf938a0bacb0469e83c1e148908bd7d5a6010354cf4fb73279b7447422e3a89"
 dependencies = [
  "cfg-if",
  "once_cell",
@@ -3002,9 +3002,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro"
-version = "0.2.117"
+version = "0.2.118"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7fbdf9a35adf44786aecd5ff89b4563a90325f9da0923236f6104e603c7e86be"
+checksum = "eeff24f84126c0ec2db7a449f0c2ec963c6a49efe0698c4242929da037ca28ed"
 dependencies = [
  "quote",
  "wasm-bindgen-macro-support",
@@ -3012,9 +3012,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro-support"
-version = "0.2.117"
+version = "0.2.118"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dca9693ef2bab6d4e6707234500350d8dad079eb508dca05530c85dc3a529ff2"
+checksum = "9d08065faf983b2b80a79fd87d8254c409281cf7de75fc4b773019824196c904"
 dependencies = [
  "bumpalo",
  "proc-macro2",
@@ -3025,9 +3025,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-shared"
-version = "0.2.117"
+version = "0.2.118"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "39129a682a6d2d841b6c429d0c51e5cb0ed1a03829d8b3d1e69a011e62cb3d3b"
+checksum = "5fd04d9e306f1907bd13c6361b5c6bfc7b3b3c095ed3f8a9246390f8dbdee129"
 dependencies = [
  "unicode-ident",
 ]

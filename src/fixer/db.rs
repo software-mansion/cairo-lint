@@ -1,4 +1,10 @@
-use cairo_lang_defs::db::{defs_group_input, init_external_files};
+use cairo_lang_defs::db::{
+    InlineMacroPluginOverrideStorage, InlineMacroPluginOverrideView, MacroPluginOverrideStorage,
+    MacroPluginOverrideView, defs_group_input, init_external_files,
+    register_inline_macro_plugin_override_view, register_macro_plugin_override_view,
+    set_inline_macro_plugin_overrides_for_input, set_macro_plugin_overrides_for_input,
+    snapshot_inline_macro_plugin_overrides, snapshot_macro_plugin_overrides,
+};
 use cairo_lang_filesystem::db::{
     CrateConfigStorage, CrateConfigView, FileContentStorage, FileContentView, files_group_input,
     new_crate_config_storage, new_file_content_storage, register_crate_config_view,
@@ -6,7 +12,11 @@ use cairo_lang_filesystem::db::{
     set_on_disk_file_content_for_input, snapshot_crate_configs, snapshot_file_contents,
 };
 use cairo_lang_lowering::{db::init_lowering_group, optimizations::config::Optimizations};
-use cairo_lang_semantic::db::semantic_group_input;
+use cairo_lang_semantic::db::{
+    AnalyzerPluginOverrideStorage, AnalyzerPluginOverrideView,
+    register_analyzer_plugin_override_view, semantic_group_input,
+    set_analyzer_plugin_overrides_for_input, snapshot_analyzer_plugin_overrides,
+};
 use salsa::{Database, Setter};
 
 #[salsa::db]
@@ -15,6 +25,9 @@ pub struct FixerDatabase {
     storage: salsa::Storage<Self>,
     file_contents: FileContentStorage,
     crate_configs: CrateConfigStorage,
+    macro_plugin_overrides: MacroPluginOverrideStorage,
+    inline_macro_plugin_overrides: InlineMacroPluginOverrideStorage,
+    analyzer_plugin_overrides: AnalyzerPluginOverrideStorage,
 }
 
 impl salsa::Database for FixerDatabase {}
@@ -26,6 +39,21 @@ impl FileContentView for FixerDatabase {
 impl CrateConfigView for FixerDatabase {
     fn crate_config_storage(&self) -> Option<&CrateConfigStorage> {
         Some(&self.crate_configs)
+    }
+}
+impl MacroPluginOverrideView for FixerDatabase {
+    fn macro_plugin_override_storage(&self) -> Option<&MacroPluginOverrideStorage> {
+        Some(&self.macro_plugin_overrides)
+    }
+}
+impl InlineMacroPluginOverrideView for FixerDatabase {
+    fn inline_macro_plugin_override_storage(&self) -> Option<&InlineMacroPluginOverrideStorage> {
+        Some(&self.inline_macro_plugin_overrides)
+    }
+}
+impl AnalyzerPluginOverrideView for FixerDatabase {
+    fn analyzer_plugin_override_storage(&self) -> Option<&AnalyzerPluginOverrideStorage> {
+        Some(&self.analyzer_plugin_overrides)
     }
 }
 
@@ -45,28 +73,15 @@ impl FixerDatabase {
             .to(semantic_group_input(db)
                 .default_analyzer_plugins(db)
                 .clone());
-        semantic_group_input(&new_db)
-            .set_analyzer_plugin_overrides(&mut new_db)
-            .to(semantic_group_input(db)
-                .analyzer_plugin_overrides(db)
-                .clone());
 
         // DefsGroup salsa inputs.
         defs_group_input(&new_db)
             .set_default_macro_plugins(&mut new_db)
             .to(defs_group_input(db).default_macro_plugins(db).clone());
         defs_group_input(&new_db)
-            .set_macro_plugin_overrides(&mut new_db)
-            .to(defs_group_input(db).macro_plugin_overrides(db).clone());
-        defs_group_input(&new_db)
             .set_default_inline_macro_plugins(&mut new_db)
             .to(defs_group_input(db)
                 .default_inline_macro_plugins(db)
-                .clone());
-        defs_group_input(&new_db)
-            .set_inline_macro_plugin_overrides(&mut new_db)
-            .to(defs_group_input(db)
-                .inline_macro_plugin_overrides(db)
                 .clone());
 
         // FilesGroup salsa inputs.
@@ -86,6 +101,16 @@ impl FixerDatabase {
             set_crate_config_for_input(&mut new_db, crate_input, Some(config));
         }
 
+        for (crate_input, plugins) in snapshot_macro_plugin_overrides(db) {
+            set_macro_plugin_overrides_for_input(&mut new_db, crate_input, Some(plugins));
+        }
+        for (crate_input, plugins) in snapshot_inline_macro_plugin_overrides(db) {
+            set_inline_macro_plugin_overrides_for_input(&mut new_db, crate_input, Some(plugins));
+        }
+        for (crate_input, plugins) in snapshot_analyzer_plugin_overrides(db) {
+            set_analyzer_plugin_overrides_for_input(&mut new_db, crate_input, Some(plugins));
+        }
+
         for (file_input, (editor_content, generated_content)) in snapshot_file_contents(db) {
             if editor_content.is_some() {
                 set_on_disk_file_content_for_input(&mut new_db, file_input.clone(), editor_content);
@@ -103,9 +128,15 @@ impl FixerDatabase {
             storage: Default::default(),
             file_contents: new_file_content_storage(),
             crate_configs: new_crate_config_storage(),
+            macro_plugin_overrides: Default::default(),
+            inline_macro_plugin_overrides: Default::default(),
+            analyzer_plugin_overrides: Default::default(),
         };
         register_files_group_view(&db);
         register_crate_config_view(&db);
+        register_macro_plugin_override_view(&db);
+        register_inline_macro_plugin_override_view(&db);
+        register_analyzer_plugin_override_view(&db);
         db
     }
 }

@@ -4,7 +4,12 @@ use cairo_lang_compiler::{
     project::{ProjectConfig, update_crate_roots_from_project_config},
 };
 use cairo_lang_defs::{
-    db::{defs_group_input, init_defs_group, init_external_files},
+    db::{
+        InlineMacroPluginOverrideStorage, InlineMacroPluginOverrideView,
+        MacroPluginOverrideStorage, MacroPluginOverrideView, defs_group_input, init_defs_group,
+        init_external_files, register_inline_macro_plugin_override_view,
+        register_macro_plugin_override_view,
+    },
     ids::{InlineMacroExprPluginLongId, MacroPluginLongId},
 };
 use cairo_lang_filesystem::{
@@ -23,7 +28,10 @@ use cairo_lang_filesystem::{
 };
 use cairo_lang_lowering::{db::init_lowering_group, optimizations::config::Optimizations};
 use cairo_lang_semantic::{
-    db::{init_semantic_group, semantic_group_input},
+    db::{
+        AnalyzerPluginOverrideStorage, AnalyzerPluginOverrideView, init_semantic_group,
+        register_analyzer_plugin_override_view, semantic_group_input,
+    },
     ids::AnalyzerPluginLongId,
     inline_macros::get_default_plugin_suite,
     plugin::PluginSuite,
@@ -37,6 +45,9 @@ use salsa::Setter;
 pub struct LinterAnalysisDatabase {
     storage: salsa::Storage<Self>,
     crate_configs: CrateConfigStorage,
+    macro_plugin_overrides: MacroPluginOverrideStorage,
+    inline_macro_plugin_overrides: InlineMacroPluginOverrideStorage,
+    analyzer_plugin_overrides: AnalyzerPluginOverrideStorage,
 }
 
 impl LinterAnalysisDatabase {
@@ -48,9 +59,15 @@ impl LinterAnalysisDatabase {
         let mut res = Self {
             storage: Default::default(),
             crate_configs: new_crate_config_storage(),
+            macro_plugin_overrides: Default::default(),
+            inline_macro_plugin_overrides: Default::default(),
+            analyzer_plugin_overrides: Default::default(),
         };
         register_files_group_view(&res);
         register_crate_config_view(&res);
+        register_macro_plugin_override_view(&res);
+        register_inline_macro_plugin_override_view(&res);
+        register_analyzer_plugin_override_view(&res);
         init_files_group(&mut res);
         init_defs_group(&mut res);
         init_semantic_group(&mut res);
@@ -101,6 +118,22 @@ impl FileContentView for LinterAnalysisDatabase {}
 impl CrateConfigView for LinterAnalysisDatabase {
     fn crate_config_storage(&self) -> Option<&CrateConfigStorage> {
         Some(&self.crate_configs)
+    }
+}
+
+impl MacroPluginOverrideView for LinterAnalysisDatabase {
+    fn macro_plugin_override_storage(&self) -> Option<&MacroPluginOverrideStorage> {
+        Some(&self.macro_plugin_overrides)
+    }
+}
+impl InlineMacroPluginOverrideView for LinterAnalysisDatabase {
+    fn inline_macro_plugin_override_storage(&self) -> Option<&InlineMacroPluginOverrideStorage> {
+        Some(&self.inline_macro_plugin_overrides)
+    }
+}
+impl AnalyzerPluginOverrideView for LinterAnalysisDatabase {
+    fn analyzer_plugin_override_storage(&self) -> Option<&AnalyzerPluginOverrideStorage> {
+        Some(&self.analyzer_plugin_overrides)
     }
 }
 
