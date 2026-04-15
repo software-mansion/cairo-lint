@@ -784,7 +784,7 @@ dependencies = [
 
 [[package]]
 name = "cairo-lint"
-version = "2.16.0"
+version = "2.15.0"
 dependencies = [
  "anyhow",
  "cairo-lang-compiler",
@@ -2655,9 +2655,9 @@ dependencies = [
 
 [[package]]
 name = "thin-vec"
-version = "0.2.14"
+version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "144f754d318415ac792f9d69fc87abbbfc043ce2ef041c60f16ad828f638717d"
+checksum = "259cdf8ed4e4aca6f1e9d011e10bd53f524a2d0637d7b28450f6c64ac298c4c6"
 
 [[package]]
 name = "thiserror"
@@ -3318,169 +3318,139 @@ checksum = "aac060176f7020d62c3bcc1cdbcec619d54f48b07ad1963a3f80ce7a0c17755f"
 [[patch.unused]]
 name = "cairo-lang-casm"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-compiler"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-debug"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-defs"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-diagnostics"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
-
-[[patch.unused]]
-name = "cairo-lang-doc"
-version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-eq-solver"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
-
-[[patch.unused]]
-name = "cairo-lang-executable"
-version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
-
-[[patch.unused]]
-name = "cairo-lang-executable-plugin"
-version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
-
-[[patch.unused]]
-name = "cairo-lang-execute-utils"
-version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-filesystem"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-formatter"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-lowering"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-parser"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-plugins"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-proc-macros"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-project"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-runnable-utils"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
-
-[[patch.unused]]
-name = "cairo-lang-runner"
-version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-semantic"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-sierra"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-sierra-ap-change"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-sierra-gas"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-sierra-generator"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-sierra-to-casm"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-sierra-type-size"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-starknet"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-starknet-classes"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-syntax"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-syntax-codegen"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-test-plugin"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
-
-[[patch.unused]]
-name = "cairo-lang-test-runner"
-version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-test-utils"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
 
 [[patch.unused]]
 name = "cairo-lang-utils"
 version = "2.16.1"
-source = "git+https://github.com/starkware-libs/cairo?rev=711d3076#711d30769054e3728c3d73f92ec8d2524a0e5573"
+source = "git+https://github.com/starkware-libs/cairo?rev=711d30769054e3728c3d73f92ec8d2524a0e5573#711d30769054e3728c3d73f92ec8d2524a0e5573"
