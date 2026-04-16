@@ -58,8 +58,8 @@ tracing = "0.1"
 which = "8"
 
 [dev-dependencies]
-ctor = "0.6.3"
-insta = "1.46.3"
+ctor = "0.8.0"
+insta = "1.47.2"
 pretty_assertions = "1.4.1"
 test-case = "3.0"
 
