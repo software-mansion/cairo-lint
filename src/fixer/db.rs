@@ -7,9 +7,9 @@ use cairo_lang_defs::db::{
 };
 use cairo_lang_filesystem::db::{
     CrateConfigStorage, CrateConfigView, FileContentStorage, FileContentView, files_group_input,
-    new_crate_config_storage, new_file_content_storage, register_crate_config_view,
-    register_files_group_view, set_crate_config_for_input, set_generated_file_content_for_input,
-    set_on_disk_file_content_for_input, snapshot_crate_configs, snapshot_file_contents,
+    new_crate_config_storage, override_file_content_for_input, register_crate_config_view,
+    register_files_group_view, set_crate_config_for_input, snapshot_crate_configs,
+    snapshot_file_contents,
 };
 use cairo_lang_lowering::{db::init_lowering_group, optimizations::config::Optimizations};
 use cairo_lang_semantic::db::{
@@ -111,12 +111,9 @@ impl FixerDatabase {
             set_analyzer_plugin_overrides_for_input(&mut new_db, crate_input, Some(plugins));
         }
 
-        for (file_input, (editor_content, generated_content)) in snapshot_file_contents(db) {
-            if editor_content.is_some() {
-                set_on_disk_file_content_for_input(&mut new_db, file_input.clone(), editor_content);
-            }
-            if generated_content.is_some() {
-                set_generated_file_content_for_input(&mut new_db, file_input, generated_content);
+        for (file_input, content) in snapshot_file_contents(db) {
+            if content.is_some() {
+                override_file_content_for_input(&mut new_db, file_input, content);
             }
         }
 
@@ -126,7 +123,7 @@ impl FixerDatabase {
     fn new() -> Self {
         let db = Self {
             storage: Default::default(),
-            file_contents: new_file_content_storage(),
+            file_contents: Default::default(),
             crate_configs: new_crate_config_storage(),
             macro_plugin_overrides: Default::default(),
             inline_macro_plugin_overrides: Default::default(),
