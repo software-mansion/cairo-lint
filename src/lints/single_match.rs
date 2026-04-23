@@ -165,11 +165,10 @@ fn check_single_match<'db>(
             Pattern::Otherwise(_) => {
                 is_complete = true;
             }
-            Pattern::EnumVariant(_) => {
+            Pattern::EnumVariant(_)
                 // And if the 2nd arm is an enum variant check that the number of variants in the enum is 2.
-                if enum_len == Some(2) {
-                    is_complete = true;
-                }
+                if enum_len == Some(2) => {
+                is_complete = true;
             }
             _ => (),
         };
