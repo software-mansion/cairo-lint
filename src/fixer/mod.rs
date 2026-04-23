@@ -295,8 +295,8 @@ pub fn apply_import_fixes<'db>(
     fixes: &HashMap<SyntaxNode<'db>, ImportFix<'db>>,
 ) -> Vec<DiagnosticFixSuggestion> {
     fixes
-        .iter()
-        .flat_map(|(_, import_fix)| {
+        .values()
+        .flat_map(|import_fix| {
             let span = import_fix.node.span_without_trivia(db);
 
             if import_fix.items_to_remove.is_empty() {
