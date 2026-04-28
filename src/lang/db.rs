@@ -20,10 +20,7 @@ use cairo_lang_filesystem::{
     ids::FlagLongId,
 };
 use cairo_lang_filesystem::{
-    db::{
-        CrateConfigStorage, new_crate_config_storage, register_crate_config_view,
-        register_files_group_view,
-    },
+    db::{CrateConfigStorage, register_crate_config_view, register_files_group_view},
     flag::FlagsGroup,
 };
 use cairo_lang_lowering::{db::init_lowering_group, optimizations::config::Optimizations};
@@ -58,7 +55,7 @@ impl LinterAnalysisDatabase {
     fn new(mut default_plugin_suite: PluginSuite) -> Self {
         let mut res = Self {
             storage: Default::default(),
-            crate_configs: new_crate_config_storage(),
+            crate_configs: Default::default(),
             macro_plugin_overrides: Default::default(),
             inline_macro_plugin_overrides: Default::default(),
             analyzer_plugin_overrides: Default::default(),
