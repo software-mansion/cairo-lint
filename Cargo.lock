@@ -737,7 +737,7 @@ dependencies = [
 [[package]]
 name = "cairo-language-common"
 version = "2.15.0"
-source = "git+https://github.com/software-mansion/cairo-language-common?rev=e780ac2be99edda452643a8edb4b10acc7adccf1#e780ac2be99edda452643a8edb4b10acc7adccf1"
+source = "git+https://github.com/software-mansion/cairo-language-common?branch=optimization%2Fprototype#59875d05ccbb1d72cebf7be3622cb4866513d0d3"
 dependencies = [
  "cairo-lang-defs",
  "cairo-lang-diagnostics",

@@ -97,7 +97,7 @@ cairo-lang-syntax-codegen = { git = "https://github.com/starkware-libs/cairo", b
 cairo-lang-test-plugin = { git = "https://github.com/starkware-libs/cairo", branch = "optimization/granular-plugin-overrides" }
 cairo-lang-test-utils = { git = "https://github.com/starkware-libs/cairo", branch = "optimization/granular-plugin-overrides" }
 cairo-lang-utils = { git = "https://github.com/starkware-libs/cairo", branch = "optimization/granular-plugin-overrides" }
-cairo-language-common = { git = "https://github.com/software-mansion/cairo-language-common" , rev = "e780ac2be99edda452643a8edb4b10acc7adccf1" }
+cairo-language-common = { git = "https://github.com/software-mansion/cairo-language-common", branch = "optimization/prototype" }
 
 [profile.ci]
 inherits = "test"

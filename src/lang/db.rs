@@ -21,8 +21,7 @@ use cairo_lang_filesystem::{
 };
 use cairo_lang_filesystem::{
     db::{
-        CrateConfigStorage, new_crate_config_storage, register_crate_config_view,
-        register_files_group_view,
+        CrateConfigStorage, FileContentStorage, register_crate_config_view, register_files_group_view,
     },
     flag::FlagsGroup,
 };
@@ -44,6 +43,7 @@ use salsa::Setter;
 #[derive(Clone)]
 pub struct LinterAnalysisDatabase {
     storage: salsa::Storage<Self>,
+    file_contents: FileContentStorage,
     crate_configs: CrateConfigStorage,
     macro_plugin_overrides: MacroPluginOverrideStorage,
     inline_macro_plugin_overrides: InlineMacroPluginOverrideStorage,
@@ -58,7 +58,8 @@ impl LinterAnalysisDatabase {
     fn new(mut default_plugin_suite: PluginSuite) -> Self {
         let mut res = Self {
             storage: Default::default(),
-            crate_configs: new_crate_config_storage(),
+            file_contents: Default::default(),
+            crate_configs: Default::default(),
             macro_plugin_overrides: Default::default(),
             inline_macro_plugin_overrides: Default::default(),
             analyzer_plugin_overrides: Default::default(),
@@ -113,7 +114,11 @@ impl LinterAnalysisDatabase {
 
 impl salsa::Database for LinterAnalysisDatabase {}
 
-impl FileContentView for LinterAnalysisDatabase {}
+impl FileContentView for LinterAnalysisDatabase {
+    fn file_content_storage(&self) -> &FileContentStorage {
+        &self.file_contents
+    }
+}
 
 impl CrateConfigView for LinterAnalysisDatabase {
     fn crate_config_storage(&self) -> Option<&CrateConfigStorage> {
