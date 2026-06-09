@@ -1,3 +1,4 @@
+mod assert_on_const;
 mod bitwise_for_parity_check;
 mod bool_comparison;
 mod breaks;
