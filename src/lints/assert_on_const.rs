@@ -136,6 +136,11 @@ fn check_assert_on_const_for_function_with_body<'db>(
     function_with_body_id: FunctionWithBodyId<'db>,
     diagnostics: &mut Vec<PluginDiagnostic<'db>>,
 ) {
+    let assert_calls: Vec<_> = get_assert_macro_calls(db, module_item_id).collect();
+    if assert_calls.is_empty() {
+        return;
+    }
+
     let Some(function_body_lowering) = get_function_body_lowering(db, function_with_body_id) else {
         return;
     };
@@ -145,7 +150,7 @@ fn check_assert_on_const_for_function_with_body<'db>(
 
     let module_id = module_item_id.parent_module(db);
 
-    for assert_call in get_assert_macro_calls(db, module_item_id) {
+    for assert_call in assert_calls {
         let Some(expansion_syntax) = get_inline_macro_expansion_syntax(db, &assert_call, module_id)
         else {
             continue;
