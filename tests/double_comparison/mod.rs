@@ -815,7 +815,7 @@ fn impossible_comparison_gt_and_lt_fixer() {
     test_lint_fixer!(IMPOSSIBLE_COMPARISON_GT_AND_LT, @r"
     fn main() {
         let x: u32 = 1;
-        if x > 200 && x < 100 {//impossible to reach
+        if x > 200 && x < 100 { //impossible to reach
         }
     }
     ");
@@ -832,7 +832,7 @@ fn impossible_comparison_gt_and_lt_possible_fixer() {
     test_lint_fixer!(IMPOSSIBLE_COMPARISON_GT_AND_LT_POSSIBLE, @r"
     fn main() {
         let x: u32 = 1;
-        if x > 100 && x < 105 {//possible to reach
+        if x > 100 && x < 105 { //possible to reach
         }
     }
     ");
@@ -853,7 +853,7 @@ fn impossible_comparison_gt_and_le_fixer() {
     test_lint_fixer!(IMPOSSIBLE_COMPARISON_GT_AND_LE, @r"
     fn main() {
         let x: u32 = 1;
-        if x > 200 && x <= 100 {//impossible to reach
+        if x > 200 && x <= 100 { //impossible to reach
         }
     }
     ");
@@ -874,7 +874,7 @@ fn impossible_comparison_ge_and_lt_fixer() {
     test_lint_fixer!(IMPOSSIBLE_COMPARISON_GE_AND_LT, @r"
     fn main() {
         let x: u32 = 1;
-        if x >= 200 && x < 100 {//impossible to reach
+        if x >= 200 && x < 100 { //impossible to reach
         }
     }
     ");
@@ -895,7 +895,7 @@ fn impossible_comparison_ge_and_le_fixer() {
     test_lint_fixer!(IMPOSSIBLE_COMPARISON_GE_AND_LE, @r"
     fn main() {
         let x: u32 = 1;
-        if x >= 200 && x <= 100 {//impossible to reach
+        if x >= 200 && x <= 100 { //impossible to reach
         }
     }
     ");
@@ -916,7 +916,7 @@ fn impossible_comparison_lt_and_gt_fixer() {
     test_lint_fixer!(IMPOSSIBLE_COMPARISON_LT_AND_GT, @r"
     fn main() {
         let x: u32 = 1;
-        if x < 100 && x > 100 {//impossible to reach
+        if x < 100 && x > 100 { //impossible to reach
         }
     }
     ");
@@ -933,7 +933,7 @@ fn impossible_comparison_lt_and_gt_possible_fixer() {
     test_lint_fixer!(IMPOSSIBLE_COMPARISON_LT_AND_GT_POSSIBLE, @r"
     fn main() {
         let x: u32 = 1;
-        if x < 105 && x > 100 {//possible to reach
+        if x < 105 && x > 100 { //possible to reach
         }
     }
     ");
@@ -954,7 +954,7 @@ fn impossible_comparison_lt_and_ge_fixer() {
     test_lint_fixer!(IMPOSSIBLE_COMPARISON_LT_AND_GE, @r"
     fn main() {
         let x: u32 = 1;
-        if x < 100 && x >= 100 {//impossible to reach
+        if x < 100 && x >= 100 { //impossible to reach
         }
     }
     ");
@@ -975,7 +975,7 @@ fn impossible_comparison_le_and_gt_fixer() {
     test_lint_fixer!(IMPOSSIBLE_COMPARISON_LE_AND_GT, @r"
     fn main() {
         let x: u32 = 1;
-        if x <= 100 && x > 200 {//impossible to reach
+        if x <= 100 && x > 200 { //impossible to reach
         }
     }
     ");
@@ -996,7 +996,7 @@ fn impossible_comparison_le_and_ge_fixer() {
     test_lint_fixer!(IMPOSSIBLE_COMPARISON_LE_AND_GE, @r"
     fn main() {
         let x: u32 = 1;
-        if x <= 100 && x >= 200 {//impossible to reach
+        if x <= 100 && x >= 200 { //impossible to reach
         }
     }
     ");
@@ -1014,7 +1014,7 @@ fn impossible_comparison_le_and_ge_allowed_fixer() {
     fn main() {
         let x: u32 = 1;
         #[allow(impossible_comparison)]
-        if x <= 100 && x >= 200 {//impossible to reach
+        if x <= 100 && x >= 200 { //impossible to reach
         }
     }
     ");
@@ -1032,7 +1032,7 @@ fn impossible_comparison_le_and_ge_different_var_fixer() {
     fn main() {
         let x: u32 = 1;
         let y: u32 = 1;
-        if x <= 100 && y >= 200 {//possible to reach
+        if x <= 100 && y >= 200 { //possible to reach
         }
     }
     ");
@@ -1053,9 +1053,9 @@ fn impossible_comparison_with_else_clause_fixer() {
     test_lint_fixer!(IMPOSSIBLE_COMPARISON_WITH_ELSE_CLAUSE, @r"
     fn main() {
         let x: u32 = 1;
-        if x >= 200 && x < 100 {//impossible to reach
-        } else if x == 1 {//possible to reach
-        } else {//possible to reach
+        if x >= 200 && x < 100 { //impossible to reach
+        } else if x == 1 { //possible to reach
+        } else { //possible to reach
         }
     }
     ");

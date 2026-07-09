@@ -504,7 +504,7 @@ fn simple_destructuring_match_with_comment_in_scope_fixer() {
         let variable = Option::Some(1_felt252);
         match variable {
             Option::Some(a) => println!("{a}"),
-            _ => {// This is a comment
+            _ => { // This is a comment
             },
         };
     }
