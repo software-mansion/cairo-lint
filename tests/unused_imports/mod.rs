@@ -187,6 +187,7 @@ fn multiple_import_statements_lines_with_some_used_and_some_unused_diagnostics()
 fn multiple_import_statements_lines_with_some_used_and_some_unused_fixer() {
     test_lint_fixer!(MULTIPLE_IMPORT_STATEMENTS_LINES_WITH_SOME_USED_AND_SOME_UNUSED, @r"
     use core::box::BoxTrait;
+
     use core::option::Option;
 
     fn main() {

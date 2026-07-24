@@ -149,6 +149,7 @@ fn test_correct_syscall_unwrap_diagnostics() {
 fn test_correct_syscall_unwrap_fixer() {
     test_lint_fixer!(CORRECT_SYSCALL_UNWRAP, @r"
     use starknet::SyscallResultTrait;
+
     use starknet::storage_access::{storage_address_from_base, storage_base_address_from_felt252};
     use starknet::syscalls::storage_read_syscall;
 
