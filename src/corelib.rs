@@ -11,7 +11,7 @@ use cairo_lang_semantic::helper::ModuleHelper;
 use cairo_lang_semantic::items::imp::ImplSemantic;
 use cairo_lang_semantic::items::trt::TraitSemantic;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
-use salsa::{Database, Update};
+use salsa::{Database, SalsaValue};
 
 pub const BOOL_PARTIAL_EQ_PATH: &str = "core::BoolPartialEq";
 pub const PANIC_PATH: &str = "core::panics::panic";
@@ -41,7 +41,7 @@ static CORELIB_ITEM_PATHS: [&str; 12] = [
     TRY_INTO_TRAIT_FUNCTION_PATH,
 ];
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Update)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, SalsaValue)]
 pub struct CorelibContext<'db> {
     corelib_items: OrderedHashMap<String, Option<LookupItemId<'db>>>,
 }
