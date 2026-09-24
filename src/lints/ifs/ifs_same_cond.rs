@@ -121,7 +121,7 @@ fn check_single_duplicate_if_condition<'db>(
                 .as_syntax_node()
                 .get_text(db);
 
-            if if_condition_text == else_if_condition_text {
+            if if_condition_text == else_if_condition_text && cond_expr.ty() == else_if_cond.ty() {
                 diagnostics.push(PluginDiagnostic {
                     stable_ptr: if_expr.stable_ptr.untyped(),
                     message: DuplicateIfCondition.diagnostic_message().to_string(),
