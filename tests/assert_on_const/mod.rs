@@ -265,3 +265,13 @@ fn bool_const_in_trait_function_with_associated_type_diagnostics() {
 fn bool_expr_not_fully_concrete_function_diagnostics() {
     test_lint_diagnostics!(BOOL_EXPR_NOT_FULLY_CONCRETE_FUNCTION, @"")
 }
+
+#[test]
+fn bool_literal_allowed_diagnostics() {
+    test_lint_diagnostics!(r#"
+    #[allow(assert_on_const)]
+    fn foo() {
+        assert!(true, "message");
+    }
+    "#, @"")
+}

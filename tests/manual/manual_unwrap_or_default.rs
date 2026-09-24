@@ -1575,3 +1575,43 @@ fn match_with_reversed_arms_result_fixer() {
     }
     ");
 }
+
+#[test]
+fn manual_unwrap_or_default_allowed_diagnostics() {
+    test_lint_diagnostics!(r#"
+    #[allow(manual_unwrap_or_default)]
+    fn main() {
+        let a: Option<ByteArray> = Option::Some("Helok");
+        if let Option::Some(v) = a {
+            v
+        } else {
+            Default::default()
+        };
+    }
+    "#, @"");
+}
+
+#[test]
+fn manual_unwrap_or_default_allowed_fixer() {
+    test_lint_fixer!(r#"
+    #[allow(manual_unwrap_or_default)]
+    fn main() {
+        let a: Option<ByteArray> = Option::Some("Helok");
+        if let Option::Some(v) = a {
+            v
+        } else {
+            Default::default()
+        };
+    }
+    "#, @r#"
+    #[allow(manual_unwrap_or_default)]
+    fn main() {
+        let a: Option<ByteArray> = Option::Some("Helok");
+        if let Option::Some(v) = a {
+            v
+        } else {
+            Default::default()
+        };
+    }
+    "#);
+}

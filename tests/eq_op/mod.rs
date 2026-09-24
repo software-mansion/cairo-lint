@@ -6,7 +6,21 @@ fn foo(a: u256) -> bool {
 }
 "#;
 
+const SIMPLE_EQ_OP_ALLOWED: &str = r#"
+#[allow(eq_comp_op)]
+fn foo(a: u256) -> bool {
+    a == a
+}
+"#;
+
 const SIMPLE_NEQ_OP: &str = r#"
+fn foo(a: u256) -> bool {
+    a != a
+}
+"#;
+
+const SIMPLE_NEQ_OP_ALLOWED: &str = r#"
+#[allow(neq_comp_op)]
 fn foo(a: u256) -> bool {
     a != a
 }
@@ -37,13 +51,40 @@ fn foo(a: u256) -> u256 {
 }
 "#;
 
+const SIMPLE_XOR_OP: &str = r#"
+fn foo(a: u256) -> u256 {
+    a ^ a
+}
+"#;
+
+const SIMPLE_XOR_OP_ALLOWED: &str = r#"
+#[allow(eq_bitwise_op)]
+fn foo(a: u256) -> u256 {
+    a ^ a
+}
+"#;
+
 const SIMPLE_SUB_OP: &str = r#"
 fn foo(a: u256) -> u256 {
     a - a
 }
 "#;
 
+const SIMPLE_SUB_OP_ALLOWED: &str = r#"
+#[allow(eq_diff_op)]
+fn foo(a: u256) -> u256 {
+    a - a
+}
+"#;
+
 const SIMPLE_DIVIDE_OP: &str = r#"
+fn foo(a: u256) -> u256 {
+    a / a
+}
+"#;
+
+const SIMPLE_DIVIDE_OP_ALLOWED: &str = r#"
+#[allow(div_eq_op)]
 fn foo(a: u256) -> u256 {
     a / a
 }
@@ -103,6 +144,21 @@ fn simple_eq_op_fixer() {
 }
 
 #[test]
+fn simple_eq_op_allowed_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_EQ_OP_ALLOWED, @"");
+}
+
+#[test]
+fn simple_eq_op_allowed_fixer() {
+    test_lint_fixer!(SIMPLE_EQ_OP_ALLOWED, @r#"
+    #[allow(eq_comp_op)]
+    fn foo(a: u256) -> bool {
+        a == a
+    }
+    "#);
+}
+
+#[test]
 fn simple_neq_op_diagnostics() {
     test_lint_diagnostics!(SIMPLE_NEQ_OP, @r"
     Plugin diagnostic: Comparison with identical operands, this operation always results in false and may indicate a logic error
@@ -115,6 +171,21 @@ fn simple_neq_op_diagnostics() {
 #[test]
 fn simple_neq_op_fixer() {
     test_lint_fixer!(SIMPLE_NEQ_OP, @r#"
+    fn foo(a: u256) -> bool {
+        a != a
+    }
+    "#);
+}
+
+#[test]
+fn simple_neq_op_allowed_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_NEQ_OP_ALLOWED, @"");
+}
+
+#[test]
+fn simple_neq_op_allowed_fixer() {
+    test_lint_fixer!(SIMPLE_NEQ_OP_ALLOWED, @r#"
+    #[allow(neq_comp_op)]
     fn foo(a: u256) -> bool {
         a != a
     }
@@ -195,6 +266,40 @@ fn simple_bitwise_op_allowed_fixer() {
 }
 
 #[test]
+fn simple_xor_op_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_XOR_OP, @r"
+    Plugin diagnostic: Bitwise operation with identical operands, this operation always results in the same value and may indicate a logic error
+     --> lib.cairo:3:5
+        a ^ a
+        ^^^^^
+    ");
+}
+
+#[test]
+fn simple_xor_op_fixer() {
+    test_lint_fixer!(SIMPLE_XOR_OP, @r#"
+    fn foo(a: u256) -> u256 {
+        a ^ a
+    }
+    "#);
+}
+
+#[test]
+fn simple_xor_op_allowed_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_XOR_OP_ALLOWED, @"");
+}
+
+#[test]
+fn simple_xor_op_allowed_fixer() {
+    test_lint_fixer!(SIMPLE_XOR_OP_ALLOWED, @r#"
+    #[allow(eq_bitwise_op)]
+    fn foo(a: u256) -> u256 {
+        a ^ a
+    }
+    "#);
+}
+
+#[test]
 fn simple_sub_op_diagnostics() {
     test_lint_diagnostics!(SIMPLE_SUB_OP, @r"
     Plugin diagnostic: Subtraction with identical operands, this operation always results in zero and may indicate a logic error
@@ -214,6 +319,21 @@ fn simple_sub_op_fixer() {
 }
 
 #[test]
+fn simple_sub_op_allowed_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_SUB_OP_ALLOWED, @"");
+}
+
+#[test]
+fn simple_sub_op_allowed_fixer() {
+    test_lint_fixer!(SIMPLE_SUB_OP_ALLOWED, @r#"
+    #[allow(eq_diff_op)]
+    fn foo(a: u256) -> u256 {
+        a - a
+    }
+    "#);
+}
+
+#[test]
 fn simple_divide_op_diagnostics() {
     test_lint_diagnostics!(SIMPLE_DIVIDE_OP, @r"
     Plugin diagnostic: Division with identical operands, this operation always results in one (except for zero) and may indicate a logic error
@@ -226,6 +346,21 @@ fn simple_divide_op_diagnostics() {
 #[test]
 fn simple_divide_op_fixer() {
     test_lint_fixer!(SIMPLE_DIVIDE_OP, @r#"
+    fn foo(a: u256) -> u256 {
+        a / a
+    }
+    "#);
+}
+
+#[test]
+fn simple_divide_op_allowed_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_DIVIDE_OP_ALLOWED, @"");
+}
+
+#[test]
+fn simple_divide_op_allowed_fixer() {
+    test_lint_fixer!(SIMPLE_DIVIDE_OP_ALLOWED, @r#"
+    #[allow(div_eq_op)]
     fn foo(a: u256) -> u256 {
         a / a
     }

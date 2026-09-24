@@ -162,3 +162,46 @@ fn test_non_collapsible_fixer() {
     "
     );
 }
+
+#[test]
+fn test_collapsible_match_allowed_diagnostics() {
+    test_lint_diagnostics!(r#"
+    #[allow(collapsible_match)]
+    fn func(opt: Option<Result<u64, felt252>>) {
+        let _n = match opt {
+            Some(n) => match n {
+                Ok(n) => Some(n),
+                _ => None,
+            },
+            None => None,
+        };
+    }
+    "#, @"");
+}
+
+#[test]
+fn test_collapsible_match_allowed_fixer() {
+    test_lint_fixer!(r#"
+    #[allow(collapsible_match)]
+    fn func(opt: Option<Result<u64, felt252>>) {
+        let _n = match opt {
+            Some(n) => match n {
+                Ok(n) => Some(n),
+                _ => None,
+            },
+            None => None,
+        };
+    }
+    "#, @r"
+    #[allow(collapsible_match)]
+    fn func(opt: Option<Result<u64, felt252>>) {
+        let _n = match opt {
+            Some(n) => match n {
+                Ok(n) => Some(n),
+                _ => None,
+            },
+            None => None,
+        };
+    }
+    ");
+}

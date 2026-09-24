@@ -68,6 +68,13 @@ and use any corelib version you want.
 cargo insta review
 ```
 
+### Testing `allow` attributes
+
+Every lint rule test suite must include a case where code that would otherwise trigger the lint is
+annotated with `#[allow(lint_name)]`. The test must use the exact value returned by the lint's
+`allowed_name()` implementation and assert that no diagnostic is emitted. If the lint has a fixer,
+also assert that the allowed code is left unchanged.
+
 ### Manual instructions
 
 Each lint should have its own tests and should be extensive. To create a new test for a lint you need to create a new file/module

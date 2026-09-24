@@ -246,3 +246,13 @@ fn redundant_try_into_ambiguous_input() {
         ^^^^^
     "#);
 }
+
+#[test]
+fn redundant_into_allowed() {
+    test_lint_diagnostics!(r#"
+    #[allow(redundant_into)]
+    fn f(x: u128) -> u128 {
+        x.into()
+    }
+    "#, @"");
+}

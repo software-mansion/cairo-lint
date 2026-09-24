@@ -33,6 +33,15 @@ fn main() {
 }
 "#;
 
+const INT_GE_MIN_ONE_ALLOWED: &str = r#"
+#[allow(int_ge_min_one)]
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    if x - 1 >= y {}
+}
+"#;
+
 const INT_GT_MIN_ONE: &str = r#"
 fn main() {
     let x: u32 = 1;
@@ -42,6 +51,15 @@ fn main() {
 "#;
 
 const INT_LE_PLUS_ONE: &str = r#"
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    if x + 1 <= y {}
+}
+"#;
+
+const INT_LE_PLUS_ONE_ALLOWED: &str = r#"
+#[allow(int_le_plus_one)]
 fn main() {
     let x: u32 = 1;
     let y: u32 = 1;
@@ -69,6 +87,15 @@ fn main() {
 "#;
 
 const INT_LE_MIN_ONE: &str = r#"
+fn main() {
+    let x: u32 = 1;
+    let y: u32 = 1;
+    if x <= y - 1 {}
+}
+"#;
+
+const INT_LE_MIN_ONE_ALLOWED: &str = r#"
+#[allow(int_le_min_one)]
 fn main() {
     let x: u32 = 1;
     let y: u32 = 1;
@@ -162,6 +189,23 @@ fn int_ge_min_one_fixer() {
 }
 
 #[test]
+fn int_ge_min_one_allowed_diagnostics() {
+    test_lint_diagnostics!(INT_GE_MIN_ONE_ALLOWED, @"");
+}
+
+#[test]
+fn int_ge_min_one_allowed_fixer() {
+    test_lint_fixer!(INT_GE_MIN_ONE_ALLOWED, @r#"
+    #[allow(int_ge_min_one)]
+    fn main() {
+        let x: u32 = 1;
+        let y: u32 = 1;
+        if x - 1 >= y {}
+    }
+    "#);
+}
+
+#[test]
 fn int_gt_min_one_diagnostics() {
     test_lint_diagnostics!(INT_GT_MIN_ONE, @r#"
     "#);
@@ -205,6 +249,23 @@ fn int_le_plus_one_fixer() {
 }
 
 #[test]
+fn int_le_plus_one_allowed_diagnostics() {
+    test_lint_diagnostics!(INT_LE_PLUS_ONE_ALLOWED, @"");
+}
+
+#[test]
+fn int_le_plus_one_allowed_fixer() {
+    test_lint_fixer!(INT_LE_PLUS_ONE_ALLOWED, @r#"
+    #[allow(int_le_plus_one)]
+    fn main() {
+        let x: u32 = 1;
+        let y: u32 = 1;
+        if x + 1 <= y {}
+    }
+    "#);
+}
+
+#[test]
 fn int_lt_plus_one_diagnostics() {
     test_lint_diagnostics!(INT_LT_PLUS_ONE, @r#"
     "#);
@@ -238,6 +299,23 @@ fn int_le_min_one_fixer() {
         let x: u32 = 1;
         let y: u32 = 1;
         if x < y {}
+    }
+    "#);
+}
+
+#[test]
+fn int_le_min_one_allowed_diagnostics() {
+    test_lint_diagnostics!(INT_LE_MIN_ONE_ALLOWED, @"");
+}
+
+#[test]
+fn int_le_min_one_allowed_fixer() {
+    test_lint_fixer!(INT_LE_MIN_ONE_ALLOWED, @r#"
+    #[allow(int_le_min_one)]
+    fn main() {
+        let x: u32 = 1;
+        let y: u32 = 1;
+        if x <= y - 1 {}
     }
     "#);
 }
