@@ -1061,8 +1061,10 @@ fn match_with_result_with_comment_fixer() {
     test_lint_fixer!(MATCH_WITH_RESULT_WITH_COMMENT, @r"
     fn main() {
         let a: Result<[u64; 2], felt252> = Result::Ok([10, 20]);
-        let _x = a.unwrap_or(// comment
-        [1, 2]);
+        let _x = a.unwrap_or(
+            // comment
+            [1, 2],
+        );
     }
     ");
 }
