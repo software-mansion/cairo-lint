@@ -1185,7 +1185,8 @@ fn match_with_comment_after_arrow_fixer() {
     fn main() {
         let a: Result<u64, felt252> = Result::Ok(54);
         let _x = a.unwrap_or( // comment after =>
-        231);
+            231,
+        );
     }
     ");
 }
