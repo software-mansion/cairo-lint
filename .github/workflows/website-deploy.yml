@@ -63,6 +63,19 @@ jobs:
         run: cargo xtask update-docs
       - run: npm ci
       - run: npm run build
+      - name: Check docs llms.txt
+        run: |
+          file=.vitepress/dist/llms.txt
+          if [ ! -s "$file" ]; then
+            echo "::error::$file is missing or empty"
+            exit 1
+          fi
+          count=$(grep -cE '^- \[[^]]+\]\(https://docs\.swmansion\.com/cairo-lint/[^)]+\)' "$file" || true)
+          if [ "$count" -eq 0 ]; then
+            echo "::error::$file lists no pages"
+            exit 1
+          fi
+          echo "llms.txt lists $count pages"
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
