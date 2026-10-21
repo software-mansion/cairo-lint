@@ -69,6 +69,18 @@ fn main() {
 }
 "#;
 
+const SAME_SYNTAX_WITH_DIFFERENT_INFERRED_TYPES: &str = r#"
+fn main() {
+    let values = array![1_u32, 2_u32].span();
+
+    if let Some(single) = values.try_into() {
+        let [_value]: [u32; 1] = (*single).unbox();
+    } else if let Some(pair) = values.try_into() {
+        let [_first, _second]: [u32; 2] = (*pair).unbox();
+    }
+}
+"#;
+
 const SAME_CONDITION_WITH_MULTIPLE_IF_ELSE: &str = r#"
 fn main(){
     let str1:felt252 = 'hello';
@@ -349,6 +361,11 @@ fn same_condition_with_struct_fixer() {
         }
     }
     "#);
+}
+
+#[test]
+fn same_syntax_with_different_inferred_types_diagnostics() {
+    test_lint_diagnostics!(SAME_SYNTAX_WITH_DIFFERENT_INFERRED_TYPES, @"");
 }
 
 #[test]
