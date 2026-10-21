@@ -316,3 +316,55 @@ fn match_with_reversed_arms_result_fixer() {
     }
     ");
 }
+
+#[test]
+fn manual_unwrap_or_else_allowed_diagnostics() {
+    test_lint_diagnostics!(r#"
+    struct Struct {
+        x: felt252,
+    }
+
+    #[allow(manual_unwrap_or_else)]
+    fn main() {
+        let a: Option<Struct> = Option::Some(Struct { x: 0x0 });
+        if let Option::Some(v) = a {
+            v
+        } else {
+            Struct { x: 0x1 }
+        };
+    }
+    "#, @"");
+}
+
+#[test]
+fn manual_unwrap_or_else_allowed_fixer() {
+    test_lint_fixer!(r#"
+    struct Struct {
+        x: felt252,
+    }
+
+    #[allow(manual_unwrap_or_else)]
+    fn main() {
+        let a: Option<Struct> = Option::Some(Struct { x: 0x0 });
+        if let Option::Some(v) = a {
+            v
+        } else {
+            Struct { x: 0x1 }
+        };
+    }
+    "#, @r"
+    struct Struct {
+        x: felt252,
+    }
+
+    #[allow(manual_unwrap_or_else)]
+    fn main() {
+        let a: Option<Struct> = Option::Some(Struct { x: 0x0 });
+        if let Option::Some(v) = a {
+            v
+        } else {
+            Struct { x: 0x1 }
+        };
+    }
+    ");
+}

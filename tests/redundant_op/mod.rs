@@ -97,3 +97,31 @@ fn division_by_one_fixer() {
     }
     "#);
 }
+
+#[test]
+fn redundant_op_allowed_diagnostics() {
+    test_lint_diagnostics!(r#"
+    #[allow(redundant_op)]
+    fn main() {
+        let x = 42;
+        let _y = x + 0;
+    }
+    "#, @"");
+}
+
+#[test]
+fn redundant_op_allowed_fixer() {
+    test_lint_fixer!(r#"
+    #[allow(redundant_op)]
+    fn main() {
+        let x = 42;
+        let _y = x + 0;
+    }
+    "#, @r"
+    #[allow(redundant_op)]
+    fn main() {
+        let x = 42;
+        let _y = x + 0;
+    }
+    ");
+}

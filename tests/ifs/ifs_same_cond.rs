@@ -623,3 +623,46 @@ fn same_conditions_with_literals_fixer() {
     }
     "#);
 }
+
+#[test]
+fn same_condition_allowed_diagnostics() {
+    test_lint_diagnostics!(r#"
+    #[allow(ifs_same_cond)]
+    fn main() {
+        let a = 1;
+        let b = 1;
+        if a == b {
+            println!("a is equal to b");
+        } else if a == b {
+            println!("a is equal to b");
+        }
+    }
+    "#, @"");
+}
+
+#[test]
+fn same_condition_allowed_fixer() {
+    test_lint_fixer!(r#"
+    #[allow(ifs_same_cond)]
+    fn main() {
+        let a = 1;
+        let b = 1;
+        if a == b {
+            println!("a is equal to b");
+        } else if a == b {
+            println!("a is equal to b");
+        }
+    }
+    "#, @r#"
+    #[allow(ifs_same_cond)]
+    fn main() {
+        let a = 1;
+        let b = 1;
+        if a == b {
+            println!("a is equal to b");
+        } else if a == b {
+            println!("a is equal to b");
+        }
+    }
+    "#);
+}
