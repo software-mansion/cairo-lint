@@ -13,8 +13,10 @@ jobs:
     name: Test nightly
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v7.0.1
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
 
       - name: Upgrade Cairo to latest main commit
         run: cargo xtask upgrade cairo --rev $(git ls-remote --refs "https://github.com/starkware-libs/cairo" main | awk '{print $1}')
