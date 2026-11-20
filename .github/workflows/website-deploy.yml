@@ -47,16 +47,16 @@ jobs:
       run:
         working-directory: ./website
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           ref: ${{ inputs.target_ref }}
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v6.5.0
         with:
           node-version: "22.x"
-      - uses: actions/configure-pages@v6
+      - uses: actions/configure-pages@v6.0.0
 
       - name: Update docs
         working-directory: .
@@ -64,7 +64,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@v5.0.0
         with:
           path: website/.vitepress/dist
 
@@ -79,4 +79,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@v5.0.1
