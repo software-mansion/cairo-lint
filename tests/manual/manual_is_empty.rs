@@ -435,3 +435,43 @@ fn test_is_manual_empty_with_empty_array_macro_in_while_loop_fixer() {
     }
     ");
 }
+
+#[test]
+fn test_manual_is_empty_allowed_diagnostics() {
+    test_lint_diagnostics!(r#"
+    #[allow(manual_is_empty)]
+    fn main() {
+        let a = array![];
+        let _vl = if a.len() == 0 {
+            true
+        } else {
+            false
+        };
+    }
+    "#, @"");
+}
+
+#[test]
+fn test_manual_is_empty_allowed_fixer() {
+    test_lint_fixer!(r#"
+    #[allow(manual_is_empty)]
+    fn main() {
+        let a = array![];
+        let _vl = if a.len() == 0 {
+            true
+        } else {
+            false
+        };
+    }
+    "#, @r"
+    #[allow(manual_is_empty)]
+    fn main() {
+        let a = array![];
+        let _vl = if a.len() == 0 {
+            true
+        } else {
+            false
+        };
+    }
+    ");
+}

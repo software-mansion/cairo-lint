@@ -906,3 +906,43 @@ fn test_option_propagate_error_trivial_fixer() {
     }
     ")
 }
+
+#[test]
+fn test_inefficient_unwrap_or_allowed_diagnostics() {
+    test_lint_diagnostics!(r#"
+    fn bar() -> usize {
+        0
+    }
+
+    #[allow(inefficient_unwrap_or)]
+    fn foo() {
+        let x = Option::<usize>::None;
+        let _ = x.unwrap_or(bar());
+    }
+    "#, @"");
+}
+
+#[test]
+fn test_inefficient_unwrap_or_allowed_fixer() {
+    test_lint_fixer!(r#"
+    fn bar() -> usize {
+        0
+    }
+
+    #[allow(inefficient_unwrap_or)]
+    fn foo() {
+        let x = Option::<usize>::None;
+        let _ = x.unwrap_or(bar());
+    }
+    "#, @r"
+    fn bar() -> usize {
+        0
+    }
+
+    #[allow(inefficient_unwrap_or)]
+    fn foo() {
+        let x = Option::<usize>::None;
+        let _ = x.unwrap_or(bar());
+    }
+    ");
+}

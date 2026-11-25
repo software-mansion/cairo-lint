@@ -10,6 +10,17 @@ fn main() {
 }
 "#;
 
+const SIMPLE_DESTRUCTURING_MATCH_ALLOWED: &str = r#"
+#[allow(destruct_match)]
+fn main() {
+    let variable = Option::Some(1_felt252);
+    match variable {
+        Option::Some(a) => println!("{a}"),
+        _ => (),
+    };
+}
+"#;
+
 const SIMPLE_DESTRUCTURING_MATCH_SECOND_ARM: &str = r#"
 fn main() {
     let variable = Option::Some(1_felt252);
@@ -209,6 +220,25 @@ fn simple_destructuring_match_fixer() {
         let variable = Option::Some(1_felt252);
         if let Option::Some(a) = variable {
             println!("{a}")
+        };
+    }
+    "#);
+}
+
+#[test]
+fn simple_destructuring_match_allowed_diagnostics() {
+    test_lint_diagnostics!(SIMPLE_DESTRUCTURING_MATCH_ALLOWED, @"");
+}
+
+#[test]
+fn simple_destructuring_match_allowed_fixer() {
+    test_lint_fixer!(SIMPLE_DESTRUCTURING_MATCH_ALLOWED, @r#"
+    #[allow(destruct_match)]
+    fn main() {
+        let variable = Option::Some(1_felt252);
+        match variable {
+            Option::Some(a) => println!("{a}"),
+            _ => (),
         };
     }
     "#);
